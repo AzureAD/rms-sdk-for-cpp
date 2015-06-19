@@ -1,0 +1,24 @@
+# Build Artifacts
+*.o
+build/
+bin/
+dest/
+*.deb
+*.bz2
+*build.log
+
+# Qt Build Artifacts
+Makefile*
+.qmake.stash
+/sdk/**/moc_*
+/sdk/**/ui_*
+/sdk/**/tst_*
+/samples/**/ui_*
+**.pro.user
+debug
+release
+
+*.exe
+.DS_Store
+*.dat
+

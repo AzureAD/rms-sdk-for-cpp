@@ -1,0 +1,10 @@
+14:43:52 DBG: Convertion exception: JsonObjectQt::GetNamedString: convertion error
+14:43:52 DBG: Convertion exception: JsonObjectQt::GetNamedString: convertion error
+14:43:52 DBG: Convertion exception: JsonObjectQt::GetNamedBool: convertion error
+14:43:52 DBG: Convertion exception: JsonObjectQt::GetNamedBool: convertion error
+14:43:52 DBG: Convertion exception: JsonObjectQt::GetNamedBool: convertion error
+14:43:52 DBG: Convertion exception: JsonObjectQt::GetNamedBool: convertion error
+14:43:52 DBG: val: string 2
+14:43:52 DBG: val: 0
+14:43:52 DBG: val: string 1
+14:43:52 DBG: val: 1

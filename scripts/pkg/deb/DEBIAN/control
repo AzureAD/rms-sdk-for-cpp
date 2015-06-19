@@ -1,0 +1,7 @@
+Package: rms-sdk
+Version: 1.0-1
+Maintainer: Andrei Pogoreltcev <v-anpogo@microsoft.com>
+Architecture: amd64
+Section: libs
+Depends: libgl1-mesa-dev, libssl-dev, libc-dev
+Description: Microsoft Azure Rights Management library with ADAL

@@ -1,0 +1,26 @@
+{
+"encoding":"UTF-8",
+"plug-ins":[
+	"python",
+	"c++",
+	"ruby"
+	],
+"indent":{ 
+	"length":3, 
+	"use_space":true 
+	},
+"obj1":{ 
+	"int-value":100000,
+	"str-value":"string 1",
+	"bool-value":true
+	},
+"obj2":{
+	"int-value":2,
+	"bool-value":false,
+	"str-value":"string 2"
+	},
+"int-value": 158,
+"bool-value": true,
+"str-int-value":"158",
+"str-bool-value":"true"
+}

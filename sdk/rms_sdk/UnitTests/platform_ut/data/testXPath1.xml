@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns='http://earth.google.com/kml/2.0'>
+	<Document>
+		<name>Name</name><Style id='roadStyle'><LineStyle><color>7fcf0064</color><width>6</width></LineStyle></Style><Snippet><![CDATA[<font size=+1><a href='http://example.com/'>Printable view</a></font>]]></Snippet>
+		<Placemark>
+			<name>Example</name>
+			<description><![CDATA[example]]></description><address>100 Example St</address><StyleMap><Pair><key>normal</key><Style><IconStyle><Icon><href>http://example.com</href></Icon><hotSpot x='0.000000' y='0.000000' xunits='fraction' yunits='fraction' /></IconStyle><ListStyle><ItemIcon><href>http://example.com</href></ItemIcon></ListStyle></Style></Pair><Pair><key>highlight</key><Style><IconStyle><scale>1.000000</scale><Icon><href>http://example.com</href></Icon><hotSpot x='0.000000' y='0.000000' xunits='fraction' yunits='fraction' /></IconStyle><ListStyle><ItemIcon><href>http://example.com</href></ItemIcon></ListStyle></Style></Pair></StyleMap><Point><coordinates>0.000000,0.000000,0</coordinates></Point><LookAt><longitude>0.000000</longitude><latitude>0.000000</latitude><range>100.000000</range><tilt>45.000000</tilt><heading>0.000000</heading></LookAt>
+		</Placemark>
+		<Placemark>
+			<name>Route</name>
+			<description><![CDATA[Example]]></description>
+			<GeometryCollection>
+				<LineString>
+					<coordinates>0.000010,0.000020,0.000030</coordinates>
+				</LineString>
+			</GeometryCollection>
+			<styleUrl>#roadStyle</styleUrl>
+		</Placemark>
+	</Document>
+</kml>

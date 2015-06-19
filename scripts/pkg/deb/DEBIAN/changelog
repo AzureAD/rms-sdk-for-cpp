@@ -1,0 +1,5 @@
+rms-sdk (1.0.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- User <v-anpogo@microsoft.com>  Thu, 07 May 2015 18:14:34 +0300
