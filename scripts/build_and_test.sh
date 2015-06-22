@@ -11,7 +11,7 @@ LIB_SUFFIX=.so
 UT_SUFFIX=
 STRIP_OPTIONS=--strip-unneeded
 VARS="CONFIG+=release"
-TARGET_DIR=./build/release
+TARGET_DIR=./dist/release
 
 BUILD=true
 DEBUG=false
@@ -56,7 +56,7 @@ echo "REPO_ROOT : $REPO_ROOT"
 if [ $DEBUG == 'true' ]; then
    echo "DEBUG Build"
    VARS="CONFIG+=debug"
-   TARGET_DIR=./build/debug
+   TARGET_DIR=./dist/debug
    LIB_SUFFIX=d${LIB_SUFFIX}
    UT_SUFFIX=d
 fi
@@ -67,7 +67,7 @@ if [ $BUILD == 'true' ]; then
   cd $REPO_ROOT/sdk
   $QMAKE $VARS -recursive
   echo "--> Running make, please see sdk_build.log for details..."
-  make > sdk_build.log 2>&1
+  make | tee sdk_build.log 2>&1
   cd $REPO_ROOT
 fi
 
@@ -119,7 +119,7 @@ if [ $SAMPLE == 'true' ]; then
   cd $REPO_ROOT/samples
   $QMAKE $VARS -recursive
   echo "--> Running make, please see sdk_build.log for details..."
-  make > sample_apps_build.log 2>&1
+  make | tee sample_apps_build.log 2>&1
   cd $REPO_ROOT
 fi
 

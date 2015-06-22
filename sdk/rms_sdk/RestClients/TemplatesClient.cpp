@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include "TemplatesClient.h"
 #include "RestClientErrorHandling.h"
@@ -22,7 +22,7 @@ namespace rmscore {
 namespace restclients {
 TemplateListResponse TemplatesClient::GetTemplates(
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  std::string                           & sEmail)
+  const std::string                     & sEmail)
 {
   auto pRestServiceUrlClient = IRestServiceUrlClient::Create();
   auto templatesUrl          = pRestServiceUrlClient->GetTemplatesUrl(sEmail,

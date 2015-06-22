@@ -1,4 +1,4 @@
-REPO_ROOT = $$PWD/../../../../..
+REPO_ROOT = $$PWD/../../../..
 DESTDIR   = $$REPO_ROOT/bin/crypto/platform
 TARGET    = platformkeystorage
 
@@ -9,8 +9,8 @@ CONFIG   += staticlib warn_on c++11 debug_and_release
 QT       += core
 
 unix:!mac:INCLUDEPATH  += /usr/include/glib-2.0/ /usr/include/libsecret-1/ /usr/lib/x86_64-linux-gnu/glib-2.0/include/
-# win32:INCLUDEPATH += DPAPI
-# mac:INCLUDEPATH += osxkeychain
+# win32:INCLUDEPATH += //TODO: Add DPAPI
+# mac:INCLUDEPATH   += //TODO: Add osxkeychain
 
 LIBS +=  -L$$DESTDIR -L$$DESTDIR/Platform/
 
@@ -41,4 +41,3 @@ win32 {
     HEADERS += KeyStorageOSX.h
     SOURCES += KeyStorageOSX.cpp
 }
-

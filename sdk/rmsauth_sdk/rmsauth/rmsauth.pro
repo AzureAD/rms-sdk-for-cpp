@@ -1,6 +1,6 @@
 REPO_ROOT = $$PWD/../../..
-DESTDIR  = $$REPO_ROOT/bin
-TARGET   = rmsauth
+DESTDIR   = $$REPO_ROOT/bin
+TARGET    = rmsauth
 
 # QT 5.4 has useful features
 QT_CUR_VER =  "v$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}"
@@ -15,7 +15,7 @@ TEMPLATE = lib
 
 DEFINES += RMSAUTH_LIBRARY
 
-QT += core widgets network
+QT     += core widgets network
 CONFIG += plugin c++11 debug_and_release warn_on
 
 CONFIG(debug, debug|release) {

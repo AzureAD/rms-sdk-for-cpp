@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <stdint.h>
 #include <QDebug>
@@ -45,26 +45,26 @@ SimpleProtectedStream::SimpleProtectedStream(
   Seek(0);
 }
 
-shared_future<int64_t>SimpleProtectedStream::ReadAsync(uint8_t      *pbBuffer,
-                                                       const int64_t cbBuffer,
-                                                       const int64_t cbOffset,
-                                                       bool          fCreateBackingThread)
+shared_future<int64_t>SimpleProtectedStream::ReadAsync(uint8_t    *pbBuffer,
+                                                       int64_t     cbBuffer,
+                                                       int64_t     cbOffset,
+                                                       std::launch launchType)
 {
   return ReadInternalAsync(pbBuffer,
                            cbBuffer,
                            cbOffset,
-                           fCreateBackingThread,
+                           launchType,
                            0,
                            false);
 }
 
 shared_future<int64_t>SimpleProtectedStream::ReadInternalAsync(
-  uint8_t      *pbBuffer,
-  const int64_t cbBuffer,
-  const int64_t cbOffset,
-  bool          fCreateBackingThread,
-  uint32_t      u32StartingBlockNumber,
-  bool          bIsFinal)
+  uint8_t    *pbBuffer,
+  int64_t     cbBuffer,
+  int64_t     cbOffset,
+  std::launch launchType,
+  uint32_t    u32StartingBlockNumber,
+  bool        bIsFinal)
 {
   if (m_bIsPlainText)
   {
@@ -77,18 +77,17 @@ shared_future<int64_t>SimpleProtectedStream::ReadInternalAsync(
       min(static_cast<uint64_t>(cbBuffer), u64ContentLeft);
 
     return m_pBackingStream->ReadAsync(pbBuffer, toReadSize, cbOffset,
-                                       fCreateBackingThread);
+                                       launchType);
   }
 
   auto selfPtr = this->shared_from_this();
 
-  return std::async(fCreateBackingThread ? launch::async : launch::deferred,
-                    [](shared_ptr<SimpleProtectedStream>self,
-                       uint8_t *buffer,
-                       const int64_t  bSize,
-                       const int64_t  offset,
-                       uint32_t startingBlockNumber,
-                       bool     isFinal) -> int64_t
+  return std::async(launchType, [](shared_ptr<SimpleProtectedStream>self,
+                                   uint8_t *buffer,
+                                   int64_t  bSize,
+                                   int64_t  offset,
+                                   uint32_t startingBlockNumber,
+                                   bool     isFinal) -> int64_t
       {
         // lock resources
         unique_lock<mutex>lock(*self->m_locker);
@@ -123,35 +122,34 @@ shared_future<int64_t>SimpleProtectedStream::ReadInternalAsync(
 }
 
 shared_future<int64_t>SimpleProtectedStream::WriteAsync(const uint8_t *cpbBuffer,
-                                                        const int64_t  cbBuffer,
-                                                        const int64_t  cbOffset,
-                                                        bool           fCreateBackingThread)
+                                                        int64_t        cbBuffer,
+                                                        int64_t        cbOffset,
+                                                        std::launch    launchType)
 {
   return WriteInternalAsync(cpbBuffer,
                             cbBuffer,
                             cbOffset,
-                            fCreateBackingThread,
+                            launchType,
                             0,
                             false);
 }
 
 shared_future<int64_t>SimpleProtectedStream::WriteInternalAsync(
   const uint8_t *cpbBuffer,
-  const int64_t  cbBuffer,
-  const int64_t  cbOffset,
-  bool           fCreateBackingThread,
+  int64_t        cbBuffer,
+  int64_t        cbOffset,
+  std::launch    launchType,
   uint32_t       u32StartingBlockNumber,
   bool           bIsFinal)
 {
   auto selfPtr = this->shared_from_this();
 
-  return std::async(fCreateBackingThread ? launch::async : launch::deferred,
-                    [](shared_ptr<SimpleProtectedStream>self,
-                       const uint8_t *buffer,
-                       const int64_t  bSize,
-                       const int64_t  offset,
-                       uint32_t       startingBlockNumber,
-                       bool           isFinal) -> int64_t
+  return std::async(launchType, [](shared_ptr<SimpleProtectedStream>self,
+                                   const uint8_t *buffer,
+                                   int64_t  bSize,
+                                   int64_t  offset,
+                                   uint32_t       startingBlockNumber,
+                                   bool           isFinal) -> int64_t
       {
         uint32_t cbOut = (uint32_t)(bSize);
         vector<uint8_t>cipherText;
@@ -187,7 +185,7 @@ shared_future<int64_t>SimpleProtectedStream::WriteInternalAsync(
           self->m_pBackingStream->WriteAsync(&cipherText[0],
                                              cbOut,
                                              offset + self->m_u64ContentStart,
-                                             false).get();
+                                             std::launch::deferred).get();
 
         // adjust the content size
         self->m_u64ContentSize =
@@ -201,26 +199,26 @@ shared_future<int64_t>SimpleProtectedStream::WriteInternalAsync(
                     bIsFinal);
 }
 
-future<bool>SimpleProtectedStream::FlushAsync(bool fCreateBackingThread)
+future<bool>SimpleProtectedStream::FlushAsync(std::launch launchType)
 {
   // lock resources
   unique_lock<mutex> lock(*m_locker);
 
-  return m_pBackingStream->FlushAsync(fCreateBackingThread);
+  return m_pBackingStream->FlushAsync(launchType);
 }
 
-int64_t SimpleProtectedStream::Read(uint8_t      *pbBuffer,
-                                    const int64_t cbBuffer) {
-  return ReadAsync(pbBuffer, cbBuffer, Position(), false).get();
+int64_t SimpleProtectedStream::Read(uint8_t *pbBuffer,
+                                    int64_t  cbBuffer) {
+  return ReadAsync(pbBuffer, cbBuffer, Position(), std::launch::deferred).get();
 }
 
 int64_t SimpleProtectedStream::Write(const uint8_t *cpbBuffer,
-                                     const int64_t  cbBuffer) {
-  return WriteAsync(cpbBuffer, cbBuffer, Position(), false).get();
+                                     int64_t        cbBuffer) {
+  return WriteAsync(cpbBuffer, cbBuffer, Position(), std::launch::deferred).get();
 }
 
 bool SimpleProtectedStream::Flush() {
-  return FlushAsync(false).get();
+  return FlushAsync(std::launch::deferred).get();
 }
 
 void SimpleProtectedStream::Seek(uint64_t u64Position)
@@ -250,7 +248,7 @@ shared_ptr<IStream>SimpleProtectedStream::Clone()
                                           m_u64ContentSize)));
 }
 
-bool SimpleProtectedStream::CanRead()
+bool SimpleProtectedStream::CanRead() const
 {
   // lock resources
   unique_lock<mutex> lock(*m_locker);
@@ -258,7 +256,7 @@ bool SimpleProtectedStream::CanRead()
   return m_pBackingStream->CanRead();
 }
 
-bool SimpleProtectedStream::CanWrite()
+bool SimpleProtectedStream::CanWrite() const
 {
   // lock resources
   unique_lock<mutex> lock(*m_locker);
@@ -318,7 +316,7 @@ void SimpleProtectedStream::AppendZeros(uint64_t u64Count)
         WriteInternalAsync(&zeros[0],
                            min<uint64_t>(zeros.size(), u64Count),
                            Position(),
-                           false,
+                           std::launch::deferred,
                            0,
                            false).get();
 

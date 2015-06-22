@@ -1,10 +1,12 @@
-REPO_ROOT = $$PWD/../../../../..
+REPO_ROOT = $$PWD/../../../..
 DESTDIR   = $$REPO_ROOT/bin/crypto/platform
 TARGET    = platformcrypto
 
-TEMPLATE = lib
+TEMPLATE  = lib
 
-DEFINES += QTFRAMEWORK
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
+
+DEFINES  += QTFRAMEWORK
 
 CONFIG += staticlib warn_on c++11 debug_and_release
 
@@ -14,8 +16,6 @@ QT -= gui
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
-
-win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
 
 HEADERS += CryptoEngine.h \
     CryptoHash.h \

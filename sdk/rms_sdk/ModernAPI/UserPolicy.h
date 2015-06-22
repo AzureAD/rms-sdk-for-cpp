@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_USERPOLICY_H_
 #define _RMS_LIB_USERPOLICY_H_
@@ -17,6 +17,7 @@
 #include "IConsentCallback.h"
 #include "ModernAPIExport.h"
 #include "CacheControl.h"
+#include "PolicyDescriptor.h"
 
 namespace rmscore {
 namespace core {
@@ -34,7 +35,7 @@ enum GetUserPolicyResultStatus {
 class UserPolicy;
 
 struct DLL_PUBLIC_RMS GetUserPolicyResult {
-  GetUserPolicyResult(GetUserPolicyResultStatus&& status,
+  GetUserPolicyResult(GetUserPolicyResultStatus   status,
                       std::shared_ptr<std::string>referrer,
                       std::shared_ptr<UserPolicy> policy);
 
@@ -46,11 +47,13 @@ enum PolicyAcquisitionOptions {
   POL_None = 0x0, POL_OfflineOnly = 0x1
 };
 enum UserPolicyCreationOptions {
-  USER_None = 0x0,
-  USER_AllowAuditedExtraction = 0x1,        // specifies whether the
-                                            // content can be opened in a non-RMS aware app or not
-  USER_PreferDeprecatedAlgorithms = 0x2,    // specifies whether the
-                                            // deprecated algorithms (ECB) is preferred or not
+  USER_None                   = 0x0,
+  USER_AllowAuditedExtraction = 0x1,     // specifies whether the
+                                         // content can be opened in a non-RMS
+                                         // aware app or not
+  USER_PreferDeprecatedAlgorithms = 0x2, // specifies whether the
+                                         // deprecated algorithms (ECB) is
+                                         // preferred or not
 };
 enum UserPolicyType {
   TemplateBased = 0, Custom = 1,
@@ -59,28 +62,29 @@ enum UserPolicyType {
 class DLL_PUBLIC_RMS UserPolicy {
 public:
 
-  static std::shared_ptr<GetUserPolicyResult> Acquire(
-    std::vector<unsigned char>& serializedPolicy,
-    const std::string         & userId,
-    IAuthenticationCallback   & authenticationCallback,
-    IConsentCallback          & consentCallback,
-    PolicyAcquisitionOptions    options,
-    ResponseCacheFlags          cacheMask);
+  static std::shared_ptr<GetUserPolicyResult>Acquire(
+    const std::vector<unsigned char>& serializedPolicy,
+    const std::string               & userId,
+    IAuthenticationCallback         & authenticationCallback,
+    IConsentCallback                & consentCallback,
+    PolicyAcquisitionOptions          options,
+    ResponseCacheFlags                cacheMask);
 
-  static UserPolicy* CreateFromTemplateDescriptor(
-    TemplateDescriptor             & templateDescriptor,
-    const std::string              & userId,
-    IAuthenticationCallback        & authenticationCallback,
-    UserPolicyCreationOptions        options,
-    std::unordered_map<std::string,
-                       std::string>& signedAppData);
+  static std::shared_ptr<UserPolicy>CreateFromTemplateDescriptor(
+    const TemplateDescriptor& templateDescriptor,
+    const std::string       & userId,
+    IAuthenticationCallback & authenticationCallback,
+    UserPolicyCreationOptions options,
+    const AppDataHashMap    & signedAppData);
 
-  static UserPolicy* Create(PolicyDescriptor        & policyDescriptor,
-                            const std::string       & userId,
-                            IAuthenticationCallback & authenticationCallback,
-                            UserPolicyCreationOptions options);
+  static std::shared_ptr<UserPolicy>Create(
+    PolicyDescriptor        & policyDescriptor,
+    const std::string       & userId,
+    IAuthenticationCallback & authenticationCallback,
+    UserPolicyCreationOptions options);
 
-  bool                                              AccessCheck(std::string& right);
+  bool                                              AccessCheck(std::string& right)
+  const;
   UserPolicyType                                    Type();
 
   std::string                                       Name();
@@ -93,19 +97,19 @@ public:
   bool                                              IsIssuedToOwner();
 
   std::string                                       ContentId();
-  std::unordered_map<std::string, std::string>      EncryptedAppData();
-  std::unordered_map<std::string, std::string>      SignedAppData();
+  const AppDataHashMap                              EncryptedAppData();
+  const AppDataHashMap                              SignedAppData();
   std::chrono::time_point<std::chrono::system_clock>ContentValidUntil();
 
   bool                                              DoesUseDeprecatedAlgorithms();
   bool                                              IsAuditedExtractAllowed();
 
-  std::vector<unsigned char>                        SerializedPolicy();
-
-  UserPolicy(std::shared_ptr<core::ProtectionPolicy>pImpl);
+  const std::vector<unsigned char>                  SerializedPolicy();
   std::shared_ptr<core::ProtectionPolicy>           GetImpl();
 
 private:
+
+  UserPolicy(std::shared_ptr<core::ProtectionPolicy>pImpl);
 
   std::shared_ptr<core::ProtectionPolicy> m_pImpl;
   std::shared_ptr<modernapi::TemplateDescriptor> m_templateDescriptor;

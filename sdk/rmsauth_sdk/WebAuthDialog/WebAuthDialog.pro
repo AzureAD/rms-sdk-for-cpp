@@ -1,14 +1,14 @@
 REPO_ROOT = $$PWD/../../..
-DESTDIR  = $$REPO_ROOT/bin
-TARGET   = rmsauthWebAuthDialog
+DESTDIR   = $$REPO_ROOT/bin
+TARGET    = rmsauthWebAuthDialog
 
-QT += core widgets webkitwidgets network
+QT       += core widgets webkitwidgets network
 
-TEMPLATE = lib
+TEMPLATE  = lib
 
-DEFINES += RMSAUTH_WEB_AUTH_DIALOG_LIBRARY
+DEFINES  += RMSAUTH_WEB_AUTH_DIALOG_LIBRARY
 
-CONFIG += plugin c++11 debug_and_release warn_on
+CONFIG   += plugin c++11 debug_and_release warn_on
 
 INCLUDEPATH = ../rmsauth/rmsauth
 

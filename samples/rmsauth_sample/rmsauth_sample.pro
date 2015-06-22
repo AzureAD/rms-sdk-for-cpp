@@ -1,6 +1,6 @@
 REPO_ROOT = $$PWD/../..
-DESTDIR  = $$REPO_ROOT/bin/
-TARGET   = rmsauth_sample
+DESTDIR   = $$REPO_ROOT/bin/
+TARGET    = rmsauth_sample
 
 QT       += core gui widgets
 TEMPLATE = app

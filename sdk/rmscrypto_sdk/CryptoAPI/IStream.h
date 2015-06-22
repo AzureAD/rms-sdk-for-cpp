@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _CRYPTO_STREAMS_LIB_ISTREAM_H_
 #define _CRYPTO_STREAMS_LIB_ISTREAM_H_
@@ -25,30 +25,30 @@ public:
 
   // Async methods. Be sure buffer exists until result will be got from
   // std::future
-  virtual std::shared_future<int64_t>ReadAsync(uint8_t      *pbBuffer,
-                                               const int64_t cbBuffer,
-                                               const int64_t cbOffset,
-                                               bool          fCreateBackingThread)
+  virtual std::shared_future<int64_t>ReadAsync(uint8_t    *pbBuffer,
+                                               int64_t     cbBuffer,
+                                               int64_t     cbOffset,
+                                               std::launch launchType)
     = 0;
   virtual std::shared_future<int64_t>WriteAsync(const uint8_t *cpbBuffer,
-                                                const int64_t  cbBuffer,
-                                                const int64_t  cbOffset,
-                                                bool           fCreateBackingThread)
+                                                int64_t        cbBuffer,
+                                                int64_t        cbOffset,
+                                                std::launch    launchType)
     = 0;
-  virtual std::future<bool>   FlushAsync(bool fCreateBackingThread) = 0;
+  virtual std::future<bool>   FlushAsync(std::launch launchType) = 0;
 
   // Sync methods
-  virtual int64_t             Read(uint8_t      *pbBuffer,
-                                   const int64_t cbBuffer) = 0;
+  virtual int64_t             Read(uint8_t *pbBuffer,
+                                   int64_t  cbBuffer) = 0;
   virtual int64_t             Write(const uint8_t *cpbBuffer,
-                                    const int64_t  cbBuffer) = 0;
+                                    int64_t        cbBuffer) = 0;
   virtual bool                Flush()                        = 0;
 
   virtual SharedStream        Clone() = 0;
 
   virtual void                Seek(uint64_t u64Position) = 0;
-  virtual bool                CanRead()                  = 0;
-  virtual bool                CanWrite()                 = 0;
+  virtual bool                CanRead()  const           = 0;
+  virtual bool                CanWrite() const           = 0;
   virtual uint64_t            Position()                 = 0;
   virtual uint64_t            Size()                     = 0;
   virtual void                Size(uint64_t u64Value)    = 0;

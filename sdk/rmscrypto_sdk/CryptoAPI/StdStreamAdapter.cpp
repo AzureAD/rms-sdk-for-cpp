@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <assert.h>
 #include "StdStreamAdapter.h"
@@ -36,59 +36,52 @@ StdStreamAdapter::StdStreamAdapter(std::shared_ptr<StdStreamAdapter>from)
   , m_oBackingStream(from->m_oBackingStream)
 {}
 
-shared_future<int64_t>StdStreamAdapter::ReadAsync(uint8_t      *pbBuffer,
-                                                  const int64_t cbBuffer,
-                                                  const int64_t cbOffset,
-                                                  bool          fCreateBackingThread)
+shared_future<int64_t>StdStreamAdapter::ReadAsync(uint8_t *pbBuffer,
+                                                  int64_t  cbBuffer,
+                                                  int64_t  cbOffset,
+                                                  launch   launchType)
 {
   auto selfPtr = shared_from_this();
 
-  return async(fCreateBackingThread ? launch::async : launch::deferred, [](
-                 shared_ptr<StdStreamAdapter>self,
-                 uint8_t      *buffer,
-                 const int64_t size,
-                 int64_t offset) -> int64_t {
+  return async(launchType, [](shared_ptr<StdStreamAdapter>self,
+                              uint8_t      *buffer,
+                              int64_t size,
+                              int64_t offset) -> int64_t {
         // first lock object
-        self->m_locker->lock();
+        lock_guard<mutex>lock(*self->m_locker);
 
         if (self->m_iBackingStream.get() != nullptr) {
           self->m_iBackingStream->seekg(offset);
         } else {
-          self->m_locker->unlock();
-
           // unavailable
           throw exceptions::RMSCryptoIOException(
             exceptions::RMSCryptoIOException::OperationUnavailable,
             "Operation unavailable!");
         }
         auto ret = static_cast<int64_t>(self->ReadInternal(buffer, size));
-        self->m_locker->unlock();
 
         return ret;
       }, selfPtr, pbBuffer, cbBuffer, cbOffset);
 }
 
 shared_future<int64_t>StdStreamAdapter::WriteAsync(const uint8_t *cpbBuffer,
-                                                   const int64_t  cbBuffer,
-                                                   const int64_t  cbOffset,
-                                                   bool           fCreateBackingThread)
+                                                   int64_t        cbBuffer,
+                                                   int64_t        cbOffset,
+                                                   launch         launchType)
 {
   auto selfPtr = shared_from_this();
 
-  return async(fCreateBackingThread ? launch::async : launch::deferred, [](
-                 shared_ptr<StdStreamAdapter>self,
-                 const uint8_t *buffer,
-                 const int64_t size,
-                 int64_t offset) -> int64_t {
+  return async(launchType, [](shared_ptr<StdStreamAdapter>self,
+                              const uint8_t *buffer,
+                              int64_t size,
+                              int64_t offset) -> int64_t {
         // first lock object
-        self->m_locker->lock();
+        lock_guard<mutex>lock(*self->m_locker);
 
         // seek to position and write
         if (self->m_oBackingStream.get() != nullptr) {
           self->m_oBackingStream->seekp(offset);
         } else {
-          self->m_locker->unlock();
-
           // unavailable
           throw exceptions::RMSCryptoIOException(
             exceptions::RMSCryptoIOException::OperationUnavailable,
@@ -100,27 +93,23 @@ shared_future<int64_t>StdStreamAdapter::WriteAsync(const uint8_t *cpbBuffer,
           ret = static_cast<int64_t>(self->WriteInternal(buffer, size));
         }
         catch (exception& e) {
-          self->m_locker->unlock();
           throw e;
         }
-        self->m_locker->unlock();
-
         return ret;
       }, selfPtr, cpbBuffer, cbBuffer, cbOffset);
 }
 
-future<bool>StdStreamAdapter::FlushAsync(bool fCreateBackingThread) {
+future<bool>StdStreamAdapter::FlushAsync(launch launchType) {
   auto selfPtr = shared_from_this();
 
-  return async(fCreateBackingThread ? launch::async : launch::deferred, [](
-                 shared_ptr<StdStreamAdapter>self) -> bool {
+  return async(launchType, [](shared_ptr<StdStreamAdapter>self) -> bool {
         return self->Flush();
       }, selfPtr);
 }
 
 // Sync methods
-int64_t StdStreamAdapter::Read(uint8_t      *pbBuffer,
-                               const int64_t cbBuffer) {
+int64_t StdStreamAdapter::Read(uint8_t *pbBuffer,
+                               int64_t  cbBuffer) {
   if (m_iBackingStream.get() == nullptr) {
     // unavailable
     throw exceptions::RMSCryptoIOException(
@@ -132,35 +121,34 @@ int64_t StdStreamAdapter::Read(uint8_t      *pbBuffer,
   return ReadInternal(pbBuffer, cbBuffer);
 }
 
-int64_t StdStreamAdapter::ReadInternal(uint8_t      *pbBuffer,
-                                       const int64_t cbBuffer) {
+int64_t StdStreamAdapter::ReadInternal(uint8_t *pbBuffer,
+                                       int64_t  cbBuffer) {
   m_iBackingStream->read(reinterpret_cast<char *>(pbBuffer), cbBuffer);
   return m_iBackingStream->gcount();
 }
 
 int64_t StdStreamAdapter::Write(const uint8_t *cpbBuffer,
-                                const int64_t  cbBuffer) {
+                                int64_t        cbBuffer) {
   if (m_oBackingStream.get() == nullptr) {
     // unavailable
     throw exceptions::RMSCryptoIOException(
             exceptions::RMSCryptoIOException::OperationUnavailable,
             "Operation unavailable!");
   }
-  m_locker->lock();
+
+  // first lock object
+  lock_guard<mutex> lock(*m_locker);
   try {
     WriteInternal(cpbBuffer, cbBuffer);
   }
   catch (exception& e) {
-    m_locker->unlock();
     throw e;
   }
-  m_locker->unlock();
-
   return cbBuffer;
 }
 
 int64_t StdStreamAdapter::WriteInternal(const uint8_t *cpbBuffer,
-                                        const int64_t  cbBuffer) {
+                                        int64_t        cbBuffer) {
   assert(cpbBuffer != nullptr || cbBuffer == 0);
 
   m_oBackingStream->write(reinterpret_cast<const char *>(cpbBuffer), cbBuffer);
@@ -199,15 +187,15 @@ void StdStreamAdapter::Seek(uint64_t u64Position) {
   }
 }
 
-bool StdStreamAdapter::CanRead()                  {
+bool StdStreamAdapter::CanRead() const {
   return m_iBackingStream.get() != nullptr;
 }
 
-bool StdStreamAdapter::CanWrite()                 {
+bool StdStreamAdapter::CanWrite() const {
   return m_oBackingStream.get() != nullptr;
 }
 
-uint64_t StdStreamAdapter::Position()                 {
+uint64_t StdStreamAdapter::Position() {
   int ret = 0;
 
   lock_guard<mutex> locker(*m_locker);
@@ -222,7 +210,7 @@ uint64_t StdStreamAdapter::Position()                 {
   return static_cast<uint64_t>(ret);
 }
 
-uint64_t StdStreamAdapter::Size()                     {
+uint64_t StdStreamAdapter::Size() {
   int ret = 0;
 
   lock_guard<mutex> locker(*m_locker);
