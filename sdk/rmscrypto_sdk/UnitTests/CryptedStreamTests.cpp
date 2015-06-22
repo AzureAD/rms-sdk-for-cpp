@@ -8,7 +8,7 @@
 
 #include <sstream>
 #include "CryptedStreamTests.h"
-#include "../CryptoStreams/CryptoAPI/CryptoAPI.h"
+#include "../CryptoAPI/CryptoAPI.h"
 using namespace std;
 void CryptedStreamTests::CryptedStreamToMemory_data() {
     QTest::addColumn<QString>("aesKey");

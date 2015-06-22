@@ -10,7 +10,7 @@
 #include <FileCacheEncrypted.h>
 #include <Constants.h>
 #include <fstream>
-#include "../../rmscrypto_sdk/CryptoStreams/CryptoAPI/CryptoAPI.h"
+#include "../../rmscrypto_sdk/CryptoAPI/CryptoAPI.h"
 
 using namespace std;
 

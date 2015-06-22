@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef NONINTERACRIVETEST_H
-#define NONINTERACRIVETEST_H
+#ifndef NONINTERACTIVETEST_H
+#define NONINTERACTIVETEST_H
 #include <QTest>
 
 class NonInteractiveTests : public QObject
@@ -28,4 +28,4 @@ private Q_SLOTS:
 
 };
 
-#endif // NONINTERACRIVETEST_H
+#endif // NONINTERACTIVETEST_H

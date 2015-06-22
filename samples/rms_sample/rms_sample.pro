@@ -11,7 +11,7 @@ CONFIG  -= app_bundle
 INCLUDEPATH += $$REPO_ROOT/sdk/rmsauth_sdk/rmsauth
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/
-INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoStreams/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)

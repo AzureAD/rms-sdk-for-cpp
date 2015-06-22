@@ -1,4 +1,4 @@
-REPO_ROOT = $$PWD/../../../..
+REPO_ROOT = $$PWD/../../..
 DESTDIR   = $$REPO_ROOT/bin/crypto
 TARGET    = modcrypto
 

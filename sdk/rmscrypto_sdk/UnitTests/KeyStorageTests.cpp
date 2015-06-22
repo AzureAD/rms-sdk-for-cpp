@@ -7,7 +7,7 @@
 */
 
 #include <QString>
-#include "../CryptoStreams/Platform/KeyStorage/IKeyStorage.h"
+#include "../Platform/KeyStorage/IKeyStorage.h"
 #include "KeyStorageTests.h"
 
 using namespace std;
