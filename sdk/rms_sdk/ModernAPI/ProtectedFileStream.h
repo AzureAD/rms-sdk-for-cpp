@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_PROTECTEDFILESTREAM_H_
 #define _RMS_LIB_PROTECTEDFILESTREAM_H_
@@ -37,48 +37,50 @@ class DLL_PUBLIC_RMS ProtectedFileStream : public rmscrypto::api::IStream {
 public:
 
   virtual ~ProtectedFileStream();
-  ProtectedFileStream(rmscrypto::api::SharedStream               pImpl,
-                      std::shared_ptr<UserPolicy>policy,
-                      std::string              & originalFileExtension);
-
-  virtual std::shared_future<int64_t>ReadAsync(uint8_t      *pbBuffer,
-                                               const int64_t cbBuffer,
-                                               const int64_t cbOffset,
-                                               bool          fCreateBackingThread)
+  virtual std::shared_future<int64_t>ReadAsync(uint8_t    *pbBuffer,
+                                               int64_t     cbBuffer,
+                                               int64_t     cbOffset,
+                                               std::launch launchType)
   override;
-  virtual std::future<bool>FlushAsync(bool fCreateBackingThread)
+  virtual std::future<bool>FlushAsync(
+    std::launch launchType)
   override;
 
-  virtual int64_t          Read(uint8_t      *pbBuffer,
-                                const int64_t cbBuffer) override;
-  virtual int64_t          Write(const uint8_t *cpbBuffer,
-                                 const int64_t  cbBuffer) override;
-  virtual bool             Flush() override;
+  virtual int64_t Read(uint8_t *pbBuffer,
+                       int64_t  cbBuffer)
+  override;
+  virtual int64_t Write(
+    const uint8_t *cpbBuffer,
+    int64_t        cbBuffer)
+  override;
+  virtual bool                                        Flush() override;
 
-  virtual rmscrypto::api::SharedStream     Clone() override;
+  virtual rmscrypto::api::SharedStream                Clone() override;
 
-  virtual void             Seek(uint64_t u64Position) override;
-  virtual bool             CanRead()                  override;
-  virtual bool             CanWrite()                 override;
-  virtual uint64_t         Position()                 override;
-  virtual uint64_t         Size()                     override;
-  virtual void             Size(uint64_t u64Value)    override;
+  virtual void                                        Seek(uint64_t u64Position)
+  override;
+  virtual bool                                        CanRead()  const  override;
+  virtual bool                                        CanWrite() const  override;
+  virtual uint64_t                                    Position()        override;
+  virtual uint64_t                                    Size()            override;
+  virtual void                                        Size(uint64_t u64Value)
+  override;
 
   static std::shared_ptr<GetProtectedFileStreamResult>Acquire(
-          rmscrypto::api::SharedStream stream,
-          const std::string                   & userId,
-          IAuthenticationCallback             & authenticationCallback,
-          IConsentCallback                    & consentCallback,
-          PolicyAcquisitionOptions              options,
-          ResponseCacheFlags                    cacheMask
-          = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
-                                            RESPONSE_CACHE_ONDISK |
-                                            RESPONSE_CACHE_CRYPTED));
+    rmscrypto::api::SharedStream stream,
+    const std::string          & userId,
+    IAuthenticationCallback    & authenticationCallback,
+    IConsentCallback           & consentCallback,
+    PolicyAcquisitionOptions     options,
+    ResponseCacheFlags           cacheMask
+      = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
+                                        RESPONSE_CACHE_ONDISK |
+                                        RESPONSE_CACHE_CRYPTED));
 
   static std::shared_ptr<ProtectedFileStream>Create(
-    std::shared_ptr<UserPolicy>policy,
-    rmscrypto::api::SharedStream               stream,
-    const std::string        & originalFileExtension);
+    std::shared_ptr<UserPolicy>  policy,
+    rmscrypto::api::SharedStream stream,
+    const std::string          & originalFileExtension);
 
   std::shared_ptr<UserPolicy>Policy() {
     return m_policy;
@@ -90,15 +92,21 @@ public:
 
 private:
 
+  // for inner use only
+  ProtectedFileStream(rmscrypto::api::SharedStream pImpl,
+                      std::shared_ptr<UserPolicy>  policy,
+                      const std::string          & originalFileExtension);
+
+
   virtual std::shared_future<int64_t>WriteAsync(const uint8_t *cpbBuffer,
-                                                const int64_t  cbBuffer,
-                                                const int64_t  cbOffset,
-                                                bool           fCreateBackingThread)
+                                                int64_t        cbBuffer,
+                                                int64_t        cbOffset,
+                                                std::launch    launchType)
   override;
 
   static ProtectedFileStream* CreateProtectedFileStream(
     std::shared_ptr<UserPolicy>        policy,
-    rmscrypto::api::SharedStream                       stream,
+    rmscrypto::api::SharedStream       stream,
     std::shared_ptr<pfile::PfileHeader>header);
 
 private:

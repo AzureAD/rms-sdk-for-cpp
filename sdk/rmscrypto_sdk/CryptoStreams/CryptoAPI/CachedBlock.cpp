@@ -66,7 +66,7 @@ void CachedBlock::UpdateBlock(uint64_t u64Position)
     m_pSimple->WriteInternalAsync(m_cache.data(),
                                   m_u64CacheSize,
                                   m_u64CacheStart,
-                                  false,
+                                  std::launch::deferred,
                                   CalculateBlockNumber(m_u64CacheStart),
                                   bCurrentBlockIsFinal).get();
 
@@ -89,7 +89,7 @@ void CachedBlock::UpdateBlock(uint64_t u64Position)
   m_u64CacheSize = m_pSimple->ReadInternalAsync(&m_cache[0],
                                                 m_u64BlockSize,
                                                 m_u64CacheStart,
-                                                false,
+                                                std::launch::deferred,
                                                 u32BlockNumber,
                                                 bNewBlockIsFinal).get();
 }
@@ -234,7 +234,7 @@ bool CachedBlock::Flush()
   // determine if this is the final block
   bool bIsFinal = (cacheStart + m_u64BlockSize >= m_pSimple->Size());
 
-  m_pSimple->WriteInternalAsync(m_cache.data(), m_u64CacheSize, cacheStart, false,
+  m_pSimple->WriteInternalAsync(m_cache.data(), m_u64CacheSize, cacheStart, std::launch::deferred,
                                 CalculateBlockNumber(cacheStart), bIsFinal).get();
 
   if (bIsFinal)

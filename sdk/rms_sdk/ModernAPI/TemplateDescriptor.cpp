@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include "../Core/ProtectionPolicy.h"
 #include "../RestClients/TemplatesClient.h"
@@ -27,7 +27,8 @@ TemplateDescriptor::TemplateDescriptor(const string& id,
   , m_description(description)
 {}
 
-TemplateDescriptor::TemplateDescriptor(std::shared_ptr<rmscore::core::ProtectionPolicy> policy)
+TemplateDescriptor::TemplateDescriptor(std::shared_ptr<rmscore::core::
+                                                       ProtectionPolicy>policy)
   : m_id(policy->GetId())
   , m_name(policy->GetName())
   , m_description(policy->GetDescription())
@@ -37,8 +38,8 @@ TemplateDescriptor::TemplateDescriptor(std::shared_ptr<rmscore::core::Protection
   }
 }
 
-std::vector<TemplateDescriptor> TemplateDescriptor::GetTemplateList(
-  std::string              userId,
+std::vector<TemplateDescriptor>TemplateDescriptor::GetTemplateList(
+  const string           & userId,
   IAuthenticationCallback& authenticationCallback)
 {
   TIterable<TemplateDescriptor> result;

@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include "../ModernAPI/RMSExceptions.h"
@@ -76,34 +76,34 @@ uint64_t CustomProtectedStream::GetEncryptedContentLength(
     contentLength);
 }
 
-shared_future<int64_t>CustomProtectedStream::ReadAsync(uint8_t      *pbBuffer,
-                                                       const int64_t cbBuffer,
-                                                       const int64_t cbOffset,
-                                                       bool          fCreateBackingThread)
+shared_future<int64_t>CustomProtectedStream::ReadAsync(uint8_t    *pbBuffer,
+                                                       int64_t     cbBuffer,
+                                                       int64_t     cbOffset,
+                                                       std::launch launchType)
 {
-  return m_pImpl->ReadAsync(pbBuffer, cbBuffer, cbOffset, fCreateBackingThread);
+  return m_pImpl->ReadAsync(pbBuffer, cbBuffer, cbOffset, launchType);
 }
 
 shared_future<int64_t>CustomProtectedStream::WriteAsync(const uint8_t *cpbBuffer,
-                                                        const int64_t  cbBuffer,
-                                                        const int64_t  cbOffset,
-                                                        bool           fCreateBackingThread)
+                                                        int64_t        cbBuffer,
+                                                        int64_t        cbOffset,
+                                                        std::launch    launchType)
 {
-  return m_pImpl->WriteAsync(cpbBuffer, cbBuffer, cbOffset, fCreateBackingThread);
+  return m_pImpl->WriteAsync(cpbBuffer, cbBuffer, cbOffset, launchType);
 }
 
-future<bool>CustomProtectedStream::FlushAsync(bool fCreateBackingThread) {
-  return m_pImpl->FlushAsync(fCreateBackingThread);
+future<bool>CustomProtectedStream::FlushAsync(std::launch launchType) {
+  return m_pImpl->FlushAsync(launchType);
 }
 
-int64_t CustomProtectedStream::Read(uint8_t      *pbBuffer,
-                                    const int64_t cbBuffer)
+int64_t CustomProtectedStream::Read(uint8_t *pbBuffer,
+                                    int64_t  cbBuffer)
 {
   return m_pImpl->Read(pbBuffer, cbBuffer);
 }
 
 int64_t CustomProtectedStream::Write(const uint8_t *cpbBuffer,
-                                     const int64_t  cbBuffer)
+                                     int64_t        cbBuffer)
 {
   return m_pImpl->Write(cpbBuffer, cbBuffer);
 }
@@ -123,12 +123,12 @@ void CustomProtectedStream::Seek(uint64_t u64Position)
   m_pImpl->Seek(u64Position);
 }
 
-bool CustomProtectedStream::CanRead()
+bool CustomProtectedStream::CanRead() const
 {
   return m_pImpl->CanRead();
 }
 
-bool CustomProtectedStream::CanWrite()
+bool CustomProtectedStream::CanWrite() const
 {
   return m_pImpl->CanWrite();
 }

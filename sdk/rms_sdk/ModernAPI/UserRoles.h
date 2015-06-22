@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef USERROLES
 #define USERROLES
@@ -14,8 +14,8 @@
 
 namespace rmscore {
 namespace modernapi {
-typedef std::vector<std::string> UserList;
-typedef std::vector<std::string> RoleList;
+typedef std::vector<std::string>UserList;
+typedef std::vector<std::string>RoleList;
 
 /// <summary>
 /// User rights
@@ -26,8 +26,8 @@ public:
   /// <summary>
   /// .ctor
   /// </summary>
-  UserRoles(UserList& users,
-            RoleList& roles);
+  UserRoles(const UserList& users,
+            const RoleList& roles);
 
   /// <summary>
   /// The users to whom the rights are granted
@@ -52,8 +52,8 @@ private:
 
 private:
 
-  void ValidateUsers(UserList& users);
-  void ValidateRoles(RoleList& roles);
+  void ValidateUsers(const UserList& users);
+  void ValidateRoles(const RoleList& roles);
 };
 } // namespace modernapi
 } // namespace rmscore

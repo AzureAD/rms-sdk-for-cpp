@@ -71,7 +71,7 @@ public:
     virtual std::string         toText() const = 0;
 };
 
-using DomNamedNodeMap = rmscore::common::HashMapString<sp<IDomNode>>;
+using DomNamedNodeMap = rmscore::modernapi::detail::HashMapString<sp<IDomNode>>;
 #include <list>
 using DomNodeList = std::list<sp<IDomNode>>;
 

@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_TEMPLATESCLIENT_H_
 #define _RMS_LIB_TEMPLATESCLIENT_H_
@@ -17,7 +17,7 @@ public:
 
   virtual TemplateListResponse GetTemplates(
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::string                           & sEmail) override;
+    const std::string                     & sEmail) override;
 };
 } // namespace restclients
 } // namespace rmscore

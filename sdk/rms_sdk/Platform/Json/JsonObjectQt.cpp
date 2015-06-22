@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifdef QTFRAMEWORK
 #include <QVariantMap>
@@ -239,11 +239,11 @@ StringArray JsonObjectQt::GetNamedStringArray(const std::string& name)
   return list;
 }
 
-StringDictionary JsonObjectQt::ToStringDictionary()
+modernapi::AppDataHashmap JsonObjectQt::ToStringDictionary()
 {
   QVariantMap map =  this->impl_.toObject().toVariantMap();
 
-  StringDictionary result;
+  modernapi::AppDataHashmap result;
 
   for (QString& key : map.keys())
   {

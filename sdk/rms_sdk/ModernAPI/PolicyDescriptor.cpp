@@ -38,7 +38,7 @@ void UserRights::ValidateRights(RightList& rights)
   ValidateInputRefObjectCollection<string>(rights);
 }
 
-UserRoles::UserRoles(UserList& users, RoleList& roles)
+UserRoles::UserRoles(const UserList& users, const RoleList& roles)
   : users(users)
   , roles(roles)
 {
@@ -46,12 +46,12 @@ UserRoles::UserRoles(UserList& users, RoleList& roles)
   ValidateRoles(roles);
 }
 
-void UserRoles::ValidateUsers(UserList& users)
+void UserRoles::ValidateUsers(const UserList& users)
 {
   ValidateInputRefObjectCollection<string>(users);
 }
 
-void UserRoles::ValidateRoles(RoleList& roles)
+void UserRoles::ValidateRoles(const RoleList& roles)
 {
   ValidateInputRefObjectCollection<string>(roles);
 }
@@ -63,7 +63,7 @@ PolicyDescriptor::PolicyDescriptor(const std::vector<UserRights> &userRightsList
   , userRolesList_()
   , contentValidUntil_()
   , nOfflineCacheLifetimeInDays_(
-    OfflineCacheLifetimeConstants::CacheNeverExpires())
+    OfflineCacheLifetimeConstants::CacheNeverExpires)
   , referrer_()
   , encryptedAppData_()
   , signedAppData_()
@@ -78,7 +78,7 @@ PolicyDescriptor::PolicyDescriptor(const std::vector<UserRoles> &userRolesList)
   , userRolesList_(userRolesList)
   , contentValidUntil_()
   , nOfflineCacheLifetimeInDays_(
-    OfflineCacheLifetimeConstants::CacheNeverExpires())
+    OfflineCacheLifetimeConstants::CacheNeverExpires)
   , referrer_()
   , encryptedAppData_()
   , signedAppData_()
@@ -92,7 +92,7 @@ PolicyDescriptor::PolicyDescriptor(std::shared_ptr<ProtectionPolicy> policy)
   , userRightsList_()
   , contentValidUntil_()
   , nOfflineCacheLifetimeInDays_(
-    OfflineCacheLifetimeConstants::CacheNeverExpires())
+    OfflineCacheLifetimeConstants::CacheNeverExpires)
   , referrer_()
   , encryptedAppData_()
   , signedAppData_()
@@ -106,7 +106,7 @@ PolicyDescriptor::PolicyDescriptor(std::shared_ptr<ProtectionPolicy> policy)
   nOfflineCacheLifetimeInDays_ =
     (USHRT_MAX !=
      policy->GetIntervalTime()) ? policy->GetIntervalTime() :
-    OfflineCacheLifetimeConstants::CacheNeverExpires();
+    OfflineCacheLifetimeConstants::CacheNeverExpires;
   referrer_ = std::make_shared<std::string>(policy->GetReferrer());
 
   auto timeFrom = policy->GetValidityTimeFrom();

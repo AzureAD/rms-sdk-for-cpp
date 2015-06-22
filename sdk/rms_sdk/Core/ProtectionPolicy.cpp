@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include <algorithm>
@@ -157,7 +157,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   const string                          & templateId,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   const string                          & email,
-  const platform::json::StringDictionary& signedAppData)
+  const AppDataHashmap                  & signedAppData)
 {
   qDebug() << " +ProtectionPolicy::Create(using template)";
 
@@ -369,12 +369,12 @@ void ProtectionPolicy::Initialize(
 }     // ProtectionPolicy::Initialize
 
 void ProtectionPolicy::Initialize(
-  PublishResponse                       & response,
-  bool                                    bAllowAuditedExtraction,
+  PublishResponse     & response,
+  bool                  bAllowAuditedExtraction,
   int
   nIntervalTime,
-  const platform::json::StringDictionary& signedData,
-  const platform::json::StringDictionary& encryptedData)
+  const AppDataHashmap& signedData,
+  const AppDataHashmap& encryptedData)
 {
   // initializing protection policy from the publishing response (here the user
   // is the owner)

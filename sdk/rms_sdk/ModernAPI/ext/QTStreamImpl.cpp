@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include "QTStreamImpl.h"
@@ -21,17 +21,17 @@ SharedStream QTStreamImpl::Create(QSharedPointer<QDataStream>stream) {
 QTStreamImpl::QTStreamImpl(QSharedPointer<QDataStream>stream)
   : stream_(stream) {}
 
-shared_future<int64_t>QTStreamImpl::ReadAsync(uint8_t      *pbBuffer,
-                                              const int64_t cbBuffer,
-                                              const int64_t cbOffset,
-                                              bool          fCreateBackingThread)
+shared_future<int64_t>QTStreamImpl::ReadAsync(uint8_t    *pbBuffer,
+                                              int64_t     cbBuffer,
+                                              int64_t     cbOffset,
+                                              std::launch launchType)
 {
   auto selfPtr = shared_from_this();
 
-  return std::async(fCreateBackingThread ? launch::async : launch::deferred, [](
+  return std::async(launchType, [](
                       std::shared_ptr<QTStreamImpl>self,
                       uint8_t      *buffer,
-                      const int64_t size,
+                      int64_t size,
                       int64_t offset) -> int64_t {
     // first lock object
     unique_lock<mutex>lock(self->locker_);
@@ -46,21 +46,22 @@ shared_future<int64_t>QTStreamImpl::ReadAsync(uint8_t      *pbBuffer,
 }
 
 shared_future<int64_t>QTStreamImpl::WriteAsync(const uint8_t *cpbBuffer,
-                                               const int64_t  cbBuffer,
-                                               const int64_t  cbOffset,
-                                               bool           fCreateBackingThread)
+                                               int64_t        cbBuffer,
+                                               int64_t        cbOffset,
+                                               std::launch    launchType)
 {
   auto selfPtr = shared_from_this();
 
-  return std::async(fCreateBackingThread ? launch::async : launch::deferred, [](
+  return std::async(launchType, [](
                       std::shared_ptr<QTStreamImpl>self,
                       const uint8_t *buffer,
-                      const int64_t size,
+                      int64_t size,
                       int64_t offset) -> int64_t {
     // first lock object
     unique_lock<mutex>lock(self->locker_);
 
     qDebug() << "Write " << size << " bytes at offset = " << offset << " from buffer = " << buffer;
+
     // seek to position and write
     self->stream_->device()->seek(offset);
     auto ret = static_cast<int64_t>(self->stream_->writeRawData(
@@ -70,7 +71,7 @@ shared_future<int64_t>QTStreamImpl::WriteAsync(const uint8_t *cpbBuffer,
   }, selfPtr, cpbBuffer, cbBuffer, cbOffset);
 }
 
-std::future<bool>QTStreamImpl::FlushAsync(bool /*fCreateBackingThread*/) {
+std::future<bool>QTStreamImpl::FlushAsync(std::launch /*launchType*/) {
   // it's not used in QDataStream
   std::promise<bool> val;
   std::future<bool>  res = val.get_future();
@@ -85,18 +86,18 @@ void QTStreamImpl::Seek(uint64_t u64Position) {
   stream_->device()->seek(u64Position);
 }
 
-int64_t QTStreamImpl::Read(uint8_t      *pbBuffer,
-                           const int64_t cbBuffer) {
-  return ReadAsync(pbBuffer, cbBuffer, Position(), false).get();
+int64_t QTStreamImpl::Read(uint8_t *pbBuffer,
+                           int64_t  cbBuffer) {
+  return ReadAsync(pbBuffer, cbBuffer, Position(), std::launch::deferred).get();
 }
 
 int64_t QTStreamImpl::Write(const uint8_t *cpbBuffer,
-                            const int64_t  cbBuffer) {
-  return WriteAsync(cpbBuffer, cbBuffer, Position(), false).get();
+                            int64_t        cbBuffer) {
+  return WriteAsync(cpbBuffer, cbBuffer, Position(), std::launch::deferred).get();
 }
 
 bool QTStreamImpl::Flush() {
-  return FlushAsync(false).get();
+  return FlushAsync(std::launch::deferred).get();
 }
 
 SharedStream QTStreamImpl::Clone() {
@@ -108,16 +109,12 @@ SharedStream QTStreamImpl::Clone() {
   return static_pointer_cast<IStream>(shared_ptr<QTStreamImpl>(self));
 }
 
-bool QTStreamImpl::CanRead() {
-  // first lock object
-  unique_lock<mutex> lock(locker_);
+bool QTStreamImpl::CanRead() const {
   return (stream_->device()->openMode() & QIODevice::ReadOnly) ==
          QIODevice::ReadOnly;
 }
 
-bool QTStreamImpl::CanWrite() {
-  // first lock object
-  unique_lock<mutex> lock(locker_);
+bool QTStreamImpl::CanWrite() const {
   return (stream_->device()->openMode() & QIODevice::WriteOnly) ==
          QIODevice::WriteOnly;
 }

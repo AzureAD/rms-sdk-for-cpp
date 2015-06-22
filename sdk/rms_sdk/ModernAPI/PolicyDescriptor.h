@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef POLICYDESCRIPTOR_H
 #define POLICYDESCRIPTOR_H
@@ -19,6 +19,13 @@
 #include "UserRoles.h"
 #include "UserRights.h"
 
+namespace rmscore {
+namespace core {
+class ProtectionPolicy;
+}
+
+namespace modernapi {
+namespace detail {
 struct HashConstString
 {
   long operator()(const std::string& str) const {
@@ -28,14 +35,8 @@ struct HashConstString
 
 template<typename T>
 using HashMapString = std::unordered_map<std::string, T, HashConstString>;
-
-namespace rmscore {
-namespace core {
-class ProtectionPolicy;
 }
-
-namespace modernapi {
-using AppDataHashmap = HashMapString<std::string>;
+using AppDataHashmap = detail::HashMapString<std::string>;
 
 /**
  * @brief Specifies users and rights assigned for a file.
@@ -91,7 +92,8 @@ public:
     return this->contentValidUntil_;
   }
 
-  void ContentValidUntil(const std::chrono::time_point<std::chrono::system_clock>& value)
+  void ContentValidUntil(
+    const std::chrono::time_point<std::chrono::system_clock>& value)
   {
     this->contentValidUntil_ = value;
   }
@@ -138,7 +140,7 @@ public:
 
 public:
 
-  PolicyDescriptor(std::shared_ptr<core::ProtectionPolicy> policy);
+  PolicyDescriptor(std::shared_ptr<core::ProtectionPolicy>policy);
 
 private:
 
@@ -166,29 +168,9 @@ private:
 /**
  * @brief Constants for PolicyDescriptor.OfflineCacheLifetimeInDays property.
  */
-class DLL_PUBLIC_RMS OfflineCacheLifetimeConstants {
-public:
-
-   /**
-   * @brief The content shoudn't be accessed offline at all
-   */
-  static int NoCache()
-  {
-    return 0;
-  }
-
-  /**
-   * @brief The offline cache for the content shouldn't expire
-   */
-  static int CacheNeverExpires()
-  {
-    return -1;
-  }
-
-private:
-
-  // undefined private default constructor
-  OfflineCacheLifetimeConstants();
+enum OfflineCacheLifetimeConstants {
+  NoCache           = 0,
+  CacheNeverExpires = -1
 };
 } // m_namespace modernapi
 } // m_namespace rmscore

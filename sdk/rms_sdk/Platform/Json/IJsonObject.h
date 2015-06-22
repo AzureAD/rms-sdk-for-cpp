@@ -13,11 +13,11 @@
 #include <vector>
 #include <memory>
 #include "../../Common/CommonTypes.h"
+#include "../../ModernAPI/PolicyDescriptor.h"
 
 namespace rmscore {
 namespace platform {
 namespace json {
-using StringDictionary = common::HashMapString<std::string>;
 using StringArray = std::vector<std::string>;
 
 class IJsonArray;
@@ -50,7 +50,7 @@ public:
 
     virtual StringArray GetNamedStringArray(const std::string &name) = 0;
 
-    virtual StringDictionary ToStringDictionary() = 0;
+    virtual modernapi::AppDataHashmap ToStringDictionary() = 0;
 
     virtual common::ByteArray Stringify() = 0;
 
