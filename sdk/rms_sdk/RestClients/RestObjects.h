@@ -64,8 +64,8 @@ struct UsageRestrictionsResponse {
   std::chrono::time_point<std::chrono::system_clock>ftLicenseValidUntil;
   std::string                                       contentId;
   CustomPolicyResponse                              customPolicy;
-  modernapi::AppDataHashmap                         signedApplicationData;
-  modernapi::AppDataHashmap                         encryptedApplicationData;
+  modernapi::AppDataHashMap                         signedApplicationData;
+  modernapi::AppDataHashMap                         encryptedApplicationData;
 };
 
 struct ServerErrorResponse {
@@ -96,7 +96,7 @@ struct PublishUsingTemplateRequest {
   bool                      bPreferDeprecatedAlgorithms;
   bool                      bAllowAuditedExtraction;
   std::string               templateId;
-  modernapi::AppDataHashmap signedApplicationData;
+  modernapi::AppDataHashMap signedApplicationData;
 };
 
 struct UserRightsRequest {
@@ -132,8 +132,8 @@ struct PublishCustomRequest {
   std::vector<UserRolesRequest>                     userRolesList;
   int                                               nIntervalTime;
   std::chrono::time_point<std::chrono::system_clock>ftLicenseValidUntil;
-  modernapi::AppDataHashmap                         signedApplicationData;
-  modernapi::AppDataHashmap                         encryptedApplicationData;
+  modernapi::AppDataHashMap                         signedApplicationData;
+  modernapi::AppDataHashMap                         encryptedApplicationData;
 };
 
 struct PublishResponse {
@@ -145,8 +145,8 @@ struct PublishResponse {
   std::string               owner;
   KeyDetailsResponse        key;
   std::string               contentId;
-  modernapi::AppDataHashmap signedApplicationData;
-  modernapi::AppDataHashmap encryptedApplicationData;
+  modernapi::AppDataHashMap signedApplicationData;
+  modernapi::AppDataHashMap encryptedApplicationData;
 };
 } // namespace restclients
 } // namespace rmscore

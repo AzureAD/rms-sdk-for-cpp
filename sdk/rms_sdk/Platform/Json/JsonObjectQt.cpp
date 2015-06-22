@@ -239,11 +239,11 @@ StringArray JsonObjectQt::GetNamedStringArray(const std::string& name)
   return list;
 }
 
-modernapi::AppDataHashmap JsonObjectQt::ToStringDictionary()
+modernapi::AppDataHashMap JsonObjectQt::ToStringDictionary()
 {
   QVariantMap map =  this->impl_.toObject().toVariantMap();
 
-  modernapi::AppDataHashmap result;
+  modernapi::AppDataHashMap result;
 
   for (QString& key : map.keys())
   {

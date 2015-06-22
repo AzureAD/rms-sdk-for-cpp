@@ -36,7 +36,7 @@ struct HashConstString
 template<typename T>
 using HashMapString = std::unordered_map<std::string, T, HashConstString>;
 }
-using AppDataHashmap = detail::HashMapString<std::string>;
+using AppDataHashMap = detail::HashMapString<std::string>;
 
 /**
  * @brief Specifies users and rights assigned for a file.
@@ -118,22 +118,22 @@ public:
     this->referrer_ = uri;
   }
 
-  const AppDataHashmap& EncryptedAppData()
+  const AppDataHashMap& EncryptedAppData()
   {
     return this->encryptedAppData_;
   }
 
-  void EncryptedAppData(const AppDataHashmap& value)
+  void EncryptedAppData(const AppDataHashMap& value)
   {
     this->encryptedAppData_ = value;
   }
 
-  const AppDataHashmap& SignedAppData()
+  const AppDataHashMap& SignedAppData()
   {
     return this->signedAppData_;
   }
 
-  void SignedAppData(const AppDataHashmap& value)
+  void SignedAppData(const AppDataHashMap& value)
   {
     this->signedAppData_ = value;
   }
@@ -154,8 +154,8 @@ private:
   int nOfflineCacheLifetimeInDays_;
 
   std::shared_ptr<std::string> referrer_;
-  AppDataHashmap encryptedAppData_;
-  AppDataHashmap signedAppData_;
+  AppDataHashMap encryptedAppData_;
+  AppDataHashMap signedAppData_;
 
 private:
 

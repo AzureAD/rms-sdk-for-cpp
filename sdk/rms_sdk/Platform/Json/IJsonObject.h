@@ -50,7 +50,7 @@ public:
 
     virtual StringArray GetNamedStringArray(const std::string &name) = 0;
 
-    virtual modernapi::AppDataHashmap ToStringDictionary() = 0;
+    virtual modernapi::AppDataHashMap ToStringDictionary() = 0;
 
     virtual common::ByteArray Stringify() = 0;
 

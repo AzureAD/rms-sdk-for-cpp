@@ -43,8 +43,8 @@ struct PolicyDescriptorImpl {
   std::chrono::time_point<std::chrono::system_clock>ftContentValidUntil;
   int                                               nIntervalTime;
   std::string                                       referrer;
-  modernapi::AppDataHashmap                         signedApplicationData;
-  modernapi::AppDataHashmap                         encryptedApplicationData;
+  modernapi::AppDataHashMap                         signedApplicationData;
+  modernapi::AppDataHashMap                         encryptedApplicationData;
 };
 
 class EmnptyConsentCallbackImpl : public modernapi::IConsentCallbackImpl {
@@ -128,11 +128,11 @@ public:
     return m_userRolesList;
   }
 
-  const modernapi::AppDataHashmap GetSignedApplicationData() const {
+  const modernapi::AppDataHashMap GetSignedApplicationData() const {
     return m_signedApplicationData;
   }
 
-  const modernapi::AppDataHashmap GetEncryptedApplicationData() const {
+  const modernapi::AppDataHashMap GetEncryptedApplicationData() const {
     return m_encryptedApplicationData;
   }
 
@@ -173,7 +173,7 @@ public:
     const std::string                     & templateId,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & email,
-    const modernapi::AppDataHashmap       & signedAppData);
+    const modernapi::AppDataHashMap       & signedAppData);
   static std::shared_ptr<ProtectionPolicy>Create(
     const bool                              bPreferDeprecatedAlgorithms,
     const bool                              bAllowAuditedExtraction,
@@ -196,10 +196,10 @@ public:
                   bool                             bAllowAuditedExtraction,
                   int
                   nIntervalTime,
-                  const modernapi::AppDataHashmap& signedData =
-                    modernapi::AppDataHashmap(),
-                  const modernapi::AppDataHashmap& encryptedData =
-                    modernapi::AppDataHashmap());
+                  const modernapi::AppDataHashMap& signedData =
+                    modernapi::AppDataHashMap(),
+                  const modernapi::AppDataHashMap& encryptedData =
+                    modernapi::AppDataHashMap());
 
   void        InitializeValidityTime(
     const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil);
@@ -241,8 +241,8 @@ private:
   bool m_bHasUserRightsInformation;
   std::vector<UserRightsImpl> m_userRightsList;
   std::vector<UserRolesImpl>  m_userRolesList;
-  modernapi::AppDataHashmap   m_signedApplicationData;
-  modernapi::AppDataHashmap   m_encryptedApplicationData;
+  modernapi::AppDataHashMap   m_signedApplicationData;
+  modernapi::AppDataHashMap   m_encryptedApplicationData;
 
 private:
 

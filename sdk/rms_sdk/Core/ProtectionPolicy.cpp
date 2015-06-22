@@ -157,7 +157,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   const string                          & templateId,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   const string                          & email,
-  const AppDataHashmap                  & signedAppData)
+  const AppDataHashMap                  & signedAppData)
 {
   qDebug() << " +ProtectionPolicy::Create(using template)";
 
@@ -373,8 +373,8 @@ void ProtectionPolicy::Initialize(
   bool                  bAllowAuditedExtraction,
   int
   nIntervalTime,
-  const AppDataHashmap& signedData,
-  const AppDataHashmap& encryptedData)
+  const AppDataHashMap& signedData,
+  const AppDataHashMap& encryptedData)
 {
   // initializing protection policy from the publishing response (here the user
   // is the owner)

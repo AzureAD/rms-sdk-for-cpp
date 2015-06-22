@@ -71,7 +71,7 @@ private:
   virtual StringArray               GetNamedStringArray(const std::string& name)
   override;
 
-  virtual modernapi::AppDataHashmap ToStringDictionary() override;
+  virtual modernapi::AppDataHashMap ToStringDictionary() override;
 
   virtual common::ByteArray         Stringify() override;
 

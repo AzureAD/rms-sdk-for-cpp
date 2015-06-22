@@ -102,14 +102,14 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
   const string                       & userId,
   IAuthenticationCallback            & authenticationCallback,
   UserPolicyCreationOptions            options,
-  const AppDataHashmap               & signedAppData)
+  const AppDataHashMap               & signedAppData)
 {
   qDebug() << "+UserPolicy::CreateFromTemplateDescriptorAsync";
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
 
-  modernapi::AppDataHashmap signedApplicationData;
+  modernapi::AppDataHashMap signedApplicationData;
 
   if (!signedAppData.empty()) {
     for (auto& p : signedAppData) {
@@ -303,10 +303,10 @@ string UserPolicy::ContentId() {
   return m_pImpl->GetContentId();
 }
 
-const AppDataHashmap UserPolicy::EncryptedAppData() {
+const AppDataHashMap UserPolicy::EncryptedAppData() {
   auto enctryptedAppDataImpl = m_pImpl->GetEncryptedApplicationData();
 
-  AppDataHashmap encryptedAppData;
+  AppDataHashMap encryptedAppData;
 
   for_each(begin(enctryptedAppDataImpl), end(enctryptedAppDataImpl),
            [&](const pair<string,
@@ -318,10 +318,10 @@ const AppDataHashmap UserPolicy::EncryptedAppData() {
   return encryptedAppData;
 }
 
-const AppDataHashmap UserPolicy::SignedAppData() {
+const AppDataHashMap UserPolicy::SignedAppData() {
   auto signedAppDataImpl = m_pImpl->GetSignedApplicationData();
 
-  AppDataHashmap signedAppData;
+  AppDataHashMap signedAppData;
 
   for_each(begin(signedAppDataImpl), end(signedAppDataImpl),
            [&](const pair<string,

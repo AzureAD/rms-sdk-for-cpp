@@ -75,7 +75,7 @@ public:
     const std::string       & userId,
     IAuthenticationCallback & authenticationCallback,
     UserPolicyCreationOptions options,
-    const AppDataHashmap    & signedAppData);
+    const AppDataHashMap    & signedAppData);
 
   static std::shared_ptr<UserPolicy>Create(
     PolicyDescriptor        & policyDescriptor,
@@ -97,8 +97,8 @@ public:
   bool                                              IsIssuedToOwner();
 
   std::string                                       ContentId();
-  const AppDataHashmap                              EncryptedAppData();
-  const AppDataHashmap                              SignedAppData();
+  const AppDataHashMap                              EncryptedAppData();
+  const AppDataHashMap                              SignedAppData();
   std::chrono::time_point<std::chrono::system_clock>ContentValidUntil();
 
   bool                                              DoesUseDeprecatedAlgorithms();

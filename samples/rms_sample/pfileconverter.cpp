@@ -143,7 +143,7 @@ void PFileConverter::ConvertToPFileTemplates(const string           & userId,
 {
   auto templates = TemplateDescriptor::GetTemplateList(userId, auth);
 
-  rmscore::modernapi::AppDataHashmap signedData;
+  rmscore::modernapi::AppDataHashMap signedData;
 
   size_t pos = templ.SelectTemplate(templates);
 
