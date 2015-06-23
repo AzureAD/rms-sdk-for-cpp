@@ -27,8 +27,7 @@ HEADERS += \
     IKeyStorage.h
 
 SOURCES += \
-    base64.cpp \
-    IKeyStorage.cpp
+    base64.cpp
 
 #include different versions of keystorage
 win32 {

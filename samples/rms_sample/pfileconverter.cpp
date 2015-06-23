@@ -200,13 +200,15 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
 {
   auto inIStream = rmscrypto::api::CreateStreamFromStdStream(inStream);
 
-  auto fsResult = ProtectedFileStream::Acquire(inIStream,
-                                               userId,
-                                               auth,
-                                               consent,
-                                               POL_None,
-                                               static_cast<ResponseCacheFlags>(
-                                                 RESPONSE_CACHE_ONDISK));
+  auto fsResult = ProtectedFileStream::Acquire(
+    inIStream,
+    userId,
+    auth,
+    consent,
+    POL_None,
+    static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
+                                    | RESPONSE_CACHE_ONDISK
+                                    | RESPONSE_CACHE_CRYPTED));
 
   if ((fsResult.get() != nullptr) && (fsResult->m_status == Success) &&
       (fsResult->m_stream != nullptr)) {

@@ -4,9 +4,10 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <CryptoAPI.h>
+#include <RMSCryptoExceptions.h>
 #include "RestClientCache.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Filesystem/IFileSystem.h"
@@ -95,10 +96,12 @@ common::StringArray RestClientCache::Lookup(
                      CreateCryptoStreamWithAutoKey(
             rmscrypto::api::CIPHER_MODE_CBC4K, filePath, iis) : iis;
 
-          auto data = ips->Read(ips->Size());
-          std::string dataStr(data.begin(), data.end());
+          if (ips) {
+            auto data = ips->Read(ips->Size());
+            std::string dataStr(data.begin(), data.end());
 
-          vResponses.push_back(dataStr);
+            vResponses.push_back(dataStr);
+          }
         }
       }
       catch (exceptions::RMSException)
@@ -111,6 +114,13 @@ common::StringArray RestClientCache::Lookup(
 
         // not fatal
         continue;
+      }
+      catch (rmscrypto::exceptions::RMSCryptoException &e)
+      {
+        Logger::Warning(
+          "RestClientCache::Lookup: exception while work with crypto: \"%s\"", e.what());
+        // fatal
+        return vResponses;
       }
     }
 
@@ -201,13 +211,15 @@ void RestClientCache::Store(
   {
     SELF::cacheMutex.unlock();
 
-    Logger::Warning(
-      "RestClientCache::Store: exception while caching the response.");
-
-    //        LogException(LOG_MESSAGE_WARNING);
-
-    // this is not fatal, we can continue without caching
+    Logger::Warning("RestClientCache::Store: exception while caching the response.");
   }
+  catch (rmscrypto::exceptions::RMSCryptoException &e)
+  {
+    Logger::Warning("RestClientCache::Store: exception while work with crypto: \"%s\"", e.what());
+    // fatal
+    return;
+  }
+
 }
 
 _ptr<ServiceDiscoveryDetails>RestClientCache::LookupServiceDiscoveryDetails(

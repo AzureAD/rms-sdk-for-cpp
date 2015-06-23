@@ -59,6 +59,7 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
 
     AuthenticationContext authContext(
       ap->Authority(), AuthorityValidationType::False, FileCachePtr);
+
     auto result = authContext.acquireToken(ap->Resource(),
                                            clientId_.toStdString(), redirect,
                                            PromptBehavior::Auto);
