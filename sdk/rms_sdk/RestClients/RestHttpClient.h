@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_RESTHTTPCLIENT_H_
 #define _RMS_LIB_RESTHTTPCLIENT_H_
@@ -26,12 +26,12 @@ public:
   };
 
   static Result Get(
-    std::string                           & sUrl,
+    const std::string                     & sUrl,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     common::Event                          *hCancelEvent);
 
   static Result Post(
-    std::string                           & sUrl,
+    const std::string                     & sUrl,
     common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     common::Event                          *hCancelEvent);

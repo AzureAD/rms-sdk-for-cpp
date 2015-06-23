@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <libsecret/secret.h>
 #include "KeyStoragePosix.h"
@@ -20,7 +20,8 @@ const SecretSchema* str_key_schema(void) {
     {
       {  "string",        SECRET_SCHEMA_ATTRIBUTE_STRING },
       {  "NULL",          static_cast<SecretSchemaAttributeType>(0) },
-    },                                                        0,0, 0, 0, 0, 0, 0, 0,
+    },
+    0,                               0,0, 0, 0, 0, 0, 0,
   };
 
   return &the_schema;
@@ -93,6 +94,9 @@ shared_ptr<string>KeyStoragePosix::LookupKey(const string& csKeyWrapper) {
   return res;
 }
 
+std::shared_ptr<IKeyStorage>IKeyStorage::Create() {
+  return std::shared_ptr<KeyStoragePosix>(new KeyStoragePosix);
+}
 } // namespace keystorage
 } // namespace platform
 } // namespace rmscrypto

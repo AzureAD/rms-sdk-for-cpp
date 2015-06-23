@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include <numeric>
@@ -22,7 +22,7 @@ using namespace rmscore::platform::settings;
 
 namespace rmscore {
 namespace restclients {
-RestHttpClient::Result RestHttpClient::Get(std::string                & sUrl,
+RestHttpClient::Result RestHttpClient::Get(const std::string          & sUrl,
                                            IAuthenticationCallbackImpl& authenticationCallback,
                                            Event                       * /*hCancelEvent*/)
 {
@@ -42,7 +42,7 @@ RestHttpClient::Result RestHttpClient::Get(std::string                & sUrl,
   return RestHttpClient::DoHttpRequest(move(parameters));
 }
 
-RestHttpClient::Result RestHttpClient::Post(string                     & sUrl,
+RestHttpClient::Result RestHttpClient::Post(const string               & sUrl,
                                             ByteArray                 && requestBody,
                                             IAuthenticationCallbackImpl& authenticationCallback,
                                             Event                       * /*hCancelEvent*/)

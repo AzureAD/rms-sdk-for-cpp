@@ -9,7 +9,6 @@
 #ifndef _RMS_LIB_COMMONTYPES_H_
 #define _RMS_LIB_COMMONTYPES_H_
 
-#include <unordered_map>
 #include <vector>
 #include <stdint.h>
 #include "FrameworkSpecificTypes.h"

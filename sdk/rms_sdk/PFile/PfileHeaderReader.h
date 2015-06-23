@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_PFILEHEADERREADER_H_
 #define _RMS_LIB_PFILEHEADERREADER_H_
@@ -33,27 +33,28 @@ public:
 private:
 
   std::shared_ptr<PfileHeader>ReadHeader(rmscrypto::api::SharedStream stream,
-                                         uint32_t                majorVersion,
-                                         uint32_t                minorVersion,
-                                         std::string             cleartextRedirectionHeader);
+                                         uint32_t                     majorVersion,
+                                         uint32_t                     minorVersion,
+                                         const std::string          & cleartextRedirectionHeader);
 
-  void ReadAtOffset(common::ByteArray     & dst,
+  void ReadAtOffset(common::ByteArray          & dst,
                     rmscrypto::api::SharedStream stream,
-                    const uint32_t          offset,
-                    const uint32_t          length);
+                    uint32_t                     offset,
+                    uint32_t                     length);
 
-  void ReadBytes(common::ByteArray     & dst,
+  void ReadBytes(common::ByteArray          & dst,
                  rmscrypto::api::SharedStream stream,
-                 const uint32_t          length);
+                 uint32_t                     length);
 
   void                          CheckPreamble(rmscrypto::api::SharedStream stream);
 
-  std::tuple<uint32_t, uint32_t>ReadVersionNumber(rmscrypto::api::SharedStream stream);
+  std::tuple<uint32_t, uint32_t>ReadVersionNumber(
+    rmscrypto::api::SharedStream stream);
   std::string                   ReadCleartextRedirectionHeader(
     rmscrypto::api::SharedStream stream);
   std::string                   ReadExtension(rmscrypto::api::SharedStream stream,
-                                              uint32_t                offset,
-                                              uint32_t                length);
+                                              uint32_t                     offset,
+                                              uint32_t                     length);
 };
 } // namespace pfile
 } // namespace rmscore

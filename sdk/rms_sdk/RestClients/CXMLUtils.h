@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_CXMLUTILS_H_
 #define _RMS_LIB_CXMLUTILS_H_
