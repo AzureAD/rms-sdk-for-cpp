@@ -35,6 +35,8 @@ win32 {
     HEADERS += KeyStorageWindows.h
     SOURCES += KeyStorageWindows.cpp
 } unix:!mac {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += glib-2.0
     HEADERS += KeyStoragePosix.h
     SOURCES += KeyStoragePosix.cpp
 } mac {
