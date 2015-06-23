@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include "PublishClient.h"
 #include "RestClientErrorHandling.h"
@@ -23,7 +23,7 @@ namespace restclients {
 PublishResponse PublishClient::PublishUsingTemplate(
   const PublishUsingTemplateRequest     & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  std::string                             sEmail)
+  const std::string                       sEmail)
 {
   auto pJsonSerializer   = IJsonSerializer::Create();
   auto serializedRequest = pJsonSerializer->SerializePublishUsingTemplateRequest(
@@ -35,7 +35,7 @@ PublishResponse PublishClient::PublishUsingTemplate(
 PublishResponse PublishClient::PublishCustom(
   const PublishCustomRequest            & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  std::string                             sEmail)
+  const std::string                       sEmail)
 {
   auto pJsonSerializer   = IJsonSerializer::Create();
   auto serializedRequest =
@@ -47,7 +47,7 @@ PublishResponse PublishClient::PublishCustom(
 PublishResponse PublishClient::PublishCommon(
   common::ByteArray                    && requestBody,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  std::string                           & sEmail)
+  const std::string                     & sEmail)
 {
   auto pRestServiceUrlClient = RestServiceUrlClient::Create();
   auto publishUrl            = pRestServiceUrlClient->GetPublishUrl(sEmail,

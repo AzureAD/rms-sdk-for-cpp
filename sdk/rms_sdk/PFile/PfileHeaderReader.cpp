@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <future>
 #include "../ModernAPI/RMSExceptions.h"
@@ -131,7 +131,7 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   rmscrypto::api::SharedStream stream,
   uint32_t                     majorVersion,
   uint32_t                     minorVersion,
-  string                       cleartextRedirectionHeader)
+  const string               & cleartextRedirectionHeader)
 {
   uint32_t headerSize;
   uint32_t extensionOffset = 0;
@@ -194,8 +194,8 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
 
 void PfileHeaderReader::ReadAtOffset(ByteArray                  & dst,
                                      rmscrypto::api::SharedStream stream,
-                                     const uint32_t               offset,
-                                     const uint32_t               length)
+                                     uint32_t                     offset,
+                                     uint32_t                     length)
 {
   stream->Seek(offset);
   ReadBytes(dst, stream, length);
@@ -203,7 +203,7 @@ void PfileHeaderReader::ReadAtOffset(ByteArray                  & dst,
 
 void PfileHeaderReader::ReadBytes(ByteArray                  & dst,
                                   rmscrypto::api::SharedStream stream,
-                                  const uint32_t               length)
+                                  uint32_t                     length)
 {
   // check for size
   if (length == 0) return;

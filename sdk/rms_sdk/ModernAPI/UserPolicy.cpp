@@ -262,7 +262,7 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
   return result;
 } // UserPolicy::Create
 
-bool UserPolicy::AccessCheck(string& right) const {
+bool UserPolicy::AccessCheck(const string& right) const {
   return m_pImpl->AccessCheck(right);
 }
 

@@ -53,7 +53,7 @@ shared_ptr<DnsClientResult>DnsLookupClient::LookupDiscoveryService(shared_ptr<Do
     return DnsClientResult::Create(string("api.aadrm.com"));
 }
 
-vector<string>DnsLookupClient::GetPossibleDomains(std::string& domain)
+vector<string>DnsLookupClient::GetPossibleDomains(const std::string& domain)
 {
   const int MINIMUM_NUMBER_OF_ELEMENTS_IN_DOMAIN = 1;
 

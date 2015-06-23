@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_IPUBLISHCLIENT_H_
 #define _RMS_LIB_IPUBLISHCLIENT_H_
@@ -17,14 +17,20 @@ namespace restclients {
 class IPublishClient {
 public:
 
-    virtual PublishResponse PublishUsingTemplate(const PublishUsingTemplateRequest &request,
-    modernapi::IAuthenticationCallbackImpl &authenticationCallback, std::string email) = 0;
-    virtual PublishResponse PublishCustom(const PublishCustomRequest &request,
-    modernapi::IAuthenticationCallbackImpl &authenticationCallback, std::string email) = 0;
+  virtual PublishResponse PublishUsingTemplate(
+    const PublishUsingTemplateRequest     & request,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string                       email)
+    = 0;
+  virtual PublishResponse PublishCustom(
+    const PublishCustomRequest            & request,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string                       email)
+    = 0;
 
 public:
 
-    static std::shared_ptr<IPublishClient> Create();
+  static std::shared_ptr<IPublishClient>Create();
 };
 } // namespace restclients
 } // namespace rmscore

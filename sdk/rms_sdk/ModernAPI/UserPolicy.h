@@ -10,7 +10,6 @@
 #define _RMS_LIB_USERPOLICY_H_
 
 #include <stdint.h>
-#include <unordered_map>
 #include <chrono>
 
 #include "IAuthenticationCallback.h"
@@ -83,8 +82,8 @@ public:
     IAuthenticationCallback & authenticationCallback,
     UserPolicyCreationOptions options);
 
-  bool                                              AccessCheck(std::string& right)
-  const;
+  bool AccessCheck(const std::string& right) const;
+
   UserPolicyType                                    Type();
 
   std::string                                       Name();
