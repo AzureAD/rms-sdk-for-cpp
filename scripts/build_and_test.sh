@@ -92,7 +92,7 @@ strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmscrypto${LIB_SUFFIX} > /dev/nu
 
 cp sdk/rms_sdk/ModernAPI/*.h ${TARGET_DIR}/usr/include/rms
 cp sdk/rmsauth_sdk/rmsauth/rmsauth/*.h ${TARGET_DIR}/usr/include/rmsauth
-cp sdk/rmscrypto_sdk/CryptoStreams/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
+cp sdk/rmscrypto_sdk/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
 
 if [ $TEST == 'true' ]; then
   echo "--> Starting unit tests..."
