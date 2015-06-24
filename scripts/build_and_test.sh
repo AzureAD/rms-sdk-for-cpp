@@ -40,7 +40,7 @@ elif [ $UNAME == "Linux" ]; then
   if [ $DISTRO == "" ]; then
       log "Error reading DISTRO"
       exit 1
-  elif [ $DISTRO == "Ubuntu" ]; then
+  elif [ ${DISTRO^^} == "UBUNTU" ]; then
       type qmake >/dev/null 2>&1 || { echo >&2 log "qmake is required but not installed."; exit 1; }
   else # CentOS & OpenSUSE
       QMAKE=qmake-qt5

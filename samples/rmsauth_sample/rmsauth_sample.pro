@@ -18,7 +18,7 @@ FORMS    += MainWindow.ui
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -L$$DESTDIR -lrmsauthd -lrmsauthWebAuthDialogd
+    LIBS +=  -L$$DESTDIR -lrmsauthd -lrmsauthWebAuthDialogd -lrmscryptod
 } else {
-    LIBS +=  -L$$DESTDIR -lrmsauth -lrmsauthWebAuthDialog
+    LIBS +=  -L$$DESTDIR -lrmsauth -lrmsauthWebAuthDialog -lrmscrypto
 }
