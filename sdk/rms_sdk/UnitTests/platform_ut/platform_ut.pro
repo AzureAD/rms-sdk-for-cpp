@@ -14,8 +14,6 @@ INCLUDEPATH       += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
 
 LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/platform
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
-else:LIBS  += -lssl -lcrypto
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
@@ -23,6 +21,9 @@ CONFIG(debug, debug|release) {
 } else {
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lrmscrypto -lplatformfilesystem -lplatformsettings
 }
+
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
+else:LIBS  += -lssl -lcrypto
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

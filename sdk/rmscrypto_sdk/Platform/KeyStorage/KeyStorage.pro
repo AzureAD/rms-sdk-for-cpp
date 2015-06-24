@@ -12,7 +12,7 @@ unix:!mac:INCLUDEPATH  += /usr/include/glib-2.0/ /usr/include/libsecret-1/ /usr/
 # win32:INCLUDEPATH += //TODO: Add DPAPI
 # mac:INCLUDEPATH   += //TODO: Add osxkeychain
 
-LIBS +=  -L$$DESTDIR -L$$DESTDIR/Platform/
+LIBS +=  -L$$DESTDIR
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)

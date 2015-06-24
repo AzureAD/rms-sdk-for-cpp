@@ -2,10 +2,6 @@ REPO_ROOT = $$PWD/../../..
 DESTDIR   = $$REPO_ROOT/bin
 TARGET    = rms
 
-LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
-else:LIBS  += -lssl -lcrypto
-
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 
 DEFINES     += RMS_LIBRARY
@@ -17,6 +13,8 @@ CONFIG   += plugin c++11 debug_and_release warn_on
 QMAKE_CFLAGS_WARN_ON -= -W3
 QMAKE_CFLAGS_WARN_ON += -W4
 
+LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
+
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond -lrmscryptod
@@ -25,6 +23,9 @@ CONFIG(debug, debug|release) {
     LIBS += -lmodprotectedfile -lmodcore -lmodrestclients -lmodconsent -lmodcommon -lmodjson -lrmscrypto
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings
 }
+
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
+else:LIBS  += -lssl -lcrypto
 
 SOURCES += \
     UserPolicy.cpp \
