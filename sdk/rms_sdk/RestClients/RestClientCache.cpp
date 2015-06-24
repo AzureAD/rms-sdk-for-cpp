@@ -51,10 +51,9 @@ common::StringArray RestClientCache::Lookup(
     return common::StringArray();
   }
 
+  lock_guard<mutex> locker(SELF::cacheMutex);
   try
   {
-    SELF::cacheMutex.lock();
-
     auto fileNamePattern = SELF::GetFileName(cacheName,
                                              tag,
                                              pbKey,
@@ -115,10 +114,12 @@ common::StringArray RestClientCache::Lookup(
         // not fatal
         continue;
       }
-      catch (rmscrypto::exceptions::RMSCryptoException &e)
+      catch (rmscrypto::exceptions::RMSCryptoException& e)
       {
         Logger::Warning(
-          "RestClientCache::Lookup: exception while work with crypto: \"%s\"", e.what());
+          "RestClientCache::Lookup: exception while work with crypto: \"%s\"",
+          e.what());
+
         // fatal
         return vResponses;
       }
@@ -130,14 +131,11 @@ common::StringArray RestClientCache::Lookup(
       !tag.empty() ? tag.data() : "NULL",
       vResponses.size());
 
-    SELF::cacheMutex.unlock();
 
     return vResponses;
   }
   catch (exceptions::RMSException)
   {
-    SELF::cacheMutex.unlock();
-
     Logger::Warning(
       "RestClientCache::Lookup: exception while enumerating cached files.");
 
@@ -162,10 +160,9 @@ void RestClientCache::Store(
     !tag.empty() ? tag.data() : "NULL",
     !expires.empty() ? expires.data() : "NULL");
 
+  lock_guard<mutex> locker(SELF::cacheMutex);
   try
   {
-    SELF::cacheMutex.lock();
-
     auto fileName = SELF::GetFileName(cacheName,
                                       tag,
                                       pbKey,
@@ -203,23 +200,23 @@ void RestClientCache::Store(
         ops->Flush();
       }
     }
-    SELF::cacheMutex.unlock();
 
     SELF::CleanupIfNeeded(cacheName);
   }
   catch (exceptions::RMSException)
   {
-    SELF::cacheMutex.unlock();
-
-    Logger::Warning("RestClientCache::Store: exception while caching the response.");
+    Logger::Warning(
+      "RestClientCache::Store: exception while caching the response.");
   }
-  catch (rmscrypto::exceptions::RMSCryptoException &e)
+  catch (rmscrypto::exceptions::RMSCryptoException& e)
   {
-    Logger::Warning("RestClientCache::Store: exception while work with crypto: \"%s\"", e.what());
+    Logger::Warning(
+      "RestClientCache::Store: exception while work with crypto: \"%s\"",
+      e.what());
+
     // fatal
     return;
   }
-
 }
 
 _ptr<ServiceDiscoveryDetails>RestClientCache::LookupServiceDiscoveryDetails(
@@ -545,13 +542,12 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
   // do cleanup in a separate thread
   auto result = async([cacheName]()
       {
+        // need to lock as we don't want to delete the file while consuming it.
+        lock_guard<mutex>locker(SELF::cacheMutex);
         try
         {
           Logger::Info("RestClientCache::LaunchCleanup: cleanup started.");
 
-          // need to lock as we don't want to delete the file while consuming
-          // it.
-          SELF::cacheMutex.lock();
 
           auto pFileSystem = platform::filesystem::IFileSystem::Create();
 
@@ -633,16 +629,10 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
               // not fatal, should continue with the next file
             }
           }
-          SELF::cacheMutex.unlock();
         }
         catch (exceptions::RMSException)
         {
-          SELF::cacheMutex.unlock();
-
-          Logger::Warning(
-            "RestClientCache::DeleteCacheFile: exception while cache cleanup.");
-
-          //            LogException(LOG_MESSAGE_WARNING);
+          Logger::Warning("RestClientCache::DeleteCacheFile: exception while cache cleanup.");
         }
         Logger::Info("RestClientCache::LaunchCleanup: cleanup finished.");
       });
