@@ -29,11 +29,14 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-if [ `uname` == 'Darwin' ]; then
+UNAME=`uname`
+echo "UNAME: $UNAME"
+if [ $UNAME == "Darwin" ]; then
    LIB_SUFFIX=.dylib
    STRIP_OPTIONS=
-elif [`uname` == 'Linux' ]; then
-  DISTRO=$(awk -F '=' '{if($1=="DISTRIB_ID") print $2;}' /etc/lsb-release)
+elif [ $UNAME == "Linux" ]; then
+  DISTRO=$(awk -F'=' '{if($1=="ID")print $2; }' /etc/os-release)
+  echo "DISTRO : $DISTRO"
   if [ $DISTRO == "" ]; then
       log "Error reading DISTRO"
       exit 1
@@ -118,7 +121,7 @@ if [ $SAMPLE == 'true' ]; then
   echo "--> Entering samples directory..."
   cd $REPO_ROOT/samples
   $QMAKE $VARS -recursive
-  echo "--> Running make, please see sdk_build.log for details..."
+  echo "--> Running make, please see sample_apps_build.log for details..."
   make | tee sample_apps_build.log 2>&1
   cd $REPO_ROOT
 fi
