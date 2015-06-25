@@ -31,6 +31,7 @@ public:
     NullPointer,
     OperationUnavailable,
     Insufficientbuffer,
+    NotImplemented,
     SecretKeyException,
     UnknownError
   };
@@ -151,6 +152,18 @@ public:
     : RMSCryptoLogicException(NullPointer, message) {}
 
   virtual ~RMSCryptoInsufficientBufferException() _NOEXCEPT {}
+};
+
+class RMSCryptoNotImplementedException : public RMSCryptoLogicException {
+public:
+
+  RMSCryptoNotImplementedException(const std::string& message) _NOEXCEPT
+    : RMSCryptoLogicException(NotImplemented, message) {}
+
+  RMSCryptoNotImplementedException(const char *const& message) _NOEXCEPT
+    : RMSCryptoLogicException(NotImplemented, message) {}
+
+  virtual ~RMSCryptoNotImplementedException() _NOEXCEPT {}
 };
 } // namespace exceptions
 } // namespace rmscrypto

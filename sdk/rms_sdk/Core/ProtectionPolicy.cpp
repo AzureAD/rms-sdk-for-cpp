@@ -21,7 +21,7 @@ using namespace std;
 
 namespace rmscore {
 namespace core {
-static AccessStatus MapAccessStatus(string& accessStatus) {
+static AccessStatus MapAccessStatus(const string& accessStatus) {
   if (0 == _stricmp("AccessGranted", accessStatus.c_str())) {
     return ACCESS_STATUS_ACCESS_GRANTED;
   } else if (0 == _stricmp("AccessDenied", accessStatus.c_str())) {
@@ -38,7 +38,7 @@ static AccessStatus MapAccessStatus(string& accessStatus) {
   }
 }
 
-static rmscrypto::api::CipherMode MapCipherMode(string& cipherMode) {
+static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode) {
   if (0 ==
       _stricmp("MICROSOFT.CBC4K",
                cipherMode.c_str())) return rmscrypto::api::CIPHER_MODE_CBC4K;

@@ -633,7 +633,7 @@ ServiceDiscoveryListResponse JsonSerializer::DeserializeServiceDiscoveryResponse
   return response;
 }
 
-string JsonSerializer::ProcessReferrerResponse(string&& referrerResponse)
+string JsonSerializer::ProcessReferrerResponse(const string&& referrerResponse)
 {
   if (!referrerResponse.empty())
   {

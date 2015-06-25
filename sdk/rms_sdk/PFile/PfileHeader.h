@@ -20,11 +20,11 @@ public:
 
   PfileHeader(common::ByteArray&& publishingLicense,
               const std::string & fileExtension,
-              const uint32_t      contentStartPosition,
-              const uint64_t      originalFileSize,
+              uint32_t            contentStartPosition,
+              uint64_t            originalFileSize,
               common::ByteArray&& metadata,
-              const uint32_t      majorVersion,
-              const uint32_t      minorVersion,
+              uint32_t            majorVersion,
+              uint32_t            minorVersion,
               const std::string & cleartextRedirectionHeader);
 
   const common::ByteArray& GetPublishingLicense() const;

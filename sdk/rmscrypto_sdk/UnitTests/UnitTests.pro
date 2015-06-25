@@ -16,7 +16,7 @@ unix:!mac:INCLUDEPATH += /usr/include/glib-2.0/ /usr/include/libsecret-1/ /usr/l
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
-LIBS                  += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/crypto -L$$REPO_ROOT/bin/crypto/platform
+LIBS                  +=  -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/crypto -L$$REPO_ROOT/bin/crypto/platform
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)

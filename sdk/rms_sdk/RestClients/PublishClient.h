@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_PUBLISHCLIENT_H_
 #define _RMS_LIB_PUBLISHCLIENT_H_
@@ -17,12 +17,12 @@ public:
   virtual PublishResponse PublishUsingTemplate(
     const PublishUsingTemplateRequest     & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::string                             sEmail)
+    const std::string                       sEmail)
   override;
   virtual PublishResponse PublishCustom(
     const PublishCustomRequest            & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::string                             sEmail)
+    const std::string                       sEmail)
   override;
 
 private:
@@ -30,7 +30,7 @@ private:
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::string                           & sEmail);
+    const std::string                     & sEmail);
 };
 } // namespace restclients
 } // namespace rmscore
