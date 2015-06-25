@@ -126,7 +126,7 @@ void PFileConverter::ConvertToPFilePredefinedRights(
 
   desc.Referrer(make_shared<string>("https://client.test.app"));
   desc.ContentValidUntil(endValidation);
-  desc.OfflineCacheLifetimeInDays(2);
+  desc.AllowOfflineAccess(true);
 
   auto policy = UserPolicy::Create(desc, userId, auth,
                                    USER_AllowAuditedExtraction);
@@ -207,8 +207,7 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
     consent,
     POL_None,
     static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
-                                    | RESPONSE_CACHE_ONDISK
-                                    | RESPONSE_CACHE_CRYPTED));
+                                    | RESPONSE_CACHE_ONDISK));
 
   if ((fsResult.get() != nullptr) && (fsResult->m_status == Success) &&
       (fsResult->m_stream != nullptr)) {
