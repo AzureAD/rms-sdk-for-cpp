@@ -36,11 +36,11 @@ if [ $UNAME == "Darwin" ]; then
    STRIP_OPTIONS=
 elif [ $UNAME == "Linux" ]; then
   DISTRO=$(awk -F'=' '{if($1=="ID")print $2; }' /etc/os-release)
-  echo "DISTRO : $DISTRO"
+  echo "DISTRO: $DISTRO"
   if [ $DISTRO == "" ]; then
       log "Error reading DISTRO"
       exit 1
-  elif [ $DISTRO == "Ubuntu" ]; then
+  elif [ $DISTRO == "ubuntu" ]; then
       type qmake >/dev/null 2>&1 || { echo >&2 log "qmake is required but not installed."; exit 1; }
   else # CentOS & OpenSUSE
       QMAKE=qmake-qt5
@@ -92,7 +92,7 @@ strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmscrypto${LIB_SUFFIX} > /dev/nu
 
 cp sdk/rms_sdk/ModernAPI/*.h ${TARGET_DIR}/usr/include/rms
 cp sdk/rmsauth_sdk/rmsauth/rmsauth/*.h ${TARGET_DIR}/usr/include/rmsauth
-cp sdk/rmscrypto_sdk/CryptoStreams/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
+cp sdk/rmscrypto_sdk/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
 
 if [ $TEST == 'true' ]; then
   echo "--> Starting unit tests..."
