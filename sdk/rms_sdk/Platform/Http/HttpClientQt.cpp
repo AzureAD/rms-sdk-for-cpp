@@ -86,7 +86,9 @@ StatusCode HttpClientQt::Post(const string            & url,
                               const string            & mediaType,
                               common::ByteArray       & response) {
   Logger::Info("==> HttpClientQt::POST %s", url.data());
-  Logger::Debug("==> request: %s",           request.data());
+
+  std::string req(request.begin(),request.end());
+  Logger::Debug("==> request: %s", req.c_str());
 
   this->request_.setUrl(QUrl(url.c_str()));
   this->AddAcceptMediaTypeHeader(mediaType);
