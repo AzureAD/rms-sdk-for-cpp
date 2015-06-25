@@ -5,7 +5,7 @@ bin/
 dest/
 *.deb
 *.bz2
-*build.log
+*.log
 
 # Qt Build Artifacts
 Makefile*

@@ -31,7 +31,7 @@ RESOURCES = res.qrc
 
 unix {
     contains(QMAKE_HOST.arch, x86_64) {
-        target.path = /usr/lib64
+        target.path = /usr/lib/x86_64-linux-gnu
         INSTALLS += target
     } else {
         target.path += /usr/lib
