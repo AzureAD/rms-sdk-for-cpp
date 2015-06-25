@@ -35,7 +35,7 @@ static std::string localTime(const char * format) {
 
 LoggerImplQt::LoggerImplQt() {
     std::stringstream filename;
-    filename << "rms_log_" << localTime("%H%M%S-%d%m") << ".log";
+    filename << "rms_log_" << localTime("%Y%m%d-%H%M%S") << ".log";
 
     this->stream_.open(filename.str(), std::ofstream::out | std::ofstream::trunc);
     if (this->stream_.fail()) {

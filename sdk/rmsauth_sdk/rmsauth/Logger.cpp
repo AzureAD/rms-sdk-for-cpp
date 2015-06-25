@@ -57,7 +57,7 @@ void Logger::error(const String& tag, const String& record)
 LoggerImpl::LoggerImpl()
 {
     StringStream filename;
-    filename << "rmsauth_" << LoggerImpl::getLocalTime("HHmmss-MMdd") << ".log";
+    filename << "rmsauth_" << LoggerImpl::getLocalTime("yyyyMMdd-HHmmss") << ".log";
 
     this->stream_.open (filename.str(), std::ofstream::out | std::ofstream::trunc);
     if( this->stream_.fail())
