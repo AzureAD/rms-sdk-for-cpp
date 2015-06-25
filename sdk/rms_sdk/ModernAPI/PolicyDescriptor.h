@@ -98,14 +98,14 @@ public:
     this->contentValidUntil_ = value;
   }
 
-  int OfflineCacheLifetimeInDays()
+  bool AllowOfflineAccess()
   {
-    return this->nOfflineCacheLifetimeInDays_;
+    return this->bAllowOfflineAccess_;
   }
 
-  void OfflineCacheLifetimeInDays(int value)
+  void AllowOfflineAccess(bool value)
   {
-    this->nOfflineCacheLifetimeInDays_ = value;
+    this->bAllowOfflineAccess_ = value;
   }
 
   std::shared_ptr<std::string>Referrer() const
@@ -151,7 +151,7 @@ private:
   std::vector<UserRoles>  userRolesList_;
 
   std::chrono::time_point<std::chrono::system_clock> contentValidUntil_;
-  int nOfflineCacheLifetimeInDays_;
+  bool bAllowOfflineAccess_;
 
   std::shared_ptr<std::string> referrer_;
   AppDataHashMap encryptedAppData_;

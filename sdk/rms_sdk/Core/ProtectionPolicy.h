@@ -41,7 +41,7 @@ struct PolicyDescriptorImpl {
   std::vector<UserRightsImpl>                       userRightsList;
   std::vector<UserRolesImpl>                        userRolesList;
   std::chrono::time_point<std::chrono::system_clock>ftContentValidUntil;
-  int                                               nIntervalTime;
+  bool                                              bAllowOfflineAccess;
   std::string                                       referrer;
   modernapi::AppDataHashMap                         signedApplicationData;
   modernapi::AppDataHashMap                         encryptedApplicationData;
@@ -107,8 +107,8 @@ public:
 
   uint64_t GetValidityTimeDuration() const;
 
-  uint32_t GetIntervalTime() const {
-    return m_dwIntervalTime;
+  bool     AllowOfflineAccess() const {
+    return m_bAllowOfflineAccess;
   }
 
   bool IsAdhoc() const {
@@ -194,8 +194,7 @@ public:
 
   void Initialize(restclients::PublishResponse   & response,
                   bool                             bAllowAuditedExtraction,
-                  int
-                  nIntervalTime,
+                  bool                             bAllowOfflineAccess,
                   const modernapi::AppDataHashMap& signedData =
                     modernapi::AppDataHashMap(),
                   const modernapi::AppDataHashMap& encryptedData =
@@ -231,7 +230,7 @@ private:
   std::string  m_requester;
   std::chrono::time_point<std::chrono::system_clock> m_ftValidityTimeFrom;
   std::chrono::time_point<std::chrono::system_clock> m_ftValidityTimeUntil;
-  uint32_t m_dwIntervalTime;
+  bool m_bAllowOfflineAccess;
   std::vector<std::string> m_rights;
   std::vector<std::string> m_roles;
   common::ByteArray m_publishLicense;

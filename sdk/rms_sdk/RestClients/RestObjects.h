@@ -58,10 +58,11 @@ struct UsageRestrictionsResponse {
   std::vector<std::string>                          rights;
   std::vector<std::string>                          roles;
   std::string                                       issuedTo;
-  std::string                                       contentValidUntil;
   std::chrono::time_point<std::chrono::system_clock>ftContentValidUntil;
-  std::string                                       licenseValidUntil;
   std::chrono::time_point<std::chrono::system_clock>ftLicenseValidUntil;
+  std::string                                       contentValidUntil;
+  std::string                                       licenseValidUntil;
+  bool                                              bAllowOfflineAccess;
   std::string                                       contentId;
   CustomPolicyResponse                              customPolicy;
   modernapi::AppDataHashMap                         signedApplicationData;
@@ -130,7 +131,7 @@ struct PublishCustomRequest {
   std::string                                       language;
   std::vector<UserRightsRequest>                    userRightsList;
   std::vector<UserRolesRequest>                     userRolesList;
-  int                                               nIntervalTime;
+  bool                                              bAllowOfflineAccess;
   std::chrono::time_point<std::chrono::system_clock>ftLicenseValidUntil;
   modernapi::AppDataHashMap                         signedApplicationData;
   modernapi::AppDataHashMap                         encryptedApplicationData;

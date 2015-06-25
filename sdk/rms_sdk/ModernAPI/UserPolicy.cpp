@@ -158,8 +158,7 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
 
   if (!policyDescriptor.Description().empty()) policyDescriptorImpl.description =
       policyDescriptor.Description();
-  policyDescriptorImpl.nIntervalTime =
-    policyDescriptor.OfflineCacheLifetimeInDays();
+  policyDescriptorImpl.bAllowOfflineAccess = policyDescriptor.AllowOfflineAccess();
   policyDescriptorImpl.ftContentValidUntil = policyDescriptor.ContentValidUntil();
 
   auto ref = policyDescriptor.Referrer();
