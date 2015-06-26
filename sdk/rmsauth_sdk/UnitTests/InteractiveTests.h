@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef INTERACRIVETEST_H
-#define INTERACRIVETEST_H
+#ifndef INTERACTIVETEST_H
+#define INTERACTIVETEST_H
 #include <QTest>
 
 class InteractiveTests : public QObject
@@ -19,4 +19,4 @@ private Q_SLOTS:
     void AcquireTokenInteractiveHandlerTest();
 };
 
-#endif // INTERACRIVETEST_H
+#endif // INTERACTIVETEST_H

@@ -11,10 +11,10 @@
 
 #include <string>
 #include <memory>
-#include "../../Common/CommonTypes.h"
+#include "../../ModernAPI/PolicyDescriptor.h"
 
 class IDomNode;
-using DomNamedNodeMap = rmscore::common::HashMapString<std::shared_ptr<IDomNode>>;
+using DomNamedNodeMap = rmscore::modernapi::detail::HashMapString<std::shared_ptr<IDomNode>>;
 
 #endif // DOMNAMEDNODEMAP
 

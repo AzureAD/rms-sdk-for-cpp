@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include "PfileHeader.h"
 
@@ -13,14 +13,14 @@ using namespace rmscore::common;
 
 namespace rmscore {
 namespace pfile {
-PfileHeader::PfileHeader(ByteArray   && publishingLicense,
-                         const string & fileExtension,
-                         const uint32_t contentStartPosition,
-                         const uint64_t originalFileSize,
-                         ByteArray   && metadata,
-                         const uint32_t majorVersion,
-                         const uint32_t minorVersion,
-                         const string & cleartextRedirectionHeader) :
+PfileHeader::PfileHeader(ByteArray  && publishingLicense,
+                         const string& fileExtension,
+                         uint32_t      contentStartPosition,
+                         uint64_t      originalFileSize,
+                         ByteArray  && metadata,
+                         uint32_t      majorVersion,
+                         uint32_t      minorVersion,
+                         const string& cleartextRedirectionHeader) :
   m_PublishingLicense(publishingLicense),
   m_FileExtension(fileExtension), m_ContentStartPosition(contentStartPosition),
   m_OriginalFileSize(originalFileSize), m_Metadata(metadata), m_MajorVersion(

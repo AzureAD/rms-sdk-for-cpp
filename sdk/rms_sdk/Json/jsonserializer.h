@@ -28,7 +28,7 @@ public:
     virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(common::ByteArray &sResponse) override;
 
 private:
-    std::string ProcessReferrerResponse(std::string&& referrerResponse);
+    std::string ProcessReferrerResponse(const std::string&& referrerResponse);
     void AddUserRightsOrRolesInCustomRequest(platform::json::IJsonObject* pPolicyJson, const restclients::PublishCustomRequest& request);
 };
 } // namespace json

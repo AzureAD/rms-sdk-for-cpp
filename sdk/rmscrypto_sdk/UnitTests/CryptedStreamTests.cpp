@@ -8,7 +8,9 @@
 
 #include <sstream>
 #include "CryptedStreamTests.h"
-#include "../CryptoStreams/CryptoAPI/CryptoAPI.h"
+#include "../CryptoAPI/CryptoAPI.h"
+#include "../CryptoAPI/RMSCryptoExceptions.h"
+
 using namespace std;
 void CryptedStreamTests::CryptedStreamToMemory_data() {
     QTest::addColumn<QString>("aesKey");
@@ -59,7 +61,7 @@ void CryptedStreamTests::CryptedStreamToMemory() {
     QVERIFY2(read == dst.size(), "Invalid decrypted size!");
     QVERIFY2(memcmp(dst.data(),qData.data(), dst.size())==0, "Invalid decrypted data!");
 
-    } catch(const std::exception& e) {
+    } catch(const rmscrypto::exceptions::RMSCryptoException& e) {
         qDebug() << "Exeption: " << e.what();
     }
 

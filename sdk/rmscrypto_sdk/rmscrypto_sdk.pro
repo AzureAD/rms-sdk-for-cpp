@@ -1,7 +1,13 @@
 TEMPLATE = subdirs
+DEFINES += QTFRAMEWORK
+
 
 SUBDIRS += \
-    CryptoStreams\
+    Crypto \
+    CryptoAPI \
+    Platform \
     UnitTests
-    
-UnitTests.depends = CryptoStreams
+
+CryptoAPI.depends  = Crypto
+Crypto.depends     = Platform
+UnitTests.depends  = CryptoAPI

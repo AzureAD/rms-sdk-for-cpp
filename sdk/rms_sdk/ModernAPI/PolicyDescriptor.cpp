@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <algorithm>
 
@@ -38,7 +38,7 @@ void UserRights::ValidateRights(RightList& rights)
   ValidateInputRefObjectCollection<string>(rights);
 }
 
-UserRoles::UserRoles(UserList& users, RoleList& roles)
+UserRoles::UserRoles(const UserList& users, const RoleList& roles)
   : users(users)
   , roles(roles)
 {
@@ -46,24 +46,23 @@ UserRoles::UserRoles(UserList& users, RoleList& roles)
   ValidateRoles(roles);
 }
 
-void UserRoles::ValidateUsers(UserList& users)
+void UserRoles::ValidateUsers(const UserList& users)
 {
   ValidateInputRefObjectCollection<string>(users);
 }
 
-void UserRoles::ValidateRoles(RoleList& roles)
+void UserRoles::ValidateRoles(const RoleList& roles)
 {
   ValidateInputRefObjectCollection<string>(roles);
 }
 
-PolicyDescriptor::PolicyDescriptor(const std::vector<UserRights> &userRightsList)
+PolicyDescriptor::PolicyDescriptor(const std::vector<UserRights>& userRightsList)
   : name_()
   , description_()
   , userRightsList_(userRightsList)
   , userRolesList_()
   , contentValidUntil_()
-  , nOfflineCacheLifetimeInDays_(
-    OfflineCacheLifetimeConstants::CacheNeverExpires())
+  , bAllowOfflineAccess_(true)
   , referrer_()
   , encryptedAppData_()
   , signedAppData_()
@@ -71,14 +70,13 @@ PolicyDescriptor::PolicyDescriptor(const std::vector<UserRights> &userRightsList
   ValidateUserRightsList(userRightsList);
 }
 
-PolicyDescriptor::PolicyDescriptor(const std::vector<UserRoles> &userRolesList)
+PolicyDescriptor::PolicyDescriptor(const std::vector<UserRoles>& userRolesList)
   : name_()
   , description_()
   , userRightsList_()
   , userRolesList_(userRolesList)
   , contentValidUntil_()
-  , nOfflineCacheLifetimeInDays_(
-    OfflineCacheLifetimeConstants::CacheNeverExpires())
+  , bAllowOfflineAccess_(true)
   , referrer_()
   , encryptedAppData_()
   , signedAppData_()
@@ -86,13 +84,12 @@ PolicyDescriptor::PolicyDescriptor(const std::vector<UserRoles> &userRolesList)
   ValidateUserRolesList(userRolesList);
 }
 
-PolicyDescriptor::PolicyDescriptor(std::shared_ptr<ProtectionPolicy> policy)
+PolicyDescriptor::PolicyDescriptor(std::shared_ptr<ProtectionPolicy>policy)
   : name_()
   , description_()
   , userRightsList_()
   , contentValidUntil_()
-  , nOfflineCacheLifetimeInDays_(
-    OfflineCacheLifetimeConstants::CacheNeverExpires())
+  , bAllowOfflineAccess_(true)
   , referrer_()
   , encryptedAppData_()
   , signedAppData_()
@@ -101,17 +98,15 @@ PolicyDescriptor::PolicyDescriptor(std::shared_ptr<ProtectionPolicy> policy)
     throw exceptions::RMSInvalidArgumentException("Invalid policy argument");
   }
 
-  name_                        = policy->GetName();
-  description_                 = policy->GetDescription();
-  nOfflineCacheLifetimeInDays_ =
-    (USHRT_MAX !=
-     policy->GetIntervalTime()) ? policy->GetIntervalTime() :
-    OfflineCacheLifetimeConstants::CacheNeverExpires();
-  referrer_ = std::make_shared<std::string>(policy->GetReferrer());
+  name_                = policy->GetName();
+  description_         = policy->GetDescription();
+  bAllowOfflineAccess_ = policy->AllowOfflineAccess();
+  referrer_            = std::make_shared<std::string>(policy->GetReferrer());
 
   auto timeFrom = policy->GetValidityTimeFrom();
-  auto dur = policy->GetValidityTimeDuration();
-  if (std::chrono::system_clock::to_time_t(timeFrom) > 0 && (0ull != dur))
+  auto dur      = policy->GetValidityTimeDuration();
+
+  if ((std::chrono::system_clock::to_time_t(timeFrom) > 0) && (0ull != dur))
   {
     contentValidUntil_ = timeFrom + std::chrono::milliseconds(
       policy->GetValidityTimeDuration());
@@ -171,7 +166,8 @@ PolicyDescriptor::PolicyDescriptor(std::shared_ptr<ProtectionPolicy> policy)
   }
 }
 
-void PolicyDescriptor::ValidateUserRightsList(const std::vector<UserRights> &userRightsList)
+void PolicyDescriptor::ValidateUserRightsList(
+  const std::vector<UserRights>& userRightsList)
 {
   for (const auto& userRight : userRightsList) {
     ValidateInputRefObjectCollection<string>(userRight.Users());
@@ -179,7 +175,8 @@ void PolicyDescriptor::ValidateUserRightsList(const std::vector<UserRights> &use
   }
 }
 
-void PolicyDescriptor::ValidateUserRolesList(const std::vector<UserRoles> &userRolesList)
+void PolicyDescriptor::ValidateUserRolesList(
+  const std::vector<UserRoles>& userRolesList)
 {
   for (const auto& userRole : userRolesList) {
     ValidateInputRefObjectCollection<string>(userRole.Users());

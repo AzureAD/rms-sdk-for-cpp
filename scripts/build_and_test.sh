@@ -11,7 +11,7 @@ LIB_SUFFIX=.so
 UT_SUFFIX=
 STRIP_OPTIONS=--strip-unneeded
 VARS="CONFIG+=release"
-TARGET_DIR=./build/release
+TARGET_DIR=./dist/release
 
 BUILD=true
 DEBUG=false
@@ -29,15 +29,18 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-if [ `uname` == 'Darwin' ]; then
+UNAME=`uname`
+echo "UNAME: $UNAME"
+if [ $UNAME == "Darwin" ]; then
    LIB_SUFFIX=.dylib
    STRIP_OPTIONS=
-elif [`uname` == 'Linux' ]; then
-  DISTRO=$(awk -F '=' '{if($1=="DISTRIB_ID") print $2;}' /etc/lsb-release)
+elif [ $UNAME == "Linux" ]; then
+  DISTRO=$(awk -F'=' '{if($1=="ID")print $2; }' /etc/os-release)
+  echo "DISTRO: $DISTRO"
   if [ $DISTRO == "" ]; then
       log "Error reading DISTRO"
       exit 1
-  elif [ $DISTRO == "Ubuntu" ]; then
+  elif [ ${DISTRO^^} == "UBUNTU" ]; then
       type qmake >/dev/null 2>&1 || { echo >&2 log "qmake is required but not installed."; exit 1; }
   else # CentOS & OpenSUSE
       QMAKE=qmake-qt5
@@ -56,7 +59,7 @@ echo "REPO_ROOT : $REPO_ROOT"
 if [ $DEBUG == 'true' ]; then
    echo "DEBUG Build"
    VARS="CONFIG+=debug"
-   TARGET_DIR=./build/debug
+   TARGET_DIR=./dist/debug
    LIB_SUFFIX=d${LIB_SUFFIX}
    UT_SUFFIX=d
 fi
@@ -67,7 +70,7 @@ if [ $BUILD == 'true' ]; then
   cd $REPO_ROOT/sdk
   $QMAKE $VARS -recursive
   echo "--> Running make, please see sdk_build.log for details..."
-  make > sdk_build.log 2>&1
+  make | tee sdk_build.log 2>&1
   cd $REPO_ROOT
 fi
 
@@ -89,7 +92,7 @@ strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmscrypto${LIB_SUFFIX} > /dev/nu
 
 cp sdk/rms_sdk/ModernAPI/*.h ${TARGET_DIR}/usr/include/rms
 cp sdk/rmsauth_sdk/rmsauth/rmsauth/*.h ${TARGET_DIR}/usr/include/rmsauth
-cp sdk/rmscrypto_sdk/CryptoStreams/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
+cp sdk/rmscrypto_sdk/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
 
 if [ $TEST == 'true' ]; then
   echo "--> Starting unit tests..."
@@ -118,8 +121,8 @@ if [ $SAMPLE == 'true' ]; then
   echo "--> Entering samples directory..."
   cd $REPO_ROOT/samples
   $QMAKE $VARS -recursive
-  echo "--> Running make, please see sdk_build.log for details..."
-  make > sample_apps_build.log 2>&1
+  echo "--> Running make, please see sample_apps_build.log for details..."
+  make | tee sample_apps_build.log 2>&1
   cd $REPO_ROOT
 fi
 

@@ -9,7 +9,6 @@
 #ifndef _RMS_LIB_COMMONTYPES_H_
 #define _RMS_LIB_COMMONTYPES_H_
 
-#include <unordered_map>
 #include <vector>
 #include <stdint.h>
 #include "FrameworkSpecificTypes.h"
@@ -24,16 +23,6 @@ using CharArray   = TIterable<char>;
 using StringArray = TIterable<std::string>;
 using IUri        = rmscore::platform::http::IUri;
 using UrlArray    = TIterable<std::shared_ptr<IUri>>;
-
-struct HashConstString
-{
-  long operator()(const std::string& str) const {
-    return static_cast<long>(std::hash<std::string>()(str));
-  }
-};
-template<typename T>
-using HashMapString = std::unordered_map<std::string, T, HashConstString>;
-
 
 #ifdef _MSC_VER
 # define snprintf _snprintf

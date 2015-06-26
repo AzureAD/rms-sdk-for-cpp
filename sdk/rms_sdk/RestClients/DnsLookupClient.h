@@ -29,7 +29,7 @@ private:
     common::DataStream &sendStream,
     const common::ByteArray &requestMessage);
 
-  common::StringArray GetPossibleDomains(std::string& domain);
+  common::StringArray GetPossibleDomains(const std::string& domain);
 };
 } // namespace restclients
 } // namespace rmscore

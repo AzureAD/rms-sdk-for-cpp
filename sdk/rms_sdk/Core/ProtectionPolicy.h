@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_PROTECTIONPOLICY_H_
 #define _RMS_LIB_PROTECTIONPOLICY_H_
@@ -17,6 +17,7 @@
 #include "../ModernAPI/IConsentCallbackImpl.h"
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../ModernAPI/ProtectedFileStream.h"
+#include "../ModernAPI/PolicyDescriptor.h"
 #include "../RestClients/RestObjects.h"
 
 namespace rmscore {
@@ -35,15 +36,15 @@ struct UserRolesImpl {
   common::StringArray roles;
 };
 struct PolicyDescriptorImpl {
-  std::string                      name;
-  std::string                      description;
-  std::vector<UserRightsImpl>      userRightsList;
-  std::vector<UserRolesImpl>       userRolesList;
-  std::chrono::time_point<std::chrono::system_clock> ftContentValidUntil;
-  int                              nIntervalTime;
-  std::string                      referrer;
-  platform::json::StringDictionary signedApplicationData;
-  platform::json::StringDictionary encryptedApplicationData;
+  std::string                                       name;
+  std::string                                       description;
+  std::vector<UserRightsImpl>                       userRightsList;
+  std::vector<UserRolesImpl>                        userRolesList;
+  std::chrono::time_point<std::chrono::system_clock>ftContentValidUntil;
+  bool                                              bAllowOfflineAccess;
+  std::string                                       referrer;
+  modernapi::AppDataHashMap                         signedApplicationData;
+  modernapi::AppDataHashMap                         encryptedApplicationData;
 };
 
 class EmnptyConsentCallbackImpl : public modernapi::IConsentCallbackImpl {
@@ -99,15 +100,15 @@ public:
     m_requester = requester;
   }
 
-  bool             IsIssuedToOwner() const;
-  std::chrono::time_point<std::chrono::system_clock> GetValidityTimeFrom() const {
+  bool                                              IsIssuedToOwner() const;
+  std::chrono::time_point<std::chrono::system_clock>GetValidityTimeFrom() const {
     return m_ftValidityTimeFrom;
   }
 
   uint64_t GetValidityTimeDuration() const;
 
-  uint32_t GetIntervalTime() const {
-    return m_dwIntervalTime;
+  bool     AllowOfflineAccess() const {
+    return m_bAllowOfflineAccess;
   }
 
   bool IsAdhoc() const {
@@ -127,11 +128,11 @@ public:
     return m_userRolesList;
   }
 
-  const platform::json::StringDictionary GetSignedApplicationData() const {
+  const modernapi::AppDataHashMap GetSignedApplicationData() const {
     return m_signedApplicationData;
   }
 
-  const platform::json::StringDictionary GetEncryptedApplicationData() const {
+  const modernapi::AppDataHashMap GetEncryptedApplicationData() const {
     return m_encryptedApplicationData;
   }
 
@@ -156,7 +157,7 @@ public:
     const std::string                     & email,
     const bool                              bOffline,
     common::Event                         & hCancelEvent,
-    modernapi::ResponseCacheFlags          cacheMask);
+    modernapi::ResponseCacheFlags           cacheMask);
   static std::shared_ptr<ProtectionPolicy>Acquire(
     const uint8_t                          *pbPublishLicense,
     const size_t                            cbPublishLicense,
@@ -165,14 +166,14 @@ public:
     const std::string                     & email,
     const bool                              bOffline,
     common::Event                         & hCancelEvent,
-    modernapi::ResponseCacheFlags          cacheMask);
+    modernapi::ResponseCacheFlags           cacheMask);
   static std::shared_ptr<ProtectionPolicy>Create(
     const bool                              bPreferDeprecatedAlgorithms,
     const bool                              bAllowAuditedExtraction,
     const std::string                     & templateId,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & email,
-    const platform::json::StringDictionary& signedAppData);
+    const modernapi::AppDataHashMap       & signedAppData);
   static std::shared_ptr<ProtectionPolicy>Create(
     const bool                              bPreferDeprecatedAlgorithms,
     const bool                              bAllowAuditedExtraction,
@@ -191,18 +192,18 @@ public:
     size_t                                                 cbPublishLicense,
     std::shared_ptr<restclients::UsageRestrictionsResponse>response);
 
-  void Initialize(restclients::PublishResponse          & response,
-                  bool                                    bAllowAuditedExtraction,
-                  int
-                  nIntervalTime,
-                  const platform::json::StringDictionary& signedData =
-                    platform::json::StringDictionary(),
-                  const
-                  platform::json::StringDictionary      & encryptedData =
-                    platform::json::StringDictionary());
+  void Initialize(restclients::PublishResponse   & response,
+                  bool                             bAllowAuditedExtraction,
+                  bool                             bAllowOfflineAccess,
+                  const modernapi::AppDataHashMap& signedData =
+                    modernapi::AppDataHashMap(),
+                  const modernapi::AppDataHashMap& encryptedData =
+                    modernapi::AppDataHashMap());
 
-  void        InitializeValidityTime(const std::chrono::time_point<std::chrono::system_clock> &ftContentValidUntil);
-  void        InitializeIntervalTime(const std::chrono::time_point<std::chrono::system_clock> &ftLicenseValidUntil);
+  void        InitializeValidityTime(
+    const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil);
+  void        InitializeIntervalTime(
+    const std::chrono::time_point<std::chrono::system_clock>& ftLicenseValidUntil);
 
   void        InitializeKey(restclients::KeyDetailsResponse& response);
 
@@ -229,18 +230,18 @@ private:
   std::string  m_requester;
   std::chrono::time_point<std::chrono::system_clock> m_ftValidityTimeFrom;
   std::chrono::time_point<std::chrono::system_clock> m_ftValidityTimeUntil;
-  uint32_t m_dwIntervalTime;
+  bool m_bAllowOfflineAccess;
   std::vector<std::string> m_rights;
   std::vector<std::string> m_roles;
-  common::ByteArray  m_publishLicense;
+  common::ByteArray m_publishLicense;
   rmscrypto::api::CipherMode m_cipherMode;
   std::shared_ptr<rmscrypto::api::ICryptoProvider> m_pCryptoProvider;
   bool m_bAllowAuditedExtraction;
   bool m_bHasUserRightsInformation;
   std::vector<UserRightsImpl> m_userRightsList;
   std::vector<UserRolesImpl>  m_userRolesList;
-  platform::json::StringDictionary m_signedApplicationData;
-  platform::json::StringDictionary m_encryptedApplicationData;
+  modernapi::AppDataHashMap   m_signedApplicationData;
+  modernapi::AppDataHashMap   m_encryptedApplicationData;
 
 private:
 

@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include <QFile>
@@ -35,7 +35,7 @@ GetProtectedFileStreamResult::GetProtectedFileStreamResult(
 
 ProtectedFileStream::ProtectedFileStream(SharedStream          pImpl,
                                          shared_ptr<UserPolicy>policy,
-                                         string              & originalFileExtension)
+                                         const string        & originalFileExtension)
   : m_policy(policy)
   , m_originalFileExtension(originalFileExtension)
   , m_pImpl(pImpl)
@@ -204,34 +204,34 @@ ProtectedFileStream * ProtectedFileStream::CreateProtectedFileStream(
                                  fileExtension);
 }
 
-shared_future<int64_t>ProtectedFileStream::ReadAsync(uint8_t      *pbBuffer,
-                                                     const int64_t cbBuffer,
-                                                     const int64_t cbOffset,
-                                                     bool          fCreateBackingThread)
+shared_future<int64_t>ProtectedFileStream::ReadAsync(uint8_t    *pbBuffer,
+                                                     int64_t     cbBuffer,
+                                                     int64_t     cbOffset,
+                                                     std::launch launchType)
 {
-  return m_pImpl->ReadAsync(pbBuffer, cbBuffer, cbOffset, fCreateBackingThread);
+  return m_pImpl->ReadAsync(pbBuffer, cbBuffer, cbOffset, launchType);
 }
 
 shared_future<int64_t>ProtectedFileStream::WriteAsync(const uint8_t *cpbBuffer,
-                                                      const int64_t  cbBuffer,
-                                                      const int64_t  cbOffset,
-                                                      bool           fCreateBackingThread)
+                                                      int64_t        cbBuffer,
+                                                      int64_t        cbOffset,
+                                                      std::launch    launchType)
 {
-  return m_pImpl->WriteAsync(cpbBuffer, cbBuffer, cbOffset, fCreateBackingThread);
+  return m_pImpl->WriteAsync(cpbBuffer, cbBuffer, cbOffset, launchType);
 }
 
-future<bool>ProtectedFileStream::FlushAsync(bool fCreateBackingThread) {
-  return m_pImpl->FlushAsync(fCreateBackingThread);
+future<bool>ProtectedFileStream::FlushAsync(std::launch launchType) {
+  return m_pImpl->FlushAsync(launchType);
 }
 
-int64_t ProtectedFileStream::Read(uint8_t      *pbBuffer,
-                                  const int64_t cbBuffer)
+int64_t ProtectedFileStream::Read(uint8_t *pbBuffer,
+                                  int64_t  cbBuffer)
 {
   return m_pImpl->Read(pbBuffer, cbBuffer);
 }
 
 int64_t ProtectedFileStream::Write(const uint8_t *cpbBuffer,
-                                   const int64_t  cbBuffer)
+                                   int64_t        cbBuffer)
 {
   return m_pImpl->Write(cpbBuffer, cbBuffer);
 }
@@ -256,12 +256,12 @@ uint64_t ProtectedFileStream::Position()
   return m_pImpl->Position();
 }
 
-bool ProtectedFileStream::CanRead()
+bool ProtectedFileStream::CanRead() const
 {
   return m_pImpl->CanRead();
 }
 
-bool ProtectedFileStream::CanWrite()
+bool ProtectedFileStream::CanWrite() const
 {
   return m_pImpl->CanWrite();
 }

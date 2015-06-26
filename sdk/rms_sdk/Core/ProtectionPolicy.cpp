@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include <algorithm>
@@ -21,7 +21,7 @@ using namespace std;
 
 namespace rmscore {
 namespace core {
-static AccessStatus MapAccessStatus(string& accessStatus) {
+static AccessStatus MapAccessStatus(const string& accessStatus) {
   if (0 == _stricmp("AccessGranted", accessStatus.c_str())) {
     return ACCESS_STATUS_ACCESS_GRANTED;
   } else if (0 == _stricmp("AccessDenied", accessStatus.c_str())) {
@@ -38,7 +38,7 @@ static AccessStatus MapAccessStatus(string& accessStatus) {
   }
 }
 
-static rmscrypto::api::CipherMode MapCipherMode(string& cipherMode) {
+static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode) {
   if (0 ==
       _stricmp("MICROSOFT.CBC4K",
                cipherMode.c_str())) return rmscrypto::api::CIPHER_MODE_CBC4K;
@@ -129,7 +129,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
              << "Referrer: " << response->referrer.c_str() << endl
              << "Owner: " << response->owner.c_str() << endl
              << "CipherMode: " << response->key.cipherMode.c_str() << endl
-             << "contentValidUntil: " << response->contentValidUntil.c_str() <<
+             << "AllowOfflineAccess: " << (response->bAllowOfflineAccess ? "true" : "false") <<
       endl
              << "licenseValidUntil: " << response->licenseValidUntil.c_str() <<
       endl
@@ -157,7 +157,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   const string                          & templateId,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   const string                          & email,
-  const platform::json::StringDictionary& signedAppData)
+  const AppDataHashMap                  & signedAppData)
 {
   qDebug() << " +ProtectionPolicy::Create(using template)";
 
@@ -188,7 +188,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   // response
   auto pProtectionPolicy = make_shared<ProtectionPolicy>();
 
-  pProtectionPolicy->Initialize(response, bAllowAuditedExtraction, -1,
+  pProtectionPolicy->Initialize(response, bAllowAuditedExtraction, true,
                                 response.signedApplicationData);
 
   qDebug() << " - ProtectionPolicy::Create";
@@ -255,7 +255,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   }
 
   // initialize validity times
-  request.nIntervalTime       = descriptor.nIntervalTime;
+  request.bAllowOfflineAccess = descriptor.bAllowOfflineAccess;
   request.ftLicenseValidUntil = descriptor.ftContentValidUntil;
 
   // Add the referral Info
@@ -282,7 +282,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   pProtectionPolicy->Initialize(response,
                                 bAllowAuditedExtraction,
-                                descriptor.nIntervalTime,
+                                descriptor.bAllowOfflineAccess,
                                 request.signedApplicationData,
                                 request.encryptedApplicationData);
   pProtectionPolicy->SetRequester(email);
@@ -296,7 +296,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 } // ProtectionPolicy::Create
 
 ProtectionPolicy::ProtectionPolicy() : m_accessStatus(ACCESS_STATUS_ACCESS_DENIED),
-  m_dwIntervalTime(0) {
+  m_bAllowOfflineAccess(0) {
   m_requester           = "";
   m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
   m_ftValidityTimeUntil = std::chrono::system_clock::from_time_t(0);
@@ -309,15 +309,16 @@ void ProtectionPolicy::Initialize(
 {
   // initializing protection policy from the consumption response
 
-  m_accessStatus = MapAccessStatus(response->accessStatus);
-  m_id           = response->id;
-  m_name         = response->name;
-  m_description  = response->description;
-  m_owner        = response->owner;
-  m_referrer     = response->referrer;
-  m_rights       = response->rights;
-  m_issuedTo     = response->issuedTo;
-  m_contentId    = response->contentId;
+  m_accessStatus        = MapAccessStatus(response->accessStatus);
+  m_id                  = response->id;
+  m_name                = response->name;
+  m_description         = response->description;
+  m_owner               = response->owner;
+  m_referrer            = response->referrer;
+  m_rights              = response->rights;
+  m_issuedTo            = response->issuedTo;
+  m_contentId           = response->contentId;
+  m_bAllowOfflineAccess = response->bAllowOfflineAccess;
 
   InitializeValidityTime(response->ftContentValidUntil);
   InitializeIntervalTime(response->ftLicenseValidUntil);
@@ -369,12 +370,11 @@ void ProtectionPolicy::Initialize(
 }     // ProtectionPolicy::Initialize
 
 void ProtectionPolicy::Initialize(
-  PublishResponse                       & response,
-  bool                                    bAllowAuditedExtraction,
-  int
-  nIntervalTime,
-  const platform::json::StringDictionary& signedData,
-  const platform::json::StringDictionary& encryptedData)
+  PublishResponse     & response,
+  bool                  bAllowAuditedExtraction,
+  bool                  bAllowOfflineAccess,
+  const AppDataHashMap& signedData,
+  const AppDataHashMap& encryptedData)
 {
   // initializing protection policy from the publishing response (here the user
   // is the owner)
@@ -396,8 +396,7 @@ void ProtectionPolicy::Initialize(
   m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
   m_ftValidityTimeUntil = std::chrono::system_clock::from_time_t(0);
 
-  m_dwIntervalTime =
-    (nIntervalTime >= 0) ? static_cast<uint32_t>(nIntervalTime) : USHRT_MAX;
+  m_bAllowOfflineAccess = bAllowOfflineAccess;
 
   m_bAllowAuditedExtraction = bAllowAuditedExtraction;
 
@@ -456,19 +455,13 @@ int64_t msecsTo(const std::chrono::time_point<std::chrono::system_clock>& l,
 void ProtectionPolicy::InitializeIntervalTime(
   const std::chrono::time_point<std::chrono::system_clock>& ftLicenseValidUntil) {
   if (std::chrono::system_clock::to_time_t(ftLicenseValidUntil) > 0) {
-    // if the licenseValidUntil and contentValidUntil are the same then there is
-    // no interval time set, so we set it to USHRT_MAX
-    if (daysTo(m_ftValidityTimeUntil, ftLicenseValidUntil) == 0) {
-      m_dwIntervalTime = USHRT_MAX;
-    } else {
+    // check if license expired
+    if (daysTo(m_ftValidityTimeUntil, ftLicenseValidUntil) != 0) {
       auto dt               = std::chrono::system_clock::now();
-      int64_t iIntervalTime = daysTo(dt, ftLicenseValidUntil);
+      int64_t iIntervalTime = daysTo(ftLicenseValidUntil, dt);
 
-      if (iIntervalTime <= 0) m_dwIntervalTime = 0;
-      else m_dwIntervalTime = min(static_cast<int64_t>(USHRT_MAX), iIntervalTime);
+      if (iIntervalTime <= 0) m_bAllowOfflineAccess = false;
     }
-  } else {
-    m_dwIntervalTime = USHRT_MAX;
   }
 } // ProtectionPolicy::InitializeIntervalTime
 

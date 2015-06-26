@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifdef QTFRAMEWORK
 
@@ -42,7 +42,7 @@ common::ByteArray ReadAllBytes(QIODevice *from) {
   return result;
 }
 
-shared_ptr<IHttpClient> IHttpClient::Create() {
+shared_ptr<IHttpClient>IHttpClient::Create() {
   static bool initialized = false;
 
   // add Microsoft certificates to trust list
@@ -63,7 +63,7 @@ HttpClientQt::HttpClientQt() : lastReply_(nullptr) {
   this->request_.setSslConfiguration(QSslConfiguration::defaultConfiguration());
 }
 
-HttpClientQt::~HttpClientQt() { }
+HttpClientQt::~HttpClientQt() {}
 
 void HttpClientQt::AddAuthorizationHeader(const string& authToken) {
   this->AddHeader("Authorization", authToken);
@@ -77,19 +77,28 @@ void HttpClientQt::AddAcceptLanguageHeader(const string& language) {
   this->AddHeader("Accept-Language", language);
 }
 
-void HttpClientQt::AddHeader(const string& headerName, const string& headerValue) {
+void HttpClientQt::AddHeader(const string& headerName,
+                             const string& headerValue) {
   this->request_.setRawHeader(headerName.c_str(), headerValue.c_str());
 }
 
-StatusCode HttpClientQt::Post(const string            & url,
-                              const common::ByteArray & request,
-                              const string            & mediaType,
-                              common::ByteArray       & response) {
+StatusCode HttpClientQt::Post(const string           & url,
+                              const common::ByteArray& request,
+                              const string           & mediaType,
+                              common::ByteArray      & response) {
   Logger::Info("==> HttpClientQt::POST %s", url.data());
-  Logger::Debug("==> request: %s",           request.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
   this->AddAcceptMediaTypeHeader(mediaType);
+
+  Logger::Debug("==> Request Headers:", nullptr);
+  foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
+    QByteArray hdrValue = this->request_.rawHeader(hdrName);
+    Logger::Debug("%s : %s", hdrName.data(), hdrValue.data());
+  }
+
+  std::string req(request.begin(), request.end());
+  Logger::Debug("==> Request Body: %s", req.c_str());
 
   lastReply_ =
     this->manager_.post(this->request_,
@@ -99,16 +108,18 @@ StatusCode HttpClientQt::Post(const string            & url,
   QObject::connect(lastReply_, SIGNAL(finished()), &loop, SLOT(quit()));
   loop.exec();
 
-  QVariant statusCode = lastReply_->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-  Logger::Info("statusCode: %i", statusCode.toInt());
+  QVariant statusCode = lastReply_->attribute(
+    QNetworkRequest::HttpStatusCodeAttribute);
+  Logger::Info("Response StatusCode: %i", statusCode.toInt());
 
-  Logger::Debug("--> Header:", nullptr);
-  foreach(const QNetworkReply::RawHeaderPair & pair, lastReply_->rawHeaderPairs()) {
-    Logger::Debug("%s : %s", pair.first.data(), pair.second.data() );
+  Logger::Debug("--> Response Headers:", nullptr);
+  foreach(const QNetworkReply::RawHeaderPair & pair,
+          lastReply_->rawHeaderPairs()) {
+    Logger::Debug("%s : %s", pair.first.data(), pair.second.data());
   }
 
   response = ReadAllBytes(lastReply_);
-  Logger::Debug("--> Body:", nullptr);
+  Logger::Debug("--> Response Body:",                     nullptr);
   Logger::Debug(string(response.begin(), response.end()), nullptr);
 
   QNetworkReply::NetworkError error_type = lastReply_->error();
@@ -125,6 +136,12 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
   Logger::Debug("==> HttpClientQt::GET %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
+
+  Logger::Debug("==> Request headers:", nullptr);
+  foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
+    QByteArray hdrValue = this->request_.rawHeader(hdrName);
+    Logger::Debug("%s : %s", hdrName.data(), hdrValue.data());
+  }
 
   lastReply_ = this->manager_.get(this->request_);
   QEventLoop loop;
@@ -143,15 +160,16 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
 
   QVariant statusCode = lastReply_->attribute(
     QNetworkRequest::HttpStatusCodeAttribute);
-  Logger::Debug("statusCode: %i", statusCode.toInt());
+  Logger::Debug("Response StatusCode: %i", statusCode.toInt());
 
-  Logger::Debug("--> Header:", nullptr);
-  foreach(const QNetworkReply::RawHeaderPair & pair, lastReply_->rawHeaderPairs()) {
+  Logger::Debug("--> Response Headers:",   nullptr);
+  foreach(const QNetworkReply::RawHeaderPair & pair,
+          lastReply_->rawHeaderPairs()) {
     Logger::Debug("%s : %s", pair.first.data(), pair.second.data());
   }
 
   response = ReadAllBytes(lastReply_);
-  Logger::Debug("--> Body:", nullptr);
+  Logger::Debug("--> Response Body:",                     nullptr);
   Logger::Debug(string(response.begin(), response.end()), nullptr);
 
   QNetworkReply::NetworkError error_type = lastReply_->error();

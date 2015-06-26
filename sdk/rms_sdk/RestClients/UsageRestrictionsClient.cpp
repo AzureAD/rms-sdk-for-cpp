@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <memory>
 #include <QDebug>
@@ -88,7 +88,6 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
             "UsageRestrictionsClient: Got an invalid json from the REST service.",
             exceptions::RMSNetworkException::ServerError);
   }
-
   // we could deserialize the response so it should be valid and we can store it
   if (useCache) {
     StoreToCache(request,
@@ -116,6 +115,11 @@ void UsageRestrictionsClient::StoreToCache(
   if (0 != _stricmp("AccessGranted", response->accessStatus.c_str()))
   {
     // we don't cache no rights responses
+    return;
+  }
+
+  if (!response->bAllowOfflineAccess) {
+    // we don't cache not allowed for caching content
     return;
   }
 

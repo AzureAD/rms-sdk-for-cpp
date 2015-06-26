@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <algorithm>
 #include "../ModernAPI/RMSExceptions.h"
@@ -159,11 +159,7 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
 
   AddUserRightsOrRolesInCustomRequest(pPolicyJson.get(), request);
 
-  if (request.nIntervalTime >= 0)
-  {
-    pPolicyJson->SetNamedNumber("IntervalTimeInDays",
-                                static_cast<double>(request.nIntervalTime));
-  }
+  pPolicyJson->SetNamedBool("allowOfflineAccess", request.bAllowOfflineAccess);
 
   if (std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil) > 0)
   {
@@ -350,18 +346,15 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
   }
 
   // expiry times
-  response.contentValidUntil =
-    pJsonResponse->GetNamedString("ContentValidUntil");
-  response.licenseValidUntil =
-    pJsonResponse->GetNamedString("LicenseValidUntil");
+  response.contentValidUntil = pJsonResponse->GetNamedString("ContentValidUntil");
+  response.licenseValidUntil = pJsonResponse->GetNamedString("LicenseValidUntil");
 
   // parse expiry times
   if (!response.contentValidUntil.empty())
   {
-    auto tmp = common::DateTime::fromString(QString::fromStdString(response.
-                                                                   contentValidUntil));
-    response.ftContentValidUntil = std::chrono::system_clock::from_time_t(
-      tmp.toTime_t());
+    auto tmp = common::DateTime::fromString(
+      QString::fromStdString(response.contentValidUntil), Qt::ISODate);
+    response.ftContentValidUntil = std::chrono::system_clock::from_time_t(tmp.toTime_t());
   }
   else
   {
@@ -371,16 +364,16 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
   if (!response.licenseValidUntil.empty())
   {
     auto tmp =
-      common::DateTime::fromString(QString::fromStdString(
-                                     response.licenseValidUntil));
-    response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(
-      tmp.toTime_t());
+      common::DateTime::fromString(
+        QString::fromStdString(response.licenseValidUntil), Qt::ISODate);
+    response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(tmp.toTime_t());
   }
   else
   {
     response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(0);
   }
 
+  response.bAllowOfflineAccess = pJsonResponse->GetNamedBool("allowOfflineAccess", true);
   // custom policy response
   if (pJsonResponse->HasName("Policy") && !pJsonResponse->IsNull("Policy"))
   {
@@ -633,7 +626,7 @@ ServiceDiscoveryListResponse JsonSerializer::DeserializeServiceDiscoveryResponse
   return response;
 }
 
-string JsonSerializer::ProcessReferrerResponse(string&& referrerResponse)
+string JsonSerializer::ProcessReferrerResponse(const string&& referrerResponse)
 {
   if (!referrerResponse.empty())
   {

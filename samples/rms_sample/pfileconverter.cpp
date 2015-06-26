@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <algorithm>
 #include <QDebug>
@@ -76,7 +76,10 @@ static void WorkerThread(shared_ptr<iostream>           stdStream,
       }
     } else {
       auto read =
-        pStream->ReadAsync(&buffer[0], toProcess, offsetRead, false).get();
+        pStream->ReadAsync(&buffer[0],
+                           toProcess,
+                           offsetRead,
+                           std::launch::deferred).get();
 
       if (read == 0) {
         break;
@@ -123,11 +126,10 @@ void PFileConverter::ConvertToPFilePredefinedRights(
 
   desc.Referrer(make_shared<string>("https://client.test.app"));
   desc.ContentValidUntil(endValidation);
-  desc.OfflineCacheLifetimeInDays(2);
+  desc.AllowOfflineAccess(true);
 
-  auto policy =
-    shared_ptr<UserPolicy>(UserPolicy::Create(desc, userId, auth,
-                                              USER_AllowAuditedExtraction));
+  auto policy = UserPolicy::Create(desc, userId, auth,
+                                   USER_AllowAuditedExtraction);
   ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
 }
 
@@ -141,18 +143,17 @@ void PFileConverter::ConvertToPFileTemplates(const string           & userId,
 {
   auto templates = TemplateDescriptor::GetTemplateList(userId, auth);
 
-  unordered_map<string, string> signedData;
+  rmscore::modernapi::AppDataHashMap signedData;
 
   size_t pos = templ.SelectTemplate(templates);
 
   if (pos < templates.size()) {
-    auto policy =
-      shared_ptr<UserPolicy>(UserPolicy::CreateFromTemplateDescriptor(templates[
-                                                                        pos],
-                                                                      userId,
-                                                                      auth,
-                                                                      USER_AllowAuditedExtraction,
-                                                                      signedData));
+    auto policy = UserPolicy::CreateFromTemplateDescriptor(
+      templates[pos],
+      userId,
+      auth,
+      USER_AllowAuditedExtraction,
+      signedData);
 
     ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
   }
@@ -199,13 +200,14 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
 {
   auto inIStream = rmscrypto::api::CreateStreamFromStdStream(inStream);
 
-  auto fsResult = ProtectedFileStream::Acquire(inIStream,
-                                               userId,
-                                               auth,
-                                               consent,
-                                               POL_None,
-                                               static_cast<ResponseCacheFlags>(
-                                                 RESPONSE_CACHE_ONDISK));
+  auto fsResult = ProtectedFileStream::Acquire(
+    inIStream,
+    userId,
+    auth,
+    consent,
+    POL_None,
+    static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
+                                    | RESPONSE_CACHE_ONDISK));
 
   if ((fsResult.get() != nullptr) && (fsResult->m_status == Success) &&
       (fsResult->m_stream != nullptr)) {

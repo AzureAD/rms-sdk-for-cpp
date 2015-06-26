@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QNetworkAccessManager>
 #include <QSsl>
@@ -59,6 +59,7 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
 
     AuthenticationContext authContext(
       ap->Authority(), AuthorityValidationType::False, FileCachePtr);
+
     auto result = authContext.acquireToken(ap->Resource(),
                                            clientId_.toStdString(), redirect,
                                            PromptBehavior::Auto);
@@ -69,7 +70,6 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
     cout << "!!!!! Auth error: " << ex.error() << endl;
     throw;
   }
-
   return "";
 }
 
@@ -217,7 +217,14 @@ void MainWindow::on_encryptPFILETemplatesButton_clicked()
       outFile->close();
       std::remove(fileOut.toStdString().c_str());
     }
+    catch (const rmscore::exceptions::RMSException& e) {
+      this->ui->textBrowser->insertPlainText("ERROR: ");
+      this->ui->textBrowser->insertPlainText(e.what());
+      this->ui->textBrowser->insertPlainText("\n");
 
+      outFile->close();
+      std::remove(fileOut.toStdString().c_str());
+    }
     inFile->close();
     outFile->close();
   }
@@ -262,43 +269,48 @@ void MainWindow::on_fromPFILEButton_clicked()
 
     try
     {
-        AuthCallback auth(
-          ui->lineEdit_clientId->text(), ui->lineEdit_redirectUrl->text());
-        auto pfs = PFileConverter::ConvertFromPFile(
-          this->ui->lineEdit_clientEmail->text().toStdString(),
-          inFile,
-          outFile,
-          auth,
-          this->consent);
+      AuthCallback auth(
+        ui->lineEdit_clientId->text(), ui->lineEdit_redirectUrl->text());
+      auto pfs = PFileConverter::ConvertFromPFile(
+        this->ui->lineEdit_clientEmail->text().toStdString(),
+        inFile,
+        outFile,
+        auth,
+        this->consent);
 
-        cout << "Policy Name: " << pfs->m_stream->Policy()->Name() << endl;
-        cout << "Policy Description: " << pfs->m_stream->Policy()->Description() <<
-          endl;
-        time_t tmp = std::chrono::system_clock::to_time_t(
-          pfs->m_stream->Policy()->ContentValidUntil());
-        std::tm time;
-        memset(&time, 0, sizeof(time));
+      cout << "Policy Name: " << pfs->m_stream->Policy()->Name() << endl;
+      cout << "Policy Description: " << pfs->m_stream->Policy()->Description() <<
+        endl;
+      time_t tmp = std::chrono::system_clock::to_time_t(
+        pfs->m_stream->Policy()->ContentValidUntil());
+      std::tm time;
+      memset(&time, 0, sizeof(time));
 #if defined _WIN32
-    localtime_s(&time, &tmp);
+      localtime_s(&time, &tmp);
 #else // if defined _WIN32
-    time = *std::localtime(&tmp);
+      time = *std::localtime(&tmp);
 #endif // if defined _WIN32
-        cout << "Policy ContentValidUntil: " <<
-          time.tm_mon << "-" << time.tm_mday << "-" << time.tm_year << " " <<
-          time.tm_hour << ":" << time.tm_min << "." << time.tm_sec << endl;
+      cout << "Policy ContentValidUntil: " <<
+        time.tm_mon << "-" << time.tm_mday << "-" << time.tm_year << " " <<
+        time.tm_hour << ":" << time.tm_min << "." << time.tm_sec << endl;
 
-        // cout << "Policy ContentValidUntil: " <<
-        // pfs->m_stream->Policy()->ContentValidUntil() << endl;
+      // cout << "Policy ContentValidUntil: " <<
+      // pfs->m_stream->Policy()->ContentValidUntil() << endl;
 
-        this->ui->textBrowser->insertPlainText(QString(
-                                                 "Successfully converted to '%1'\n").arg(
-                                                 fileOut));
+      this->ui->textBrowser->insertPlainText(QString(
+                                               "Successfully converted to '%1'\n").arg(
+                                               fileOut));
     }
-    catch(const rmsauth::Exception& e)
+    catch (const rmsauth::Exception& e)
     {
-        this->ui->textBrowser->insertPlainText("ERROR: ");
-        this->ui->textBrowser->insertPlainText(e.error().c_str());
-        this->ui->textBrowser->insertPlainText("\n");
+      this->ui->textBrowser->insertPlainText("ERROR: ");
+      this->ui->textBrowser->insertPlainText(e.error().c_str());
+      this->ui->textBrowser->insertPlainText("\n");
+    }
+    catch (const rmscore::exceptions::RMSException& e) {
+      this->ui->textBrowser->insertPlainText("ERROR: ");
+      this->ui->textBrowser->insertPlainText(e.what());
+      this->ui->textBrowser->insertPlainText("\n");
     }
     inFile->close();
     outFile->close();
@@ -367,6 +379,14 @@ void MainWindow::on_encryptPFILERightsButton_clicked()
     catch (const rmsauth::Exception& e) {
       this->ui->textBrowser->insertPlainText("ERROR: ");
       this->ui->textBrowser->insertPlainText(e.error().c_str());
+      this->ui->textBrowser->insertPlainText("\n");
+
+      outFile->close();
+      std::remove(fileOut.toStdString().c_str());
+    }
+    catch (const rmscore::exceptions::RMSException& e) {
+      this->ui->textBrowser->insertPlainText("ERROR: ");
+      this->ui->textBrowser->insertPlainText(e.what());
       this->ui->textBrowser->insertPlainText("\n");
 
       outFile->close();

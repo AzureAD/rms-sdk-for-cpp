@@ -5,5 +5,5 @@ SUBDIRS += \
     rmsauth\
     UnitTests
 
-rmsauth.depends = WebAuthDialog
+rmsauth.depends   = WebAuthDialog
 UnitTests.depends = rmsauth

@@ -9,6 +9,7 @@ CONFIG   += staticlib warn_on c++11 debug_and_release
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
+
 SOURCES += \
     JsonSerializer.cpp
 

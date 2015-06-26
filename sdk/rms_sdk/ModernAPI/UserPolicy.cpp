@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <QDebug>
 #include "../Common/tools.h"
@@ -25,9 +25,9 @@ using namespace std;
 
 namespace rmscore {
 namespace modernapi {
-GetUserPolicyResult::GetUserPolicyResult(GetUserPolicyResultStatus&& status,
-                                         std::shared_ptr<string>     referrer,
-                                         std::shared_ptr<UserPolicy> policy) :
+GetUserPolicyResult::GetUserPolicyResult(GetUserPolicyResultStatus  status,
+                                         std::shared_ptr<string>    referrer,
+                                         std::shared_ptr<UserPolicy>policy) :
   Status(status),
   Referrer(referrer), Policy(policy) {}
 
@@ -38,12 +38,12 @@ UserPolicy::UserPolicy(shared_ptr<core::ProtectionPolicy>pImpl) : m_pImpl(pImpl)
 }
 
 shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
-  std::vector<unsigned char>& serializedPolicy,
-  const string              & userId,
-  IAuthenticationCallback   & authenticationCallback,
-  IConsentCallback          & consentCallback,
-  PolicyAcquisitionOptions    options,
-  ResponseCacheFlags          cacheMask)
+  const std::vector<unsigned char>& serializedPolicy,
+  const string                    & userId,
+  IAuthenticationCallback         & authenticationCallback,
+  IConsentCallback                & consentCallback,
+  PolicyAcquisitionOptions          options,
+  ResponseCacheFlags                cacheMask)
 {
   qDebug() << "+UserPolicy::AcquireAsync";
 
@@ -69,9 +69,10 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
   switch (pImpl->GetAccessStatus()) {
   case AccessStatus::ACCESS_STATUS_ACCESS_GRANTED:
 
-    result = make_shared<GetUserPolicyResult>(GetUserPolicyResultStatus::Success,
-                                              referrer,
-                                              make_shared<UserPolicy>(pImpl));
+    result = make_shared<GetUserPolicyResult>(
+      GetUserPolicyResultStatus::Success,
+      referrer,
+      shared_ptr<UserPolicy>(new UserPolicy(pImpl)));
     break;
 
   case AccessStatus::ACCESS_STATUS_ACCESS_DENIED:
@@ -96,18 +97,19 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
   return result;
 } // UserPolicy::Acquire
 
-UserPolicy * UserPolicy::CreateFromTemplateDescriptor(
-  modernapi::TemplateDescriptor& templateDescriptor,
-  const string& userId,
-  IAuthenticationCallback& authenticationCallback,
-  UserPolicyCreationOptions options,
-  unordered_map<string, string>& signedAppData) {
+std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
+  const modernapi::TemplateDescriptor& templateDescriptor,
+  const string                       & userId,
+  IAuthenticationCallback            & authenticationCallback,
+  UserPolicyCreationOptions            options,
+  const AppDataHashMap               & signedAppData)
+{
   qDebug() << "+UserPolicy::CreateFromTemplateDescriptorAsync";
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
 
-  platform::json::StringDictionary signedApplicationData;
+  modernapi::AppDataHashMap signedApplicationData;
 
   if (!signedAppData.empty()) {
     for (auto& p : signedAppData) {
@@ -132,16 +134,18 @@ UserPolicy * UserPolicy::CreateFromTemplateDescriptor(
     authenticationCallbackImpl,
     userId,
     signedApplicationData);
-  auto result = new UserPolicy(pImpl);
+  auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
   qDebug() << "-UserPolicy::CreateFromTemplateDescriptorAsync";
   return result;
 } // UserPolicy::CreateFromTemplateDescriptor
 
-UserPolicy * UserPolicy::Create(modernapi::PolicyDescriptor& policyDescriptor,
-                                const string               & userId,
-                                IAuthenticationCallback    & authenticationCallback,
-                                UserPolicyCreationOptions    options) {
+std::shared_ptr<UserPolicy>UserPolicy::Create(
+  modernapi::PolicyDescriptor& policyDescriptor,
+  const string               & userId,
+  IAuthenticationCallback    & authenticationCallback,
+  UserPolicyCreationOptions    options)
+{
   qDebug() << "+UserPolicy::CreateAsync";
 
   auto authenticationCallbackImpl = AuthenticationCallbackImpl {
@@ -154,8 +158,7 @@ UserPolicy * UserPolicy::Create(modernapi::PolicyDescriptor& policyDescriptor,
 
   if (!policyDescriptor.Description().empty()) policyDescriptorImpl.description =
       policyDescriptor.Description();
-  policyDescriptorImpl.nIntervalTime =
-    policyDescriptor.OfflineCacheLifetimeInDays();
+  policyDescriptorImpl.bAllowOfflineAccess = policyDescriptor.AllowOfflineAccess();
   policyDescriptorImpl.ftContentValidUntil = policyDescriptor.ContentValidUntil();
 
   auto ref = policyDescriptor.Referrer();
@@ -249,7 +252,7 @@ UserPolicy * UserPolicy::Create(modernapi::PolicyDescriptor& policyDescriptor,
     policyDescriptorImpl,
     authenticationCallbackImpl,
     userId);
-  auto result = new UserPolicy(pImpl);
+  auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
   result->m_policyDescriptor->ContentValidUntil(
     policyDescriptor.ContentValidUntil());
@@ -258,7 +261,7 @@ UserPolicy * UserPolicy::Create(modernapi::PolicyDescriptor& policyDescriptor,
   return result;
 } // UserPolicy::Create
 
-bool UserPolicy::AccessCheck(string& right) {
+bool UserPolicy::AccessCheck(const string& right) const {
   return m_pImpl->AccessCheck(right);
 }
 
@@ -299,10 +302,10 @@ string UserPolicy::ContentId() {
   return m_pImpl->GetContentId();
 }
 
-unordered_map<string, string>UserPolicy::EncryptedAppData() {
+const AppDataHashMap UserPolicy::EncryptedAppData() {
   auto enctryptedAppDataImpl = m_pImpl->GetEncryptedApplicationData();
 
-  unordered_map<string, string> encryptedAppData;
+  AppDataHashMap encryptedAppData;
 
   for_each(begin(enctryptedAppDataImpl), end(enctryptedAppDataImpl),
            [&](const pair<string,
@@ -314,10 +317,10 @@ unordered_map<string, string>UserPolicy::EncryptedAppData() {
   return encryptedAppData;
 }
 
-unordered_map<string, string>UserPolicy::SignedAppData() {
+const AppDataHashMap UserPolicy::SignedAppData() {
   auto signedAppDataImpl = m_pImpl->GetSignedApplicationData();
 
-  unordered_map<string, string> signedAppData;
+  AppDataHashMap signedAppData;
 
   for_each(begin(signedAppDataImpl), end(signedAppDataImpl),
            [&](const pair<string,
@@ -349,7 +352,7 @@ bool UserPolicy::IsAuditedExtractAllowed() {
   return m_pImpl->AccessCheck(ae);
 }
 
-std::vector<unsigned char>UserPolicy::SerializedPolicy() {
+const std::vector<unsigned char>UserPolicy::SerializedPolicy() {
   const auto& pl = m_pImpl->GetPublishLicense();
 
   return pl;

@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef POLICYDESCRIPTOR_H
 #define POLICYDESCRIPTOR_H
@@ -19,6 +19,13 @@
 #include "UserRoles.h"
 #include "UserRights.h"
 
+namespace rmscore {
+namespace core {
+class ProtectionPolicy;
+}
+
+namespace modernapi {
+namespace detail {
 struct HashConstString
 {
   long operator()(const std::string& str) const {
@@ -28,14 +35,8 @@ struct HashConstString
 
 template<typename T>
 using HashMapString = std::unordered_map<std::string, T, HashConstString>;
-
-namespace rmscore {
-namespace core {
-class ProtectionPolicy;
 }
-
-namespace modernapi {
-using AppDataHashmap = HashMapString<std::string>;
+using AppDataHashMap = detail::HashMapString<std::string>;
 
 /**
  * @brief Specifies users and rights assigned for a file.
@@ -52,7 +53,7 @@ public:
     return this->name_;
   }
 
-  void Name(std::string& value)
+  void Name(const std::string& value)
   {
     this->name_ = value;
   }
@@ -91,19 +92,20 @@ public:
     return this->contentValidUntil_;
   }
 
-  void ContentValidUntil(const std::chrono::time_point<std::chrono::system_clock>& value)
+  void ContentValidUntil(
+    const std::chrono::time_point<std::chrono::system_clock>& value)
   {
     this->contentValidUntil_ = value;
   }
 
-  int OfflineCacheLifetimeInDays()
+  bool AllowOfflineAccess()
   {
-    return this->nOfflineCacheLifetimeInDays_;
+    return this->bAllowOfflineAccess_;
   }
 
-  void OfflineCacheLifetimeInDays(int value)
+  void AllowOfflineAccess(bool value)
   {
-    this->nOfflineCacheLifetimeInDays_ = value;
+    this->bAllowOfflineAccess_ = value;
   }
 
   std::shared_ptr<std::string>Referrer() const
@@ -116,29 +118,29 @@ public:
     this->referrer_ = uri;
   }
 
-  const AppDataHashmap& EncryptedAppData()
+  const AppDataHashMap& EncryptedAppData()
   {
     return this->encryptedAppData_;
   }
 
-  void EncryptedAppData(const AppDataHashmap& value)
+  void EncryptedAppData(const AppDataHashMap& value)
   {
     this->encryptedAppData_ = value;
   }
 
-  const AppDataHashmap& SignedAppData()
+  const AppDataHashMap& SignedAppData()
   {
     return this->signedAppData_;
   }
 
-  void SignedAppData(const AppDataHashmap& value)
+  void SignedAppData(const AppDataHashMap& value)
   {
     this->signedAppData_ = value;
   }
 
 public:
 
-  PolicyDescriptor(std::shared_ptr<core::ProtectionPolicy> policy);
+  PolicyDescriptor(std::shared_ptr<core::ProtectionPolicy>policy);
 
 private:
 
@@ -149,11 +151,11 @@ private:
   std::vector<UserRoles>  userRolesList_;
 
   std::chrono::time_point<std::chrono::system_clock> contentValidUntil_;
-  int nOfflineCacheLifetimeInDays_;
+  bool bAllowOfflineAccess_;
 
   std::shared_ptr<std::string> referrer_;
-  AppDataHashmap encryptedAppData_;
-  AppDataHashmap signedAppData_;
+  AppDataHashMap encryptedAppData_;
+  AppDataHashMap signedAppData_;
 
 private:
 
@@ -166,29 +168,9 @@ private:
 /**
  * @brief Constants for PolicyDescriptor.OfflineCacheLifetimeInDays property.
  */
-class DLL_PUBLIC_RMS OfflineCacheLifetimeConstants {
-public:
-
-   /**
-   * @brief The content shoudn't be accessed offline at all
-   */
-  static int NoCache()
-  {
-    return 0;
-  }
-
-  /**
-   * @brief The offline cache for the content shouldn't expire
-   */
-  static int CacheNeverExpires()
-  {
-    return -1;
-  }
-
-private:
-
-  // undefined private default constructor
-  OfflineCacheLifetimeConstants();
+enum OfflineCacheLifetimeConstants {
+  NoCache           = 0,
+  CacheNeverExpires = -1
 };
 } // m_namespace modernapi
 } // m_namespace rmscore

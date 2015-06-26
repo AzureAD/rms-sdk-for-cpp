@@ -52,7 +52,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
 
 6. Create a tarball (to deploy apps):
   ```
-  tar czf sample_apps.tar.gz ./rms_sample ./rmsauth_sample ./librmsauth.so ./librmsauthWebAuthDialog.so ./librms.so
+  tar czf sample_apps.tar.gz ./rms_sample ./rmsauth_sample ./librmsauth.so ./librmsauthWebAuthDialog.so ./librms.so ./librmscrypto.so
   ```
 
 ### OpenSUSE 13.2
@@ -63,6 +63,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
   sudo zypper install libQt5WebKitWidgets-devel
   sudo zypper install libQt5XmlPatterns-devel
   sudo zypper install libopenssl-devel
+  sudo zypper install libsecret-devel
   ```
 
 2. Clone this repo
@@ -94,7 +95,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
   ```
 6. Create a tarball (to deploy apps):
   ```
-  tar czf sample_apps.tar.gz ./rms_sample ./rmsauth_sample ./librmsauth.so ./librmsauthWebAuthDialog.so ./librms.so
+  tar czf sample_apps.tar.gz ./rms_sample ./rmsauth_sample ./librmsauth.so ./librmsauthWebAuthDialog.so ./librms.so ./librmscrypto.so
   ```
 
 ### CentOS 7
@@ -108,6 +109,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
   sudo yum --enablerepo=epel install qt5-qtwebkit-devel
   sudo yum --enablerepo=epel install qt5-qtxmlpatterns-devel
   sudo yum install openssl-devel
+  sudo yum install libsecret-devel
   ```
 
 2. Clone this repo:
