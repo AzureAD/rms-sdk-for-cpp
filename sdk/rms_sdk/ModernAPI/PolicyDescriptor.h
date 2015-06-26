@@ -53,7 +53,7 @@ public:
     return this->name_;
   }
 
-  void Name(std::string& value)
+  void Name(const std::string& value)
   {
     this->name_ = value;
   }
