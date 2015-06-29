@@ -113,7 +113,7 @@ AuthenticationResultPtr OAuth2Response::parseTokenResponse(TokenResponsePtr toke
 IdTokenPtr OAuth2Response::parseIdToken(const String& idToken)
 {
     Logger::info(Tag(), "parseIdToken");
-    Logger::info(Tag(), "idToken: %", idToken);
+    Logger::hidden(Tag(), "idToken: " + idToken);
     IdTokenPtr parseResult = nullptr;
     if (!idToken.empty())
     {
@@ -158,7 +158,7 @@ IdTokenPtr OAuth2Response::parseIdToken(const String& idToken)
 AuthorizationResultPtr OAuth2Response::parseAuthorizeResponse(const String& webAuthenticationResult, CallStatePtr/* callState*/)
 {
     Logger::info(Tag(), "parseAuthorizeResponse");
-    Logger::info(Tag(), "webAuthenticationResult: %", webAuthenticationResult);
+    Logger::hidden(Tag(), "webAuthenticationResult: " + webAuthenticationResult);
 
     AuthorizationResultPtr parseResult = nullptr;
 

@@ -17,8 +17,10 @@ Makefile*
 **.pro.user
 debug
 release
+build-**
 
 *.exe
 .DS_Store
 *.dat
+third_party**
 

@@ -265,7 +265,8 @@ TokenResponsePtr HttpHelperQt::deserializeTokenResponse(const QByteArray& body)
     Logger::info(Tag(), "deserializeTokenResponse");
     auto pTokenResponse = std::make_shared<TokenResponse>();
 
-    Logger::info(Tag(), "jsonObject: %", String(body.begin(), body.end()));
+    StringStream ss; ss << "jsonObject: " << String(body.begin(), body.end());
+    Logger::hidden(Tag(), ss.str());
 
     QJsonParseError error;
     auto qdoc = QJsonDocument::fromJson(body, &error);
@@ -300,7 +301,8 @@ InstanceDiscoveryResponsePtr HttpHelperQt::deserializeInstanceDiscoveryResponse(
 
     auto pInstanceDiscoveryResponse = std::make_shared<InstanceDiscoveryResponse>();
 
-    Logger::info(Tag(), "jsonObject: %", String(body.begin(), body.end()));
+    StringStream ss; ss << "jsonObject: " << String(body.begin(), body.end());
+    Logger::hidden(Tag(), ss.str());
 
     QJsonParseError parseError;
     auto qdoc = QJsonDocument::fromJson(body, &parseError);
@@ -376,24 +378,24 @@ void  HttpHelperQt::logRequestHeaders(const QNetworkRequest& req)
 
 void HttpHelperQt::logResponseHeaders(QNetworkReply *pReply)
 {
-    Logger::info(Tag(), "logResponseHeaders");
+    Logger::hidden(Tag(), "logResponseHeaders");
     if (pReply->rawHeaderPairs().length() > 0)
     {
-        Logger::info(Tag(), "--> Headers:");
+        Logger::hidden(Tag(), "--> Headers:");
         foreach (const QNetworkReply::RawHeaderPair& pair, pReply->rawHeaderPairs())
         {
              StringStream ss; ss << String(pair.first.data(), pair.first.size()) << ": " <<  String(pair.second.data(), pair.second.size());
-             Logger::info(Tag(), ss.str());
+             Logger::hidden(Tag(), ss.str());
         }
     }
 }
 void HttpHelperQt::logResponseBody(const QByteArray& body)
 {
-    Logger::info(Tag(), "logResponseBody");
+    Logger::hidden(Tag(), "logResponseBody");
     if (body.length() > 0)
     {
-        Logger::info(Tag(), "==> Body:");
-        Logger::info(Tag(), String(body.begin(), body.end()));
+        Logger::hidden(Tag(), "==> Body:");
+        Logger::hidden(Tag(), String(body.begin(), body.end()));
     }
 }
 

@@ -9,18 +9,21 @@
 #ifndef EXCEPTIONS
 #define EXCEPTIONS
 #include "types.h"
+#include <exception>
 
 namespace rmsauth {
 
-class Exception
+class Exception : public std::exception
 {
 public:
     Exception(const String& error)
-        : error_(error)
+        : exception(error.c_str())
+        , error_(error)
     {}
 
     Exception(const String& error, const String& message)
-        : error_(error)
+        : exception(error.c_str())
+        , error_(error)
         , message_(message)
     {}
 
@@ -37,15 +40,15 @@ class RmsauthException : public Exception
 public:
 //    using Exception::Exception;
     RmsauthException(const String& error, const String& message) : Exception(error, message){}
-    RmsauthException(const String& error) : RmsauthException(error, ""){}
+    RmsauthException(const String& error)  : RmsauthException(error, ""){}
 };
 
 class RmsauthServiceException: public RmsauthException
 {
 public:
 //    using RmsauthException::RmsauthException;
-    RmsauthServiceException(const String& error, const String& message) : RmsauthException(error, message){}
-    RmsauthServiceException(const String& error) : RmsauthServiceException(error, ""){}
+    RmsauthServiceException(const String& error, const String& message) : RmsauthException(error, message)  {}
+    RmsauthServiceException(const String& error)  : RmsauthServiceException(error, ""){}
 
 };
 

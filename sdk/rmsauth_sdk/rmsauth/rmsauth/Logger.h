@@ -34,6 +34,8 @@ public:
 
     static void record(const String& category, const String& tag, const String& record);
     static void info(const String& tag, const String& record);
+    /// to enable these records - set environment variable: export RMS_HIDDEN_LOG=ON
+    static void hidden(const String& tag, const String& record);
     static void warning(const String& tag, const String& record);
     static void error(const String& tag, const String& record);
     virtual ~Logger(){}
