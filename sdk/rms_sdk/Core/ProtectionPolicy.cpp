@@ -221,7 +221,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   common::Locale loc;
 
-  request.language = loc.name().toStdString();
+  request.language = loc.name().replace('_',"-").toStdString();
 
   request.encryptedApplicationData = descriptor.encryptedApplicationData;
   request.signedApplicationData    = descriptor.signedApplicationData;

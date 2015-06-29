@@ -104,16 +104,6 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
     pJson->SetNamedString("ReferralInfo", request.wsReferralInfo);
   }
 
-  // Add Descriptors
-  auto pDescriptorObjectArray = IJsonArray::Create();
-  auto pDescriptorObject      = IJsonObject::Create();
-  pDescriptorObject->SetNamedString("Name",        request.name);
-  pDescriptorObject->SetNamedString("Description", request.description);
-  pDescriptorObject->SetNamedString("Language",    request.language);
-  pDescriptorObjectArray->Append(*pDescriptorObject);
-  pJson->SetNamedArray("Descriptors", *pDescriptorObjectArray);
-
-
   if (!request.signedApplicationData.empty())
   {
     auto pSignedApplicationDataJson = IJsonObject::Create();
@@ -131,6 +121,19 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
   }
 
   auto pPolicyJson = IJsonObject::Create();
+
+  // Add Descriptors
+  if (!request.name.empty() &&
+      !request.description.empty() &&
+      !request.language.empty()) {
+    auto pDescriptorObjectArray = IJsonArray::Create();
+    auto pDescriptorObject      = IJsonObject::Create();
+    pDescriptorObject->SetNamedString("Name",        request.name);
+    pDescriptorObject->SetNamedString("Description", request.description);
+    pDescriptorObject->SetNamedString("Language",    request.language);
+    pDescriptorObjectArray->Append(*pDescriptorObject);
+    pPolicyJson->SetNamedArray("Descriptors", *pDescriptorObjectArray);
+  }
 
   // the user rights list json in the policy looks something like this:
   // "Policy": {
@@ -354,7 +357,8 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
   {
     auto tmp = common::DateTime::fromString(
       QString::fromStdString(response.contentValidUntil), Qt::ISODate);
-    response.ftContentValidUntil = std::chrono::system_clock::from_time_t(tmp.toTime_t());
+    response.ftContentValidUntil = std::chrono::system_clock::from_time_t(
+      tmp.toTime_t());
   }
   else
   {
@@ -366,14 +370,17 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
     auto tmp =
       common::DateTime::fromString(
         QString::fromStdString(response.licenseValidUntil), Qt::ISODate);
-    response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(tmp.toTime_t());
+    response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(
+      tmp.toTime_t());
   }
   else
   {
     response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(0);
   }
 
-  response.bAllowOfflineAccess = pJsonResponse->GetNamedBool("allowOfflineAccess", true);
+  response.bAllowOfflineAccess = pJsonResponse->GetNamedBool("allowOfflineAccess",
+                                                             true);
+
   // custom policy response
   if (pJsonResponse->HasName("Policy") && !pJsonResponse->IsNull("Policy"))
   {

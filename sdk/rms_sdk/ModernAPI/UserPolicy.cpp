@@ -158,7 +158,8 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
 
   if (!policyDescriptor.Description().empty()) policyDescriptorImpl.description =
       policyDescriptor.Description();
-  policyDescriptorImpl.bAllowOfflineAccess = policyDescriptor.AllowOfflineAccess();
+  policyDescriptorImpl.bAllowOfflineAccess =
+    policyDescriptor.AllowOfflineAccess();
   policyDescriptorImpl.ftContentValidUntil = policyDescriptor.ContentValidUntil();
 
   auto ref = policyDescriptor.Referrer();
@@ -254,8 +255,10 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
     userId);
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
-  result->m_policyDescriptor->ContentValidUntil(
-    policyDescriptor.ContentValidUntil());
+  if (result->m_policyDescriptor.get() != nullptr) {
+    result->m_policyDescriptor->ContentValidUntil(
+      policyDescriptor.ContentValidUntil());
+  }
 
   qDebug() << "-UserPolicy::CreateAsync";
   return result;

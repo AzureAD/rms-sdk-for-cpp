@@ -127,6 +127,8 @@ void PFileConverter::ConvertToPFilePredefinedRights(
   desc.Referrer(make_shared<string>("https://client.test.app"));
   desc.ContentValidUntil(endValidation);
   desc.AllowOfflineAccess(true);
+  desc.Name("Test Name");
+  desc.Description("Test Description");
 
   auto policy = UserPolicy::Create(desc, userId, auth,
                                    USER_AllowAuditedExtraction);
