@@ -17,16 +17,17 @@ class Exception : public std::exception
 {
 public:
     Exception(const String& error)
-        : exception(error.c_str())
+        : std::exception()
         , error_(error)
     {}
 
     Exception(const String& error, const String& message)
-        : exception(error.c_str())
+        : std::exception()
         , error_(error)
         , message_(message)
     {}
 
+    virtual const char* what() const _GLIBCXX_USE_NOEXCEPT {return error_.c_str();}
     virtual const String& error() const {return error_;}
     virtual const String& message() const {return message_;}
 
