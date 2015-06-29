@@ -19,13 +19,13 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-//    QTest::qExec(new PlatformHttpClientTest(), argc, argv);
-//    QTest::qExec(new PlatformCryptoTest(), argc, argv);
-//    QTest::qExec(new PlatformXmlTest(), argc, argv);
-    QTest::qExec(new PlatformJsonObjectTest(), argc, argv);
-    QTest::qExec(new PlatformJsonArrayTest(), argc, argv);
-//    QTest::qExec(new PlatformFileSystemTest(), argc, argv);
-//    QTest::qExec(new PlatformFileTest(), argc, argv);
+    int res = 0;
+    res += QTest::qExec(new PlatformHttpClientTest(), argc, argv);
+    res += QTest::qExec(new PlatformXmlTest(), argc, argv);
+    res += QTest::qExec(new PlatformJsonObjectTest(), argc, argv);
+    res += QTest::qExec(new PlatformJsonArrayTest(), argc, argv);
+    res += QTest::qExec(new PlatformFileSystemTest(), argc, argv);
+    res += QTest::qExec(new PlatformFileTest(), argc, argv);
 
-    return 0;
+    return res;
 }

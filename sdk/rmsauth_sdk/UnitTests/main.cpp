@@ -29,12 +29,14 @@ int main(int argc, char *argv[])
 
     qDebug() << "interactiveOption: " << interactive;
 
+    int res = 0;
+
     if(interactive)
     {
-        QTest::qExec(new InteractiveTests());
+        res += QTest::qExec(new InteractiveTests());
     }
 
-    QTest::qExec(new NonInteractiveTests());
+    res += QTest::qExec(new NonInteractiveTests());
 
-    return 0;
+    return res;
 }

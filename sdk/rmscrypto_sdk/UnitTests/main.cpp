@@ -15,9 +15,11 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QTest::qExec(new CryptoAPITests(), argc, argv);
-    QTest::qExec(new KeyStorageTests(), argc, argv);
-    QTest::qExec(new CryptedStreamTests(), argc, argv);
+    int res = 0;
 
-    return 0;
+    res += QTest::qExec(new CryptoAPITests(), argc, argv);
+    res += QTest::qExec(new KeyStorageTests(), argc, argv);
+    res += QTest::qExec(new CryptedStreamTests(), argc, argv);
+
+    return res;
 }

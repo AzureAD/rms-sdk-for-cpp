@@ -12,11 +12,13 @@ UT_SUFFIX=
 STRIP_OPTIONS=--strip-unneeded
 VARS="CONFIG+=release"
 TARGET_DIR=./dist/release
+DEFINES=
 
 BUILD=true
 DEBUG=false
 TEST=false
 SAMPLE=true
+TRAVIS=false
 while [ $# -gt 0 ]; do
   case $1 in
     debug) DEBUG=true
@@ -25,27 +27,38 @@ while [ $# -gt 0 ]; do
       ;;
     sample) SAMPLE=true
       ;;
+    travis) TRAVIS=true
+      ;;
   esac
   shift
 done
 
-UNAME=`uname`
-echo "UNAME: $UNAME"
-if [ $UNAME == "Darwin" ]; then
-   LIB_SUFFIX=.dylib
-   STRIP_OPTIONS=
-elif [ $UNAME == "Linux" ]; then
-  DISTRO=$(awk -F'=' '{if($1=="ID")print $2; }' /etc/os-release)
-  echo "DISTRO: $DISTRO"
-  if [ $DISTRO == "" ]; then
-      log "Error reading DISTRO"
-      exit 1
-  elif [ ${DISTRO^^} == "UBUNTU" ]; then
-      type qmake >/dev/null 2>&1 || { echo >&2 log "qmake is required but not installed."; exit 1; }
-  else # CentOS & OpenSUSE
-      QMAKE=qmake-qt5
-      type qmake-qt5 >/dev/null 2>&1 || { echo >&2 log "qmake-qt5 is required but not installed."; exit 1; }
-  fi
+if [ $TRAVIS == 'true' ]; then
+    echo "TRAVIS Build"
+    DEFINES="DEFINES+=TRAVIS_BUILD"
+    if [ $TRAVIS_OS_NAME == osx ]; then 
+        LIB_SUFFIX=.dylib
+        STRIP_OPTIONS= 
+    fi
+else
+    UNAME=`uname`
+    echo "UNAME: $UNAME"
+    if [ $UNAME == "Darwin" ]; then
+       LIB_SUFFIX=.dylib
+       STRIP_OPTIONS=
+    elif [ $UNAME == "Linux" ]; then
+      DISTRO=$(awk -F'=' '{if($1=="ID")print $2; }' /etc/*-release)
+      echo "DISTRO: $DISTRO"
+      if [ $DISTRO == "" ]; then
+          log "Error reading DISTRO"
+          exit 1
+      elif [ ${DISTRO^^} == "UBUNTU" ]; then
+          type qmake >/dev/null 2>&1 || { echo >&2 log "qmake is required but not installed."; exit 1; }
+      else # CentOS & OpenSUSE
+          QMAKE=qmake-qt5
+          type qmake-qt5 >/dev/null 2>&1 || { echo >&2 log "qmake-qt5 is required but not installed."; exit 1; }
+      fi
+    fi
 fi
 
 #get the script location
@@ -68,7 +81,8 @@ if [ $BUILD == 'true' ]; then
   echo "=== Building sdk libraries ==="
   echo "--> Entering sdk directory..."
   cd $REPO_ROOT/sdk
-  $QMAKE $VARS -recursive
+  echo "--> Running $QMAKE $DEFINES $VARS -recursive"
+  $QMAKE $DEFINES $VARS -recursive
   echo "--> Running make, please see sdk_build.log for details..."
   make | tee sdk_build.log 2>&1
   cd $REPO_ROOT
@@ -100,12 +114,12 @@ if [ $TEST == 'true' ]; then
   export LD_LIBRARY_PATH=`pwd`
   if [ -e "./tests/rmsauthUnitTests$UT_SUFFIX" ]; then
       # Please use --interactive option to start interactive test cases as well
-      ./tests/rmsauthUnitTests$UT_SUFFIX #--interactive
+      ./tests/rmsauthUnitTests$UT_SUFFIX
   else
     echo "!!! unit tests for rmsauth not found"
   fi
   if [ -e "./tests/rmscryptoUnitTests$UT_SUFFIX" ]; then
-      ./tests/rmsCryptoUnitTests$UT_SUFFIX
+      ./tests/rmscryptoUnitTests$UT_SUFFIX
   else
     echo "!!! unit tests for rmscrypto not found"
   fi
