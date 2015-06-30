@@ -51,6 +51,7 @@ shared_future<int64_t>StdStreamAdapter::ReadAsync(uint8_t *pbBuffer,
         lock_guard<mutex>lock(*self->m_locker);
 
         if (self->m_iBackingStream.get() != nullptr) {
+          self->m_iBackingStream->clear();
           self->m_iBackingStream->seekg(offset);
         } else {
           // unavailable
@@ -179,6 +180,7 @@ void StdStreamAdapter::Seek(uint64_t u64Position) {
   lock_guard<mutex> lock(*m_locker);
 
   if (m_iBackingStream.get() != nullptr) {
+    m_iBackingStream->clear();
     m_iBackingStream->seekg(u64Position);
   }
 
@@ -216,6 +218,7 @@ uint64_t StdStreamAdapter::Size() {
   lock_guard<mutex> locker(*m_locker);
 
   if (m_iBackingStream.get() != nullptr) {
+    m_iBackingStream->clear();
     auto oldPos =  m_iBackingStream->tellg();
     m_iBackingStream->seekg(0, ios_base::end);
     ret =  static_cast<int>(m_iBackingStream->tellg());

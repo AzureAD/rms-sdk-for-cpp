@@ -42,6 +42,11 @@ public:
                                                int64_t     cbOffset,
                                                std::launch launchType)
   override;
+  virtual std::shared_future<int64_t>WriteAsync(const uint8_t *cpbBuffer,
+                                                int64_t        cbBuffer,
+                                                int64_t        cbOffset,
+                                                std::launch    launchType)
+  override;
   virtual std::future<bool>FlushAsync(
     std::launch launchType)
   override;
@@ -97,12 +102,6 @@ private:
                       std::shared_ptr<UserPolicy>  policy,
                       const std::string          & originalFileExtension);
 
-
-  virtual std::shared_future<int64_t>WriteAsync(const uint8_t *cpbBuffer,
-                                                int64_t        cbBuffer,
-                                                int64_t        cbOffset,
-                                                std::launch    launchType)
-  override;
 
   static ProtectedFileStream* CreateProtectedFileStream(
     std::shared_ptr<UserPolicy>        policy,
