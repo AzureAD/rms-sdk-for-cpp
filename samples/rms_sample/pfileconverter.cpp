@@ -65,7 +65,8 @@ static void WorkerThread(shared_ptr<iostream>           stdStream,
         stdStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
         threadLocker.unlock();
         auto written =
-          pStream->Write(buffer.data(), toProcess);
+          pStream->WriteAsync(
+            buffer.data(), toProcess, offsetWrite, std::launch::deferred).get();
 
         if (written != toProcess) {
           throw rmscore::exceptions::RMSStreamException("Error while writing data");
@@ -179,9 +180,12 @@ void PFileConverter::ConvertToPFileUsingPolicy(shared_ptr<UserPolicy>   policy,
     qDebug() << "Total size = " << totalSize;
 
     // start threads
-    threadPool.push_back(thread(WorkerThread,
-                                static_pointer_cast<iostream>(inStream), pStream,
-                                true));
+    for (size_t i = 0; i < THREADS_NUM; ++i) {
+      threadPool.push_back(thread(WorkerThread,
+                                  static_pointer_cast<iostream>(inStream),
+                                  pStream,
+                                  true));
+    }
 
     for (thread& t: threadPool) {
       if (t.joinable()) {

@@ -80,13 +80,9 @@ private:
                                                 std::launch    launchType,
                                                 bool           fLockResources);
 
-  void
-       ProcessSizeChangeRequest();
-  void SizeInternal(
-    uint64_t size);
-  void
-       FillWithZeros(
-    uint64_t newSize);
+  void                       ProcessSizeChangeRequest();
+  void                       SizeInternal(uint64_t size);
+  void                       FillWithZeros(uint64_t newSize);
 
   BlockBasedProtectedStream(const BlockBasedProtectedStream&);
   BlockBasedProtectedStream& operator=(
@@ -101,7 +97,6 @@ private:
 
   uint64_t m_u64Position;
   bool     m_bIsPositionValid;
-  bool     m_bSizeChangeRequested;
   uint64_t m_u64NewSize;
   bool     m_bIsPlainText;
 };

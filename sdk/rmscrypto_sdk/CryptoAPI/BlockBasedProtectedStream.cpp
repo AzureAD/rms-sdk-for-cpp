@@ -35,7 +35,6 @@ BlockBasedProtectedStream::BlockBasedProtectedStream(
   : m_locker(new mutex)
   , m_u64Position(0)
   , m_bIsPositionValid(true)
-  , m_bSizeChangeRequested(false)
   , m_u64NewSize(0)
   , m_bIsPlainText(pCryptoProvider == nullptr)
 {
@@ -50,7 +49,6 @@ BlockBasedProtectedStream::BlockBasedProtectedStream(
   , m_locker(new mutex)
   , m_u64Position(0)
   , m_bIsPositionValid(true)
-  , m_bSizeChangeRequested(false)
   , m_u64NewSize(0)
   , m_bIsPlainText(rhs.m_bIsPlainText)
 {
@@ -105,21 +103,14 @@ shared_future<int64_t>BlockBasedProtectedStream::ReadAsync(uint8_t    *pbBuffer,
         // seek to offset
         self->SeekInternal(offset);
 
-        if (self->m_bSizeChangeRequested)
-        {
-          self->ProcessSizeChangeRequest();
-        }
-
         int64_t u64Size = bSize;
 
         while (u64Size > 0 && self->m_u64Position < self->SizeInner())
         {
           self->m_pCachedBlock->UpdateBlock(self->m_u64Position);
 
-          uint64_t u64Read = self->m_pCachedBlock->ReadFromBlock(buffer,
-                                                                 self->
-                                                                 m_u64Position,
-                                                                 u64Size);
+          uint64_t u64Read = self->m_pCachedBlock->ReadFromBlock(
+            buffer, self->m_u64Position, u64Size);
 
           if (0 == u64Read)
           {
@@ -210,11 +201,6 @@ shared_future<int64_t>BlockBasedProtectedStream::WriteInternalAsync(
             "Invalid operation");
         }
 
-        if (self->m_bSizeChangeRequested)
-        {
-          self->ProcessSizeChangeRequest();
-        }
-
         // seek to write
         self->SeekInternal(offset);
 
@@ -268,11 +254,6 @@ future<bool>BlockBasedProtectedStream::FlushAsync(launch launchType)
       {
         // lock resources
         unique_lock<mutex>lock(*self->m_locker);
-
-        if (self->m_bSizeChangeRequested)
-        {
-          self->ProcessSizeChangeRequest();
-        }
 
         return self->m_pCachedBlock->Flush();
       }, move(selfPtr));
@@ -380,11 +361,6 @@ uint64_t BlockBasedProtectedStream::SizeInner()
     return m_pSimple->Size();
   }
 
-  if (m_bSizeChangeRequested)
-  {
-    return m_u64NewSize;
-  }
-
   return m_pCachedBlock->GetSizeInternal();
 }
 
@@ -397,8 +373,8 @@ void BlockBasedProtectedStream::SizeInner(uint64_t value) {
       return;
     }
 
-    m_bSizeChangeRequested = true;
     m_u64NewSize           = value;
+    ProcessSizeChangeRequest();
   }
 }
 
@@ -414,11 +390,6 @@ void BlockBasedProtectedStream::Size(uint64_t value) {
 
 void BlockBasedProtectedStream::ProcessSizeChangeRequest()
 {
-  // Set this to false before writing, otherwise we will fall into an infinite
-  // recursion
-  // when doing the actual writing.
-  m_bSizeChangeRequested = false;
-
   uint64_t oldSize = m_pCachedBlock->GetSizeInternal();
 
   // we need to remember the original position, because we are going to
@@ -461,7 +432,7 @@ void BlockBasedProtectedStream::FillWithZeros(uint64_t newSize)
                        false).get();
   }
 
-  SizeInternal(newSize);
+  //SizeInternal(newSize);
 }
 
 void BlockBasedProtectedStream::SizeInternal(uint64_t size)

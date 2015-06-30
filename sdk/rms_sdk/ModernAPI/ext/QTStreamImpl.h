@@ -15,8 +15,9 @@
 #include <QDataStream>
 #include <CryptoAPI.h>
 
-class DLL_PUBLIC_RMS QTStreamImpl : public rmscrypto::api::IStream,
-                                    public std::enable_shared_from_this<QTStreamImpl>{
+class DLL_PUBLIC_RMS QTStreamImpl :
+  public rmscrypto::api::IStream,
+  public std::enable_shared_from_this<QTStreamImpl>{
 public:
 
   static rmscrypto::api::SharedStream Create(QSharedPointer<QDataStream>stream);
