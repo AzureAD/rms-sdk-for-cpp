@@ -14,9 +14,11 @@ VARS="CONFIG+=release"
 TARGET_DIR=./dist/release
 
 BUILD=true
+DIST=true
 DEBUG=false
 TEST=false
 SAMPLE=true
+INSTALL=false
 while [ $# -gt 0 ]; do
   case $1 in
     debug) DEBUG=true
@@ -25,6 +27,7 @@ while [ $# -gt 0 ]; do
       ;;
     sample) SAMPLE=true
       ;;
+    install) INSTALL=true
   esac
   shift
 done
@@ -74,25 +77,35 @@ if [ $BUILD == 'true' ]; then
   cd $REPO_ROOT
 fi
 
-echo "=== Prepping reusable libs and includes in ${TARGET_DIR}"
-mkdir -p ${TARGET_DIR}/usr/include/rms
-mkdir -p ${TARGET_DIR}/usr/include/rmsauth
-mkdir -p ${TARGET_DIR}/usr/include/rmscrypto
-mkdir -p ${TARGET_DIR}/usr/lib
+if [ $INSTALL == 'true' ]; then
+  cd $REPO_ROOT/sdk
+  echo "--> Runnig make install, please see sdk_install.log for details..."
+  echo "--> This requires root access"
+  make install | tee sdk_install.log 2>&1
+  cd $REPO_ROOT
+fi
 
-cp bin/librms${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
-cp bin/librmsauth${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
-cp bin/librmscrypto${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
-cp bin/librmsauthWebAuthDialog${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
+if [ $DIST == 'true' ]; then
+    echo "=== Prepping reusable libs and includes in ${TARGET_DIR}"
+    mkdir -p ${TARGET_DIR}/usr/include/rms
+    mkdir -p ${TARGET_DIR}/usr/include/rmsauth
+    mkdir -p ${TARGET_DIR}/usr/include/rmscrypto
+    mkdir -p ${TARGET_DIR}/usr/lib
 
-strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librms${LIB_SUFFIX} > /dev/null 2>&1
-strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmsauth${LIB_SUFFIX} > /dev/null 2>&1
-strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmsauthWebAuthDialog${LIB_SUFFIX} > /dev/null 2>&1
-strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmscrypto${LIB_SUFFIX} > /dev/null 2>&1
+    cp bin/librms${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
+    cp bin/librmsauth${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
+    cp bin/librmscrypto${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
+    cp bin/librmsauthWebAuthDialog${LIB_SUFFIX} ${TARGET_DIR}/usr/lib
 
-cp sdk/rms_sdk/ModernAPI/*.h ${TARGET_DIR}/usr/include/rms
-cp sdk/rmsauth_sdk/rmsauth/rmsauth/*.h ${TARGET_DIR}/usr/include/rmsauth
-cp sdk/rmscrypto_sdk/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
+    strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librms${LIB_SUFFIX} > /dev/null 2>&1
+    strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmsauth${LIB_SUFFIX} > /dev/null 2>&1
+    strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmsauthWebAuthDialog${LIB_SUFFIX} > /dev/null 2>&1
+    strip ${STRIP_OPTIONS} ${TARGET_DIR}/usr/lib/librmscrypto${LIB_SUFFIX} > /dev/null 2>&1
+
+    cp sdk/rms_sdk/ModernAPI/*.h ${TARGET_DIR}/usr/include/rms
+    cp sdk/rmsauth_sdk/rmsauth/rmsauth/*.h ${TARGET_DIR}/usr/include/rmsauth
+    cp sdk/rmscrypto_sdk/CryptoAPI/*.h ${TARGET_DIR}/usr/include/rmscrypto
+fi
 
 if [ $TEST == 'true' ]; then
   echo "--> Starting unit tests..."

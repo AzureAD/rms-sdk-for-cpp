@@ -134,8 +134,10 @@ SOURCES += \
     RequestParametersQt.cpp
 
 unix {
+    UNAME = $$system(uname -a)
+
     contains(QMAKE_HOST.arch, x86_64) {
-        target.path = /usr/lib64
+        target.path = /usr/lib/x86_64-linux-gnu
         INSTALLS += target
     } else {
         target.path += /usr/lib
