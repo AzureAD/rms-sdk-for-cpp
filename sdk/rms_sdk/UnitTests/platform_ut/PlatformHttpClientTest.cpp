@@ -40,9 +40,10 @@ void PlatformHttpClientTest::testHttpClient(bool enabled)
     "any",
     response);
 
-  QVERIFY(_strcmpi("{\"Message\":\"The authorization token is not well-formed.\"}",
-                   reinterpret_cast<const char *>(response.data())) == 0);
+  QByteArray expected = QString("{\"Message\":\"The authorization token is not well-formed.\"}").toUtf8();
+  QByteArray actual((const char*)response.data(), (int)response.size());
 
-  QVERIFY2(status == http::StatusCode::UNAUTHORIZED,
-           "pclient->Post: Unexpected status code");
+  QCOMPARE(expected, actual);
+
+  QVERIFY2(status == http::StatusCode::UNAUTHORIZED, "pclient->Post: Unexpected status code");
 }

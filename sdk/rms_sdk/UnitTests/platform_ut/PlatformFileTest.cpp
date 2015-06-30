@@ -84,7 +84,7 @@ void PlatformFileTest::testClear()
 }
 void PlatformFileTest::testReadAllAsText()
 {
-    QString path1 = QString(SRCDIR) + "data/testrermsauthl.txt";
+    QString path1 = QString(SRCDIR) + "data/testreadall.txt";
     auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_READ);
     QVERIFY(pFile!=nullptr);
     auto text = pFile->ReadAllAsText();
