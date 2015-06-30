@@ -19,6 +19,7 @@ before_install:
   - sudo apt-get install -qq xorg
   - sudo apt-get install -qq openbox
   - sudo apt-get install -qq xinit
+  - sudo apt-get install -qq vnc4server
 
 script:
   - g++ -v
