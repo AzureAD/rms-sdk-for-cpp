@@ -28,12 +28,11 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
   cd rms-sdk-for-cpp
   ```
 
-3. Build and install libraries:
+3. Build libraries:
   ```
   cd sdk
   qmake
   make
-  sudo make install
   ```
 
 4. Build sample applications:
@@ -46,6 +45,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
 5. Run sample applications:
   ```
   cd ../bin
+  export LD_LIBRARY_PATH=`pwd`
   ./rms_sample	    # RMS sample
   ./rmsauth_sample	# auth sample
   ```
