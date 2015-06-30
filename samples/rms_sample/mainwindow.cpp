@@ -132,7 +132,9 @@ void MainWindow::on_certificatesPathButton_clicked()
 void MainWindow::addCertificates() {
   auto dirStr = ui->ineEdit_certificatesPath->text();
   QDir dir(dirStr);
-  auto filesList = dir.entryInfoList();
+  QStringList filters;
+  filters << "*.cer" << "*.der" << "*.pem";
+  auto filesList = dir.entryInfoList(filters);
   std::vector<uint8_t> buffer;
 
   for (auto& fileName : filesList) {
