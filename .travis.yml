@@ -18,7 +18,8 @@ before_install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   - sudo apt-get install -qq xorg
   - sudo apt-get install -qq openbox
-  
+  - sudo apt-get install -qq xinit
+
 script:
   - g++ -v
   - qmake -v
@@ -26,8 +27,13 @@ script:
   - cd ./bin/
   - BIN=`pwd`
   - export LD_LIBRARY_PATH=$BIN
-  - ./tests/rmsplatformUnitTests && ./tests/rmsauthUnitTests
-
+  - ./tests/rmsplatformUnitTests
+  - echo '#!/bin/sh' >> ~/.xinitrc
+  - echo "export LD_LIBRARY_PATH=$BIN" >> ~/.xinitrc
+  - echo "$BIN/tests/rmscryptoUnitTests" >> ~/.xinitrc
+  - echo "$BIN/tests/rmsauthUnitTests" >> ~/.xinitrc
+  - sudo xinit
+  
 branches:
   only:
     - dev
