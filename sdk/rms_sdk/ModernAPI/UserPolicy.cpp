@@ -337,12 +337,11 @@ const AppDataHashMap UserPolicy::SignedAppData() {
 
 std::chrono::time_point<std::chrono::system_clock>UserPolicy::ContentValidUntil()
 {
-  std::chrono::time_point<std::chrono::system_clock> contentValidUntil;
+  return m_pImpl->GetValidityTimeUntil();
+}
 
-  contentValidUntil = m_pImpl->GetValidityTimeFrom() +
-                      (std::chrono::milliseconds)(
-    m_pImpl->GetValidityTimeDuration());
-  return contentValidUntil;
+bool UserPolicy::AllowOfflineAccess() {
+  return m_pImpl->AllowOfflineAccess();
 }
 
 bool UserPolicy::DoesUseDeprecatedAlgorithms() {

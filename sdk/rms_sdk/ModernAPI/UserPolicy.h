@@ -82,7 +82,8 @@ public:
     IAuthenticationCallback & authenticationCallback,
     UserPolicyCreationOptions options);
 
-  bool AccessCheck(const std::string& right) const;
+  bool                                              AccessCheck(
+    const std::string& right) const;
 
   UserPolicyType                                    Type();
 
@@ -99,6 +100,7 @@ public:
   const AppDataHashMap                              EncryptedAppData();
   const AppDataHashMap                              SignedAppData();
   std::chrono::time_point<std::chrono::system_clock>ContentValidUntil();
+  bool                                              AllowOfflineAccess();
 
   bool                                              DoesUseDeprecatedAlgorithms();
   bool                                              IsAuditedExtractAllowed();
