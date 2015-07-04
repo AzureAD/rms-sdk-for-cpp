@@ -8,6 +8,7 @@
 
 #ifdef QTFRAMEWORK
 #include <QDir>
+#include <QTextStream>
 #include <iostream>
 #include <cstdio>
 #include "FileQt.h"

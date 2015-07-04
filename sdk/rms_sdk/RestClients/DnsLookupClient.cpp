@@ -4,14 +4,14 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <sstream>
-#include <QDebug>
 #include "DnsLookupClient.h"
 #include "Domain.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IDnsServerResolver.h"
+#include "../Platform/Logger/Logger.h"
 
 using namespace std;
 using namespace rmscore::platform::http;
@@ -22,35 +22,38 @@ const string RMS_QUERY_PREFIX = "_rmsdisco._http._tcp.";
 DnsLookupClient::~DnsLookupClient()
 {}
 
-shared_ptr<DnsClientResult>DnsLookupClient::LookupDiscoveryService(shared_ptr<Domain>domain)
+shared_ptr<DnsClientResult>DnsLookupClient::LookupDiscoveryService(
+  shared_ptr<Domain>domain)
 {
-    if (domain.get() == nullptr) {
+  if (domain.get() == nullptr) {
     throw exceptions::RMSInvalidArgumentException("Invalid domain");
-    }
+  }
 
-    auto pResolver = IDnsServerResolver::Create();
+  auto pResolver = IDnsServerResolver::Create();
 
-    string domainString       = domain->GetDomainStringForDnsLookup();
-    vector<string> possibleDomains = GetPossibleDomains(domainString);
+  string domainString            = domain->GetDomainStringForDnsLookup();
+  vector<string> possibleDomains = GetPossibleDomains(domainString);
 
-    for (auto possibleDomainIt = begin(possibleDomains);
-         possibleDomainIt != end(possibleDomains); ++possibleDomainIt)
+  for (auto possibleDomainIt = begin(possibleDomains);
+       possibleDomainIt != end(possibleDomains); ++possibleDomainIt)
+  {
+    Logger::Hidden("possibleDomain: %s", possibleDomainIt->c_str());
+    string dnsRequest(RMS_QUERY_PREFIX + *possibleDomainIt);
+    auto   dnsResponse = pResolver->lookup(dnsRequest);
+
+    if (dnsResponse.empty())
     {
-        qDebug() << "possibleDomain: " << possibleDomainIt->c_str();
-        string dnsRequest(RMS_QUERY_PREFIX + *possibleDomainIt);
-        auto dnsResponse = pResolver->lookup(dnsRequest);
-
-        if(dnsResponse.empty())
-        {
-          qDebug() << "Failed DNS lookup with domain: " << possibleDomainIt->c_str();
-          continue;
-        }
-
-        qDebug() << "Successfully queried results with domain: " << possibleDomainIt->c_str();
-        return DnsClientResult::Create(dnsResponse);
+      Logger::Hidden("Failed DNS lookup with domain: %s",
+                     possibleDomainIt->c_str());
+      continue;
     }
 
-    return DnsClientResult::Create(string("api.aadrm.com"));
+    Logger::Hidden("Successfully queried results with domain: %s",
+                   possibleDomainIt->c_str());
+    return DnsClientResult::Create(dnsResponse);
+  }
+
+  return DnsClientResult::Create(string("api.aadrm.com"));
 }
 
 vector<string>DnsLookupClient::GetPossibleDomains(const std::string& domain)

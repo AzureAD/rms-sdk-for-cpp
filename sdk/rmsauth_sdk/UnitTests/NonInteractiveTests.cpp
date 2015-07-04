@@ -182,7 +182,7 @@ void NonInteractiveTests::FileCacheEncryptedTest()
     }
     catch(const std::exception& e)
     {
-        qDebug() << "Exeption: " << e.what();
+        QTest::qFail(e.what(), __FILE__, __LINE__);
     }
 }
 /*
@@ -231,7 +231,7 @@ void NonInteractiveTests::AcquireTokenNonInteractiveHandlerTest()
     }
     catch(const Exception& ex)
     {
-        qDebug() << "!!!!! exception: " << ex.error().data();
+        Logger::Error("Exception: %s", ex.error().data());
     }
 }
 */
@@ -278,7 +278,7 @@ void NonInteractiveTests::AcquireTokenForClientHandlerTest()
     }
     catch(const Exception& ex)
     {
-        qDebug() << "!!!!! exception: " << ex.error().data();
+        Logger::Error("Exception: %s", ex.error().data());
     }
 }
 */

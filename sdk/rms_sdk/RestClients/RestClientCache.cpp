@@ -17,7 +17,6 @@
 #include <sstream>
 #include <fstream>
 #include <future>
-#include <QDebug>
 
 using namespace std;
 

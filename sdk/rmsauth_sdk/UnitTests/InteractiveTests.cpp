@@ -64,6 +64,6 @@ void InteractiveTests::AcquireTokenInteractiveHandlerTest()
     }
     catch(const Exception& ex)
     {
-        qDebug() << "!!!!! exception: " << ex.error().data();
+        QTest::qFail(ex.error().data(), __FILE__, __LINE__);
     }
 }

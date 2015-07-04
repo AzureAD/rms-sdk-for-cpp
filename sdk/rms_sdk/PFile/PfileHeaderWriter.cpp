@@ -4,12 +4,12 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <future>
 #include "PfileHeaderWriter.h"
 #include "PfileHeader.h"
-#include <QDebug>
+#include "../Platform/Logger/Logger.h"
 
 using namespace std;
 using namespace rmscore::common;
@@ -19,18 +19,19 @@ namespace pfile {
 PfileHeaderWriter::~PfileHeaderWriter()
 {}
 
-size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream           stream,
+size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream      stream,
                                 const std::shared_ptr<PfileHeader>header)
 {
-  qDebug() << "PfileHeaderWriter::Write";
+  Logger::Hidden("PfileHeaderWriter::Write");
 
   auto fe = header->GetFileExtension();
-  qDebug() << "Writing pfile header. "
-           << "Major version: " << header->GetMajorVersion()
-           << ", minor version: " << header->GetMinorVersion()
-           << ", file extension: "  << fe.c_str()
-           << ", content start position: " << header->GetContentStartPosition()
-           << ", original file size: " << header->GetOriginalFileSize();
+  Logger::Hidden("Writing pfile header. Major version: %d, minor version: %d," \
+                 " file extension: %s, content start position: %d, original file size: %I64d",
+                 header->GetMajorVersion(),
+                 header->GetMinorVersion(),
+                 fe.c_str(),
+                 header->GetContentStartPosition(),
+                 header->GetOriginalFileSize());
 
   auto extension = header->GetFileExtension();
 
@@ -53,11 +54,12 @@ size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream           stream,
 
 uint32_t PfileHeaderWriter::WritePreamble(rmscrypto::api::SharedStream writer)
 {
-  qDebug() << "PfileHeaderWriter::WritePreamble";
+  Logger::Hidden("PfileHeaderWriter::WritePreamble");
   common::ByteArray preamble = { 0x2E, 0x70, 0x66, 0x69, 0x6C, 0x65 }; // byte
-                                                                       // representation
-                                                                       // of
-                                                                       // ".pfile"
+
+  // representation
+  // of
+  // ".pfile"
   writer->Write(reinterpret_cast<const uint8_t *>(preamble.data()),
                 static_cast<int>(preamble.size()));
 
@@ -65,12 +67,13 @@ uint32_t PfileHeaderWriter::WritePreamble(rmscrypto::api::SharedStream writer)
 }
 
 uint32_t PfileHeaderWriter::WriteVersionNumber(
-  rmscrypto::api::SharedStream           writer,
+  rmscrypto::api::SharedStream      writer,
   const std::shared_ptr<PfileHeader>header)
 {
-  qDebug() << "PfileHeaderWriter::WriteVersionNumber";
+  Logger::Hidden("PfileHeaderWriter::WriteVersionNumber");
   uint32_t mjv = header->GetMajorVersion();
   uint32_t mnv = header->GetMinorVersion();
+
   writer->Write(reinterpret_cast<uint8_t *>(&mjv), sizeof(uint32_t));
   writer->Write(reinterpret_cast<uint8_t *>(&mnv), sizeof(uint32_t));
 
@@ -78,13 +81,14 @@ uint32_t PfileHeaderWriter::WriteVersionNumber(
 }
 
 uint32_t PfileHeaderWriter::WriteCleartextRedirection(
-  rmscrypto::api::SharedStream           writer,
+  rmscrypto::api::SharedStream      writer,
   const std::shared_ptr<PfileHeader>header)
 {
-  qDebug() << "PfileHeaderWriter::WriteCleartextRedirection";
+  Logger::Hidden("PfileHeaderWriter::WriteCleartextRedirection");
   auto cleartextRedirectionHeader = header->GetCleartextRedirectionHeader();
   uint32_t cts                    =
     static_cast<uint32_t>(cleartextRedirectionHeader.size());
+
   writer->Write(reinterpret_cast<const uint8_t *>(&cts), sizeof(uint32_t));
   writer->Write(reinterpret_cast<const uint8_t *>(cleartextRedirectionHeader.
                                                   data()),
@@ -94,11 +98,11 @@ uint32_t PfileHeaderWriter::WriteCleartextRedirection(
          sizeof(uint32_t);
 }
 
-void PfileHeaderWriter::WriteHeader(rmscrypto::api::SharedStream           writer,
+void PfileHeaderWriter::WriteHeader(rmscrypto::api::SharedStream      writer,
                                     const std::shared_ptr<PfileHeader>header,
                                     size_t                            headerOffset)
 {
-  qDebug() << "PfileHeaderWriter::WriteHeader";
+  Logger::Hidden("PfileHeaderWriter::WriteHeader");
   uint32_t headerSize      = 8 * sizeof(uint32_t) + sizeof(uint64_t);
   uint32_t extensionOffset = static_cast<uint32_t>(headerOffset) +
                              headerSize;
@@ -123,10 +127,10 @@ void PfileHeaderWriter::WriteHeader(rmscrypto::api::SharedStream           write
   writer->Write(reinterpret_cast<uint8_t *>(&metadataLength),   sizeof(uint32_t));
 }
 
-void PfileHeaderWriter::WriteExtension(rmscrypto::api::SharedStream           writer,
+void PfileHeaderWriter::WriteExtension(rmscrypto::api::SharedStream      writer,
                                        const std::shared_ptr<PfileHeader>header)
 {
-  qDebug() << "PfileHeaderWriter::WriteExtension";
+  Logger::Hidden("PfileHeaderWriter::WriteExtension");
   auto extension = header->GetFileExtension();
 
   if (extension.empty()) {
@@ -137,27 +141,30 @@ void PfileHeaderWriter::WriteExtension(rmscrypto::api::SharedStream           wr
 }
 
 void PfileHeaderWriter::WritePublishingLicense(
-  rmscrypto::api::SharedStream           writer,
+  rmscrypto::api::SharedStream      writer,
   const std::shared_ptr<PfileHeader>header)
 {
-  qDebug() << "PfileHeaderWriter::WritePublishingLicense";
+  Logger::Hidden("PfileHeaderWriter::WritePublishingLicense");
   auto publishingLicense = header->GetPublishingLicense();
+
   writer->Write(reinterpret_cast<const uint8_t *>(publishingLicense.data()),
                 static_cast<int>(publishingLicense.size()));
 }
 
-void PfileHeaderWriter::WriteMetadata(rmscrypto::api::SharedStream           writer,
+void PfileHeaderWriter::WriteMetadata(rmscrypto::api::SharedStream      writer,
                                       const std::shared_ptr<PfileHeader>header)
 {
-  qDebug() << "PfileHeaderWriter::WriteMetadata";
+  Logger::Hidden("PfileHeaderWriter::WriteMetadata");
   auto metadata = header->GetMetadata();
+
   writer->Write(reinterpret_cast<const uint8_t *>(metadata.data()),
                 static_cast<int>(metadata.size()));
 }
 
 shared_ptr<IPfileHeaderWriter>IPfileHeaderWriter::Create()
 {
-  qDebug() << "PfileHeaderWriter::Create";
+  Logger::Hidden("PfileHeaderWriter::Create");
+
   return make_shared<PfileHeaderWriter>();
 }
 } // namespace pfile

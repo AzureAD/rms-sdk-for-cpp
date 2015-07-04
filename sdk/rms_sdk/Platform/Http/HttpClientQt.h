@@ -12,7 +12,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QDebug>
 #include <exception>
 #include "IHttpClient.h"
 
