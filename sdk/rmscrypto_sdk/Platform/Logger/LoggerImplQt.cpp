@@ -12,8 +12,8 @@
 #include <sstream>
 #include <string>
 
-Logger& Logger::instance() {
-  static LoggerImplQt instance;
+LoggerCrypto& LoggerCrypto::instance() {
+  static LoggerCryptoImplQt instance;
 
   return instance;
 }
@@ -34,7 +34,7 @@ static std::string localTime(const char *format) {
   return res;
 }
 
-LoggerImplQt::LoggerImplQt() {
+LoggerCryptoImplQt::LoggerCryptoImplQt() {
   std::stringstream filename;
 
   filename << "rmscrypto_log_" << localTime("%H%M%S-%d%m") << ".log";
@@ -42,15 +42,15 @@ LoggerImplQt::LoggerImplQt() {
   this->stream_.open(filename.str(), std::ofstream::out | std::ofstream::trunc);
 
   if (this->stream_.fail()) {
-    Logger::Hidden("Can't open file: %s", filename.str().c_str());
+    LoggerCrypto::Hidden("Can't open file: %s", filename.str().c_str());
   }
 }
 
-LoggerImplQt::~LoggerImplQt() {
+LoggerCryptoImplQt::~LoggerCryptoImplQt() {
   this->stream_.close();
 }
 
-void LoggerImplQt::append(const std::string& prefix, const std::string& record) {
+void LoggerCryptoImplQt::append(const std::string& prefix, const std::string& record) {
   std::stringstream ss;
 
   ss << localTime("%H:%M:%S ") << prefix.c_str() << ": " << record;
