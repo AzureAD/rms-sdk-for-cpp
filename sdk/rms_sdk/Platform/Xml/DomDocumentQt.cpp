@@ -13,7 +13,6 @@
 #include "DomElementQt.h"
 #include <QDomNodeList>
 #include <QXmlQuery>
-#include <QDebug>
 #include <QBuffer>
 #include "../Logger/Logger.h"
 
@@ -73,11 +72,11 @@ sp<IDomElement> DomDocumentQt::SelectSingleNode(const std::string &xPath)
     query.bindVariable("inputDocument", &device);
 
     auto defaultNs = this->impl_.documentElement().toElement().attribute("xmlns");
-    Logger::Debug("DomDocumentQt::SelectSingleNode: defaultNs: %s", defaultNs.toStdString().data());
+    Logger::Hidden("DomDocumentQt::SelectSingleNode: defaultNs: %s", defaultNs.toStdString().data());
 
     QString  xpathReq = xpathReqPattern.arg(defaultNsPattern.arg(defaultNs)).arg("doc($inputDocument)").arg(xPath.data());
     query.setQuery(xpathReq);
-    Logger::Debug("DomDocumentQt::SelectSingleNode: xpathReq: %s", xpathReq.toStdString().data());
+    Logger::Hidden("DomDocumentQt::SelectSingleNode: xpathReq: %s", xpathReq.toStdString().data());
 
     if ( !query.isValid())
     {
@@ -96,7 +95,7 @@ sp<IDomElement> DomDocumentQt::SelectSingleNode(const std::string &xPath)
 
     auto root = resDoc.documentElement();
 
-    Logger::Debug("DomDocumentQt::SelectSingleNode: resDoc: %s", res.toStdString().data());
+    Logger::Hidden("DomDocumentQt::SelectSingleNode: resDoc: %s", res.toStdString().data());
     return std::make_shared<DomElementQt>(resDoc.documentElement());
 }
 

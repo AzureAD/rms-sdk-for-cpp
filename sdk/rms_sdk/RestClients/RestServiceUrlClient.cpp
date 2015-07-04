@@ -4,9 +4,8 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
-#include <QDebug>
 #include "RestServiceUrlClient.h"
 #include "RestServiceUrls.h"
 #include "RestClientCache.h"
@@ -15,6 +14,7 @@
 #include "LicenseParser.h"
 #include "ServiceDiscoveryClient.h"
 #include "../Platform/Settings/ILocalSettings.h"
+#include "../Platform/Logger/Logger.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Common/tools.h"
 using namespace std;
@@ -46,9 +46,10 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::FindCache(
   return it->second;
 }
 
-void RestServiceUrlClient::GetConsent(IConsentCallbackImpl             & consentCallback,
-  const string &sEmail,
-  std::shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails)
+void RestServiceUrlClient::GetConsent(
+  IConsentCallbackImpl                  & consentCallback,
+  const string                          & sEmail,
+  std::shared_ptr<ServiceDiscoveryDetails>serviceDiscoveryDetails)
 {
   GetConsent(consentCallback,
              sEmail,
@@ -57,18 +58,19 @@ void RestServiceUrlClient::GetConsent(IConsentCallbackImpl             & consent
 }
 
 void RestServiceUrlClient::GetConsent(IConsentCallbackImpl& consentCallback,
-                                      const string &sEmail,
-                                      const string &domain,
-                                      const string &url)
+                                      const string        & sEmail,
+                                      const string        & domain,
+                                      const string        & url)
 {
   vector<string> urls;
   urls.push_back(url);
   consentCallback.Consents(sEmail, domain, urls);
 }
 
-string RestServiceUrlClient::GetEndUserLicensesUrl(const void                  *pbPublishLicense,
-  const size_t cbPublishLicense,
-  const string &sEmail,
+string RestServiceUrlClient::GetEndUserLicensesUrl(
+  const void                  *pbPublishLicense,
+  const size_t                 cbPublishLicense,
+  const string               & sEmail,
   IAuthenticationCallbackImpl& authenticationCallback,
   IConsentCallbackImpl       & consentCallback)
 {
@@ -91,8 +93,8 @@ string RestServiceUrlClient::GetEndUserLicensesUrl(const void                  *
   return string(serviceDiscoveryDetails->EndUserLicensesUrl);
 }
 
-string RestServiceUrlClient::GetTemplatesUrl(const string &sEmail,
-  IAuthenticationCallbackImpl& authenticationCallback)
+string RestServiceUrlClient::GetTemplatesUrl(const string               & sEmail,
+                                             IAuthenticationCallbackImpl& authenticationCallback)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -109,8 +111,8 @@ string RestServiceUrlClient::GetTemplatesUrl(const string &sEmail,
   return string(serviceDiscoveryDetails->TemplatesUrl);
 }
 
-string RestServiceUrlClient::GetPublishUrl(const string &sEmail,
-  IAuthenticationCallbackImpl& authenticationCallback)
+string RestServiceUrlClient::GetPublishUrl(const string               & sEmail,
+                                           IAuthenticationCallbackImpl& authenticationCallback)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -127,7 +129,8 @@ string RestServiceUrlClient::GetPublishUrl(const string &sEmail,
   return string(serviceDiscoveryDetails->PublishingLicensesUrl);
 }
 
-string RestServiceUrlClient::GetCloudDiagnosticsServerUrl(const string &sEmail,
+string RestServiceUrlClient::GetCloudDiagnosticsServerUrl(
+  const string               & sEmail,
   IAuthenticationCallbackImpl& authenticationCallback)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
@@ -145,7 +148,8 @@ string RestServiceUrlClient::GetCloudDiagnosticsServerUrl(const string &sEmail,
   return string(serviceDiscoveryDetails->CloudDiagnosticsServerUrl);
 }
 
-string RestServiceUrlClient::GetPerformanceServerUrl(const string &sEmail,
+string RestServiceUrlClient::GetPerformanceServerUrl(
+  const string               & sEmail,
   IAuthenticationCallbackImpl& authenticationCallback)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
@@ -163,12 +167,13 @@ string RestServiceUrlClient::GetPerformanceServerUrl(const string &sEmail,
   return string(serviceDiscoveryDetails->PerformanceServerUrl);
 }
 
-shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDetails(
-        const void   *pbPublishLicense,
-        const size_t  cbPublishLicense,
-        const string &sEmail,
-        IAuthenticationCallbackImpl& authenticationCallback,
-        IConsentCallbackImpl        *consentCallback)
+shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::
+GetServiceDiscoveryDetails(
+  const void                  *pbPublishLicense,
+  const size_t                 cbPublishLicense,
+  const string               & sEmail,
+  IAuthenticationCallbackImpl& authenticationCallback,
+  IConsentCallbackImpl        *consentCallback)
 {
   // If service discovery is not enabled, return default
   // In publish if empty string is passed as userid, return default
@@ -212,13 +217,13 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
 
   if (pbPublishLicense != nullptr)
   {
-    qDebug() << "Using publishLicense to create domain";
+    Logger::Hidden("Using publishLicense to create domain");
     domains = LicenseParser::ExtractDomainsFromPublishingLicense(pbPublishLicense,
                                                                  cbPublishLicense);
   }
   else
   {
-    qDebug() << "Using email to create domain";
+    Logger::Hidden("Using email to create domain");
     shared_ptr<Domain> domain = Domain::CreateFromEmail(sEmail);
     domains.push_back(domain);
   }
@@ -233,7 +238,7 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
 
     if (serviceDiscoveryDetails.get() != nullptr)
     {
-      qDebug() << "Service discovery is cached";
+      Logger::Hidden("Service discovery is cached");
 
       if (consentCallback)
       {
@@ -254,7 +259,7 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
 
     if (!vDnsClientResult.empty())
     {
-      qDebug() << "Found cached DNS client result";
+      Logger::Hidden("Found cached DNS client result");
       selectedDomain  = domain;
       dnsClientResult = DnsClientResult::Create(vDnsClientResult[0]);
       break;
@@ -263,25 +268,25 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
 
   if (dnsClientResult.get() == nullptr)
   {
-    qDebug() << "No cached DNS client result";
+    Logger::Hidden("No cached DNS client result");
 
     // selectedDomain must also be null if dnsClientResult is null
     if (selectedDomain.get() != nullptr)
     {
-      qDebug() << "selectedDomain must be nul";
+      Logger::Hidden("selectedDomain must be nul");
     }
 
     // DNS lookup to find discovery service URL.
     shared_ptr<IDnsLookupClient> dnsLookupClient = IDnsLookupClient::Create();
 
-    for (auto &domain : domains)
+    for (auto& domain : domains)
     {
       // DNS lookup to find discovery service URL.
       dnsClientResult = dnsLookupClient->LookupDiscoveryService(domain);
 
       if (dnsClientResult.get() != nullptr)
       {
-        qDebug() << "DNS lookup successful dns client result.";
+        Logger::Hidden("DNS lookup successful dns client result.");
         auto domainsChecked = dnsClientResult->GetDomainsChecked();
         for_each(
           begin(domainsChecked),
@@ -301,7 +306,7 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
 
     if (dnsClientResult.get() == nullptr)
     {
-      qDebug() << "Failed DNS lookup, reverting to cloud discovery service";
+      Logger::Hidden("Failed DNS lookup, reverting to cloud discovery service");
 
       if (domains.empty()) {
         throw exceptions::RMSInvalidArgumentException("DNS is empty");
@@ -318,11 +323,12 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
     throw exceptions::RMSInvalidArgumentException("Domain is empty");
   }
 
-  qDebug() << "selectedDomain = " << selectedDomain->GetOriginalInput().c_str();
+  Logger::Hidden("selectedDomain = %s",
+                 selectedDomain->GetOriginalInput().c_str());
 
   // get the discovery url
   string discoveryUrl = dnsClientResult->GetDiscoveryUrl();
-  qDebug() << "discoveryUrl = " << discoveryUrl.c_str();
+  Logger::Hidden("discoveryUrl = %s", discoveryUrl.c_str());
 
   if (consentCallback)
   {
@@ -383,24 +389,22 @@ shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::GetServiceDiscoveryDeta
   }
 
   if (serviceDiscoveryDetails->CloudDiagnosticsServerUrl.empty()) {
-    throw exceptions::RMSInvalidArgumentException("CloudDiagnosticsServerUrl is empty");
+    throw exceptions::RMSInvalidArgumentException(
+            "CloudDiagnosticsServerUrl is empty");
   }
 
   if (serviceDiscoveryDetails->PerformanceServerUrl.empty()) {
     throw exceptions::RMSInvalidArgumentException("PerformanceServerUrl is empty");
   }
 
-  qDebug() <<
-    "serviceDiscoveryDetails: EndUserLicensesUrl = '" <<
-    serviceDiscoveryDetails->EndUserLicensesUrl.c_str() <<
-    "', PublishingLicensesUrl = '" <<
-    serviceDiscoveryDetails->PublishingLicensesUrl.c_str() <<
-    "', TemplatesUrl = '" <<
-    serviceDiscoveryDetails->TemplatesUrl.c_str() <<
-    "', CloudDiagnosticsServerUrl = '" <<
-    serviceDiscoveryDetails->CloudDiagnosticsServerUrl.c_str() <<
-    "', PerformanceServerUrl = '" <<
-    serviceDiscoveryDetails->PerformanceServerUrl.c_str() << "'";
+  Logger::Hidden(
+    "serviceDiscoveryDetails: EndUserLicensesUrl = '%s', PublishingLicensesUrl = '%s'," \
+    " TemplatesUrl = '%s', CloudDiagnosticsServerUrl = '%s', PerformanceServerUrl = '%s'",
+    serviceDiscoveryDetails->EndUserLicensesUrl.c_str(),
+    serviceDiscoveryDetails->PublishingLicensesUrl.c_str(),
+    serviceDiscoveryDetails->TemplatesUrl.c_str(),
+    serviceDiscoveryDetails->CloudDiagnosticsServerUrl.c_str(),
+    serviceDiscoveryDetails->PerformanceServerUrl.c_str());
 
   // Store answer only if DNS record was found
   // don't store when dns record was not found as the result could be user's

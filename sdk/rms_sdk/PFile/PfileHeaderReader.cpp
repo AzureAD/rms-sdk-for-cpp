@@ -8,8 +8,8 @@
 
 #include <future>
 #include "../ModernAPI/RMSExceptions.h"
+#include "../Platform/Logger/Logger.h"
 #include "PfileHeaderReader.h"
-#include <QDebug>
 
 using namespace std;
 using namespace rmscore::common;
@@ -26,7 +26,7 @@ PfileHeaderReader::~PfileHeaderReader()
 
 shared_ptr<PfileHeader>PfileHeaderReader::Read(rmscrypto::api::SharedStream stream)
 {
-  qDebug() << "PfileHeaderReader: Reading pfile header.";
+  Logger::Hidden("PfileHeaderReader: Reading pfile header.");
 
   CheckPreamble(stream);
   auto version                    = ReadVersionNumber(stream);
@@ -40,7 +40,7 @@ void PfileHeaderReader::CheckPreamble(rmscrypto::api::SharedStream stream)
 {
   ByteArray pr;
 
-  qDebug() << L"PfileHeaderReader: Checking preamble";
+  Logger::Hidden("PfileHeaderReader: Checking preamble");
 
   auto expectedLength = static_cast<uint32_t>(ExpectedPreamble.size());
   ReadBytes(pr, stream, expectedLength);
@@ -69,8 +69,7 @@ tuple<uint32_t, uint32_t>PfileHeaderReader::ReadVersionNumber(
   stream->Read(reinterpret_cast<uint8_t *>(&majorVersion), sizeof(uint32_t));
   stream->Read(reinterpret_cast<uint8_t *>(&minorVersion), sizeof(uint32_t));
 
-  qDebug() << "PfileHeaderReader: Major version:" << majorVersion <<
-    ", Minor version: " << minorVersion;
+  Logger::Hidden("PfileHeaderReader: Major version: %d, Minor version: %d", majorVersion, minorVersion);
 
   if ((majorVersion >= MaxValidVersionNumber) ||
       (minorVersion >= MaxValidVersionNumber)) {
@@ -102,8 +101,7 @@ string PfileHeaderReader::ReadCleartextRedirectionHeader(
   }
 
   string redirectHeaderStr(redirectHeader.begin(), redirectHeader.end());
-  qDebug() << "PfileHeaderReader: Cleartext redirect header: " <<
-    redirectHeaderStr.c_str();
+  Logger::Hidden("PfileHeaderReader: Cleartext redirect header: %s", redirectHeaderStr.c_str());
 
   return redirectHeaderStr;
 }
@@ -122,7 +120,7 @@ string PfileHeaderReader::ReadExtension(rmscrypto::api::SharedStream stream,
   ReadAtOffset(ext, stream, offset, length);
   string extStr(ext.begin(), ext.end());
 
-  qDebug() << "PfileHeaderReader: Extension: " << extStr.c_str();
+  Logger::Hidden("PfileHeaderReader: Extension: %s", extStr.c_str());
 
   return extStr;
 }

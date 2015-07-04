@@ -6,8 +6,8 @@
  * ======================================================================
  */
 
-#include <QDebug>
 #include "QTStreamImpl.h"
+#include "../../Platform/Logger/Logger.h"
 using namespace rmscrypto::api;
 using namespace std;
 
@@ -60,7 +60,8 @@ shared_future<int64_t>QTStreamImpl::WriteAsync(const uint8_t *cpbBuffer,
     // first lock object
     unique_lock<mutex>lock(self->locker_);
 
-    qDebug() << "Write " << size << " bytes at offset = " << offset << " from buffer = " << buffer;
+    Logger::Hidden("Write %I64d bytes at offset = %I64d from buffer = %x", size,
+                   offset, buffer);
 
     // seek to position and write
     self->stream_->device()->seek(offset);

@@ -58,7 +58,7 @@ void PlatformJsonArrayTest::testGetStringAt()
   }
   catch (std::invalid_argument& e)
   {
-    qDebug() << "Error: " << e.what();
+    Logger::Error("Exception: %s", e.what());
   }
 }
 

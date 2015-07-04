@@ -6,11 +6,12 @@
  * ======================================================================
 */
 
-#ifndef _RMS_LIB_LOGGER_H_
-#define _RMS_LIB_LOGGER_H_
+#ifndef _CRYPTO_STREAMS_LIB_LOGGER_H_
+#define _CRYPTO_STREAMS_LIB_LOGGER_H_
 
 #include <string>
 #include <cstdio>
+#include <QDebug>
 #include <QProcessEnvironment>
 
 class Logger
@@ -81,4 +82,4 @@ private:
     static Logger& instance();
 };
 
-#endif // _RMS_LIB_LOGGER_H_
+#endif // _CRYPTO_STREAMS_LIB_LOGGER_H_

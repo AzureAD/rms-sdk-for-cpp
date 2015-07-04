@@ -6,7 +6,6 @@
  * ======================================================================
  */
 
-#include <QDebug>
 #include <QFile>
 #include <vector>
 #include <CryptoAPI.h>
@@ -15,6 +14,7 @@
 #include "../PFile/PfileHeaderWriter.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Core/ProtectionPolicy.h"
+#include "../Platform/Logger/Logger.h"
 #include "ProtectedFileStream.h"
 
 using namespace rmscore::common;
@@ -51,7 +51,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   PolicyAcquisitionOptions options,
   ResponseCacheFlags       cacheMask)
 {
-  qDebug() << "+ProtectedFileStream::Get";
+  Logger::Hidden("+ProtectedFileStream::Get");
 
   // Read PfileHeader from the stream
   shared_ptr<IPfileHeaderReader> headerReader = IPfileHeaderReader::Create();
@@ -67,13 +67,13 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   try {
     header  = headerReader->Read(stream);
     pHeader = header.get();
-    qDebug() <<
-      "ProtectedFileStream: Read pfile header. Major version: " <<
-      pHeader->GetMajorVersion() << ", minor version: " <<
-      pHeader->GetMinorVersion() << ", file extension: '" <<
-      pHeader->GetFileExtension().c_str() << "', content start position: " <<
-      pHeader->GetContentStartPosition() << ", original file size: " <<
-      pHeader->GetOriginalFileSize() << ".";
+    Logger::Hidden(
+      "ProtectedFileStream: Read pfile header. Major version: %d, minor version: %d, file extension: '%s', content start position: %d, original file size: %I64d",
+      pHeader->GetMajorVersion(),
+      pHeader->GetMinorVersion(),
+      pHeader->GetFileExtension().c_str(),
+      pHeader->GetContentStartPosition(),
+      pHeader->GetOriginalFileSize());
   } catch (exceptions::RMSException& e) {
     if ((e.error() != exceptions::RMSException::PFileError) ||
         (static_cast<exceptions::RMSPFileException&>(e).reason() !=
@@ -82,6 +82,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
       throw;
     }
   }
+
   if (pHeader != nullptr) {
     ByteArray publishingLicense = pHeader->GetPublishingLicense();
     auto policyRequest          = UserPolicy::Acquire(publishingLicense,
@@ -115,7 +116,7 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
   SharedStream          stream,
   const string        & originalFileExtension)
 {
-  qDebug() << "+ProtectedFileStream::Create";
+  Logger::Hidden("+ProtectedFileStream::Create");
 
   shared_ptr<PfileHeader> pHeader;
 
@@ -150,7 +151,7 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
 
   auto result = CreateProtectedFileStream(policy, stream, pHeader);
 
-  qDebug() << "-ProtectedFileStream::Create";
+  Logger::Hidden("-ProtectedFileStream::Create");
   return shared_ptr<ProtectedFileStream>(result);
 }
 

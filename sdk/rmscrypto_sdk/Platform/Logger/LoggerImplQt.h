@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef _RMS_LIB_LOGGERQTIMPL_H_
-#define _RMS_LIB_LOGGERQTIMPL_H_
+#ifndef _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
+#define _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
 
 #include "Logger.h"
 #include <fstream>
@@ -25,4 +25,4 @@ private:
     std::ofstream stream_;
 };
 
-#endif // _RMS_LIB_LOGGERQTIMPL_H_
+#endif // _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_

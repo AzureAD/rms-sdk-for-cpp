@@ -81,7 +81,7 @@ void PlatformJsonObjectTest::testGetNamedString(bool enabled)
     value = p_rootObj->GetNamedString(name.toStdString(), s_strDefaultVal);
   }
   catch (exceptions::RMSInvalidArgumentException& e) {
-    Logger::Debug("Convertion exception: %s", e.what());
+    Logger::Hidden("Convertion exception: %s", e.what());
     value = STR_EXCEPTION;
   }
   QVERIFY(expectedValue.toStdString() == value);
@@ -144,7 +144,7 @@ void PlatformJsonObjectTest::testGetNamedBool(bool enabled)
     QVERIFY(expectedValue == value);
   }
   catch (exceptions::RMSInvalidArgumentException& e) {
-    Logger::Debug("Convertion exception: %s", e.what());
+    Logger::Hidden("Convertion exception: %s", e.what());
     QVERIFY(std::string(e.what()) ==
             std::string("JsonObjectQt::GetNamedBool: convertion error"));
   }
@@ -200,8 +200,8 @@ void PlatformJsonObjectTest::testGetNamedObject(bool enabled)
   {
     try
     {
-      Logger::Debug("val: %s", p_namedObj->GetNamedString("str-value").data());
-      Logger::Debug("val: %i", p_namedObj->GetNamedBool("bool-value"));
+      Logger::Hidden("val: %s", p_namedObj->GetNamedString("str-value").data());
+      Logger::Hidden("val: %i", p_namedObj->GetNamedBool("bool-value"));
     }
     catch (exceptions::RMSInvalidArgumentException& e)
     {

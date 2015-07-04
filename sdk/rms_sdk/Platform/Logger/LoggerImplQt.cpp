@@ -8,7 +8,6 @@
 
 #ifdef QTFRAMEWORK
 #include "LoggerImplQt.h"
-#include <QDebug>
 #include <time.h>
 #include <sstream>
 #include <string>
@@ -39,7 +38,7 @@ LoggerImplQt::LoggerImplQt() {
 
     this->stream_.open(filename.str(), std::ofstream::out | std::ofstream::trunc);
     if (this->stream_.fail()) {
-        qDebug() << "Can't open file: " << filename.str().c_str();
+        Logger::Hidden("Can't open file: %s", filename.str().c_str());
     }
 }
 
