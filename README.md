@@ -1,5 +1,7 @@
 # RMS SDK for portable C++
 
+[![Build Status](https://travis-ci.org/AzureAD/rms-sdk-for-cpp.svg?branch=master)](https://travis-ci.org/AzureAD/rms-sdk-for-cpp)
+
 - [How to Build](./docs/how_to_build_it.md)
 - [How to Use](./docs/how_to_use_it.md)
 
