@@ -17,35 +17,35 @@
 
 namespace rmscore {
 namespace modernapi {
-// TODO: figure out why it's an interface
+/**
+ @brief Represents a user's consent/refusal to allow usage of a given URL.
+*/
 class IConsent {
 public:
-
-  /// <summary>
-  /// Gets or sets the consent result
-  /// </summary>
+  /**
+    @brief Result of a consent request.
+  */
   virtual const ConsentResult& Result() const = 0;
-
   // virtual void ConsentResult(const ConsentResult& value) = 0;
 
-  /// <summary>
-  /// Gets the type of consent
-  /// </summary>
+  /**
+    @brief The type of URL to consented to.
+  */
   virtual ConsentType Type() const = 0;
 
-  /// <summary>
-  /// Gets the list of urls that need to consented.
-  /// </summary>
+/**
+  @brief List of URLs for which consent is granted/refused.
+*/
   virtual const std::vector<std::string>Urls() const = 0;
 
-  /// <summary>
-  /// Gets the user id
-  /// </summary>
+/**
+  @brief The user granting/refusing consent.
+*/
   virtual const std::string User() const = 0;
 
-  /// <summary>
-  /// Gets the domain information
-  /// </summary>
+/**
+  @brief Just the domain.
+*/
   virtual const std::string Domain() const = 0;
 };
 } // namespace modernapi

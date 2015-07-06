@@ -18,22 +18,33 @@ namespace modernapi {
  */
 class DLL_PUBLIC_RMS AuthenticationParameters {
 public:
-
+/**
+@brief The authorization service. Provided by authentication challenge from RMS service.
+*/
   std::string Authority()
   {
     return m_authority;
   }
 
+  /**
+  @brief The resource name. Provided by authentication challenge from RMS service.
+  */
   std::string Resource()
   {
     return m_resource;
   }
 
+/**
+  @brief The redirect URL. Provided by authentication challenge from RMS service.
+*/
   std::string Scope()
   {
     return m_scope;
   }
 
+/**
+  @brief The current user ID. Provided by caller (app).
+*/
   std::string UserId()
   {
     return m_userId;

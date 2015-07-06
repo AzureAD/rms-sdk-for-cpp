@@ -17,7 +17,7 @@
 namespace rmscore {
 namespace modernapi {
 /**
- * @brief IAuthenticationCallback interface to provide strategy for getting usable access token.
+ * @brief Implement this interface to provide a strategy for getting an OAuth access token.
  *
  * Apps should implement this interface, specifically the GetToken method, to return an
  * access token for use by the API client.
@@ -25,9 +25,9 @@ namespace modernapi {
 class IAuthenticationCallback {
 public:
 
-    /**
+  /**
    * @brief Override to return an access token clients can attach to outbound API calls.
-   * @param authenticationParamaters {@link AuthenticationParameters} Coordinates for OAuth calls.
+   * @param[in] authenticationParameters Coordinates for OAuth calls. These are determined from a challenge returned by the RMS API.
    * @return A usable access token.
    */
   virtual std::string GetToken(
