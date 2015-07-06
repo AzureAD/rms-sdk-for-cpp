@@ -38,7 +38,7 @@ public:
     const String& resource()                const { return tokenCacheKey_.resource(); }
     const String& tenantId()                const { return resultPtr_->tenantId(); }
     const String& uniqueId()                const { return tokenCacheKey_.uniqueId(); }
-    const String& displayableId()           const { return tokenCacheKey_.displayableId(); }
+    //const String& displayableId()           const { return tokenCacheKey_.displayableId(); }
     const String& accessToken()             const { return resultPtr_->accessToken(); }
     const String& refreshToken()            const { return resultPtr_->refreshToken(); }
     void refreshToken(const String& val)    { resultPtr_->refreshToken(val); }

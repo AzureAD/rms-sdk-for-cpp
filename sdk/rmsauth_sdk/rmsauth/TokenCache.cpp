@@ -52,7 +52,7 @@ void TokenCache::deleteItem(TokenCacheItemPtr item)
 {
     Logger::info(Tag(), "deleteItem");
 
-    TokenCacheNotificationArgs args(this, item->resource(), item->clientId(), item->uniqueId(), item->displayableId());
+    TokenCacheNotificationArgs args(this, item->resource(), item->clientId(), item->uniqueId()/*, item->displayableId()*/);
 
     onBeforeAccess(args);
     onBeforeWrite(args);
@@ -75,13 +75,13 @@ void TokenCache::clear()
     onAfterAccess(args);
 }
 
-AuthenticationResultPtr TokenCache::loadFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, const String& displayableId, CallStatePtr callState)
+AuthenticationResultPtr TokenCache::loadFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, /*const String& displayableId, */CallStatePtr callState)
 {
     Logger::info(Tag(), "loadFromCache");
 
     AuthenticationResultPtr result = nullptr;
 
-    auto item = loadSingleItemFromCache(authority, resource, clientId, subjectType, uniqueId, displayableId, callState);
+    auto item = loadSingleItemFromCache(authority, resource, clientId, subjectType, uniqueId, /*displayableId, */callState);
 
     if (item != nullptr)
     {
@@ -132,7 +132,7 @@ void TokenCache::storeToCache(AuthenticationResultPtr result, const String& auth
     String uniqueId = (result->userInfo() != nullptr) ? result->userInfo()->uniqueId() : "";
     String displayableId = (result->userInfo() != nullptr) ? result->userInfo()->displayableId() : "";
 
-    TokenCacheNotificationArgs args(this, clientId, resource,  uniqueId, displayableId);
+    TokenCacheNotificationArgs args(this, clientId, resource,  uniqueId/*, displayableId*/);
     onBeforeWrite(args);
 
     TokenCacheKey tokenCacheKey(authority, resource, clientId, subjectType, result->userInfo());
@@ -157,7 +157,7 @@ void TokenCache::updateCachedMrrtRefreshTokens(AuthenticationResultPtr result, c
 {
     if (result->userInfo() != nullptr && result->isMultipleResourceRefreshToken())
     {
-        auto list = queryCache(authority, clientId, subjectType, result->userInfo()->uniqueId(), result->userInfo()->displayableId());
+        auto list = queryCache(authority, clientId, subjectType, result->userInfo()->uniqueId()/*, result->userInfo()->displayableId()*/);
         for(TokenCacheItemPtr itemPtr : list)
         {
             if(itemPtr->isMultipleResourceRefreshToken())
@@ -168,9 +168,9 @@ void TokenCache::updateCachedMrrtRefreshTokens(AuthenticationResultPtr result, c
     }
 }
 
-TokenCacheItemPtr TokenCache::loadSingleItemFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, const String& displayableId, CallStatePtr/* callState*/)
+TokenCacheItemPtr TokenCache::loadSingleItemFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, /*const String& displayableId, */CallStatePtr/* callState*/)
 {
-    auto list = queryCache(authority, clientId, subjectType, uniqueId, displayableId);
+    auto list = queryCache(authority, clientId, subjectType, uniqueId/*, displayableId*/);
     auto qnty = std::count_if(
         std::begin(list), std::end(list),
         [&resource](TokenCacheItemPtr itemPtr)
@@ -206,7 +206,7 @@ TokenCacheItemPtr TokenCache::loadSingleItemFromCache(const String& authority, c
     return nullptr;
 }
 
-List<TokenCacheItemPtr> TokenCache::queryCache(const String& authority, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, const String& displayableId)
+List<TokenCacheItemPtr> TokenCache::queryCache(const String& authority, const String& clientId, TokenSubjectType subjectType, const String& uniqueId/*, const String& displayableId*/)
 {
     List<TokenCacheItemPtr> list;
     for (auto kvp : tokenCacheDictionary_)
@@ -215,7 +215,7 @@ List<TokenCacheItemPtr> TokenCache::queryCache(const String& authority, const St
         if (StringUtils::equalsIC(key.authority(), authority)
                 && (clientId.empty() || StringUtils::equalsIC(key.clientId(), clientId))
                 && (uniqueId.empty() || StringUtils::equalsIC(key.uniqueId(), uniqueId))
-                && (displayableId.empty() || StringUtils::equalsIC(key.displayableId(), displayableId))
+//                && (displayableId.empty() || StringUtils::equalsIC(key.displayableId(), displayableId))
                 && (key.tokenSubjectType() == subjectType))
         {
             list.push_back(std::make_shared<TokenCacheItem>(kvp.first, kvp.second));

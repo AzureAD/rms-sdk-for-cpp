@@ -29,19 +29,19 @@ class TokenCacheKey
     String resource_;
     String clientId_;
     String uniqueId_;
-    String displayableId_;
+    //String displayableId_;
     TokenSubjectType tokenSubjectType_;
 
 public:
     TokenCacheKey() = default;
     TokenCacheKey(const String& authority, const String& resource, const String& clientId, const TokenSubjectType tokenSubjectType, const UserInfoPtr userInfo);
-    TokenCacheKey(const String& authority, const String& resource, const String& clientId, const TokenSubjectType tokenSubjectType, const String& uniqueId, const String& displayableId);
+    TokenCacheKey(const String& authority, const String& resource, const String& clientId, const TokenSubjectType tokenSubjectType, const String& uniqueId);
 
     const String& authority()             const { return authority_; }
     const String& resource()              const { return resource_; }
     const String& clientId()              const { return clientId_; }
     const String& uniqueId()              const { return uniqueId_; }
-    const String& displayableId()         const { return displayableId_; }
+    //const String& displayableId()         const { return displayableId_; }
     TokenSubjectType tokenSubjectType()   const { return tokenSubjectType_; }
 
     bool equals(const TokenCacheKey& other) const;
