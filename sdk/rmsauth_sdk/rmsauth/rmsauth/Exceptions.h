@@ -11,6 +11,12 @@
 #include "types.h"
 #include <exception>
 
+#ifndef _NOEXCEPT
+#if __GNUC__ >= 4
+#define _NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+#endif
+#endif
+
 namespace rmsauth {
 
 class Exception : public std::exception
@@ -27,7 +33,7 @@ public:
         , message_(message)
     {}
 
-    virtual const char* what() const _GLIBCXX_USE_NOEXCEPT {return error_.c_str();}
+    virtual const char* what() const _NOEXCEPT {return error_.c_str();}
     virtual const String& error() const {return error_;}
     virtual const String& message() const {return message_;}
 

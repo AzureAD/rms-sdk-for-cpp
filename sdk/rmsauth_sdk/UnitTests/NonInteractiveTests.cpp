@@ -114,7 +114,7 @@ void NonInteractiveTests::CacheTest()
     String dId = userInfoPtr == nullptr ? "" : userInfoPtr->displayableId();
 
     cachePtr->onBeforeAccess(TokenCacheNotificationArgs(nullptr));
-    auto resultPtr = cachePtr->loadFromCache(authority, resource, clientId, TokenSubjectType::User, uId, dId, nullptr);
+    auto resultPtr = cachePtr->loadFromCache(authority, resource, clientId, TokenSubjectType::User, uId, /*dId, */nullptr);
     QVERIFY(resultPtr != nullptr);
     QVERIFY(resultPtr->expiresOn() == authResPtr->expiresOn());
 }
@@ -176,7 +176,7 @@ void NonInteractiveTests::FileCacheEncryptedTest()
         String dId = userInfoPtr == nullptr ? "" : userInfoPtr->displayableId();
 
         cachePtr->onBeforeAccess(TokenCacheNotificationArgs(nullptr));
-        auto resultPtr = cachePtr->loadFromCache(authority, resource, clientId, TokenSubjectType::User, uId, dId, nullptr);
+        auto resultPtr = cachePtr->loadFromCache(authority, resource, clientId, TokenSubjectType::User, uId, /*dId, */nullptr);
         QVERIFY(resultPtr != nullptr);
         QVERIFY(resultPtr->expiresOn() == authResPtr->expiresOn());
     }

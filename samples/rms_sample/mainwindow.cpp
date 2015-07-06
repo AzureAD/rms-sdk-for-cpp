@@ -40,6 +40,7 @@ AuthCallback::AuthCallback(const QString& clientId, const QString& redirectUrl)
   , redirectUrl_(redirectUrl)
 {
   FileCachePtr = std::make_shared<FileCache>();
+  //FileCachePtr->clear();
 }
 
 string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
@@ -62,7 +63,8 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
 
     auto result = authContext.acquireToken(ap->Resource(),
                                            clientId_.toStdString(), redirect,
-                                           PromptBehavior::Auto);
+                                           PromptBehavior::Auto,
+                                           ap->UserId());
     return result->accessToken();
   }
   catch (const rmsauth::Exception& ex)
@@ -133,6 +135,7 @@ void MainWindow::addCertificates() {
   auto dirStr = ui->ineEdit_certificatesPath->text();
   QDir dir(dirStr);
   QStringList filters;
+
   filters << "*.cer" << "*.der" << "*.pem";
   auto filesList = dir.entryInfoList(filters);
   std::vector<uint8_t> buffer;

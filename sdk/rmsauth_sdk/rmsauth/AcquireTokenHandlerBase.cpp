@@ -56,7 +56,7 @@ AuthenticationResultPtr AcquireTokenHandlerBase::runAsync()
             notifyBeforeAccessCache();
             notifiedBeforeAccessCache = true;
 
-            result = tokenCache_->loadFromCache(authenticator_->authority(), resource_, clientKey_->clientId(), tokenSubjectType_, uniqueId_, displayableId_, callState_);
+            result = tokenCache_->loadFromCache(authenticator_->authority(), resource_, clientKey_->clientId(), tokenSubjectType_, uniqueId_, /*displayableId_, */callState_);
 
             if (result != nullptr && result->accessToken().empty() && !result->refreshToken().empty())
             {
@@ -217,8 +217,8 @@ void AcquireTokenHandlerBase::notifyBeforeAccessCache()
         tokenCache_.get(),
         resource_,
         clientKey_->clientId(),
-        uniqueId_,
-        displayableId_);
+        uniqueId_/*,
+        displayableId_*/);
 
     tokenCache_->onBeforeAccess(args);
 }
@@ -230,8 +230,8 @@ void AcquireTokenHandlerBase::notifyAfterAccessCache()
         tokenCache_.get(),
         resource_,
         clientKey_->clientId(),
-        uniqueId_,
-        displayableId_);
+        uniqueId_/*,
+        displayableId_*/);
 
     tokenCache_->onAfterAccess(args);
 }

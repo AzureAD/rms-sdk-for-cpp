@@ -48,11 +48,11 @@ public:
     virtual void onBeforeAccess(const TokenCacheNotificationArgs&)  {}
     virtual void onBeforeWrite(const TokenCacheNotificationArgs&)   {}
 
-    AuthenticationResultPtr loadFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, const String& displayableId, CallStatePtr callState);
+    AuthenticationResultPtr loadFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, CallStatePtr callState);
     void storeToCache(AuthenticationResultPtr result, const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, CallStatePtr callState);
     void updateCachedMrrtRefreshTokens(AuthenticationResultPtr result, const String& authority, const String& clientId, TokenSubjectType subjectType);
-    TokenCacheItemPtr loadSingleItemFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, const String& displayableId, CallStatePtr callState);
-    List<TokenCacheItemPtr> queryCache(const String& authority, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, const String& displayableId);
+    TokenCacheItemPtr loadSingleItemFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, CallStatePtr callState);
+    List<TokenCacheItemPtr> queryCache(const String& authority, const String& clientId, TokenSubjectType subjectType, const String& uniqueId);
     virtual const String getCacheName() const {return TokenCache::Tag();}
 
 protected:

@@ -11,16 +11,16 @@
 namespace rmsauth {
 
 TokenCacheKey::TokenCacheKey(const String& authority, const String& resource, const String& clientId, const TokenSubjectType tokenSubjectType, const UserInfoPtr userInfo)
-     : TokenCacheKey{authority, resource, clientId, tokenSubjectType, (userInfo != nullptr) ? userInfo->uniqueId() : "", (userInfo != nullptr) ? userInfo->displayableId() : ""}
+     : TokenCacheKey{authority, resource, clientId, tokenSubjectType, (userInfo != nullptr) ? userInfo->uniqueId() : ""/*, (userInfo != nullptr) ? userInfo->displayableId() : ""*/}
  {
  }
 
- TokenCacheKey::TokenCacheKey(const String& authority, const String& resource, const String& clientId, const TokenSubjectType tokenSubjectType, const String& uniqueId, const String& displayableId)
+ TokenCacheKey::TokenCacheKey(const String& authority, const String& resource, const String& clientId, const TokenSubjectType tokenSubjectType, const String& uniqueId/*, const String& displayableId*/)
      : authority_(authority)
      , resource_(resource)
      , clientId_(clientId)
      , uniqueId_(uniqueId)
-     , displayableId_(displayableId)
+//     , displayableId_(displayableId)
      , tokenSubjectType_(tokenSubjectType)
  {
  }
@@ -31,7 +31,7 @@ TokenCacheKey::TokenCacheKey(const String& authority, const String& resource, co
          && StringUtils::equalsIC(other.resource_, resource_)
          && StringUtils::equalsIC(other.clientId_, clientId_)
          && StringUtils::equalsIC(other.uniqueId_, uniqueId_)
-         && StringUtils::equalsIC(other.displayableId_, displayableId_)
+//         && StringUtils::equalsIC(other.displayableId_, displayableId_)
          && (other.tokenSubjectType_ == tokenSubjectType_);
  }
 
@@ -48,13 +48,13 @@ size_t TokenCacheKey::getHashCode() const
         << StringUtils::toLower(resource_) << DELIM
         << StringUtils::toLower(clientId_) << DELIM
         << StringUtils::toLower(uniqueId_) << DELIM
-        << StringUtils::toLower(displayableId_) << DELIM
+//        << StringUtils::toLower(displayableId_) << DELIM
         << static_cast<int>(tokenSubjectType_);
 
     auto hashcode = std::hash<String>()(ss.str());
     Logger::info(Tag(),
-        "TokenCacheKey::getHashCode(): authority: %; resource: %; clientId: % uniqueId: %; displayableId_: %; tokenSubjectType_: %; hashcode: %;",
-        authority_, resource_, clientId_, uniqueId_, displayableId_, (int)tokenSubjectType_, hashcode);
+        "TokenCacheKey::getHashCode(): authority: %; resource: %; clientId: % uniqueId: %; tokenSubjectType_: %; hashcode: %;",
+        authority_, resource_, clientId_, uniqueId_, /*displayableId_, */(int)tokenSubjectType_, hashcode);
 
     return hashcode;
 }
