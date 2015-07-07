@@ -12,16 +12,16 @@
 #include "Logger.h"
 #include <fstream>
 
-class LoggerCryptoImplQt : public LoggerCrypto {
+class LoggerImplQt : public Logger {
 public:
-    ~LoggerCryptoImplQt();
+    ~LoggerImplQt();
 
 protected:
     virtual void append(const std::string& prefix, const std::string& record) override;
 
 private:
-    LoggerCryptoImplQt();
-    friend class LoggerCrypto;
+    LoggerImplQt();
+    friend class Logger;
     std::ofstream stream_;
 };
 

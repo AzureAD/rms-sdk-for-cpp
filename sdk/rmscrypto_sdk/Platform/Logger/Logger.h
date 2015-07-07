@@ -14,7 +14,7 @@
 #include <QDebug>
 #include <QProcessEnvironment>
 
-class LoggerCrypto
+class Logger
 {
     static const int max_length = 1024000;
 public:
@@ -41,25 +41,25 @@ public:
             if (num_bytes < max_length) {
                 buff.resize(num_bytes);
             }
-            LoggerCrypto::instance().append(prefix, buff);
+            Logger::instance().append(prefix, buff);
         } else {
-            LoggerCrypto::instance().append(prefix, record);
+            Logger::instance().append(prefix, record);
         }
     }
 
     template <typename... Arguments>
     static void Info(const std::string& record, Arguments... arguments) {
-        LoggerCrypto::Append("INF", record, arguments...);
+        Logger::Append("INF", record, arguments...);
     }
 
     template <typename... Arguments>
     static void Warning(const std::string& record, Arguments... arguments) {
-        LoggerCrypto::Append("WRN", record, arguments...);
+        Logger::Append("WRN", record, arguments...);
     }
 
     template <typename... Arguments>
     static void Error(const std::string& record, Arguments... arguments) {
-        LoggerCrypto::Append("ERR", record, arguments...);
+        Logger::Append("ERR", record, arguments...);
     }
 
     template <typename... Arguments>
@@ -69,19 +69,17 @@ public:
         // if set
         if(QString::compare(ev, "ON") == 0)
         {
-            LoggerCrypto::Append("HDN", record, arguments...);
+            Logger::Append("HDN", record, arguments...);
         }
     }
 
-    virtual ~LoggerCrypto(){}
+    virtual ~Logger(){}
 
 protected:
     virtual void append(const std::string& prefix, const std::string& record) = 0;
 
 private:
-    static LoggerCrypto& instance();
+    static Logger& instance();
 };
-
-using Logger = LoggerCrypto;
 
 #endif // _CRYPTO_STREAMS_LIB_LOGGER_H_
