@@ -48,6 +48,6 @@ void CryptoAPITests::EncryptDecryptBlockTest() {
     QVERIFY2(memcmp(decData->data(), dataIn->data(),
                     dataIn->size()) == 0, "Failed to decrypt data!");
   } catch (rmscrypto::exceptions::RMSCryptoException& e) {
-    qDebug() << "Exeption: " << e.what();
+    QTest::qFail(e.what(), __FILE__, __LINE__);
   }
 }

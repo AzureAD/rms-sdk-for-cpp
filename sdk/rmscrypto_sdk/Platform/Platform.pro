@@ -4,4 +4,5 @@ DEFINES += QTFRAMEWORK
 
 SUBDIRS += \
     Crypto \
-    KeyStorage
+    KeyStorage \
+    Logger

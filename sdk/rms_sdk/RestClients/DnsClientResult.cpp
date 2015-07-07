@@ -6,7 +6,6 @@
  * ======================================================================
 */
 
-#include <QDebug>
 #include <memory>
 #include "../ModernAPI/RMSExceptions.h"
 #include "DnsClientResult.h"

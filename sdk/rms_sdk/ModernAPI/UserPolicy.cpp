@@ -6,10 +6,10 @@
  * ======================================================================
  */
 
-#include <QDebug>
 #include "../Common/tools.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../ModernAPI/RMSExceptions.h"
+#include "../Platform/Logger/Logger.h"
 
 #include "UserPolicy.h"
 #include "TemplateDescriptor.h"
@@ -45,7 +45,7 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
   PolicyAcquisitionOptions          options,
   ResponseCacheFlags                cacheMask)
 {
-  qDebug() << "+UserPolicy::AcquireAsync";
+  Logger::Hidden("+UserPolicy::AcquireAsync");
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
@@ -93,7 +93,7 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
     throw exceptions::RMSInvalidArgumentException("Invalid Access Status");
   } // switch
 
-  qDebug() << "-UserPolicy::AcquireAsync";
+  Logger::Hidden("-UserPolicy::AcquireAsync");
   return result;
 } // UserPolicy::Acquire
 
@@ -104,7 +104,7 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
   UserPolicyCreationOptions            options,
   const AppDataHashMap               & signedAppData)
 {
-  qDebug() << "+UserPolicy::CreateFromTemplateDescriptorAsync";
+  Logger::Hidden("+UserPolicy::CreateFromTemplateDescriptorAsync");
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
@@ -136,7 +136,7 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
     signedApplicationData);
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
-  qDebug() << "-UserPolicy::CreateFromTemplateDescriptorAsync";
+  Logger::Hidden("-UserPolicy::CreateFromTemplateDescriptorAsync");
   return result;
 } // UserPolicy::CreateFromTemplateDescriptor
 
@@ -146,7 +146,7 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
   IAuthenticationCallback    & authenticationCallback,
   UserPolicyCreationOptions    options)
 {
-  qDebug() << "+UserPolicy::CreateAsync";
+  Logger::Hidden("+UserPolicy::CreateAsync");
 
   auto authenticationCallbackImpl = AuthenticationCallbackImpl {
     authenticationCallback, userId
@@ -260,7 +260,7 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
       policyDescriptor.ContentValidUntil());
   }
 
-  qDebug() << "-UserPolicy::CreateAsync";
+  Logger::Hidden("-UserPolicy::CreateAsync");
   return result;
 } // UserPolicy::Create
 

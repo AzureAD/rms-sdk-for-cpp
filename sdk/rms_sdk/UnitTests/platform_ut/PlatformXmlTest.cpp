@@ -58,7 +58,7 @@ void PlatformXmlTest::testSelectSingleNode(bool enabled)
 
     auto pnode = doc->SelectSingleNode(xPathRequest.toStdString());
     auto realResult = pnode->toElement()->text();
-    Logger::Debug("expc: %s", expectedResult.toStdString().data());
-    Logger::Debug("real: %s", realResult.data());
+    Logger::Hidden("expc: %s", expectedResult.toStdString().data());
+    Logger::Hidden("real: %s", realResult.data());
     QVERIFY(realResult == expectedResult.toStdString());
 }

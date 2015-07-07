@@ -50,6 +50,6 @@ void KeyStorageTests::KeyUsage()
 
     QVERIFY2(findKey.get() == nullptr, "Found removed key!");
   } catch (const rmscrypto::exceptions::RMSCryptoException& e) {
-    qDebug() << "Exeption: " << e.what();
+    QTest::qFail(e.what(), __FILE__, __LINE__);
   }
 }

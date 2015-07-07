@@ -6,9 +6,9 @@
  * ======================================================================
  */
 
-#include <QDebug>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Core/ProtectionPolicy.h"
+#include "../Platform/Logger/Logger.h"
 #include <BlockBasedProtectedStream.h>
 #include "CustomProtectedStream.h"
 
@@ -29,7 +29,7 @@ shared_ptr<CustomProtectedStream>CustomProtectedStream::Create(
   uint64_t              contentStartPosition,
   uint64_t              contentSize)
 {
-  qDebug() << "+CustomProtectedStream::Create";
+  Logger::Hidden("+CustomProtectedStream::Create");
 
   if (policy.get() == nullptr) {
     throw exceptions::RMSInvalidArgumentException("Invalid policy argument");
@@ -61,7 +61,7 @@ shared_ptr<CustomProtectedStream>CustomProtectedStream::Create(
     shared_ptr<CustomProtectedStream>(new CustomProtectedStream(
                                         pProtectedStreamImpl));
 
-  qDebug() << "-CustomProtectedStream::Create";
+  Logger::Hidden("-CustomProtectedStream::Create");
   return result;
 }
 

@@ -8,6 +8,7 @@
 
 #ifndef _RMS_LIB_ICONSENTCALLBACKIMPL_H_
 #define _RMS_LIB_ICONSENTCALLBACKIMPL_H_
+#include <vector>
 #include "ModernAPIExport.h"
 
 namespace rmscore {

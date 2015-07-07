@@ -6,10 +6,10 @@
  * ======================================================================
  */
 
-#include <QDebug>
 #include <algorithm>
 #include <sstream>
 #include "ProtectionPolicy.h"
+#include "../Platform/Logger/Logger.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../RestClients/IUsageRestrictionsClient.h"
 #include "../RestClients/IPublishClient.h"
@@ -92,7 +92,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
             "pbPublishLicense is null pointer");
 
 
-  qDebug() << " +ProtectionPolicy::Acquire";
+  Logger::Hidden(" +ProtectionPolicy::Acquire");
 
   shared_ptr<ProtectionPolicy> pProtectionPolicy;
   try {
@@ -121,19 +121,17 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
                                     cacheMask);
 
     // log the response
-    qDebug() <<
-      "ProtectionPolicy::Acquire got a usage restrictions response" << endl
-             << "AccessStatus: " << response->accessStatus.c_str() << endl
-             << "Id: " << response->id.c_str() << endl
-             << "Name: " << response->name.c_str() << endl
-             << "Referrer: " << response->referrer.c_str() << endl
-             << "Owner: " << response->owner.c_str() << endl
-             << "CipherMode: " << response->key.cipherMode.c_str() << endl
-             << "AllowOfflineAccess: " << (response->bAllowOfflineAccess ? "true" : "false") <<
-      endl
-             << "licenseValidUntil: " << response->licenseValidUntil.c_str() <<
-      endl
-             << "contentId: " << response->contentId.c_str() << endl;
+    Logger::Hidden("ProtectionPolicy::Acquire got a usage restrictions response");
+    Logger::Hidden("AccessStatus: %s",      response->accessStatus.c_str());
+    Logger::Hidden("Id: %s",                response->id.c_str());
+    Logger::Hidden("Name: %s",              response->name.c_str());
+    Logger::Hidden("Referrer: %s",          response->referrer.c_str());
+    Logger::Hidden("Owner: %s",             response->owner.c_str());
+    Logger::Hidden("CipherMode: %s",        response->key.cipherMode.c_str());
+    Logger::Hidden("AllowOfflineAccess: %s",
+                   (response->bAllowOfflineAccess ? "true" : "false"));
+    Logger::Hidden("licenseValidUntil: %s", response->licenseValidUntil.c_str());
+    Logger::Hidden("contentId: %s",         response->contentId.c_str());
 
     // create and initialize a new protection policy object from the received
     // response
@@ -146,7 +144,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
       AddProtectionPolicyToCache(pProtectionPolicy);
     }
   }
-  qDebug() << " -ProtectionPolicy::Acquire";
+  Logger::Hidden(" -ProtectionPolicy::Acquire");
 
   return pProtectionPolicy;
 } // ProtectionPolicy::Acquire
@@ -159,7 +157,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   const string                          & email,
   const AppDataHashMap                  & signedAppData)
 {
-  qDebug() << " +ProtectionPolicy::Create(using template)";
+  Logger::Hidden(" +ProtectionPolicy::Create(using template)");
 
   auto pPublishClient = IPublishClient::Create();
 
@@ -175,14 +173,13 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
                                                        email);
 
   // log the response
-  qDebug() <<
-    "ProtectionPolicy ::Create got a publish response" << endl
-           << "Id: " << response.id.c_str() << endl
-           << "Name: " << response.name.c_str() << endl
-           << "Referrer: '" << response.referrer.c_str() << endl
-           << "Owner: " << response.owner.c_str() << endl
-           << "CipherMode: " << response.key.cipherMode.c_str() << endl
-           << "ContentId: " << response.contentId.c_str() << endl;
+  Logger::Hidden("ProtectionPolicy ::Create got a publish response");
+  Logger::Hidden("Id: %s",         response.id.c_str());
+  Logger::Hidden("Name: %s",       response.name.c_str());
+  Logger::Hidden("Referrer: '%s'", response.referrer.c_str());
+  Logger::Hidden("Owner: %s",      response.owner.c_str());
+  Logger::Hidden("CipherMode: %s", response.key.cipherMode.c_str());
+  Logger::Hidden("ContentId: %s",  response.contentId.c_str());
 
   // create and initialize a new protection policy object from the received
   // response
@@ -191,7 +188,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   pProtectionPolicy->Initialize(response, bAllowAuditedExtraction, true,
                                 response.signedApplicationData);
 
-  qDebug() << " - ProtectionPolicy::Create";
+  Logger::Hidden(" - ProtectionPolicy::Create");
 
   return pProtectionPolicy;
 } // ProtectionPolicy::Create
@@ -207,7 +204,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
     throw exceptions::RMSInvalidArgumentException(
             "Got an invalid response from the server : args are empty.");
   }
-  qDebug() << " +ProtectionPolicy::Create(custom)";
+  Logger::Hidden(" +ProtectionPolicy::Create(custom)");
 
   auto pPublishClient = IPublishClient::Create();
 
@@ -221,7 +218,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   common::Locale loc;
 
-  request.language = loc.name().replace('_',"-").toStdString();
+  request.language = loc.name().replace('_', "-").toStdString();
 
   request.encryptedApplicationData = descriptor.encryptedApplicationData;
   request.signedApplicationData    = descriptor.signedApplicationData;
@@ -269,12 +266,14 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
                                                 email);
 
   // log the response
-  qDebug() << "ProtectionPolicy ::Create got a publish response with Id ='" <<
-    response.id.c_str() << "',Name     = '" << response.name.c_str() <<
-    "',Referrer = '" << response.referrer.c_str() << "', Owner = '" <<
-    response.owner.c_str() << "', CipherMode : '" <<
-    response.key.cipherMode.c_str() <<
-    "',ContentId: '" << response.contentId.c_str();
+  Logger::Hidden(
+    "ProtectionPolicy ::Create got a publish response with Id ='%s',Name = '%s'',Referrer = '%s'', Owner = '%s', CipherMode : '%s',ContentId: '%s'",
+    response.id.c_str(),
+    response.name.c_str(),
+    response.referrer.c_str(),
+    response.owner.c_str(),
+    response.key.cipherMode.c_str(),
+    response.contentId.c_str());
 
   // create and initialize a new protection policy object from the received
   // response
@@ -287,7 +286,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
                                 request.encryptedApplicationData);
   pProtectionPolicy->SetRequester(email);
 
-  qDebug() << " - ProtectionPolicy::Create";
+  Logger::Hidden(" - ProtectionPolicy::Create");
 
   // add the newly created protection policy to cache
   AddProtectionPolicyToCache(pProtectionPolicy);

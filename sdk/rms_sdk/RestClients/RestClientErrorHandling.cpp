@@ -4,10 +4,10 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
-#include <QDebug>
 #include "../Platform/Http/IHttpClient.h"
+#include "../Platform/Logger/Logger.h"
 #include "../Json/IJsonSerializer.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "RestClientErrorHandling.h"
@@ -26,7 +26,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     return;
   }
 
-  qDebug() << "Http request failed with response: ", sResponse.data();
+  Logger::Hidden("Http request failed with response: %s", sResponse.data());
 
   switch (httpStatusCode)
   {
@@ -57,8 +57,9 @@ void HandleRestClientError(StatusCode         httpStatusCode,
       throw exceptions::RMSNetworkException("RMS service error.",
                                             exceptions::RMSNetworkException::ServerError);
     }
-    qDebug() << "Service error response: code='" << response.code.c_str() <<
-      "', message='" << response.message.c_str() << "'";
+    Logger::Hidden("Service error response: code='%s', message='%s'",
+                   response.code.c_str(),
+                   response.message.c_str());
 
     if ((0 ==
               _stricmp(
