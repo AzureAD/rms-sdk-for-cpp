@@ -16,7 +16,7 @@
 
 namespace rmsauth {
 
-class RMSAUTH_EXPORT Logger
+class Logger
 {
 public:
     template<typename T, typename... Args>
