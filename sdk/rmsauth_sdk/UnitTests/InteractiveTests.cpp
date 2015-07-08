@@ -17,8 +17,8 @@
 #include <AuthenticationResult.h>
 #include <AuthenticationContext.h>
 #include <Exceptions.h>
-#include <Logger.h>
 #include <FileCache.h>
+#include <QDebug>
 
 Q_DECLARE_METATYPE(rmsauth::String)
 
@@ -57,10 +57,10 @@ void InteractiveTests::AcquireTokenInteractiveHandlerTest()
     try
     {
         result = authContext.acquireToken(resource, clientId, redirectUri, PromptBehavior::Auto);
-        Logger::info(Tag, "Access token: %", result->accessToken());
+        qDebug() << Tag.c_str() << " Access token: " << result->accessToken().c_str();
 
         String resultString = result->serialize();
-        Logger::info(Tag, "AuthenticationResult string: %", resultString);
+        qDebug() << Tag.c_str() << " AuthenticationResult string: " << resultString.c_str();
     }
     catch(const Exception& ex)
     {
