@@ -6,8 +6,9 @@
  * ======================================================================
 */
 
-#ifndef _CRYPTO_STREAMS_LIB_API_H_
-#define _CRYPTO_STREAMS_LIB_API_H_
+#ifndef _RMS_CRYPTO_API_H_
+#define _RMS_CRYPTO_API_H_
+
 #include <memory>
 #include <vector>
 #include "CryptoAPIExport.h"
@@ -56,4 +57,4 @@ std::shared_ptr<ICryptoProvider>DLL_PUBLIC_CRYPTO CreateCryptoProvider(
 std::shared_ptr<ICryptoEngine>DLL_PUBLIC_CRYPTO   CreateCryptoEngine();
 } // namespace api
 } // namespace rmscrypto
-#endif // _CRYPTO_STREAMS_LIB_API_H_
+#endif // _RMS_CRYPTO_API_H_

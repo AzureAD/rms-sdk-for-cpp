@@ -57,7 +57,7 @@ static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode) {
   }
 }
 
-shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
+shared_ptr<ProtectionPolicy> ProtectionPolicy::Acquire(
   const uint8_t                          *pbPublishLicense,
   const size_t                            cbPublishLicense,
   modernapi::IAuthenticationCallbackImpl& authCallback,
@@ -78,7 +78,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
                                    cacheMask);
 }
 
-shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
+shared_ptr<ProtectionPolicy> ProtectionPolicy::Acquire(
   const uint8_t                          *pbPublishLicense,
   const size_t                            cbPublishLicense,
   modernapi::IAuthenticationCallbackImpl& authCallback,
@@ -100,17 +100,14 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
                                                   cbPublishLicense,
                                                   email);
   } catch (exceptions::RMSException) {
-    // create a usage restrictions client object
     shared_ptr<IUsageRestrictionsClient> pClient =
       IUsageRestrictionsClient::Create();
 
-    // create a usage restrictions request structure
     UsageRestrictionsRequest request =
     {
       pbPublishLicense, (uint32_t)cbPublishLicense
     };
 
-    // get the usage restrictions
     std::shared_ptr<UsageRestrictionsResponse> response =
       pClient->GetUsageRestrictions(request,
                                     authCallback,
@@ -149,7 +146,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
   return pProtectionPolicy;
 } // ProtectionPolicy::Acquire
 
-std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
+std::shared_ptr<ProtectionPolicy> ProtectionPolicy::Create(
   const bool                              bPreferDeprecatedAlgorithms,
   const bool                              bAllowAuditedExtraction,
   const string                          & templateId,
@@ -161,13 +158,13 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   auto pPublishClient = IPublishClient::Create();
 
-  // create a request
   auto request = PublishUsingTemplateRequest {
-    bPreferDeprecatedAlgorithms, bAllowAuditedExtraction, templateId,
+    bPreferDeprecatedAlgorithms,
+    bAllowAuditedExtraction,
+    templateId,
     signedAppData
   };
 
-  // do the REST call
   auto response = pPublishClient->PublishUsingTemplate(request,
                                                        authenticationCallback,
                                                        email);
@@ -181,19 +178,17 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   Logger::Hidden("CipherMode: %s", response.key.cipherMode.c_str());
   Logger::Hidden("ContentId: %s",  response.contentId.c_str());
 
-  // create and initialize a new protection policy object from the received
-  // response
-  auto pProtectionPolicy = make_shared<ProtectionPolicy>();
 
+  auto pProtectionPolicy = make_shared<ProtectionPolicy>();
   pProtectionPolicy->Initialize(response, bAllowAuditedExtraction, true,
                                 response.signedApplicationData);
 
-  Logger::Hidden(" - ProtectionPolicy::Create");
+  Logger::Hidden("-ProtectionPolicy::Create");
 
   return pProtectionPolicy;
 } // ProtectionPolicy::Create
 
-shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
+shared_ptr<ProtectionPolicy> ProtectionPolicy::Create(
   const bool                              bPreferDeprecatedAlgorithms,
   const bool                              bAllowAuditedExtraction,
   PolicyDescriptorImpl                  & descriptor,
@@ -210,8 +205,9 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   // create a request
   auto request = PublishCustomRequest(
-    bPreferDeprecatedAlgorithms, bAllowAuditedExtraction
-    );
+    bPreferDeprecatedAlgorithms,
+    bAllowAuditedExtraction
+  );
 
   request.name        = descriptor.name;
   request.description = descriptor.description;
@@ -227,39 +223,31 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   // Either rights or roles will be present in the policy descriptor
   if (descriptor.userRightsList.size() != 0) {
     for_each(begin(descriptor.userRightsList), end(descriptor.userRightsList),
-             [ =, &request](
-               const UserRightsImpl& userRightsImpl) {
+      [ =, &request](const UserRightsImpl& userRightsImpl) {
           if (userRightsImpl.users.empty() || userRightsImpl.rights.empty()) {
             throw exceptions::RMSInvalidArgumentException(
               "Got an invalid response from the server : args are empty.");
           }
           auto userRightsRequest = UserRightsRequest { userRightsImpl.users, userRightsImpl.rights };
-
           request.userRightsList.emplace_back(userRightsRequest);
         });
   } else {
     for_each(begin(descriptor.userRolesList), end(descriptor.userRolesList),
-             [ =, &request](
-               const UserRolesImpl& userRolesImpl) {
+      [ =, &request](const UserRolesImpl& userRolesImpl) {
           if (userRolesImpl.users.empty() || userRolesImpl.roles.empty()) {
             throw exceptions::RMSInvalidArgumentException(
               "Got an invalid response from the server : args are empty.");
           }
           auto userRolesRequest = UserRolesRequest { userRolesImpl.users, userRolesImpl.roles };
-
           request.userRolesList.emplace_back(userRolesRequest);
         });
   }
 
-  // initialize validity times
   request.bAllowOfflineAccess = descriptor.bAllowOfflineAccess;
   request.ftLicenseValidUntil = descriptor.ftContentValidUntil;
 
-  // Add the referral Info
   if (descriptor.referrer.size() >
       0) request.wsReferralInfo = descriptor.referrer;
-
-  // do the REST call
 
   auto response = pPublishClient->PublishCustom(request,
                                                 authenticationCallback,
@@ -275,10 +263,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
     response.key.cipherMode.c_str(),
     response.contentId.c_str());
 
-  // create and initialize a new protection policy object from the received
-  // response
   auto pProtectionPolicy = shared_ptr<ProtectionPolicy>(new ProtectionPolicy());
-
   pProtectionPolicy->Initialize(response,
                                 bAllowAuditedExtraction,
                                 descriptor.bAllowOfflineAccess,
@@ -286,28 +271,28 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
                                 request.encryptedApplicationData);
   pProtectionPolicy->SetRequester(email);
 
-  Logger::Hidden(" - ProtectionPolicy::Create");
+  Logger::Hidden("-ProtectionPolicy::Create");
 
-  // add the newly created protection policy to cache
   AddProtectionPolicyToCache(pProtectionPolicy);
 
   return pProtectionPolicy;
 } // ProtectionPolicy::Create
 
-ProtectionPolicy::ProtectionPolicy() : m_accessStatus(ACCESS_STATUS_ACCESS_DENIED),
-  m_bAllowOfflineAccess(0) {
+ProtectionPolicy::ProtectionPolicy() :
+  m_accessStatus(ACCESS_STATUS_ACCESS_DENIED),
+  m_bAllowOfflineAccess(0)
+{
   m_requester           = "";
   m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
   m_ftValidityTimeUntil = std::chrono::system_clock::from_time_t(0);
 }
 
 void ProtectionPolicy::Initialize(
-  const uint8_t                            *pbPublishLicense,
-  size_t                                    cbPublishLicense,
-  std::shared_ptr<UsageRestrictionsResponse>response)
+  const uint8_t                             *pbPublishLicense,
+  size_t                                     cbPublishLicense,
+  std::shared_ptr<UsageRestrictionsResponse> response)
 {
   // initializing protection policy from the consumption response
-
   m_accessStatus        = MapAccessStatus(response->accessStatus);
   m_id                  = response->id;
   m_name                = response->name;
@@ -329,7 +314,7 @@ void ProtectionPolicy::Initialize(
   if (!response->customPolicy.bIsNull) {
     for_each(begin(response->customPolicy.userRightsList), end(
                response->customPolicy.userRightsList),
-             [this](UserRightsResponse& userRights) {
+      [this](UserRightsResponse& userRights) {
           UserRightsImpl userRightsImpl;
           userRightsImpl.users = userRights.users;
           userRightsImpl.rights = userRights.rights;
@@ -340,7 +325,7 @@ void ProtectionPolicy::Initialize(
 
     for_each(begin(response->customPolicy.userRolesList), end(
                response->customPolicy.userRolesList),
-             [this](UserRolesResponse& userRoles) {
+      [this](UserRolesResponse& userRoles) {
           UserRolesImpl userRolesImpl;
           userRolesImpl.users = userRoles.users;
           userRolesImpl.roles = userRoles.roles;
@@ -355,18 +340,19 @@ void ProtectionPolicy::Initialize(
   m_encryptedApplicationData = response->encryptedApplicationData;
 
   // if access is granted verify the key and create a crypto provider
-  if (ACCESS_STATUS_ACCESS_GRANTED ==
-      m_accessStatus) InitializeKey(response->key);
+  if (ACCESS_STATUS_ACCESS_GRANTED == m_accessStatus)
+    InitializeKey(response->key);
 
   // initialize the publishing license
   m_publishLicense.resize(cbPublishLicense);
+
 #ifdef Q_OS_WIN32
   memcpy_s(&m_publishLicense[0],
            m_publishLicense.size(), pbPublishLicense, cbPublishLicense);
-#else // ifdef Q_OS_WIN32
+#else
   memcpy(&m_publishLicense[0], pbPublishLicense, cbPublishLicense);
 #endif // ifdef Q_OS_WIN32
-}     // ProtectionPolicy::Initialize
+} // ProtectionPolicy::Initialize
 
 void ProtectionPolicy::Initialize(
   PublishResponse     & response,
@@ -414,9 +400,6 @@ void ProtectionPolicy::Initialize(
 void ProtectionPolicy::InitializeKey(restclients::KeyDetailsResponse& response) {
   if (response.value.empty()) throw exceptions::RMSInvalidArgumentException(
             "Got an invalid response from the server : access is granted but the key is empty.");
-
-
-
   try {
     std::vector<unsigned char> key(common::ConvertBase64ToBytes(response.value));
     m_cipherMode      = MapCipherMode(response.cipherMode);
@@ -429,16 +412,17 @@ void ProtectionPolicy::InitializeKey(restclients::KeyDetailsResponse& response) 
 }
 
 void ProtectionPolicy::InitializeValidityTime(
-  const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil) {
-  if (std::chrono::system_clock::to_time_t(ftContentValidUntil) > 0) {
-    // The REST service doesn't return us the form time of the validity time
-    // range, so setting it to now
-    m_ftValidityTimeFrom  = std::chrono::system_clock::now();
-    m_ftValidityTimeUntil = ftContentValidUntil;
-  } else {
-    m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
-    m_ftValidityTimeUntil = std::chrono::system_clock::from_time_t(0);
-  }
+  const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil)
+{
+    if (std::chrono::system_clock::to_time_t(ftContentValidUntil) > 0) {
+      // The REST service doesn't return us the form time of the validity time
+      // range, so setting it to now
+      m_ftValidityTimeFrom  = std::chrono::system_clock::now();
+      m_ftValidityTimeUntil = ftContentValidUntil;
+    } else {
+      m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
+      m_ftValidityTimeUntil = std::chrono::system_clock::from_time_t(0);
+    }
 }
 
 int64_t daysTo(const std::chrono::time_point<std::chrono::system_clock>& l,
@@ -466,8 +450,8 @@ void ProtectionPolicy::InitializeIntervalTime(
 
 bool ProtectionPolicy::AccessCheck(const string& right) const {
   auto i =
-    find_if(begin(m_rights), end(m_rights), [right](
-              const string& grantedRight) {
+    find_if(begin(m_rights), end(m_rights),
+      [right](const string& grantedRight) {
         return 0 ==
         _stricmp("OWNER", grantedRight.c_str()) || 0 == _stricmp(right.c_str(),
                                                                  grantedRight
@@ -505,10 +489,8 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
   auto i =
     find_if(begin(*s_pCachedProtectionPolicies), end(
               *s_pCachedProtectionPolicies),
-            [pbPublishLicense, cbPublishLicense, requester](const
-                                                            shared_ptr<
-                                                              ProtectionPolicy>&
-                                                            pProtectionPolicy) {
+      [pbPublishLicense, cbPublishLicense, requester](
+          const shared_ptr<ProtectionPolicy>& pProtectionPolicy) {
         // return if the PL matches
         const std::vector<unsigned char>& pl = pProtectionPolicy->GetPublishLicense();
 
@@ -518,14 +500,14 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
                                       pl.size());
 
         if (cacheFound && !requester.empty()) {
-          string expecteddRequester(requester);
-          transform(expecteddRequester.begin(), expecteddRequester.end(),
-                    expecteddRequester.begin(), ::tolower);
+          string expectedRequester(requester);
+          transform(expectedRequester.begin(), expectedRequester.end(),
+                    expectedRequester.begin(), ::tolower);
           string cachedRequester(pProtectionPolicy->GetRequester());
-          transform(cachedRequester.begin(),    cachedRequester.end(),
+          transform(cachedRequester.begin(), cachedRequester.end(),
                     cachedRequester.begin(), ::tolower);
 
-          cacheFound = (expecteddRequester == cachedRequester);
+          cacheFound = (expectedRequester == cachedRequester);
         }
         return static_cast<uint32_t>(cacheFound);
       });
@@ -545,7 +527,8 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
 } // ProtectionPolicy::GetCachedProtectionPolicy
 
 void ProtectionPolicy::AddProtectionPolicyToCache(
-  shared_ptr<ProtectionPolicy>pProtectionPolicy) {
+  shared_ptr<ProtectionPolicy> pProtectionPolicy)
+{
   common::MutexLocker lock(&s_cachedProtectionPoliciesMutex);
 
   if (nullptr ==
@@ -563,8 +546,7 @@ void ProtectionPolicy::AddProtectionPolicyToCache(
 }
 
 // NOTE: We don't delete the cache deliberately. We leak the cache on dll unload
-// as it is not safe to call all
-// the destructors on dll unload.
+// as it is not safe to call all the destructors on dll unload.
 ProtectionPolicy::CachedProtectionPolicies *ProtectionPolicy::
 s_pCachedProtectionPolicies = nullptr;
 common::Mutex ProtectionPolicy::s_cachedProtectionPoliciesMutex;

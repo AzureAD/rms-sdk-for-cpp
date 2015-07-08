@@ -6,8 +6,8 @@
  * ======================================================================
  */
 
-#ifndef POLICYDESCRIPTOR_H
-#define POLICYDESCRIPTOR_H
+#ifndef _RMS_LIB_POLICYDESCRIPTOR_H_
+#define _RMS_LIB_POLICYDESCRIPTOR_H_
 
 #include <chrono>
 #include <unordered_map>
@@ -25,6 +25,8 @@ class ProtectionPolicy;
 }
 
 namespace modernapi {
+
+/// @cond internal
 namespace detail {
 struct HashConstString
 {
@@ -36,7 +38,10 @@ struct HashConstString
 template<typename T>
 using HashMapString = std::unordered_map<std::string, T, HashConstString>;
 }
+/// @endcond
+
 using AppDataHashMap = detail::HashMapString<std::string>;
+
 
 /**
  * @brief Specifies users and rights assigned for a file.
@@ -175,4 +180,4 @@ enum OfflineCacheLifetimeConstants {
 } // m_namespace modernapi
 } // m_namespace rmscore
 
-#endif // POLICYDESCRIPTOR_H
+#endif // _RMS_LIB_POLICYDESCRIPTOR_H_

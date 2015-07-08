@@ -38,7 +38,11 @@ struct DLL_PUBLIC_RMS GetProtectedFileStreamResult
 };
 
 /*!
-  @brief
+  @brief Wraps a std::iostream to provide transparent encryption and decryption
+  on read and write.
+
+  Use ProtectedFileStream::Acquire when working with encrypted (PFile) content.
+  Use ProtectedFileStream::Create to wrap and encrypt a new stream.
 */
 class DLL_PUBLIC_RMS ProtectedFileStream : public rmscrypto::api::IStream {
 public:
@@ -103,6 +107,18 @@ public:
                                         RESPONSE_CACHE_ONDISK |
                                         RESPONSE_CACHE_CRYPTED));
 
+  /*!
+  @brief Wrap a new stream as a protected stream.
+
+  Creates a new ProtectedFileStream from a UserPolicy object and a backing stream. This method is used to create new PFiles.
+  The PFile is written to the backing stream. The policy used to protect the PFile is defined by the specified
+  UserPolicy object. The resulting ProtectedFileStream can be used to write the actual content of the PFile using APIs from std::io.
+
+  @param policy The UserPolicy object that defines the policy used to protect the created PFile
+  @param stream The backing stream, where encrypted content will be written.
+  @param originalFileExtension The file extension of the original unprotected file.
+  @return A ProtectedFileStream.
+  */
   static std::shared_ptr<ProtectedFileStream> Create(
     std::shared_ptr<UserPolicy>  policy,
     rmscrypto::api::SharedStream stream,
@@ -129,6 +145,7 @@ private:
   std::shared_ptr<UserPolicy> m_policy;
   std::string m_originalFileExtension;
   std::shared_ptr<IStream> m_pImpl;
+
 }; // class ProtectedFileStream
 } // namespace modernapi
 } // namespace rmscore

@@ -6,8 +6,8 @@
  * ======================================================================
  */
 
-#ifndef _CRYPTO_STREAMS_LIB_ISTREAM_H_
-#define _CRYPTO_STREAMS_LIB_ISTREAM_H_
+#ifndef _RMS_CRYPTO_ISTREAM_H_
+#define _RMS_CRYPTO_ISTREAM_H_
 
 #include <future>
 #include <string>
@@ -18,24 +18,35 @@
 namespace rmscrypto {
 namespace api {
 class IStream;
-typedef std::shared_ptr<IStream>SharedStream;
+typedef std::shared_ptr<IStream> SharedStream;
 
+/*!
+@brief Base interface for protected streams.
+
+Ported from [Windows::Storage::Streams::IRandomAccessStream][IRandomAccessStream] and
+[Windows::Storage::Streams::FileRandomAccessStream][FileRandomAccessStream].
+
+[IRandomAccessStream]: https://msdn.microsoft.com/en-us/library/windows/apps/windows.storage.streams.irandomaccessstream.aspx
+[FileRandomAccessStream]: https://msdn.microsoft.com/en-us/library/windows/apps/windows.storage.streams.filerandomaccessstream.aspx
+
+@todo Derive from [std::iostream](http://www.cplusplus.com/reference/istream/iostream/)?
+*/
 class IStream {
 public:
 
   // Async methods. Be sure buffer exists until result will be got from
   // std::future
-  virtual std::shared_future<int64_t>ReadAsync(uint8_t    *pbBuffer,
+  virtual std::shared_future<int64_t> ReadAsync(uint8_t    *pbBuffer,
                                                int64_t     cbBuffer,
                                                int64_t     cbOffset,
                                                std::launch launchType)
     = 0;
-  virtual std::shared_future<int64_t>WriteAsync(const uint8_t *cpbBuffer,
+  virtual std::shared_future<int64_t> WriteAsync(const uint8_t *cpbBuffer,
                                                 int64_t        cbBuffer,
                                                 int64_t        cbOffset,
                                                 std::launch    launchType)
     = 0;
-  virtual std::future<bool>   FlushAsync(std::launch launchType) = 0;
+  virtual std::future<bool> FlushAsync(std::launch launchType) = 0;
 
   // Sync methods
   virtual int64_t             Read(uint8_t *pbBuffer,
@@ -53,7 +64,7 @@ public:
   virtual uint64_t            Size()                     = 0;
   virtual void                Size(uint64_t u64Value)    = 0;
 
-  virtual std::vector<uint8_t>Read(uint64_t u64size)
+  virtual std::vector<uint8_t> Read(uint64_t u64size)
   {
     std::vector<uint8_t> plainText;
 
@@ -70,7 +81,7 @@ public:
 protected:
 
   virtual ~IStream() {}
-};
+}; // class IStream
 } // namespace api
 } // namespace rmscrypto
-#endif // _CRYPTO_STREAMS_LIB_ISTREAM_H_
+#endif // _RMS_CRYPTO_ISTREAM_H_
