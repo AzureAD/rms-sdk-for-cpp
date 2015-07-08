@@ -18,6 +18,14 @@ To generate docs:
 
 [Doxygen]: http://www.doxygen.org
 
+## Troubleshooting
+
+Information about requests is logged to `rms_log_*`, `rmsauth_log_*`, and `rmscrypto_log_*` in the folder where the executable using these libraries is called from. Request and response headers and some other info is not logged by default to avoid leaking sensitive information. To enable these hidden logs, set an environment variable `RMS_HIDDEN_LOG` to `ON`. For example:
+
+```
+> RMS_HIDDEN_LOG=ON ./rms_sample
+```
+
 ## Contributing
 
 Before we can accept your pull request, you'll need to electronically complete Microsoft Open Tech's [Contributor License Agreement](https://cla.msopentech.com/). If you've done this for other Microsoft Open Tech projects, then you're already covered.
