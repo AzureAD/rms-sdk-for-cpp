@@ -105,6 +105,10 @@ public:
     return m_ftValidityTimeFrom;
   }
 
+  std::chrono::time_point<std::chrono::system_clock>GetValidityTimeUntil() const {
+    return m_ftValidityTimeUntil;
+  }
+
   uint64_t GetValidityTimeDuration() const;
 
   bool     AllowOfflineAccess() const {
