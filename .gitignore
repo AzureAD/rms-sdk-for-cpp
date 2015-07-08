@@ -19,6 +19,9 @@ debug
 release
 build-**
 
+# Doxygen output
+docs/html/
+
 *.exe
 .DS_Store
 *.dat

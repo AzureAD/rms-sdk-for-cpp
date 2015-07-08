@@ -42,8 +42,20 @@ struct DLL_PUBLIC_RMS GetUserPolicyResult {
   std::shared_ptr<std::string>Referrer;
   std::shared_ptr<UserPolicy> Policy;
 };
+
+/**
+  @brief Specifies the expected mode for an operation. For example, can library use UI or expect available network.
+*/
 enum PolicyAcquisitionOptions {
-  POL_None = 0x0, POL_OfflineOnly = 0x1
+  /**
+    @brief The framework will try to perform the operation silently and offline, but will show a UI and connect to a network if necessary.
+  */
+  POL_None = 0x0,
+
+  /**
+    The framework will try to perform the operation without connecting to a network. If it needs to connect to a network, the operation will fail. For example, an app can choose not to open a document on the device when it is not connected to a WiFi network unless it can be opened offline.
+  */
+  POL_OfflineOnly = 0x1
 };
 enum UserPolicyCreationOptions {
   USER_None                   = 0x0,

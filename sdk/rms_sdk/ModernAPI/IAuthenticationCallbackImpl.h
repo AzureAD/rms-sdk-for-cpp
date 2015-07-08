@@ -23,11 +23,8 @@ struct AuthenticationChallenge
 
 class IAuthenticationCallbackImpl {
 public:
-
-  virtual bool        NeedsChallenge() const =
-    0;
-  virtual std::string GetAccessToken(const AuthenticationChallenge& challenge) =
-    0;
+  virtual bool        NeedsChallenge() const = 0;
+  virtual std::string GetAccessToken(const AuthenticationChallenge& challenge) = 0;
 };
 } // namespace modernapi
 } // namespace rmscore
