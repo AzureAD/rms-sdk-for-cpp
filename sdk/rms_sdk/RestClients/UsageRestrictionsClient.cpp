@@ -7,13 +7,13 @@
  */
 
 #include <memory>
-#include <QDebug>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Json/jsonserializer.h"
 #include "../RestClients/RestServiceUrlClient.h"
 #include "../RestClients/RestHttpClient.h"
 #include "../RestClients/IRestClientCache.h"
 #include "../Platform/Http/IHttpClient.h"
+#include "../Platform/Logger/Logger.h"
 #include "RestClientErrorHandling.h"
 #include "UsageRestrictionsClient.h"
 
@@ -146,8 +146,8 @@ void UsageRestrictionsClient::StoreToCache(
   }
   catch (exceptions::RMSException)
   {
-    qDebug() <<
-      "UsageRestrictionsClient::TryGetFromCache: Exception while parsing the cached response.";
+    Logger::Hidden(
+      "UsageRestrictionsClient::TryGetFromCache: Exception while parsing the cached response.");
   }
 }
 
@@ -203,8 +203,8 @@ bool UsageRestrictionsClient::TryGetFromCache(
       }
       catch (exceptions::RMSException)
       {
-        qDebug() <<
-          "UsageRestrictionsClient::TryGetFromCache: Exception while parsing the cached response.";
+        Logger::Hidden(
+          "UsageRestrictionsClient::TryGetFromCache: Exception while parsing the cached response.");
 
         // exception is not fatal, we just continue with the next response
       }
@@ -214,8 +214,8 @@ bool UsageRestrictionsClient::TryGetFromCache(
   }
   catch (exceptions::RMSException)
   {
-    qDebug() <<
-      "UsageRestrictionsClient::TryGetFromCache: Exception while looking up the cache.";
+    Logger::Hidden(
+      "UsageRestrictionsClient::TryGetFromCache: Exception while looking up the cache.");
 
     // exception is not fatal, we just return that we didn't find anything
     return false;

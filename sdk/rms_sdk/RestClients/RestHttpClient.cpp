@@ -6,13 +6,13 @@
  * ======================================================================
  */
 
-#include <QDebug>
 #include <numeric>
 #include "RestHttpClient.h"
 #include "AuthenticationHandler.h"
 #include "../Common/tools.h"
 #include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Settings/ILanguageSettings.h"
+#include "../Platform/Logger/Logger.h"
 
 using namespace std;
 using namespace rmscore::common;
@@ -94,9 +94,10 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(
   {
   case HTTP_POST:
 
-    qDebug() <<
-      "RestHttpClient::DoHttpRequest doing http POST to " <<
-      parameters.requestUrl.c_str() << ", Request-ID: " << requestId.c_str();
+    Logger::Hidden(
+      "RestHttpClient::DoHttpRequest doing http POST to %s, Request-ID: %s",
+      parameters.requestUrl.c_str(),
+      requestId.c_str());
 
     result.status = pHttpClient->Post(
       parameters.requestUrl,
@@ -107,9 +108,10 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(
 
   case HTTP_GET:
 
-    qDebug() <<
-      "RestHttpClient::DoHttpRequest doing http GET to " <<
-      parameters.requestUrl.c_str() << ", Request-ID: " << requestId.c_str();
+    Logger::Hidden(
+      "RestHttpClient::DoHttpRequest doing http GET to %s, Request-ID: %s",
+      parameters.requestUrl.c_str(),
+      requestId.c_str());
 
     result.status = pHttpClient->Get(
       parameters.requestUrl, result.responseBody);
@@ -117,8 +119,8 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(
     break;
   }
 
-  qDebug() << "RestHttpClient::DoHttpRequest returned status code: " <<
-  (int)result.status;
+  Logger::Hidden("RestHttpClient::DoHttpRequest returned status code: %d",
+                 (int)result.status);
 
   return result;
 }

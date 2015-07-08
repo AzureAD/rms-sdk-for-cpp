@@ -6,14 +6,15 @@
  * ======================================================================
 */
 
-#ifndef _RMS_LIB_LOGGER_H_
-#define _RMS_LIB_LOGGER_H_
+#ifndef _CRYPTO_STREAMS_LIB_LOGGER_H_
+#define _CRYPTO_STREAMS_LIB_LOGGER_H_
 
 #include <string>
 #include <cstdio>
+#include <QDebug>
 #include <QProcessEnvironment>
 
-class Logger
+class LoggerCrypto
 {
     static const int max_length = 1024000;
 public:
@@ -40,25 +41,25 @@ public:
             if (num_bytes < max_length) {
                 buff.resize(num_bytes);
             }
-            Logger::instance().append(prefix, buff);
+            LoggerCrypto::instance().append(prefix, buff);
         } else {
-            Logger::instance().append(prefix, record);
+            LoggerCrypto::instance().append(prefix, record);
         }
     }
 
     template <typename... Arguments>
     static void Info(const std::string& record, Arguments... arguments) {
-        Logger::Append("INF", record, arguments...);
+        LoggerCrypto::Append("INF", record, arguments...);
     }
 
     template <typename... Arguments>
     static void Warning(const std::string& record, Arguments... arguments) {
-        Logger::Append("WRN", record, arguments...);
+        LoggerCrypto::Append("WRN", record, arguments...);
     }
 
     template <typename... Arguments>
     static void Error(const std::string& record, Arguments... arguments) {
-        Logger::Append("ERR", record, arguments...);
+        LoggerCrypto::Append("ERR", record, arguments...);
     }
 
     template <typename... Arguments>
@@ -68,17 +69,19 @@ public:
         // if set
         if(QString::compare(ev, "ON") == 0)
         {
-            Logger::Append("HDN", record, arguments...);
+            LoggerCrypto::Append("HDN", record, arguments...);
         }
     }
 
-    virtual ~Logger(){}
+    virtual ~LoggerCrypto(){}
 
 protected:
     virtual void append(const std::string& prefix, const std::string& record) = 0;
 
 private:
-    static Logger& instance();
+    static LoggerCrypto& instance();
 };
 
-#endif // _RMS_LIB_LOGGER_H_
+using Logger = LoggerCrypto;
+
+#endif // _CRYPTO_STREAMS_LIB_LOGGER_H_

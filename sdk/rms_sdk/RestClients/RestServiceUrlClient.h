@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <algorithm>
+#include <map>
 #include "IRestServiceUrlClient.h"
 
 namespace rmscore {

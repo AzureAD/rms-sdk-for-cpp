@@ -7,7 +7,7 @@
  */
 
 #include <stdint.h>
-#include <QDebug>
+#include "../Platform/Logger/Logger.h"
 #include "SimpleProtectedStream.h"
 #include "RMSCryptoExceptions.h"
 
@@ -168,7 +168,7 @@ shared_future<int64_t>SimpleProtectedStream::WriteInternalAsync(
 
           cipherText.resize(encryptedSize);
 
-          qDebug() << "writing block #" << startingBlockNumber;
+          Logger::Hidden("writing block #%d", startingBlockNumber);
 
           // encrypt the supplied buffer into cipherText
           self->m_pCryptoProvider->Encrypt(buffer, static_cast<uint32_t>(bSize),
@@ -178,7 +178,6 @@ shared_future<int64_t>SimpleProtectedStream::WriteInternalAsync(
                                            &cbOut);
         }
 
-        // qDebug() << "encrypt to offset: " << offset << " size: " <<
         // cipherText.size();
         // write the cipherText to the buffer
         int64_t u64Written =

@@ -17,7 +17,6 @@
 #include <AuthenticationResult.h>
 #include <AuthenticationContext.h>
 #include <Exceptions.h>
-#include <Logger.h>
 #include <FileCache.h>
 #include <FileCacheEncrypted.h>
 #include <UserCredential.h>
@@ -59,7 +58,7 @@ void NonInteractiveTests::AuthenticationResultTest()
     QFETCH(int, expiresOn);
     QFETCH(String, displayableId);
 
-    Logger::info("\n====== NonInteractiveTests::AuthenticationResultTest()", "======\n");
+    qDebug() << "====== NonInteractiveTests::AuthenticationResultTest() ======";
     auto authRes = AuthenticationResult::deserialize(authenticationResult);
     QVERIFY(authRes->expiresOn()== expiresOn);
     auto userInfoPtr = authRes->userInfo();
@@ -100,7 +99,7 @@ void NonInteractiveTests::CacheTest()
     QFETCH(String, authority);
     QFETCH(String, authenticationResult);
 
-    Logger::info("\n====== NonInteractiveTests::CacheTest()", "======\n");
+    qDebug() <<  "====== NonInteractiveTests::CacheTest() ======";
 
     String cacheFilePath = String(SRCDIR) + "cache.dat";
     ptr<TokenCache> cachePtr = make_shared<FileCache>(cacheFilePath);
@@ -160,7 +159,7 @@ void NonInteractiveTests::FileCacheEncryptedTest()
     QFETCH(String, authority);
     QFETCH(String, authenticationResult);
 
-    Logger::info("\n====== NonInteractiveTests::FileCacheEncryptedTest()", "======\n");
+    qDebug() << "====== NonInteractiveTests::FileCacheEncryptedTest() ======";
 
     try
     {
@@ -182,7 +181,7 @@ void NonInteractiveTests::FileCacheEncryptedTest()
     }
     catch(const std::exception& e)
     {
-        qDebug() << "Exeption: " << e.what();
+        QTest::qFail(e.what(), __FILE__, __LINE__);
     }
 }
 /*
@@ -231,7 +230,7 @@ void NonInteractiveTests::AcquireTokenNonInteractiveHandlerTest()
     }
     catch(const Exception& ex)
     {
-        qDebug() << "!!!!! exception: " << ex.error().data();
+        Logger::Error("Exception: %s", ex.error().data());
     }
 }
 */
@@ -278,7 +277,7 @@ void NonInteractiveTests::AcquireTokenForClientHandlerTest()
     }
     catch(const Exception& ex)
     {
-        qDebug() << "!!!!! exception: " << ex.error().data();
+        Logger::Error("Exception: %s", ex.error().data());
     }
 }
 */

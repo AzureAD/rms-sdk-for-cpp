@@ -10,7 +10,7 @@
 #include<QDir>
 #include"FileSystemQt.h"
 #include"FileQt.h"
-#include<QDebug>
+#include "../../Platform/Logger/Logger.h"
 
 namespace rmscore { namespace platform { namespace filesystem {
 
@@ -34,7 +34,7 @@ void FileSystemQt::DeleteLocalStorageFile(const std::string& filePath)
     bool ok = QFile::remove(filePath.c_str());
     if(!ok)
     {
-        qDebug() << "Failed to delete a file: " << filePath.c_str();
+        Logger::Hidden("Failed to delete a file: %s", filePath.c_str());
     }
 }
 

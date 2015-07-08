@@ -6,23 +6,23 @@
  * ======================================================================
 */
 
-#ifndef _RMS_LIB_LOGGERQTIMPL_H_
-#define _RMS_LIB_LOGGERQTIMPL_H_
+#ifndef _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
+#define _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
 
 #include "Logger.h"
 #include <fstream>
 
-class LoggerImplQt : public Logger {
+class LoggerCryptoImplQt : public LoggerCrypto {
 public:
-    ~LoggerImplQt();
+    ~LoggerCryptoImplQt();
 
 protected:
     virtual void append(const std::string& prefix, const std::string& record) override;
 
 private:
-    LoggerImplQt();
-    friend class Logger;
+    LoggerCryptoImplQt();
+    friend class LoggerCrypto;
     std::ofstream stream_;
 };
 
-#endif // _RMS_LIB_LOGGERQTIMPL_H_
+#endif // _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
