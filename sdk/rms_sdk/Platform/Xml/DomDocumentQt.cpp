@@ -16,6 +16,8 @@
 #include <QBuffer>
 #include "../Logger/Logger.h"
 
+using namespace rmscore::platform::logger;
+
 sp<IDomDocument> IDomDocument::create()
 {
     return sp<IDomDocument>(new DomDocumentQt());

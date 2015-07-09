@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
 #define _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_
@@ -12,17 +12,27 @@
 #include "Logger.h"
 #include <fstream>
 
-class LoggerCryptoImplQt : public LoggerCrypto {
+namespace rmscrypto {
+namespace platform {
+namespace logger {
+class LoggerImplQt : public Logger {
 public:
-    ~LoggerCryptoImplQt();
+
+  ~LoggerImplQt();
 
 protected:
-    virtual void append(const std::string& prefix, const std::string& record) override;
+
+  virtual void append(const std::string& prefix,
+                      const std::string& record) override;
 
 private:
-    LoggerCryptoImplQt();
-    friend class LoggerCrypto;
-    std::ofstream stream_;
+
+  LoggerImplQt();
+  friend class Logger;
+  std::ofstream stream_;
 };
+} // namespace logger
+} // namespace platform
+} // namespace rmscrypto
 
 #endif // _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_

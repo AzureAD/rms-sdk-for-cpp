@@ -17,6 +17,7 @@
 
 using namespace rmscore::modernapi;
 using namespace rmscore::restclients;
+using namespace rmscore::platform::logger;
 using namespace std;
 
 namespace rmscore {

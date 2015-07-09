@@ -19,6 +19,7 @@
 #include "HttpClientQt.h"
 
 using namespace std;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace platform {

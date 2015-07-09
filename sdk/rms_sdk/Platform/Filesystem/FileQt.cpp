@@ -14,6 +14,7 @@
 #include "FileQt.h"
 #include "../Logger/Logger.h"
 using namespace std;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace platform {

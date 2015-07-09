@@ -12,8 +12,11 @@
 #include <sstream>
 #include <string>
 
-LoggerCrypto& LoggerCrypto::instance() {
-  static LoggerCryptoImplQt instance;
+namespace rmscrypto {
+namespace platform {
+namespace logger {
+Logger& Logger::instance() {
+  static LoggerImplQt instance;
 
   return instance;
 }
@@ -34,7 +37,7 @@ static std::string localTime(const char *format) {
   return res;
 }
 
-LoggerCryptoImplQt::LoggerCryptoImplQt() {
+LoggerImplQt::LoggerImplQt() {
   std::stringstream filename;
 
   filename << "rmscrypto_log_" << localTime("%H%M%S-%d%m") << ".log";
@@ -42,19 +45,21 @@ LoggerCryptoImplQt::LoggerCryptoImplQt() {
   this->stream_.open(filename.str(), std::ofstream::out | std::ofstream::trunc);
 
   if (this->stream_.fail()) {
-    LoggerCrypto::Hidden("Can't open file: %s", filename.str().c_str());
+    Logger::Hidden("Can't open file: %s", filename.str().c_str());
   }
 }
 
-LoggerCryptoImplQt::~LoggerCryptoImplQt() {
+LoggerImplQt::~LoggerImplQt() {
   this->stream_.close();
 }
 
-void LoggerCryptoImplQt::append(const std::string& prefix, const std::string& record) {
+void LoggerImplQt::append(const std::string& prefix, const std::string& record) {
   std::stringstream ss;
 
   ss << localTime("%H:%M:%S ") << prefix.c_str() << ": " << record;
   this->stream_ << ss.str() << std::endl;
 }
-
+} // namespace logger
+} // namespace platform
+} // namespace rmscrypto
 #endif // QTFRAMEWORK

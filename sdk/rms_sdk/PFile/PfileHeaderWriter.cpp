@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace rmscore::common;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace pfile {

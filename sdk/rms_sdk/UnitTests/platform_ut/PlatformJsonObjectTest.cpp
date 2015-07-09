@@ -14,6 +14,7 @@
 #include "../../ModernAPI/RMSExceptions.h"
 
 using namespace rmscore::platform::json;
+using namespace rmscore::platform::logger;
 using namespace rmscore;
 
 static const char *s_strDefaultVal = "someDefaultValue";
