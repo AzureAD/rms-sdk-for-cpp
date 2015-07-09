@@ -14,6 +14,8 @@
 
 using namespace std;
 using namespace rmscrypto::api;
+using namespace rmscore::platform::logger;
+
 namespace rmscore {
 namespace modernapi {
 CustomProtectedStream::CustomProtectedStream(shared_ptr<IStream>pImpl)

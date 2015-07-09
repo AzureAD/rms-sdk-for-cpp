@@ -18,6 +18,7 @@
 #include "../ModernAPI/RMSExceptions.h"
 
 using namespace rmscore::platform;
+using namespace rmscore::platform::logger;
 
 namespace rmscore { namespace restclients {
 

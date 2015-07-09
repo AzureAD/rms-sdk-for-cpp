@@ -21,6 +21,7 @@ using namespace rmscore::core;
 using namespace rmscrypto::api;
 using namespace rmscore::modernapi;
 using namespace std;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace modernapi {

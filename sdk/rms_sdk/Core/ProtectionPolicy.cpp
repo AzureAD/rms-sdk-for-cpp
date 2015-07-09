@@ -17,6 +17,7 @@
 
 using namespace rmscore::modernapi;
 using namespace rmscore::restclients;
+using namespace rmscore::platform::logger;
 using namespace std;
 
 namespace rmscore {
@@ -178,13 +179,14 @@ std::shared_ptr<ProtectionPolicy> ProtectionPolicy::Create(
   Logger::Hidden("CipherMode: %s", response.key.cipherMode.c_str());
   Logger::Hidden("ContentId: %s",  response.contentId.c_str());
 
+  // create and initialize a new protection policy object from the received
+  // response
 
   auto pProtectionPolicy = make_shared<ProtectionPolicy>();
   pProtectionPolicy->Initialize(response, bAllowAuditedExtraction, true,
                                 response.signedApplicationData);
 
   Logger::Hidden("-ProtectionPolicy::Create");
-
   return pProtectionPolicy;
 } // ProtectionPolicy::Create
 
@@ -272,7 +274,6 @@ shared_ptr<ProtectionPolicy> ProtectionPolicy::Create(
   pProtectionPolicy->SetRequester(email);
 
   Logger::Hidden("-ProtectionPolicy::Create");
-
   AddProtectionPolicyToCache(pProtectionPolicy);
 
   return pProtectionPolicy;

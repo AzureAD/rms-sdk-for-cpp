@@ -19,6 +19,7 @@
 #include "HttpClientQt.h"
 
 using namespace std;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace platform {
@@ -91,7 +92,7 @@ StatusCode HttpClientQt::Post(const string           & url,
   this->request_.setUrl(QUrl(url.c_str()));
   this->AddAcceptMediaTypeHeader(mediaType);
 
-  Logger::Hidden("==> Request Headers:", nullptr);
+  Logger::Hidden("==> Request Headers:");
   foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
     QByteArray hdrValue = this->request_.rawHeader(hdrName);
     Logger::Hidden("%s : %s", hdrName.data(), hdrValue.data());
@@ -112,21 +113,21 @@ StatusCode HttpClientQt::Post(const string           & url,
     QNetworkRequest::HttpStatusCodeAttribute);
   Logger::Info("Response StatusCode: %i", statusCode.toInt());
 
-  Logger::Hidden("--> Response Headers:", nullptr);
+  Logger::Hidden("--> Response Headers:");
   foreach(const QNetworkReply::RawHeaderPair & pair,
           lastReply_->rawHeaderPairs()) {
     Logger::Hidden("%s : %s", pair.first.data(), pair.second.data());
   }
 
   response = ReadAllBytes(lastReply_);
-  Logger::Hidden("--> Response Body:",                     nullptr);
-  Logger::Hidden(string(response.begin(), response.end()), nullptr);
+  Logger::Hidden("--> Response Body:");
+  Logger::Hidden(string(response.begin(), response.end()));
 
   QNetworkReply::NetworkError error_type = lastReply_->error();
 
   if (error_type != QNetworkReply::NoError) {
     Logger::Error(QString("error: %1").arg(
-                    lastReply_->errorString()).toStdString(), nullptr);
+                    lastReply_->errorString()).toStdString());
   }
 
   return StatusCode(statusCode.toInt());
@@ -137,7 +138,7 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
 
   this->request_.setUrl(QUrl(url.c_str()));
 
-  Logger::Hidden("==> Request headers:", nullptr);
+  Logger::Hidden("==> Request headers:");
   foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
     QByteArray hdrValue = this->request_.rawHeader(hdrName);
     Logger::Hidden("%s : %s", hdrName.data(), hdrValue.data());
@@ -162,21 +163,21 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
     QNetworkRequest::HttpStatusCodeAttribute);
   Logger::Info("Response StatusCode: %i", statusCode.toInt());
 
-  Logger::Hidden("--> Response Headers:",   nullptr);
+  Logger::Hidden("--> Response Headers:");
   foreach(const QNetworkReply::RawHeaderPair & pair,
           lastReply_->rawHeaderPairs()) {
     Logger::Hidden("%s : %s", pair.first.data(), pair.second.data());
   }
 
   response = ReadAllBytes(lastReply_);
-  Logger::Hidden("--> Response Body:",                     nullptr);
-  Logger::Hidden(string(response.begin(), response.end()), nullptr);
+  Logger::Hidden("--> Response Body:");
+  Logger::Hidden(string(response.begin(), response.end()));
 
   QNetworkReply::NetworkError error_type = lastReply_->error();
 
   if (error_type != QNetworkReply::NoError) {
     Logger::Error(QString("error: %1").arg(
-                    lastReply_->errorString()).toStdString(), nullptr);
+                    lastReply_->errorString()).toStdString());
   }
 
   return StatusCode(statusCode.toInt());

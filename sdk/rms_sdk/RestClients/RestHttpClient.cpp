@@ -19,6 +19,7 @@ using namespace rmscore::common;
 using namespace rmscore::modernapi;
 using namespace rmscore::platform::http;
 using namespace rmscore::platform::settings;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {

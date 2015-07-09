@@ -12,6 +12,7 @@
 #include "RMSCryptoExceptions.h"
 
 using namespace std;
+using namespace rmscrypto::platform::logger;
 namespace rmscrypto {
 namespace api {
 SimpleProtectedStream::SimpleProtectedStream(

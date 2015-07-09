@@ -4,21 +4,24 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_EXCEPTIONS_H
 #define _RMS_LIB_EXCEPTIONS_H
 #include <string>
+#include <cstring>
 #include <exception>
+#include <algorithm>
 
 #ifndef _NOEXCEPT
-#if __GNUC__ >= 4
-#define _NOEXCEPT _GLIBCXX_USE_NOEXCEPT
-#endif
-#endif
+# if __GNUC__ >= 4
+#  define _NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+# endif // if __GNUC__ >= 4
+#endif  // ifndef _NOEXCEPT
 
 namespace rmscore {
 namespace exceptions {
+#define MAX_EXCEPTION_MESSAGE_LENGTH 255
 class RMSException : public std::exception {
 public:
 
@@ -39,18 +42,22 @@ public:
   RMSException(const ExceptionTypes type,
                const int            error,
                const std::string  & message) _NOEXCEPT
-    : type_(type), error_(error), message_(message.c_str())
-  {}
+    : type_(type), error_(error)
+  {
+    CopyMessage(message.c_str(), message.length());
+  }
 
   RMSException(const ExceptionTypes type,
                const int            error,
                const char *const  & message) _NOEXCEPT
-    : type_(type), error_(error), message_(message)
-  {}
+    : type_(type), error_(error)
+  {
+    CopyMessage(message, strlen(message));
+  }
 
   virtual ~RMSException() _NOEXCEPT {}
 
-  virtual const char * what() const _NOEXCEPT override {
+  virtual const char* what() const _NOEXCEPT override {
     return message_;
   }
 
@@ -64,9 +71,24 @@ public:
 
 private:
 
+  void CopyMessage(const char *msg, const size_t len) {
+    size_t mlen =
+      (std::min)(len, static_cast<const size_t>(MAX_EXCEPTION_MESSAGE_LENGTH - 1));
+
+    memset(message_, 0, sizeof(message_));
+
+    if (mlen > 0) {
+  #ifdef Q_OS_WIN32
+      memcpy_s(message_, mlen, msg, mlen);
+  #else // ifdef Q_OS_WIN32
+      memcpy(message_, msg, mlen);
+  #endif // ifdef Q_OS_WIN32
+    }
+  }
+
   ExceptionTypes type_;
-  int error_;
-  const char * message_;
+  int  error_;
+  char message_[MAX_EXCEPTION_MESSAGE_LENGTH];
 };
 
 class RMSLogicException : public RMSException {

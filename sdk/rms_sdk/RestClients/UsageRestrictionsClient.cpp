@@ -22,6 +22,7 @@ using namespace rmscore::modernapi;
 using namespace rmscore::platform::http;
 using namespace rmscore::restclients;
 using namespace rmscore::json;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {
