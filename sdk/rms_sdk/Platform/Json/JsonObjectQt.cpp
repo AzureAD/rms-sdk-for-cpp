@@ -90,12 +90,17 @@ bool JsonObjectQt::GetNamedBool(const std::string& name, bool bDefaultValue)
 {
   QJsonObject jo = this->impl_.toObject();
 
-  return jo.contains(name.c_str())
-         ? jo[name.c_str()].isBool()
-         ? jo[name.c_str()].toBool()
-         : throw exceptions::RMSInvalidArgumentException(
-                 "JsonObjectQt::GetNamedBool: convertion error")
-               : bDefaultValue;
+  if (jo.contains(name.c_str()) && !jo[name.c_str()].isNull()) {
+    auto obj = jo[name.c_str()];
+
+    if (obj.isBool()) {
+      return obj.toBool();
+    }
+
+    throw exceptions::RMSInvalidArgumentException(
+            "JsonObjectQt::GetNamedBool: convertion error");
+  }
+  return bDefaultValue;
 }
 
 void JsonObjectQt::SetNamedBool(const std::string& name, bool bValue)
