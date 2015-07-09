@@ -8,7 +8,7 @@
 
 #ifndef _RMS_LIB_EXCEPTIONS_H
 #define _RMS_LIB_EXCEPTIONS_H
-#include <string>
+#include <cstring>
 #include <exception>
 #include <algorithm>
 

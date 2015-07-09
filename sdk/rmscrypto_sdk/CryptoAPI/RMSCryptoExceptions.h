@@ -8,7 +8,7 @@
 
 #ifndef _CRYPTO_STREAMS_LIB_EXCEPTIONS_H
 #define _CRYPTO_STREAMS_LIB_EXCEPTIONS_H
-#include <string>
+#include <cstring>
 #include <exception>
 #include <algorithm>
 
