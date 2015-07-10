@@ -12,17 +12,27 @@
 #include "Logger.h"
 #include <fstream>
 
+namespace rmscrypto {
+namespace platform {
+namespace logger {
 class LoggerImplQt : public Logger {
 public:
-    ~LoggerImplQt();
+
+  ~LoggerImplQt();
 
 protected:
-    virtual void append(const std::string& prefix, const std::string& record) override;
+
+  virtual void append(const std::string& prefix,
+                      const std::string& record) override;
 
 private:
-    LoggerImplQt();
-    friend class Logger;
-    std::ofstream stream_;
+
+  LoggerImplQt();
+  friend class Logger;
+  std::ofstream stream_;
 };
+} // namespace logger
+} // namespace platform
+} // namespace rmscrypto
 
 #endif // _CRYPTO_STREAMS_LIB_LOGGERQTIMPL_H_

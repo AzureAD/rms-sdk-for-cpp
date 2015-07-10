@@ -13,6 +13,7 @@
 #include "../../Platform/Json/IJsonArray.h"
 
 using namespace rmscore::platform::json;
+using namespace rmscore::platform::logger;
 
 void PlatformJsonArrayTest::testGetStringAt_data()
 {

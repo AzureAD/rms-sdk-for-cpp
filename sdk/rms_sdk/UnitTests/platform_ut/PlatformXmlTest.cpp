@@ -12,7 +12,8 @@
 #include "../../Platform/Xml/IDomNode.h"
 #include "../../Platform/Xml/IDomElement.h"
 
-//using namespace rmscore::platform;
+using namespace rmscore::platform::logger;
+
 
 PlatformXmlTest::PlatformXmlTest()
 {

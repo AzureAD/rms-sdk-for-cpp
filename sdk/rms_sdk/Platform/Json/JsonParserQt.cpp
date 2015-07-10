@@ -12,6 +12,8 @@
 #include "JsonArrayQt.h"
 #include "../Logger/Logger.h"
 
+using namespace rmscore::platform::logger;
+
 namespace rmscore {
 namespace platform {
 namespace json {

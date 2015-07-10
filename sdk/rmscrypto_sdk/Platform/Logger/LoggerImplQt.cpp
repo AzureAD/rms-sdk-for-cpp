@@ -12,6 +12,9 @@
 #include <sstream>
 #include <string>
 
+namespace rmscrypto {
+namespace platform {
+namespace logger {
 Logger& Logger::instance() {
   static LoggerImplQt instance;
 
@@ -56,5 +59,7 @@ void LoggerImplQt::append(const std::string& prefix, const std::string& record) 
   ss << localTime("%H:%M:%S ") << prefix.c_str() << ": " << record;
   this->stream_ << ss.str() << std::endl;
 }
-
+} // namespace logger
+} // namespace platform
+} // namespace rmscrypto
 #endif // QTFRAMEWORK

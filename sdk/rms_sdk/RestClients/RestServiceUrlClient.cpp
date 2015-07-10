@@ -21,6 +21,7 @@ using namespace std;
 using namespace rmscore::modernapi;
 using namespace rmscore::common;
 using namespace rmscore::platform::settings;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {

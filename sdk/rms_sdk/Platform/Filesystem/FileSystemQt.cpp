@@ -12,6 +12,8 @@
 #include"FileQt.h"
 #include "../../Platform/Logger/Logger.h"
 
+using namespace rmscore::platform::logger;
+
 namespace rmscore { namespace platform { namespace filesystem {
 
 std::shared_ptr<IFileSystem> IFileSystem::Create()
