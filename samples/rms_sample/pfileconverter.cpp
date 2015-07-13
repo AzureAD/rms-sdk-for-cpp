@@ -120,14 +120,14 @@ void PFileConverter::ConvertToPFilePredefinedRights(
   IConsentCallback& /*consent*/,
   const vector<UserRights>& userRights)
 {
-  auto endValidation = chrono::system_clock::now() + chrono::hours(8760);
+  auto endValidation = chrono::system_clock::now() + chrono::hours(48);
 
 
   PolicyDescriptor desc(userRights);
 
   desc.Referrer(make_shared<string>("https://client.test.app"));
   desc.ContentValidUntil(endValidation);
-  desc.AllowOfflineAccess(true);
+  desc.AllowOfflineAccess(false);
   desc.Name("Test Name");
   desc.Description("Test Description");
 

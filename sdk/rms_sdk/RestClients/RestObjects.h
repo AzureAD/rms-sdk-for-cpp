@@ -42,7 +42,6 @@ struct UserRolesResponse {
 struct CustomPolicyResponse {
   bool                           bIsNull;
   bool                           bAllowAuditedExtraction;
-  int                            nIntervalTime;
   std::vector<UserRightsResponse>userRightsList;
   std::vector<UserRolesResponse> userRolesList;
 };

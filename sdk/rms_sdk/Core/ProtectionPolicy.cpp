@@ -281,7 +281,7 @@ shared_ptr<ProtectionPolicy> ProtectionPolicy::Create(
 
 ProtectionPolicy::ProtectionPolicy() :
   m_accessStatus(ACCESS_STATUS_ACCESS_DENIED),
-  m_bAllowOfflineAccess(0)
+  m_bAllowOfflineAccess(false)
 {
   m_requester           = "";
   m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
