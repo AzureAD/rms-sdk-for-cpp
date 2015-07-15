@@ -321,11 +321,11 @@ const AppDataHashMap UserPolicy::SignedAppData() {
 
 chrono::time_point<chrono::system_clock> UserPolicy::ContentValidUntil()
 {
-  chrono::time_point<chrono::system_clock> contentValidUntil;
+  return m_pImpl->GetValidityTimeUntil();
+}
 
-  contentValidUntil = m_pImpl->GetValidityTimeFrom() +
-    (chrono::milliseconds)(m_pImpl->GetValidityTimeDuration());
-  return contentValidUntil;
+bool UserPolicy::AllowOfflineAccess() {
+  return m_pImpl->AllowOfflineAccess();
 }
 
 bool UserPolicy::DoesUseDeprecatedAlgorithms() {
