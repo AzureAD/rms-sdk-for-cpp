@@ -439,7 +439,7 @@ int64_t msecsTo(const std::chrono::time_point<std::chrono::system_clock>& l,
 void ProtectionPolicy::InitializeIntervalTime(
   const std::chrono::time_point<std::chrono::system_clock>& ftLicenseValidUntil) {
   if (std::chrono::system_clock::to_time_t(ftLicenseValidUntil) > 0) {
-    // check if license expired
+    // if the licenseValidUntil and contentValidUntil are the same then there is no interval time set
     if (daysTo(m_ftValidityTimeUntil, ftLicenseValidUntil) != 0) {
       auto dt               = std::chrono::system_clock::now();
       int64_t iIntervalTime = daysTo(ftLicenseValidUntil, dt);
