@@ -166,7 +166,7 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
 
   // old version support
   pPolicyJson->SetNamedNumber("IntervalTimeInDays",
-                              request.bAllowOfflineAccess ? 9125 : 0);
+                              request.bAllowOfflineAccess ? 30 : 0);
 
   if (std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil) > 0)
   {
