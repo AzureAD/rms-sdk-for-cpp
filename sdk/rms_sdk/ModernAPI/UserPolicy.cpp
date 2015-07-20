@@ -324,10 +324,6 @@ chrono::time_point<chrono::system_clock> UserPolicy::ContentValidUntil()
   return m_pImpl->GetValidityTimeUntil();
 }
 
-bool UserPolicy::AllowOfflineAccess() {
-  return m_pImpl->AllowOfflineAccess();
-}
-
 bool UserPolicy::DoesUseDeprecatedAlgorithms() {
   return CipherMode::CIPHER_MODE_ECB == m_pImpl->GetCipherMode();
 }
