@@ -38,7 +38,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="lineEdit_clientId">
             <property name="text">
-             <string>b7fe11fb-bd86-40a0-87ce-7c49cbab402d</string>
+             <string>4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7</string>
             </property>
            </widget>
           </item>
@@ -52,7 +52,7 @@
           <item row="2" column="1">
            <widget class="QLineEdit" name="lineEdit_redirectUrl">
             <property name="text">
-             <string>https://rms.client.app</string>
+             <string>https://client.test.app</string>
             </property>
            </widget>
           </item>
@@ -73,7 +73,7 @@
           <item row="3" column="1" rowspan="2">
            <widget class="QLineEdit" name="lineEdit_resourseId">
             <property name="text">
-             <string>api.rms.rest.com</string>
+             <string>api.aadrm.com</string>
             </property>
            </widget>
           </item>
@@ -114,7 +114,7 @@
           <item row="1" column="1">
            <widget class="QLineEdit" name="lineEdit_clientEmail">
             <property name="text">
-             <string>john.smith@joshgav.com</string>
+             <string>john.smith@msopentechtest01.onmicrosoft.com</string>
             </property>
            </widget>
           </item>
