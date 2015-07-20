@@ -285,7 +285,6 @@ void MainWindow::on_fromPFILEButton_clicked()
 
       qDebug() << "Policy Name: " << pfs->m_stream->Policy()->Name().c_str();
       qDebug() << "Policy Description: " << pfs->m_stream->Policy()->Description().c_str();
-      qDebug() << "Policy AllowOfflineAccess: " << (pfs->m_stream->Policy()->AllowOfflineAccess() ? "true" : "false");
 
       time_t tmp = std::chrono::system_clock::to_time_t(
         pfs->m_stream->Policy()->ContentValidUntil());
