@@ -19,6 +19,7 @@
 #include <future>
 
 using namespace std;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {

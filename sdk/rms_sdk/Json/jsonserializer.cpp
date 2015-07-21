@@ -164,12 +164,16 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
 
   pPolicyJson->SetNamedBool("allowOfflineAccess", request.bAllowOfflineAccess);
 
+  // old version support
+  pPolicyJson->SetNamedNumber("IntervalTimeInDays",
+                              request.bAllowOfflineAccess ? 30 : 0);
+
   if (std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil) > 0)
   {
-    common::DateTime dt = common::DateTime::fromTime_t(std::chrono::system_clock::to_time_t(
-                                                         request.
-                                                         ftLicenseValidUntil));
-    pPolicyJson->SetNamedString("LicenseValidUntil", dt.toString().toStdString());
+    common::DateTime dt = common::DateTime::fromTime_t(
+      std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil));
+    pPolicyJson->SetNamedString("LicenseValidUntil", dt.toString(
+                                  Qt::ISODate).toStdString());
   }
 
   // the appdata should look like this:
@@ -378,17 +382,26 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
     response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(0);
   }
 
-  response.bAllowOfflineAccess = pJsonResponse->GetNamedBool("allowOfflineAccess",
-                                                             true);
+  if (pJsonResponse->HasName("allowOfflineAccess")) {
+    response.bAllowOfflineAccess = pJsonResponse->GetNamedBool(
+      "allowOfflineAccess", true);
+  } else {
+    // true by default
+    response.bAllowOfflineAccess = true;
+  }
+
 
   // custom policy response
   if (pJsonResponse->HasName("Policy") && !pJsonResponse->IsNull("Policy"))
   {
     auto pJsonPolicy = pJsonResponse->GetNamedObject("Policy");
 
-    response.customPolicy.nIntervalTime =
+    auto intervalTime =
       static_cast<int>(round(pJsonPolicy->GetNamedNumber("IntervalTimeInDays",
                                                          -1.0)));
+
+    if (intervalTime <= 0) response.bAllowOfflineAccess = false;
+
     response.customPolicy.bAllowAuditedExtraction = pJsonPolicy->GetNamedBool(
       "AllowAuditedExtraction",
       false);

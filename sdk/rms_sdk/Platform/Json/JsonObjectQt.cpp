@@ -19,6 +19,8 @@
 #include "../../ModernAPI/RMSExceptions.h"
 #include "../Logger/Logger.h"
 
+using namespace rmscore::platform::logger;
+
 namespace rmscore {
 namespace platform {
 namespace json {
@@ -88,12 +90,17 @@ bool JsonObjectQt::GetNamedBool(const std::string& name, bool bDefaultValue)
 {
   QJsonObject jo = this->impl_.toObject();
 
-  return jo.contains(name.c_str())
-         ? jo[name.c_str()].isBool()
-         ? jo[name.c_str()].toBool()
-         : throw exceptions::RMSInvalidArgumentException(
-                 "JsonObjectQt::GetNamedBool: convertion error")
-               : bDefaultValue;
+  if (jo.contains(name.c_str()) && !jo[name.c_str()].isNull()) {
+    auto obj = jo[name.c_str()];
+
+    if (obj.isBool()) {
+      return obj.toBool();
+    }
+
+    throw exceptions::RMSInvalidArgumentException(
+            "JsonObjectQt::GetNamedBool: convertion error");
+  }
+  return bDefaultValue;
 }
 
 void JsonObjectQt::SetNamedBool(const std::string& name, bool bValue)
@@ -108,12 +115,19 @@ double JsonObjectQt::GetNamedNumber(const std::string& name, double fDefaultValu
 {
   QJsonObject jo = this->impl_.toObject();
 
-  return jo.contains(name.c_str())
-         ? jo[name.c_str()].isDouble()
-         ? jo[name.c_str()].toDouble()
-         : throw exceptions::RMSInvalidArgumentException(
-                 "JsonObjectQt::GetNamedNumber: convertion error")
-               : fDefaultValue;
+  if (jo.contains(name.c_str())) {
+    auto joVal = jo[name.c_str()];
+
+    if (!joVal.isNull()) {
+      if (jo[name.c_str()].isDouble()) {
+        return jo[name.c_str()].toDouble();
+      } else {
+        throw exceptions::RMSInvalidArgumentException(
+                "JsonObjectQt::GetNamedNumber: convertion error");
+      }
+    }
+  }
+  return fDefaultValue;
 }
 
 void JsonObjectQt::SetNamedNumber(const std::string& name, double fValue)

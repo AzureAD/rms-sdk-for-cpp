@@ -69,7 +69,7 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
   }
   catch (const rmsauth::Exception& ex)
   {
-    cout << "!!!!! Auth error: " << ex.error() << endl;
+    qDebug() << "!!!!! Auth error: " << ex.error().c_str();
     throw;
   }
   return "";
@@ -283,9 +283,10 @@ void MainWindow::on_fromPFILEButton_clicked()
         auth,
         this->consent);
 
-      cout << "Policy Name: " << pfs->m_stream->Policy()->Name() << endl;
-      cout << "Policy Description: " << pfs->m_stream->Policy()->Description() <<
-        endl;
+      qDebug() << "Policy Name: " << pfs->m_stream->Policy()->Name().c_str();
+      qDebug() << "Policy Description: " << pfs->m_stream->Policy()->Description().c_str();
+      qDebug() << "Policy AllowOfflineAccess: " << (pfs->m_stream->Policy()->AllowOfflineAccess() ? "true" : "false");
+
       time_t tmp = std::chrono::system_clock::to_time_t(
         pfs->m_stream->Policy()->ContentValidUntil());
       std::tm time;
@@ -295,11 +296,11 @@ void MainWindow::on_fromPFILEButton_clicked()
 #else // if defined _WIN32
       time = *std::localtime(&tmp);
 #endif // if defined _WIN32
-      cout << "Policy ContentValidUntil: " <<
-        time.tm_mon << "-" << time.tm_mday << "-" << time.tm_year << " " <<
-        time.tm_hour << ":" << time.tm_min << "." << time.tm_sec << endl;
+      qDebug() << "Policy ContentValidUntil: " <<
+        (time.tm_mon + 1) << "-" << time.tm_mday << "-" << (time.tm_year + 1900) << " " <<
+        time.tm_hour << ":" << time.tm_min << "." << time.tm_sec;
 
-      // cout << "Policy ContentValidUntil: " <<
+      // qDebug() << "Policy ContentValidUntil: " <<
       // pfs->m_stream->Policy()->ContentValidUntil() << endl;
 
       this->ui->textBrowser->insertPlainText(QString(

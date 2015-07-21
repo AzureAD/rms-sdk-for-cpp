@@ -9,6 +9,7 @@
 #include "QTStreamImpl.h"
 #include "../../Platform/Logger/Logger.h"
 using namespace rmscrypto::api;
+using namespace rmscore::platform::logger;
 using namespace std;
 
 

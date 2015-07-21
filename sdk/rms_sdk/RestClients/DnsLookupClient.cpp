@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace rmscore::platform::http;
+using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {

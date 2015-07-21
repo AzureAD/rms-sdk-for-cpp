@@ -8,10 +8,10 @@ before_install:
   - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty main"
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
-  
+
   - sudo apt-get install -qq qdbus qmlscene qt5-default qt5-qmake qtbase5-dev-tools qtchooser qtdeclarative5-dev xbitmaps xterm libqt5svg5-dev qttools5-dev qtscript5-dev qtdeclarative5-folderlistmodel-plugin qtdeclarative5-controls-plugin
   - sudo apt-get install -qq libqt5webkit5-dev libqt5xmlpatterns5-dev
-  
+
   - sudo apt-get install -qq libssl-dev
   - sudo apt-get install -qq libsecret-1-dev
   - sudo apt-get install -qq gcc-4.8 g++-4.8
@@ -25,9 +25,10 @@ script:
   - BIN=`pwd`
   - export LD_LIBRARY_PATH=$BIN
   - ./tests/rmsplatformUnitTests
-  
+
 branches:
   only:
+    - master
     - dev
 os:
   - linux
