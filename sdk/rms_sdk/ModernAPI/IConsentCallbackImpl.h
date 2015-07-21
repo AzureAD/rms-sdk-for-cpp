@@ -13,8 +13,17 @@
 
 namespace rmscore {
 namespace modernapi {
+/*
+*@brief Interface for managing user consents. 
+*/
 class IConsentCallbackImpl {
 public:
+/*!
+ * @brief You, the app developer, will implement this method to prompt the user for their consent.
+ * @param email Email of the consentor.
+ * @param domain Domain information.
+ * @param urls List of URLs that need to provide consent.
+ */
 
   virtual void Consents(const std::string             & email,
                         const std::string             & domain,

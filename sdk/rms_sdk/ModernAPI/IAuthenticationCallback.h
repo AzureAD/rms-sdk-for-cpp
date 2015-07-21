@@ -17,7 +17,7 @@
 namespace rmscore {
 namespace modernapi {
 /**
- * @brief Implement this interface to provide a strategy for getting an OAuth access token.
+ * @brief Implement this interface to provide an approach for getting an OAuth access token.
  *
  * Apps should implement this interface, specifically the GetToken method, to return an
  * access token for use by the API client.
