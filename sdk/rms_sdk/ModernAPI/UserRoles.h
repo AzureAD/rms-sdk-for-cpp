@@ -17,19 +17,19 @@ namespace modernapi {
 typedef std::vector<std::string>UserList;
 typedef std::vector<std::string>RoleList;
 
-/**
+/*!
  * @brief Provides for the mapping of roles and users.
  */
 class DLL_PUBLIC_RMS UserRoles {
 public:
 
-/**
+/*!
  * @brief Constructor for UserRoles object.
  */
   UserRoles(const UserList& users,
             const RoleList& roles);
 
-/**
+/*!
  * @brief Users to whom the rights are granted.
  */
   const UserList& Users() const
@@ -37,7 +37,7 @@ public:
     return this->users;
   }
 
-/**
+/*!
   * @brief Roles of the users.
   */
   const RoleList& Roles() const
