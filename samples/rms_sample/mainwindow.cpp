@@ -6,15 +6,7 @@
  * ======================================================================
  */
 
-#include <QNetworkAccessManager>
-#include <QSsl>
-#include <QSslConfiguration>
-#include <QtNetwork>
-#include <QPair>
-#include <QUrlQuery>
-#include <QSharedPointer>
 #include <QFileDialog>
-#include <QStandardItemModel>
 
 #include <cstdio>
 #include <fstream>
@@ -35,17 +27,16 @@
 using namespace std;
 using namespace rmsauth;
 
-AuthCallback::AuthCallback(const QString& clientId, const QString& redirectUrl)
+AuthCallback::AuthCallback(const string& clientId, const string& redirectUrl)
   : clientId_(clientId)
   , redirectUrl_(redirectUrl)
 {
-  FileCachePtr = std::make_shared<FileCache>();
-  //FileCachePtr->clear();
+  FileCachePtr = make_shared<FileCache>();
 }
 
 string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
   string redirect =
-    ap->Scope().empty() ? redirectUrl_.toStdString() : ap->Scope();
+    ap->Scope().empty() ? redirectUrl_ : ap->Scope();
 
   try
   {
@@ -54,7 +45,7 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
               "redirect Url is empty");
     }
 
-    if (clientId_.isEmpty()) {
+    if (clientId_.empty()) {
       throw rmscore::exceptions::RMSInvalidArgumentException("client Id is empty");
     }
 
@@ -62,17 +53,16 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
       ap->Authority(), AuthorityValidationType::False, FileCachePtr);
 
     auto result = authContext.acquireToken(ap->Resource(),
-                                           clientId_.toStdString(), redirect,
+                                           clientId_, redirect,
                                            PromptBehavior::Auto,
                                            ap->UserId());
     return result->accessToken();
   }
-  catch (const rmsauth::Exception& ex)
+  catch (const rmsauth::Exception& /*ex*/)
   {
-    qDebug() << "!!!!! Auth error: " << ex.error().c_str();
+    // out logs
     throw;
   }
-  return "";
 }
 
 ConsentList ConsentCallback::Consents(ConsentList& /*consents*/) {
@@ -82,7 +72,7 @@ ConsentList ConsentCallback::Consents(ConsentList& /*consents*/) {
 }
 
 size_t TemplatesCallback::SelectTemplate(
-  std::vector<TemplateDescriptor>& templates)
+  vector<TemplateDescriptor>& templates)
 {
   // show dialog
   auto selectTemplateDlg = new QDialog(0, 0);
@@ -138,7 +128,7 @@ void MainWindow::addCertificates() {
 
   filters << "*.cer" << "*.der" << "*.pem";
   auto filesList = dir.entryInfoList(filters);
-  std::vector<uint8_t> buffer;
+  vector<uint8_t> buffer;
 
   for (auto& fileName : filesList) {
     ifstream file(
@@ -167,243 +157,249 @@ void MainWindow::addCertificates() {
 
 void MainWindow::on_encryptPFILETemplatesButton_clicked()
 {
-  QString fileIn = QFileDialog::getOpenFileName(this, tr(
-                                                  "Select file to encrypt"));
-  QString fileOut = fileIn + ".pfile";
+  string fileIn = SelectFile("Select file to encrypt");
 
-  if (!fileIn.isEmpty()) {
-    // add certificates
-    addCertificates();
-
-    auto inFile = std::make_shared<ifstream>(
-      fileIn.toStdString(), ios_base::in | ios_base::binary);
-    auto outFile = std::make_shared<fstream>(
-      fileOut.toStdString(),
-      ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
-
-    if (!inFile->is_open()) {
-      this->ui->textBrowser->insertPlainText("ERROR: Failed to open '");
-      this->ui->textBrowser->insertPlainText(fileIn);
-      this->ui->textBrowser->insertPlainText("\n");
-      return;
-    }
-
-    if (!outFile->is_open()) {
-      this->ui->textBrowser->insertPlainText("ERROR: Failed to open '");
-      this->ui->textBrowser->insertPlainText(fileOut);
-      this->ui->textBrowser->insertPlainText("\n");
-      return;
-    }
-
-    auto fileParts  = fileIn.split(".");
-    QString fileExt = fileParts.at(fileParts.size() - 1);
-    fileExt = "." + fileExt;
-
-    try {
-      AuthCallback auth(
-        ui->lineEdit_clientId->text(), ui->lineEdit_redirectUrl->text());
-      PFileConverter::ConvertToPFileTemplates(
-        ui->lineEdit_clientEmail->text().toStdString(),
-        inFile,
-        fileExt.toStdString(),
-        outFile,
-        auth,
-        this->consent,
-        this->templates);
-      this->ui->textBrowser->insertPlainText("Successfully converted to '");
-      this->ui->textBrowser->insertPlainText(fileOut);
-      this->ui->textBrowser->insertPlainText("'\n");
-    }
-    catch (const rmsauth::Exception& e) {
-      this->ui->textBrowser->insertPlainText("ERROR: ");
-      this->ui->textBrowser->insertPlainText(e.error().c_str());
-      this->ui->textBrowser->insertPlainText("\n");
-
-      outFile->close();
-      std::remove(fileOut.toStdString().c_str());
-    }
-    catch (const rmscore::exceptions::RMSException& e) {
-      this->ui->textBrowser->insertPlainText("ERROR: ");
-      this->ui->textBrowser->insertPlainText(e.what());
-      this->ui->textBrowser->insertPlainText("\n");
-
-      outFile->close();
-      std::remove(fileOut.toStdString().c_str());
-    }
-    inFile->close();
-    outFile->close();
+  if (!fileIn.empty()) {
+    ConvertToPFILEUsingTemplates(
+      fileIn,
+      ui->lineEdit_clientId->text().toStdString(),
+      ui->lineEdit_redirectUrl->text().toStdString(),
+      ui->lineEdit_clientEmail->text().toStdString());
   }
 }
 
 void MainWindow::on_fromPFILEButton_clicked()
 {
-  QString fileIn =
-    QFileDialog::getOpenFileName(this, tr("Select file to decrypt"));
-  QString fileOut;
+  string fileIn = SelectFile("Select file to decrypt");
 
-  if (!fileIn.isEmpty()) {
-    // add certificates
-    addCertificates();
-
-    auto inFile = std::make_shared<ifstream>(
-      fileIn.toStdString(), ios_base::in | ios_base::binary);
-
-    if (!inFile->is_open()) {
-      this->ui->textBrowser->insertPlainText("ERROR: Failed to open '");
-      this->ui->textBrowser->insertPlainText(fileIn);
-      this->ui->textBrowser->insertPlainText("\n");
-      return;
-    }
-
-    // check extension
-    QStringList fileParts = fileIn.split(".");
-    fileOut = fileIn.mid(0, fileIn.size() - fileParts.at(
-                           fileParts.size() - 1).size() - 1);
-
-    // create streams
-    auto outFile = std::make_shared<fstream>(
-      fileOut.toStdString(),
-      ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
-
-    if (!outFile->is_open()) {
-      this->ui->textBrowser->insertPlainText("ERROR: Failed to open '");
-      this->ui->textBrowser->insertPlainText(fileOut);
-      this->ui->textBrowser->insertPlainText("\n");
-      return;
-    }
-
-    try
-    {
-      AuthCallback auth(
-        ui->lineEdit_clientId->text(), ui->lineEdit_redirectUrl->text());
-      auto pfs = PFileConverter::ConvertFromPFile(
-        this->ui->lineEdit_clientEmail->text().toStdString(),
-        inFile,
-        outFile,
-        auth,
-        this->consent);
-
-      qDebug() << "Policy Name: " << pfs->m_stream->Policy()->Name().c_str();
-      qDebug() << "Policy Description: " << pfs->m_stream->Policy()->Description().c_str();
-      qDebug() << "Policy AllowOfflineAccess: " << (pfs->m_stream->Policy()->AllowOfflineAccess() ? "true" : "false");
-
-      time_t tmp = std::chrono::system_clock::to_time_t(
-        pfs->m_stream->Policy()->ContentValidUntil());
-      std::tm time;
-      memset(&time, 0, sizeof(time));
-#if defined _WIN32
-      localtime_s(&time, &tmp);
-#else // if defined _WIN32
-      time = *std::localtime(&tmp);
-#endif // if defined _WIN32
-      qDebug() << "Policy ContentValidUntil: " <<
-        (time.tm_mon + 1) << "-" << time.tm_mday << "-" << (time.tm_year + 1900) << " " <<
-        time.tm_hour << ":" << time.tm_min << "." << time.tm_sec;
-
-      // qDebug() << "Policy ContentValidUntil: " <<
-      // pfs->m_stream->Policy()->ContentValidUntil() << endl;
-
-      this->ui->textBrowser->insertPlainText(QString(
-                                               "Successfully converted to '%1'\n").arg(
-                                               fileOut));
-    }
-    catch (const rmsauth::Exception& e)
-    {
-      this->ui->textBrowser->insertPlainText("ERROR: ");
-      this->ui->textBrowser->insertPlainText(e.error().c_str());
-      this->ui->textBrowser->insertPlainText("\n");
-    }
-    catch (const rmscore::exceptions::RMSException& e) {
-      this->ui->textBrowser->insertPlainText("ERROR: ");
-      this->ui->textBrowser->insertPlainText(e.what());
-      this->ui->textBrowser->insertPlainText("\n");
-    }
-    inFile->close();
-    outFile->close();
+  if (!fileIn.empty()) {
+    ConvertFromPFILE(
+      fileIn,
+      ui->lineEdit_clientId->text().toStdString(),
+      ui->lineEdit_redirectUrl->text().toStdString(),
+      ui->lineEdit_clientEmail->text().toStdString());
   }
 }
 
 void MainWindow::on_encryptPFILERightsButton_clicked()
 {
-  QString fileIn = QFileDialog::getOpenFileName(this, tr(
-                                                  "Select file to encrypt"));
-  QString fileOut = fileIn + ".pfile";
+  string fileIn = SelectFile("Select file to encrypt");
 
-  if (!fileIn.isEmpty()) {
-    // add certificates
-    addCertificates();
-
-    auto inFile = std::make_shared<ifstream>(
-      fileIn.toStdString(), ios_base::in | ios_base::binary);
-    auto outFile = std::make_shared<fstream>(
-      fileOut.toStdString(),
-      ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
-
-    if (!inFile->is_open()) {
-      this->ui->textBrowser->insertPlainText("ERROR: Failed to open '");
-      this->ui->textBrowser->insertPlainText(fileIn);
-      this->ui->textBrowser->insertPlainText("\n");
-      return;
-    }
-
-    if (!outFile->is_open()) {
-      this->ui->textBrowser->insertPlainText("ERROR: Failed to open '");
-      this->ui->textBrowser->insertPlainText(fileOut);
-      this->ui->textBrowser->insertPlainText("\n");
-      return;
-    }
-
-    auto fileParts  = fileIn.split(".");
-    QString fileExt = fileParts.at(fileParts.size() - 1);
-    fileExt = "." + fileExt;
-
+  if (!fileIn.empty()) {
     vector<UserRights> userRights = openRightsDlg();
 
-    // is anything to add
-    if (userRights.size() == 0) {
-      this->ui->textBrowser->insertPlainText(
-        "Please fill email and check rights\n'");
-      return;
-    }
-
-
-    try {
-      AuthCallback auth(
-        ui->lineEdit_clientId->text(), ui->lineEdit_redirectUrl->text());
-      PFileConverter::ConvertToPFilePredefinedRights(
-        ui->lineEdit_clientEmail->text().toStdString(),
-        inFile,
-        fileExt.toStdString(),
-        outFile,
-        auth,
-        this->consent,
-        userRights);
-      this->ui->textBrowser->insertPlainText("Successfully converted to '");
-      this->ui->textBrowser->insertPlainText(fileOut);
-      this->ui->textBrowser->insertPlainText("'\n");
-    }
-    catch (const rmsauth::Exception& e) {
-      this->ui->textBrowser->insertPlainText("ERROR: ");
-      this->ui->textBrowser->insertPlainText(e.error().c_str());
-      this->ui->textBrowser->insertPlainText("\n");
-
-      outFile->close();
-      std::remove(fileOut.toStdString().c_str());
-    }
-    catch (const rmscore::exceptions::RMSException& e) {
-      this->ui->textBrowser->insertPlainText("ERROR: ");
-      this->ui->textBrowser->insertPlainText(e.what());
-      this->ui->textBrowser->insertPlainText("\n");
-
-      outFile->close();
-      std::remove(fileOut.toStdString().c_str());
-    }
-    inFile->close();
-    outFile->close();
+    ConvertToPFILEUsingRights(
+      fileIn,
+      userRights,
+      ui->lineEdit_clientId->text().toStdString(),
+      ui->lineEdit_redirectUrl->text().toStdString(),
+      ui->lineEdit_clientEmail->text().toStdString());
   }
 }
 
-std::vector<UserRights>MainWindow::openRightsDlg() {
+void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
+                                              const string& clientId,
+                                              const string& redirectUrl,
+                                              const string& clientEmail) {
+  // generate output filename
+  string fileOut = fileIn + ".pfile";
+
+  // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+  addCertificates();
+
+  // create shared in/out streams
+  auto inFile = make_shared<ifstream>(
+    fileIn, ios_base::in | ios_base::binary);
+  auto outFile = make_shared<fstream>(
+    fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+
+  if (!inFile->is_open()) {
+    AddLog("ERROR: Failed to open ", fileIn.c_str());
+    return;
+  }
+
+  if (!outFile->is_open()) {
+    AddLog("ERROR: Failed to open ", fileOut.c_str());
+    return;
+  }
+
+  // find file extension
+  string fileExt;
+  auto   pos = fileIn.find_last_of('.');
+
+  if (pos != string::npos) {
+    fileExt = fileIn.substr(pos);
+  }
+
+  try {
+    // create authentication callback
+    AuthCallback auth(clientId, redirectUrl);
+
+    // process convertion
+    PFileConverter::ConvertToPFileTemplates(
+      clientEmail, inFile, fileExt, outFile, auth,
+      this->consent, this->templates);
+
+    AddLog("Successfully converted to ", fileOut.c_str());
+  }
+  catch (const rmsauth::Exception& e) {
+    AddLog("ERROR: ", e.error().c_str());
+    outFile->close();
+    remove(fileOut.c_str());
+  }
+  catch (const rmscore::exceptions::RMSException& e) {
+    AddLog("ERROR: ", e.what());
+
+    outFile->close();
+    remove(fileOut.c_str());
+  }
+  inFile->close();
+  outFile->close();
+}
+
+void MainWindow::ConvertToPFILEUsingRights(const string            & fileIn,
+                                           const vector<UserRights>& userRights,
+                                           const string            & clientId,
+                                           const string            & redirectUrl,
+                                           const string            & clientEmail)
+{
+  // generate output filename
+  string fileOut = fileIn + ".pfile";
+
+  // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+  addCertificates();
+
+  // create shared in/out streams
+  auto inFile = make_shared<ifstream>(
+    fileIn, ios_base::in | ios_base::binary);
+  auto outFile = make_shared<fstream>(
+    fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+
+  if (!inFile->is_open()) {
+    AddLog("ERROR: Failed to open ", fileIn.c_str());
+    return;
+  }
+
+  if (!outFile->is_open()) {
+    AddLog("ERROR: Failed to open ", fileOut.c_str());
+    return;
+  }
+
+  // find file extension
+  string fileExt;
+  auto   pos = fileIn.find_last_of('.');
+
+  if (pos != string::npos) {
+    fileExt = fileIn.substr(pos);
+  }
+
+  // is anything to add
+  if (userRights.size() == 0) {
+    AddLog("ERROR: ", "Please fill email and check rights");
+    return;
+  }
+
+
+  try {
+    // create authentication callback
+    AuthCallback auth(clientId, redirectUrl);
+
+    // process convertion
+    PFileConverter::ConvertToPFilePredefinedRights(
+      clientEmail,
+      inFile,
+      fileExt,
+      outFile,
+      auth,
+      this->consent,
+      userRights);
+
+    AddLog("Successfully converted to ", fileOut.c_str());
+  }
+  catch (const rmsauth::Exception& e) {
+    AddLog("ERROR: ", e.error().c_str());
+
+    outFile->close();
+    remove(fileOut.c_str());
+  }
+  catch (const rmscore::exceptions::RMSException& e) {
+    AddLog("ERROR: ", e.what());
+
+    outFile->close();
+    remove(fileOut.c_str());
+  }
+  inFile->close();
+  outFile->close();
+}
+
+void MainWindow::ConvertFromPFILE(const string& fileIn,
+                                  const string& clientId,
+                                  const string& redirectUrl,
+                                  const string& clientEmail) {
+  // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+  addCertificates();
+
+  // create shared in/out streams
+  auto inFile = make_shared<ifstream>(
+    fileIn, ios_base::in | ios_base::binary);
+
+  if (!inFile->is_open()) {
+    AddLog("ERROR: Failed to open ", fileIn.c_str());
+    return;
+  }
+
+  string fileOut;
+
+  // generate output filename
+  auto pos = fileIn.find_last_of('.');
+
+  if (pos != string::npos) {
+    fileOut = fileIn.substr(0, pos);
+  }
+
+  // create streams
+  auto outFile = make_shared<fstream>(
+    fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+
+  if (!outFile->is_open()) {
+    AddLog("ERROR: Failed to open ", fileOut.c_str());
+    return;
+  }
+
+  try
+  {
+    // create authentication context
+    AuthCallback auth(clientId, redirectUrl);
+
+    // process convertion
+    auto pfs = PFileConverter::ConvertFromPFile(
+      clientEmail,
+      inFile,
+      outFile,
+      auth,
+      this->consent);
+
+    AddLog("Successfully converted to ", fileOut.c_str());
+  }
+  catch (const rmsauth::Exception& e)
+  {
+    AddLog("ERROR: ", e.error().c_str());
+  }
+  catch (const rmscore::exceptions::RMSException& e) {
+    AddLog("ERROR: ", e.what());
+  }
+  inFile->close();
+  outFile->close();
+}
+
+string MainWindow::SelectFile(const string& msg) {
+  QString fileSel =
+    QFileDialog::getOpenFileName(this, QString::fromStdString(msg));
+
+  return fileSel.toStdString();
+}
+
+vector<UserRights>MainWindow::openRightsDlg() {
   RightsDialog dlg;
   QStandardItemModel model(&dlg);
   QStringList columnsNames { "User email" };
@@ -469,4 +465,14 @@ std::vector<UserRights>MainWindow::openRightsDlg() {
     }
   }
   return userRights;
+}
+
+void MainWindow::AddLog(const string& tag, const char *message) {
+  AddLog(QString::fromStdString(tag), QString::fromLatin1(message));
+}
+
+void MainWindow::AddLog(const QString& tag, const QString& message) {
+  this->ui->textBrowser->insertPlainText(tag);
+  this->ui->textBrowser->insertPlainText(message);
+  this->ui->textBrowser->insertPlainText("\n");
 }
