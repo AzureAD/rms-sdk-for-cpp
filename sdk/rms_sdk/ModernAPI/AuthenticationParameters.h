@@ -50,6 +50,13 @@ public:
     return m_userId;
   }
 
+  /**
+  * @brief Coordinates for OAuth authentication.
+  * @param authority Authority with which the request is being made.
+  * @param resource Resource being requested.
+  * @param scope Scope of the authentication request.
+  * @param userId User ID of the requestor.
+  */
   AuthenticationParameters(const std::string& authority,
                            const std::string& resource,
                            const std::string& scope,

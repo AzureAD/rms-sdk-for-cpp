@@ -15,19 +15,34 @@
 
 namespace rmscore {
 namespace modernapi {
+/**
+ * @brief Implementation class for authentication callback.
+ */
 class DLL_PUBLIC_RMS AuthenticationCallbackImpl : public IAuthenticationCallbackImpl {
 public:
 
+  /**
+   * @brief You, the app developer, will implementate this method for the authentication callback.
+   * @param callback Pointer to the authentication callback method.
+   * @param userId User ID of the authentication requestor.
+   */
   AuthenticationCallbackImpl(IAuthenticationCallback& callback,
                              const std::string      & userId)
     : m_callback(callback)
     , m_userId(userId)
   {}
 
+  /**
+  @brief Gets the state of the need for authentication challenge.
+  */
   virtual bool NeedsChallenge() const override {
     return true;
   }
 
+  /**
+  @brief Gets a OAuth access token through the authentication challenge method.
+  * @param challenge Pointer to the authentication challenge method.
+  */
   virtual std::string GetAccessToken(const AuthenticationChallenge& challenge)
   override
   {
