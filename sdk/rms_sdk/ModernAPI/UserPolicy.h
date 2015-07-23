@@ -29,19 +29,19 @@ class TemplateDescriptor;
 class PolicyDescriptor;
 
 /*!
-@brief
+@brief User policy result status options.
 */
 enum GetUserPolicyResultStatus {
-	/*!
-	@brief
-	*/
+/*!
+ * @brief Success.
+ */
   Success = 0, 
   /*!
-  @brief
+  * @brief The user has no rights.
   */
   NoRights = 1, 
   /*!
-  @brief
+  @brief The user policy has expired.
   */
   Expired = 2
 };
@@ -53,12 +53,25 @@ class UserPolicy;
 @brief The result of the UserPolicy::Acquire operation
 */
 struct DLL_PUBLIC_RMS GetUserPolicyResult {
+	/*!
+	@brief User policy result.
+	*/
   GetUserPolicyResult(GetUserPolicyResultStatus   status,
                       std::shared_ptr<std::string>referrer,
                       std::shared_ptr<UserPolicy> policy);
-
+  /*!
+  @brief User policy result status.
+  */
   GetUserPolicyResultStatus   Status;
+
+  /*!
+  @brief The policy referrer.
+  */
   std::shared_ptr<std::string>Referrer;
+
+  /*!
+  @brief Pointer to the policy object.
+  */
   std::shared_ptr<UserPolicy> Policy;
 };
 
@@ -141,7 +154,9 @@ public:
 	@param authenticationCallback Authentication callback to be used for authentication process.
 	@param consentCallback Consent callback for user consent process.
 	@param options Offline flag
-	@param cacheMask BRP072215 What?
+	@param cacheMask Mask of caching response options from server, a combination of ResponseCacheFlags.
+	                 For example if you set OnDisk and Crypted flags, the server response will be stored to 
+					 disk and encrypted by a unique generated key for the current user.
 	@return Pointer a GetUserPolicyResult structure.
 
 	*/
