@@ -17,18 +17,18 @@ namespace rmscore {
 namespace modernapi {
 using ConsentList = std::vector<std::shared_ptr<IConsent> >;
 
-/// <summary>
-/// Interface for displaying consents. This callback is provided by app
-// developer to know when and which consent notifications to display to user.
-/// </summary>
+/*!
+* @brief Interface for displaying consents. This callback is provided by the app
+*        developer to know when and which consent notifications to display to user.
+*/
 class IConsentCallback {
 public:
 
-  /// <summary>
-  /// Apps should implement this method and return consents
-  /// </summary>
-  /// <param name="consents">List of Consents</param>
-  /// <returns>Access token</returns>
+/*!
+* @brief You, the app developer, should implement this method and return consents.
+* @param consents List of Consents
+* @return Access token
+*/
   virtual ConsentList Consents(ConsentList& consents) = 0;
 };
 } // namespace modernapi
