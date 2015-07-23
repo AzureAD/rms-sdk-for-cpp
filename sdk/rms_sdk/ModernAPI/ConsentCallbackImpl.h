@@ -16,12 +16,26 @@
 
 namespace rmscore {
 namespace modernapi {
+/*
+* @brief Class providing the implementation of the user consent callback.
+*/
 class ConsentCallbackImpl : public IConsentCallbackImpl {
 public:
-
+  /*
+   * @brief Implementation for user consent callback.
+   * @param callback Pointer to the consent callback method.
+   * @param userId UserId of consenting user.
+   * @param isPublishing Flag for publishing state.
+   */
   ConsentCallbackImpl(IConsentCallback & callback,
                       const std::string& userId,
                       bool               isPublishing);
+  /*!
+  * @brief User consent.
+  * @param email Email of the consenting user.
+  * @param domain Domain information.
+  * @param urls List of URLs that need to provide consent.
+  */
   virtual void Consents(const std::string             & email,
                         const std::string             & domain,
                         const std::vector<std::string>& urls) override;
