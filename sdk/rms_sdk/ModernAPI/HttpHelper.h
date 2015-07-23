@@ -16,11 +16,24 @@
 
 namespace rmscore {
 namespace modernapi {
+/*!
+ * @brief Helper class provides methods for ...
+ */
 class DLL_PUBLIC_RMS HttpHelper {
 public:
 
-  // to use trusted CA put certificates
+ /*!
+  * @brief To use trusted CA put certificates - Base64
+  * @param certificate
+  * @return True or False
+  */
   static bool addCACertificateBase64(const std::vector<uint8_t>& certificate);
+
+  /*!
+  * @brief To use trusted CA put certificates - DER
+  * @param certificate
+  * @return True or False
+  */
   static bool addCACertificateDer(const std::vector<uint8_t>& certificate);
 };
 } // namespace modernapi
