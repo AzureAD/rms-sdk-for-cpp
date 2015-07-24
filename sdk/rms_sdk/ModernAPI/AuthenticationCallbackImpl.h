@@ -22,9 +22,11 @@ class DLL_PUBLIC_RMS AuthenticationCallbackImpl : public IAuthenticationCallback
 public:
 
   /**
-   * @brief You, the app developer, will implementate this method for the authentication callback.
-   * @param callback Pointer to the authentication callback method.
-   * @param userId User ID of the authentication requestor.
+   * @brief This class wraps an IAuthenticationCallback implementation
+   *        to provide OAuth coordinates.
+   * @param callback Authentication callback implementation.
+   * @param userId User ID of the authentication requestor, to be passed to
+   *        the IAuthenticationCallback.
    */
   AuthenticationCallbackImpl(IAuthenticationCallback& callback,
                              const std::string      & userId)
@@ -33,15 +35,19 @@ public:
   {}
 
   /**
-  @brief Gets the state of the need for authentication challenge.
+  @brief False if OAuth coordinates (authority, resource, scope) are already
+         known, True if these should be retrieved from challenge header in
+         401 Unauthorized response from API.
   */
   virtual bool NeedsChallenge() const override {
     return true;
   }
 
   /**
-  @brief Gets a OAuth access token through the authentication challenge method.
-  * @param challenge Pointer to the authentication challenge method.
+  * @brief Prepares AuthenticationParameters from AuthenticationChallenge
+  *        response, and passes these parameters to IAuthenticationCallback.
+  * @param challenge Package of coordinates received from API 401 Unauthorized
+  *        response.
   */
   virtual std::string GetAccessToken(const AuthenticationChallenge& challenge)
   override

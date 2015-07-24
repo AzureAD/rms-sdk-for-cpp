@@ -7,12 +7,12 @@
  */
 
 #include <sstream>
-#include "CryptedStreamTests.h"
+#include "EncryptedStreamTests.h"
 #include "../CryptoAPI/CryptoAPI.h"
 #include "../CryptoAPI/RMSCryptoExceptions.h"
 
 using namespace std;
-void CryptedStreamTests::CryptedStreamToMemory_data() {
+void EncryptedStreamTests::EncryptedStreamToMemory_data() {
   QTest::addColumn<QString>("aesKey");
   QTest::addColumn<QString>("plainData");
   QTest::addColumn<QString>("iv");
@@ -25,7 +25,7 @@ void CryptedStreamTests::CryptedStreamToMemory_data() {
     static_cast<qint8>(rmscrypto::api::CIPHER_MODE_CBC4K);
 }
 
-void CryptedStreamTests::CryptedStreamToMemory() {
+void EncryptedStreamTests::EncryptedStreamToMemory() {
   shared_ptr<stringstream> backingBuffer = make_shared<stringstream>(
     ios::in | ios::out | ios::binary);
   vector<uint8_t> key(16);
