@@ -184,7 +184,7 @@ public:
     ResponseCacheFlags           cacheMask
       = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
                                         RESPONSE_CACHE_ONDISK |
-                                        RESPONSE_CACHE_CRYPTED));
+                                        RESPONSE_CACHE_ENCRYPTED));
 
   /*!
   @brief Wrap a new stream as a protected stream.

@@ -17,9 +17,6 @@
 
 namespace rmscore { namespace consent {
 
-/// <summary>
-/// Consent for accessing end user license url
-/// </summary>
 class Consent : public modernapi::IConsent
 {
 public:
@@ -28,10 +25,10 @@ public:
         return this->result_;
     }
 
-//    virtual void ConsentResult(const modernapi::ConsentResult& value) override
-//    {
-//        this->result_ = value;
-//    }
+    virtual void ConsentResult(const modernapi::ConsentResult& value) override
+    {
+        this->result_ = value;
+    }
 
     virtual modernapi::ConsentType Type() const override
     {
@@ -64,4 +61,3 @@ protected:
 } // namespace consent
 } // namespace rmscore
 #endif // CONSENT
-
