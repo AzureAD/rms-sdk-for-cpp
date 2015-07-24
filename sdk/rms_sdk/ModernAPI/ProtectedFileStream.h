@@ -48,35 +48,114 @@ class DLL_PUBLIC_RMS ProtectedFileStream : public rmscrypto::api::IStream {
 public:
 
   virtual ~ProtectedFileStream();
+
+  /*!
+  @brief Returns an asynchronous byte reader object.
+  @param pbBuffer The buffer into which the asynchronous read operation places the bytes that are read. 
+  @param cbBuffer The number of bytes to read that is less than or equal to the capacity of the buffer.
+  @param cbOffset BRP072315 - ???
+  @param launchType BRP072315 - ???
+  @return Count of bytes read.
+  */
   virtual std::shared_future<int64_t> ReadAsync(uint8_t    *pbBuffer,
                                                 int64_t     cbBuffer,
                                                 int64_t     cbOffset,
                                                 std::launch launchType)
   override;
 
+  /*!
+  @brief Writes data asynchronously to the protected file.
+  @param pbBuffer The buffer into which the asynchronous write operation writes. 
+  @param cbBuffer BRP072315 - ???
+  @param cbOffset BRP072315 - ???
+  @param launchType BRP072315 - ???
+  @return Count of bytes read.
+  */
   virtual std::shared_future<int64_t> WriteAsync(const uint8_t *cpbBuffer,
                                                 int64_t        cbBuffer,
                                                 int64_t        cbOffset,
                                                 std::launch    launchType)
   override;
 
+  /*!
+  @brief Flushes the data asynchronously to the protected file.
+  @param launchType BRP072315 - ???
+  @return The stream flush operation. 
+          Null is returned if an exception occurs. 
+  */
   virtual std::future<bool> FlushAsync(std::launch launchType) override;
 
+  /*!
+  @brief Returns an byte reader object. 
+  @param pbBuffer The buffer into which the read operation places the bytes that are read. 
+  @param cbBuffer The number of bytes to read that is less than or equal to the capacity of the buffer.
+  @return Count of bytes read.
+  */
   virtual int64_t Read(uint8_t *pbBuffer,
                        int64_t  cbBuffer)
   override;
 
+  /*!
+  @brief Writes data to the protected file.
+  @param pbBuffer The buffer into which the write operation writes. 
+  @param cbBuffer BRP072315 - ???
+  @return Count of bytes written.
+  */
   virtual int64_t Write(const uint8_t *cpbBuffer,
                         int64_t        cbBuffer)
   override;
 
+  /*!
+  @brief Flushes the data to the protected file.
+  @return For the stream flush operation; null is returned if an exception occurs. 
+          Upon completion, IAsyncOperation.GetResults returns True if the file has 
+		  been successfully flushed; otherwise, false. 
+  */
   virtual bool Flush() override;
+
+  /*!
+  @brief Creates a new instance of ProtectedFileStream over the protected file.
+  @return A ProtectedFileStream object that represents the new stream. 
+          The initial, internal position of the stream is 0. 
+		  The internal position and lifetime of the new stream are independent 
+		  from the position and lifetime of the cloned stream. 
+  */
   virtual rmscrypto::api::SharedStream Clone() override;
+
+  /*!
+  @brief Sets the current position to the specified number of bytes from the start of the file.
+  @param u64Position Number of bytes from the start of the file
+  */
   virtual void Seek(uint64_t u64Position) override;
+
+  /*!
+  @brief Gets a value that indicates whether the file can be read from.
+  @return True if the file can be read from; otherwise false.
+  */
   virtual bool CanRead() const override;
+
+  /*!
+  @brief Gets a value that indicates whether the file can be written to.
+  @return True if the file can be written to; otherwise false.
+  */
   virtual bool CanWrite() const override;
+
+  /*!
+  @brief Gets the current file position in bytes.
+  @return Current file position in bytes.
+  */
   virtual uint64_t Position() override;
+
+  /*!
+  @brief Gets the size of the protected data in bytes.
+  @return File stream.
+  */
   virtual uint64_t Size() override;
+
+  /*!
+  @brief Sets the size of the protected data in bytes.
+  @param u64Value Number of bytes of protected data.
+  */
   virtual void Size(uint64_t u64Value) override;
 
   /*!
@@ -105,7 +184,7 @@ public:
     ResponseCacheFlags           cacheMask
       = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
                                         RESPONSE_CACHE_ONDISK |
-                                        RESPONSE_CACHE_CRYPTED));
+                                        RESPONSE_CACHE_ENCRYPTED));
 
   /*!
   @brief Wrap a new stream as a protected stream.

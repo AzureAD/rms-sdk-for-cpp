@@ -17,29 +17,29 @@ namespace modernapi {
 typedef std::vector<std::string> UserList;
 typedef std::vector<std::string> RightList;
 
-/// <summary>
-/// User rights
-/// </summary>
+/*!
+ * @brief Supplies properties for users and their granted rights.
+ */
 class DLL_PUBLIC_RMS UserRights {
 public:
 
-  /// <summary>
-  /// .ctor
-  /// </summary>
+/*!
+ * @brief Creates a UserRights object.
+ */
   UserRights(const UserList& users, const RightList& rights) : users(users),
     rights(rights) {}
 
-  /// <summary>
-  /// The users to whom the rights are granted
-  /// </summary>
+/*!
+ * @brief The users to whom the rights are granted.
+ */
   const UserList& Users() const
   {
     return this->users;
   }
 
-  /// <summary>
-  /// The rights that are granted
-  /// </summary>
+/*!
+ * @brief The granted rights.
+ */
   const RightList& Rights() const
   {
     return this->rights;
