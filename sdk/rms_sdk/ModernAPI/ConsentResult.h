@@ -14,9 +14,14 @@
 
 namespace rmscore {
 namespace modernapi {
+/*
+* @brief Management of user consent result.
+*/
 class ConsentResult {
 public:
-
+	/*
+	* @brief Creates and initializes an instance of a ConsentResult object.
+	*/
   ConsentResult(bool               accepted = false,
                 bool               showAgain = true,
                 const std::string& userId = "undef")
@@ -25,16 +30,25 @@ public:
     , userId(userId)
   {}
 
+  /*
+  * @brief Gets the Accepted flag indicating the user has consented or not. 
+  */
   bool Accepted() const
   {
     return this->accepted;
   }
 
+  /*
+  * @brief Gets the ShowAgain flag indicating whether the user consent prompt should be shown again or not.
+  */
   bool ShowAgain() const
   {
     return this->showAgain;
   }
 
+  /*
+  * @brief Gets the email ID of the user giving consent.
+  */
   const std::string& UserId() const
   {
     return this->userId;

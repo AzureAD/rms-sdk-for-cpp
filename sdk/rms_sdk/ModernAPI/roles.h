@@ -14,39 +14,39 @@
 
 namespace rmscore {
 namespace modernapi {
-/// <summary>
-/// This class provides implementation for obtaining roles for protecting documents
-/// </summary>
+/*!
+ * @brief Provides implementation for obtaining roles for protecting documents
+ */
 class DLL_PUBLIC_RMS Roles {
 public:
 
-  /// <summary>
-  /// User will only be able to view the document. They cannot edit, copy, or print it.
-  /// </summary>
+  /*!
+   * @brief User will only be able to view the document.
+   */
   static const std::string Viewer()
   {
     return "VIEWER";
   }
 
-  /// <summary>
-  /// User will be able to view and edit the document. They cannot copy or print it.
-  /// </summary>
+  /*!
+   * @brief User will be able to view and edit the document.
+   */
   static const std::string Reviewer()
   {
     return "REVIEWER";
   }
 
-  /// <summary>
-  /// User will be able to view, edit, copy, and print the document.
-  /// </summary>
+  /*!
+   * @brief User will be able to view, edit, copy, and print the document.
+   */
   static const std::string Author()
   {
     return "AUTHOR";
   }
 
-  /// <summary>
-  /// User will have all permissions.
-  /// </summary>
+  /*!
+   * @brief User will have all permissions; view, edit, copy and print.
+   */
   static const std::string CoOwner()
   {
     return "COOWNER";

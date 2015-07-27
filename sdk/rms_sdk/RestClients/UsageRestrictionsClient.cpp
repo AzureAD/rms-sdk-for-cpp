@@ -38,8 +38,8 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
   std::shared_ptr<UsageRestrictionsResponse> response =
     make_shared<UsageRestrictionsResponse>();
 
-  bool cryptData = (cacheMask& modernapi::RESPONSE_CACHE_CRYPTED) ==
-                   modernapi::RESPONSE_CACHE_CRYPTED;
+  bool cryptData = (cacheMask& modernapi::RESPONSE_CACHE_ENCRYPTED) ==
+                   modernapi::RESPONSE_CACHE_ENCRYPTED;
   bool useCache = (cacheMask& modernapi::RESPONSE_CACHE_ONDISK)  ==
                   modernapi::RESPONSE_CACHE_ONDISK;
 

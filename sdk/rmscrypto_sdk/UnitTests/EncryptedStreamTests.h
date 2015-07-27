@@ -6,19 +6,19 @@
  * ======================================================================
 */
 
-#ifndef CRYPTEDSTREAMTESTS_H
-#define CRYPTEDSTREAMTESTS_H
+#ifndef ENCRYPTEDSTREAMTESTS_H
+#define ENCRYPTEDSTREAMTESTS_H
 #include <QTest>
 
 
-class CryptedStreamTests : public QObject
+class EncryptedStreamTests : public QObject
 {
     Q_OBJECT
 
 private Q_SLOTS:
 
-  void CryptedStreamToMemory_data();
-  void CryptedStreamToMemory();
+  void EncryptedStreamToMemory_data();
+  void EncryptedStreamToMemory();
 };
 
-#endif // CRYPTEDSTREAMTESTS_H
+#endif // ENCRYPTEDSTREAMTESTS_H

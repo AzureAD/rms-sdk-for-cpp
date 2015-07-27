@@ -12,12 +12,19 @@
 
 namespace rmscore {
 namespace modernapi {
+/*!
+* @brief Enum for types of consent.
+*/
 enum class ConsentType : char
 {
-  // consent type for document tracking
+ /*!
+  * @brief consent type for document tracking
+  */
   DocumentTrackingConsent = 0,
 
-  // consent type for contacting a service url
+  /*!
+  * @brief consent type for contacting a service url
+  */
   ServiceUrlConsent = 1
 };
 } // namespace modernapi
