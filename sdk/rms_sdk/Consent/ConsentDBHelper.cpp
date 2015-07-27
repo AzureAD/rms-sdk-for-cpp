@@ -173,12 +173,12 @@ vector<string>ConsentDBHelper::GetPossibleDomainNames(const string& domain)
 {
   vector<string> splitList;
   vector<string> possibleDomains;
-  char *next_token = NULL;
   char *fullString = new char[domain.size() + 1];
 #ifdef __GNUC__
   strcpy(fullString, domain.c_str());
-  char *token = strtok(fullString, ".", &next_token);
+  char *token = strtok(fullString, ".");
 #else // ifdef __GNUC__
+  char *next_token = NULL;
   strcpy_s(fullString, domain.size() + 1, domain.c_str());
   char *token = strtok_s(fullString, ".", &next_token);
 #endif // ifdef __GNUC__
@@ -188,7 +188,7 @@ vector<string>ConsentDBHelper::GetPossibleDomainNames(const string& domain)
     splitList.push_back(string(token));
 
 #ifdef __GNUC__
-    token = strtok(NULL, ".", &next_token);
+    token = strtok(NULL, ".");
 #else // ifdef __GNUC__
     token = strtok_s(NULL, ".", &next_token);
 #endif // ifdef __GNUC__
