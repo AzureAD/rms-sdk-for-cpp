@@ -18,7 +18,7 @@ SOURCES += IConsentManager.cpp \
 
 HEADERS += IConsentManager.h \
     DocumentTrackingConsentManager.h \
-    SeriveUrlConsentManager.h \
+    ServiceUrlConsentManager.h \
     ServiceUrlConsent.h \
     DocumentTrackingConsent.h \
     Consent.h \

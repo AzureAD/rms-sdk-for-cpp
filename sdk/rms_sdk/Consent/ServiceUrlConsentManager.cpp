@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include <vector>
-#include "SeriveUrlConsentManager.h"
+#include "ServiceUrlConsentManager.h"
 #include "ConsentDBHelper.h"
 #include "../Common/CommonTypes.h"
 #include "../ModernAPI/IConsent.h"
