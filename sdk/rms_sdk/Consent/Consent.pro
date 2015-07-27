@@ -13,11 +13,13 @@ SOURCES += IConsentManager.cpp \
     DocumentTrackingConsentManager.cpp \
     ServiceUrlConsentManager.cpp \
     ServiceUrlConsent.cpp \
-    DocumentTrackingConsent.cpp
+    DocumentTrackingConsent.cpp \
+    ConsentDBHelper.cpp
 
 HEADERS += IConsentManager.h \
     DocumentTrackingConsentManager.h \
-    SeriveUrlConsentManager.h \
+    ServiceUrlConsentManager.h \
     ServiceUrlConsent.h \
     DocumentTrackingConsent.h \
-    Consent.h
+    Consent.h \
+    ConsentDBHelper.h

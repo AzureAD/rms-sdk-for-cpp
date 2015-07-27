@@ -14,7 +14,7 @@
 #include "../Consent/DocumentTrackingConsent.h"
 #include "../Consent/ServiceUrlConsent.h"
 #include "../Consent/DocumentTrackingConsentManager.h"
-#include "../Consent/SeriveUrlConsentManager.h"
+#include "../Consent/ServiceUrlConsentManager.h"
 #include "../ModernAPI/RMSExceptions.h"
 
 using namespace std;

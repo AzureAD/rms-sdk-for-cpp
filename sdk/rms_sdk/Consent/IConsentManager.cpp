@@ -9,7 +9,7 @@
 #include "../ModernAPI/IConsent.h"
 #include "../ModernAPI/ConsentType.h"
 #include "IConsentManager.h"
-#include "SeriveUrlConsentManager.h"
+#include "ServiceUrlConsentManager.h"
 #include "DocumentTrackingConsentManager.h"
 
 namespace rmscore { namespace consent {

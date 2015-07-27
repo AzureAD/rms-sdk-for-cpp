@@ -75,12 +75,37 @@ void AESCryptoKey::TransformBlock(bool           encrypt,
 
   switch (m_algorithm) {
   case api::CRYPTO_ALGORITHM_AES_ECB:
-    cipher = EVP_aes_128_ecb();
+    switch(m_key.size()) {
+    case 16:
+       cipher = EVP_aes_128_ecb();
+       break;
+    case 24:
+       cipher = EVP_aes_192_ecb();
+       break;
+    case 32:
+       cipher = EVP_aes_256_ecb();
+       break;
+    default:
+        throw exceptions::RMSCryptoInvalidArgumentException("Invalid key length");
+    }
     break;
 
   case api::CRYPTO_ALGORITHM_AES_CBC:
   case api::CRYPTO_ALGORITHM_AES_CBC_PKCS7:
-    cipher = EVP_aes_128_cbc();
+      switch(m_key.size()) {
+      case 16:
+         cipher = EVP_aes_128_cbc();
+         break;
+      case 24:
+         cipher = EVP_aes_192_cbc();
+         break;
+      case 32:
+         cipher = EVP_aes_256_cbc();
+         break;
+      default:
+          throw exceptions::RMSCryptoInvalidArgumentException("Invalid key length");
+      }
+      break;
     break;
 
   default:
