@@ -24,7 +24,7 @@ public:
 
 private:
     std::shared_ptr<modernapi::IConsent> m_consent;
-//    bool m_approved;
+    bool m_approved;
 };
 
 } // namespace consent

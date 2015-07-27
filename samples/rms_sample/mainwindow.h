@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -29,13 +29,14 @@ class AuthCallback : public IAuthenticationCallback {
 private:
 
   std::shared_ptr<rmsauth::FileCache> FileCachePtr;
-  QString clientId_;
-  QString redirectUrl_;
+  std::string clientId_;
+  std::string redirectUrl_;
 
 public:
 
-  AuthCallback(const QString& clientId, const QString& redirectUrl);
-  virtual string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
+  AuthCallback(const std::string& clientId,
+               const std::string& redirectUrl);
+  virtual std::string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
 };
 
 class ConsentCallback : public IConsentCallback {
@@ -47,7 +48,8 @@ public:
 class TemplatesCallback : public ITemplatesCallback {
 public:
 
-  virtual size_t SelectTemplate(std::vector<TemplateDescriptor>& templates) override;
+  virtual size_t SelectTemplate(std::vector<TemplateDescriptor>& templates)
+  override;
 };
 
 
@@ -67,19 +69,40 @@ private slots:
 
   void on_certificatesPathButton_clicked();
   void on_encryptPFILETemplatesButton_clicked();
-
   void on_fromPFILEButton_clicked();
-
   void on_encryptPFILERightsButton_clicked();
 
 private:
 
-  Ui::MainWindow *ui;
-  ConsentCallback consent;
+  Ui::MainWindow   *ui;
+  ConsentCallback   consent;
   TemplatesCallback templates;
 
-  void addCertificates();
-  std::vector<UserRights> openRightsDlg();
+  void                   addCertificates();
+  std::vector<UserRights>openRightsDlg();
+
+
+  void                   ConvertToPFILEUsingTemplates(const string& fileIn,
+                                                      const string& clientId,
+                                                      const string& redirectUrl,
+                                                      const string& clientEmail);
+
+  void ConvertToPFILEUsingRights(const string            & fileIn,
+                                 const vector<UserRights>& userRights,
+                                 const string            & clientId,
+                                 const string            & redirectUrl,
+                                 const string            & clientEmail);
+
+  void ConvertFromPFILE(const string& fileIn,
+                        const string& clientId,
+                        const string& redirectUrl,
+                        const string& clientEmail);
+
+  void   AddLog(const QString& tag,
+                const QString& message);
+  void   AddLog(const string& tag,
+                const char   *message);
+  string SelectFile(const string& msg);
 };
 
 #endif // MAINWINDOW_H
