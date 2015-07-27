@@ -33,7 +33,6 @@ bool ConsentDBHelper::Initialize(const string& path)
   // reopen
   m_serviceUrlFile.open(path + m_serviceUrlDBFileName,
                         fstream::in | fstream::out);
-  qDebug() << "Error: " << strerror(errno);
 
   // create if no exists
   m_docTrackingFile.open(path + m_documentTrackingDBFileName, fstream::out);
@@ -41,7 +40,6 @@ bool ConsentDBHelper::Initialize(const string& path)
   // reopen
   m_docTrackingFile.open(path + m_documentTrackingDBFileName,
                          fstream::in | fstream::out);
-  qDebug() << "Error: " << strerror(errno);
 
   if (!m_serviceUrlFile.is_open() || !m_docTrackingFile.is_open()) {
     return false;
@@ -177,13 +175,23 @@ vector<string>ConsentDBHelper::GetPossibleDomainNames(const string& domain)
   vector<string> possibleDomains;
   char *next_token = NULL;
   char *fullString = new char[domain.size() + 1];
+#ifdef __GNUC__
+  strcpy(fullString, domain.c_str());
+  char *token = strtok(fullString, ".", &next_token);
+#else // ifdef __GNUC__
   strcpy_s(fullString, domain.size() + 1, domain.c_str());
   char *token = strtok_s(fullString, ".", &next_token);
+#endif // ifdef __GNUC__
 
   while (token != NULL)
   {
     splitList.push_back(string(token));
+
+#ifdef __GNUC__
+    token = strtok(NULL, ".", &next_token);
+#else // ifdef __GNUC__
     token = strtok_s(NULL, ".", &next_token);
+#endif // ifdef __GNUC__
   }
 
   if (fullString != NULL)
