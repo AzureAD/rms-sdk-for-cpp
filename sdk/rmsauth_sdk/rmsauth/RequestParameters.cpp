@@ -38,9 +38,12 @@ void RequestParameters::addParam(const String & key, const String & value)
 String RequestParameters::toString() const
 {
     StringStream ss;
+    bool first = true;
     for(auto& pair : params_)
     {
-        ss << "&" << pair.first << "=" << pair.second;
+        if (!first) ss << "&";
+        ss << pair.first << "=" << pair.second;
+        first = false;
     }
     return ss.str();
 }

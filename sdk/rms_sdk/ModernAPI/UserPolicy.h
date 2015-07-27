@@ -146,7 +146,6 @@ public:
   const AppDataHashMap                              EncryptedAppData();
   const AppDataHashMap                              SignedAppData();
   std::chrono::time_point<std::chrono::system_clock>ContentValidUntil();
-  bool                                              AllowOfflineAccess();
 
   bool                                              DoesUseDeprecatedAlgorithms();
   bool                                              IsAuditedExtractAllowed();
