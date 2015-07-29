@@ -7,6 +7,8 @@ Straightforward steps for building libraries and samples on supported platforms.
 - [Ubuntu 14.04](#ubuntu-1404)
 - [OpenSUSE 13.2](#opensuse-132)
 - [CentOS 7](#centos-7)
+ 
+Note: When the libs are compiled you will have created four libs; librms.so, librmsauth.so, librmscrypto.so, and libwebAuthDialog.so. All four are necessary if you use our ADAL for OAuth authentication.
 
 Libs and samples have been successfully compiled on Windows and OSX as well, but these are not fully supported at this time.
 
