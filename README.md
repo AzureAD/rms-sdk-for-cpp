@@ -9,14 +9,15 @@ Alternatively, run the script in `./scripts/build_and_test.sh`.
 
 ## Documentation
 
-API reference docs can be created with Doxygen. Documentation of the source is ongoing.
-To generate docs:
+See the [API reference](http://azuread.github.io/rms-sdk-for-cpp/index.html), created with Doxygen, here. Or, you can create your own build of the API reference by following these steps:
 
 1. Install [Doxygen], for example with `sudo brew install doxygen` (OSX) or `sudo apt-get install doxygen` (Ubuntu).
 2. Run `doxygen` from the root of the repo.
 3. Open `./docs/html/index.html` in your browser.
 
 [Doxygen]: http://www.doxygen.org
+
+Note: Documentation of the API refernce is ongoing.
 
 ## Troubleshooting
 
