@@ -9,6 +9,8 @@ Alternatively, run the script in `./scripts/build_and_test.sh`.
 
 ## Documentation
 
+The complete [RMS SDK 4.1](https://msdn.microsoft.com/en-us/Library/dn758244%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396), for Linux as well as iOS/OS X, Android, Windows Phone and Windows R/T operating systems is available on MSDN.
+
 API reference docs can be created with Doxygen. Documentation of the source is ongoing.
 To generate docs:
 
