@@ -2,6 +2,8 @@
 
 Straightforward steps for building libraries and samples on supported platforms.
 
+For detailed guidance of the code samples, see [Linux code examples](https://msdn.microsoft.com/en-us/Library/mt283720(v=vs.85).aspx) on MSDN.
+
 ---
 ## Supported targets
 - [Ubuntu 14.04](#ubuntu-1404)
