@@ -119,6 +119,8 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
 {
   Logger::Hidden("+ProtectedFileStream::Create");
 
+  string ext = originalFileExtension.empty() ? ".pfile" : originalFileExtension;
+
   shared_ptr<PfileHeader> pHeader;
 
   if (policy.get() != nullptr)
@@ -130,12 +132,12 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
 
     // calculate content size
     uint32_t contentStartPosition =
-      static_cast<uint32_t>(originalFileExtension.size() +
+      static_cast<uint32_t>(ext.size() +
                             publishingLicense.size()
                             +
                             metadata.size() + 454);
     pHeader = make_shared<PfileHeader>(move(publishingLicense),
-                                       originalFileExtension,
+                                       ext,
                                        contentStartPosition,
                                        static_cast<uint64_t>(-1), // No known
                                                                   // originalFileSize

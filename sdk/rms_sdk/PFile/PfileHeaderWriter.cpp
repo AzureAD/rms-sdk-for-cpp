@@ -25,20 +25,14 @@ size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream      stream,
 {
   Logger::Hidden("PfileHeaderWriter::Write");
 
-  auto fe = header->GetFileExtension();
+  auto extension = header->GetFileExtension();
   Logger::Hidden("Writing pfile header. Major version: %d, minor version: %d," \
                  " file extension: %s, content start position: %d, original file size: %I64d",
                  header->GetMajorVersion(),
                  header->GetMinorVersion(),
-                 fe.c_str(),
+                 extension.c_str(),
                  header->GetContentStartPosition(),
                  header->GetOriginalFileSize());
-
-  auto extension = header->GetFileExtension();
-
-  if (extension.empty()) {
-    extension = ".pfile";
-  }
 
   uint32_t position = WritePreamble(stream);
 
@@ -134,9 +128,8 @@ void PfileHeaderWriter::WriteExtension(rmscrypto::api::SharedStream      writer,
   Logger::Hidden("PfileHeaderWriter::WriteExtension");
   auto extension = header->GetFileExtension();
 
-  if (extension.empty()) {
-    extension = ".pfile";
-  }
+  if (extension.empty()) return;
+
   writer->Write(reinterpret_cast<const uint8_t *>(extension.data()),
                 static_cast<int>(extension.length()));
 }
