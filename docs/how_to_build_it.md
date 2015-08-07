@@ -19,6 +19,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
   sudo apt-get install libqt5xmlpatterns5-dev
   sudo apt-get install libssl-dev
   sudo apt-get install libsecret-1-dev
+  sudo apt-get install freeglut3-dev
   ```
 
 2. Clone this repo:

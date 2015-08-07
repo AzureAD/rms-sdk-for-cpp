@@ -201,35 +201,41 @@ shared_future<int64_t>BlockBasedProtectedStream::WriteInternalAsync(
             "Invalid operation");
         }
 
-        // seek to write
-        self->SeekInternal(offset);
-
         // the number of uint8_ts to write
         uint64_t sizeRemaining = bSize;
 
-        while (sizeRemaining > 0)
-        {
-          self->m_pCachedBlock->UpdateBlock(self->m_u64Position);
+        try {
+            // seek to write
+            self->SeekInternal(offset);
 
-          uint64_t u64Written = self->m_pCachedBlock->WriteToBlock(
-            buffer,
-            self->m_u64Position,
-            sizeRemaining);
+            while (sizeRemaining > 0)
+            {
+              self->m_pCachedBlock->UpdateBlock(self->m_u64Position);
 
-          if (0 == u64Written)
-          {
-            // nothing to write
-            break;
-          }
+              uint64_t u64Written = self->m_pCachedBlock->WriteToBlock(
+                buffer,
+                self->m_u64Position,
+                sizeRemaining);
 
-          // advance the buffer pointer
-          buffer += u64Written;
+              if (0 == u64Written)
+              {
+                // nothing to write
+                break;
+              }
 
-          // advance the current position
-          self->m_u64Position += u64Written;
+              // advance the buffer pointer
+              buffer += u64Written;
 
-          // decrease the number to be written
-          sizeRemaining -= u64Written;
+              // advance the current position
+              self->m_u64Position += u64Written;
+
+              // decrease the number to be written
+              sizeRemaining -= u64Written;
+            }
+        }
+        catch(exceptions::RMSCryptoException) {
+            if (fNeedLock) self->m_locker->unlock();
+            throw;
         }
 
         if (fNeedLock) self->m_locker->unlock();
