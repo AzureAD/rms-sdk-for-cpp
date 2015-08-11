@@ -102,9 +102,8 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
     referrer = policyRequest->Referrer;
   }
 
-  ProtectedFileStream *protectedFileStream = CreateProtectedFileStream(policy,
-                                                                       stream,
-                                                                       header);
+  ProtectedFileStream *protectedFileStream = policy ?
+              CreateProtectedFileStream(policy,stream,header) : nullptr;
 
   auto result = make_shared<GetProtectedFileStreamResult>(
     move(status), referrer,
