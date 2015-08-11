@@ -174,6 +174,15 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
 
   ReadAtOffset(publishingLicense, stream, plOffset, plLength);
 
+  // test if publishingLicense is UTF-16
+  if ((publishingLicense.size() > 10) && memcmp(publishingLicense.data(),L"<?xml", 10) == 0) {
+      auto strUnicode = QString::fromWCharArray((const wchar_t*)publishingLicense.data(),
+                                           static_cast<int>(publishingLicense.size()));
+      auto str = strUnicode.toUtf8().toStdString();
+
+      publishingLicense = ByteArray(str.begin(), str.end());
+
+  } else
   // remove UTF-8 BOM
   if ((publishingLicense.size() > 3) &&
       (memcmp(publishingLicense.data(), "\xEF\xBB\xBF", 3) == 0)) {
