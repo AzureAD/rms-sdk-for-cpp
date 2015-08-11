@@ -178,7 +178,7 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   if ((publishingLicense.size() > 10) && memcmp(publishingLicense.data(),L"<?xml", 10) == 0) {
       auto strUnicode = QString::fromWCharArray((const wchar_t*)publishingLicense.data(),
                                            static_cast<int>(publishingLicense.size()));
-      auto str = strUnicode.toUtf8().toStdString();
+      auto str = strUnicode.toUtf8();
 
       publishingLicense = ByteArray(str.begin(), str.end());
 
