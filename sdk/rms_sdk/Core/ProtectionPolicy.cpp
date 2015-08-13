@@ -130,6 +130,7 @@ shared_ptr<ProtectionPolicy> ProtectionPolicy::Acquire(
                    (response->bAllowOfflineAccess ? "true" : "false"));
     Logger::Hidden("licenseValidUntil: %s", response->licenseValidUntil.c_str());
     Logger::Hidden("contentId: %s",         response->contentId.c_str());
+    Logger::Hidden("fromTemplate: %s",      response->bFromTemplate ? "TRUE" : "FALSE");
 
     // create and initialize a new protection policy object from the received
     // response
@@ -281,7 +282,7 @@ shared_ptr<ProtectionPolicy> ProtectionPolicy::Create(
 
 ProtectionPolicy::ProtectionPolicy() :
   m_accessStatus(ACCESS_STATUS_ACCESS_DENIED),
-  m_bAllowOfflineAccess(false)
+  m_bAllowOfflineAccess(false), m_bFromTemplate(false)
 {
   m_requester           = "";
   m_ftValidityTimeFrom  = std::chrono::system_clock::from_time_t(0);
@@ -304,6 +305,7 @@ void ProtectionPolicy::Initialize(
   m_issuedTo            = response->issuedTo;
   m_contentId           = response->contentId;
   m_bAllowOfflineAccess = response->bAllowOfflineAccess;
+  m_bFromTemplate       = response->bFromTemplate;
 
   InitializeValidityTime(response->ftContentValidUntil);
   InitializeIntervalTime(response->ftLicenseValidUntil);

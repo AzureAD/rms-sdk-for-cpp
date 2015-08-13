@@ -62,6 +62,7 @@ struct UsageRestrictionsResponse {
   std::string                                       contentValidUntil;
   std::string                                       licenseValidUntil;
   bool                                              bAllowOfflineAccess;
+  bool                                              bFromTemplate;
   std::string                                       contentId;
   CustomPolicyResponse                              customPolicy;
   modernapi::AppDataHashMap                         signedApplicationData;
