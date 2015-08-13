@@ -356,6 +356,8 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
   response.contentValidUntil = pJsonResponse->GetNamedString("ContentValidUntil");
   response.licenseValidUntil = pJsonResponse->GetNamedString("LicenseValidUntil");
 
+  response.bFromTemplate = pJsonResponse->GetNamedBool("FromTemplate");
+
   // parse expiry times
   if (!response.contentValidUntil.empty())
   {
