@@ -17,11 +17,13 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
     LanguageSettings.cpp \
-    LocalSettingsQt.cpp
+    LocalSettingsQt.cpp \
+    IRMSEnvironmentImpl.cpp
 
 HEADERS += \
     ILocalSettings.h \
     ILanguageSettings.h \
     LanguageSettings.h \
-    LocalSettingsQt.h
+    LocalSettingsQt.h \
+    IRMSEnvironmentImpl.h
 

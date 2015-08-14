@@ -12,6 +12,7 @@
 #include <string>
 #include <cstdio>
 #include <QProcessEnvironment>
+#include "../../ModernAPI/IRMSEnvironment.h"
 
 namespace rmscore {
 namespace platform {
@@ -26,6 +27,10 @@ public:
                      const std::string& record,
                      Arguments ...      arguments) {
     auto cArgs =  sizeof ... (Arguments);
+    auto env = modernapi::IRMSEnvironment::Environment();
+    if (!env || env->LogOption() == modernapi::IRMSEnvironment::LoggerOption::Never) {
+        return;
+    }
 
     if (cArgs > 0) {
       std::string buff(max_length, '-');

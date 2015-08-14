@@ -38,7 +38,8 @@ SOURCES += \
     ProtectedFileStream.cpp \
     CustomProtectedStream.cpp \
     ext/QTStreamImpl.cpp \
-    HttpHelper.cpp
+    HttpHelper.cpp \
+    IRMSEnvironment.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -65,7 +66,8 @@ HEADERS += \
     HttpHelper.h \
     ModernAPIExport.h \
     CacheControl.h \
-    RMSExceptions.h
+    RMSExceptions.h \
+    IRMSEnvironment.h
 
 
 unix {
