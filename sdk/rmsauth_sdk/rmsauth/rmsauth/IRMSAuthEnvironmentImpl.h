@@ -6,36 +6,32 @@
  * ======================================================================
  */
 
-#ifndef _RMS_LIB_IRMSENVIRONMENT_IMPL_H
-#define _RMS_LIB_IRMSENVIRONMENT_IMPL_H
+#ifndef _RMSAUTH_LIB_IRMSENVIRONMENT_IMPL_H
+#define _RMSAUTH_LIB_IRMSENVIRONMENT_IMPL_H
 
 #include <mutex>
 #include <QAtomicInteger>
 
-#include "../../ModernAPI/IRMSEnvironment.h"
+#include "IRMSAuthEnvironment.h"
 
-namespace rmscore {
-namespace platform {
-namespace settings {
-class IRMSEnvironmentImpl : public modernapi::IRMSEnvironment {
+namespace rmsauth {
+class IRMSAuthEnvironmentImpl : public IRMSAuthEnvironment {
 public:
 
-  IRMSEnvironmentImpl();
-  virtual ~IRMSEnvironmentImpl() {}
+  IRMSAuthEnvironmentImpl();
+  virtual ~IRMSAuthEnvironmentImpl() {}
 
   virtual void                                      LogOption(LoggerOption opt);
   virtual LoggerOption                              LogOption();
 
-  static std::shared_ptr<modernapi::IRMSEnvironment>Environment();
+  static std::shared_ptr<IRMSAuthEnvironment>Environment();
 
 private:
 
   QAtomicInteger<int> _optLog;
 };
 
-extern std::shared_ptr<IRMSEnvironmentImpl> _instance;
-} // namespace settings
-} // namespace platform
-} // namespace rmscore
+extern std::shared_ptr<IRMSAuthEnvironmentImpl> _instance;
+} // namespace rmsauth
 
-#endif // _RMS_LIB_IRMSENVIRONMENT_IMPL_H
+#endif // _RMSAUTH_LIB_IRMSENVIRONMENT_IMPL_H

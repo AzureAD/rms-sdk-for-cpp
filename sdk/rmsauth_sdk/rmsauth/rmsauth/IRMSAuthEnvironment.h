@@ -6,27 +6,24 @@
  * ======================================================================
  */
 
-#ifndef _RMS_LIB_IRMSENVIRONMENT_H
-#define _RMS_LIB_IRMSENVIRONMENT_H
+#ifndef _RMSAUTH_LIB_IRMSENVIRONMENT_H
+#define _RMSAUTH_LIB_IRMSENVIRONMENT_H
 
 #include <memory>
+#include "rmsauthExport.h"
 
-#include "ModernAPIExport.h"
-
-namespace rmscore {
-namespace modernapi {
-class IRMSEnvironment {
+namespace rmsauth {
+class IRMSAuthEnvironment {
 public:
 
-  virtual ~IRMSEnvironment() {}
+  virtual ~IRMSAuthEnvironment() {}
 
   enum class LoggerOption : int { Always, Never };
   virtual void                                 LogOption(LoggerOption opt) = 0;
   virtual LoggerOption                         LogOption()                 = 0;
 };
 
-DLL_PUBLIC_RMS std::shared_ptr<IRMSEnvironment>RMSEnvironment();
-} // namespace modernapi
-} // namespace rmscore
+RMSAUTH_EXPORT std::shared_ptr<IRMSAuthEnvironment>RMSAuthEnvironment();
+} // namespace rmsauth
 
-#endif // _RMS_LIB_IRMSENVIRONMENT_H
+#endif // _RMSAUTH_LIB_IRMSENVIRONMENT_H

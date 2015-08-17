@@ -10,13 +10,15 @@
 #include <QApplication>
 #include <QFile>
 #include <IRMSEnvironment.h>
+#include <rmsauth/IRMSAuthEnvironment.h>
 
-using namespace rmscore::modernapi;
 int main(int argc, char *argv[])
 {
   // set RMS Environment
-  auto env = IRMSEnvironment::Environment();
-  env->LogOption(IRMSEnvironment::LoggerOption::Never);
+  auto envRMS = rmscore::modernapi::RMSEnvironment();
+  auto envAuth = rmsauth::RMSAuthEnvironment();
+  envRMS->LogOption(rmscore::modernapi::IRMSEnvironment::LoggerOption::Never);
+  envAuth->LogOption(rmsauth::IRMSAuthEnvironment::LoggerOption::Never);
 
 
   QApplication a(argc, argv);

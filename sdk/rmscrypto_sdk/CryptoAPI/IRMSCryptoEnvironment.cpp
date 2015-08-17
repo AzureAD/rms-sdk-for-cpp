@@ -6,14 +6,14 @@
  * ======================================================================
  */
 
-#include "IRMSEnvironment.h"
-#include "../Platform/Settings/IRMSEnvironmentImpl.h"
+#include "IRMSCryptoEnvironment.h"
+#include "../Platform/Settings/IRMSCryptoEnvironmentImpl.h"
 
 using namespace std;
-namespace rmscore {
-namespace modernapi {
-shared_ptr<IRMSEnvironment>RMSEnvironment() {
-  return platform::settings::IRMSEnvironmentImpl::Environment();
+namespace rmscrypto {
+namespace api {
+shared_ptr<IRMSCryptoEnvironment>RMSCryptoEnvironment() {
+  return platform::settings::IRMSCryptoEnvironmentImpl::Environment();
 }
-} // namespace modernapi
-} // namespace rmscore
+} // namespace api
+} // namespace rmscrypto

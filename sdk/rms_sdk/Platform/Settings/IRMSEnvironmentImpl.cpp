@@ -6,6 +6,7 @@
  * ======================================================================
  */
 
+#include <IRMSCryptoEnvironment.h>
 #include "IRMSEnvironmentImpl.h"
 
 using namespace std;
@@ -20,10 +21,30 @@ IRMSEnvironmentImpl::IRMSEnvironmentImpl()
 
 void IRMSEnvironmentImpl::LogOption(LoggerOption opt) {
   _optLog = static_cast<int>(opt);
+
+  // setup crypto environment too
+  auto cryptoEnv =   rmscrypto::api::RMSCryptoEnvironment();
+
+  switch (opt) {
+  case LoggerOption::Always:
+    cryptoEnv->LogOption(
+      rmscrypto::api::IRMSCryptoEnvironment::LoggerOption::Always);
+    break;
+
+  case LoggerOption::Never:
+    cryptoEnv->LogOption(
+      rmscrypto::api::IRMSCryptoEnvironment::LoggerOption::Never);
+    break;
+  }
 }
 
 modernapi::IRMSEnvironment::LoggerOption IRMSEnvironmentImpl::LogOption() {
   return static_cast<LoggerOption>(static_cast<int>(_optLog));
+}
+
+shared_ptr<modernapi::IRMSEnvironment>IRMSEnvironmentImpl::Environment() {
+  return std::dynamic_pointer_cast<modernapi::IRMSEnvironment>(
+    platform::settings::_instance);
 }
 } // namespace settings
 } // namespace platform

@@ -6,36 +6,36 @@
  * ======================================================================
  */
 
-#ifndef _RMS_LIB_IRMSENVIRONMENT_IMPL_H
-#define _RMS_LIB_IRMSENVIRONMENT_IMPL_H
+#ifndef _CRYPTO_STREAMS_LIB_IRMSENVIRONMENT_IMPL_H
+#define _CRYPTO_STREAMS_LIB_IRMSENVIRONMENT_IMPL_H
 
 #include <mutex>
 #include <QAtomicInteger>
 
-#include "../../ModernAPI/IRMSEnvironment.h"
+#include "../../CryptoAPI/IRMSCryptoEnvironment.h"
 
-namespace rmscore {
+namespace rmscrypto {
 namespace platform {
 namespace settings {
-class IRMSEnvironmentImpl : public modernapi::IRMSEnvironment {
+class IRMSCryptoEnvironmentImpl : public api::IRMSCryptoEnvironment {
 public:
 
-  IRMSEnvironmentImpl();
-  virtual ~IRMSEnvironmentImpl() {}
+  IRMSCryptoEnvironmentImpl();
+  virtual ~IRMSCryptoEnvironmentImpl() {}
 
   virtual void                                      LogOption(LoggerOption opt);
   virtual LoggerOption                              LogOption();
 
-  static std::shared_ptr<modernapi::IRMSEnvironment>Environment();
+  static std::shared_ptr<api::IRMSCryptoEnvironment>Environment();
 
 private:
 
   QAtomicInteger<int> _optLog;
 };
 
-extern std::shared_ptr<IRMSEnvironmentImpl> _instance;
+extern std::shared_ptr<IRMSCryptoEnvironmentImpl> _instance;
 } // namespace settings
 } // namespace platform
-} // namespace rmscore
+} // namespace rmscrypto
 
-#endif // _RMS_LIB_IRMSENVIRONMENT_IMPL_H
+#endif // _CRYPTO_STREAMS_LIB_IRMSENVIRONMENT_IMPL_H

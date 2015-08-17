@@ -6,14 +6,11 @@
  * ======================================================================
  */
 
-#include "IRMSEnvironment.h"
-#include "../Platform/Settings/IRMSEnvironmentImpl.h"
+#include "IRMSAuthEnvironmentImpl.h"
 
 using namespace std;
-namespace rmscore {
-namespace modernapi {
-shared_ptr<IRMSEnvironment>RMSEnvironment() {
-  return platform::settings::IRMSEnvironmentImpl::Environment();
+namespace rmsauth {
+shared_ptr<IRMSAuthEnvironment>RMSAuthEnvironment() {
+  return IRMSAuthEnvironmentImpl::Environment();
 }
-} // namespace modernapi
-} // namespace rmscore
+} // namespace rmsauth

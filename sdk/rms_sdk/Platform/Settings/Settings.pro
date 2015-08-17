@@ -8,6 +8,8 @@ DEFINES += QTFRAMEWORK
 
 CONFIG += staticlib warn_on c++11 debug_and_release
 
+INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+
 QT += core network
 QT -= gui
 
