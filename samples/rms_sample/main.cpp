@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
   // set RMS Environment
   auto envRMS = rmscore::modernapi::RMSEnvironment();
   auto envAuth = rmsauth::RMSAuthEnvironment();
-  envRMS->LogOption(rmscore::modernapi::IRMSEnvironment::LoggerOption::Never);
-  envAuth->LogOption(rmsauth::IRMSAuthEnvironment::LoggerOption::Never);
+  envRMS->LogOption(rmscore::modernapi::IRMSEnvironment::LoggerOption::Always);
+  envAuth->LogOption(rmsauth::IRMSAuthEnvironment::LoggerOption::Always);
 
 
   QApplication a(argc, argv);
