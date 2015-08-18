@@ -22,7 +22,7 @@ void IRMSAuthEnvironmentImpl::LogOption(LoggerOption opt) {
 }
 
 IRMSAuthEnvironment::LoggerOption IRMSAuthEnvironmentImpl::LogOption() {
-  return static_cast<LoggerOption>(static_cast<int>(_optLog));
+  return static_cast<LoggerOption>((int)_optLog);
 }
 
 shared_ptr<IRMSAuthEnvironment>IRMSAuthEnvironmentImpl::Environment() {

@@ -23,7 +23,7 @@ void IRMSCryptoEnvironmentImpl::LogOption(LoggerOption opt) {
 }
 
 api::IRMSCryptoEnvironment::LoggerOption IRMSCryptoEnvironmentImpl::LogOption() {
-  return static_cast<LoggerOption>(static_cast<int>(_optLog));
+  return static_cast<LoggerOption>((int)_optLog);
 }
 
 shared_ptr<api::IRMSCryptoEnvironment>IRMSCryptoEnvironmentImpl::Environment() {
