@@ -10,7 +10,7 @@
 #define _RMSAUTH_LIB_IRMSENVIRONMENT_IMPL_H
 
 #include <mutex>
-#include <QAtomicInteger>
+#include <QAtomicInt>
 
 #include "IRMSAuthEnvironment.h"
 
@@ -28,7 +28,7 @@ public:
 
 private:
 
-  QAtomicInteger<int> _optLog;
+  QAtomicInt _optLog;
 };
 
 extern std::shared_ptr<IRMSAuthEnvironmentImpl> _instance;
