@@ -39,7 +39,7 @@ void IRMSEnvironmentImpl::LogOption(LoggerOption opt) {
 }
 
 modernapi::IRMSEnvironment::LoggerOption IRMSEnvironmentImpl::LogOption() {
-  return static_cast<LoggerOption>((int)_optLog);
+  return static_cast<LoggerOption>(_optLog.load());
 }
 
 shared_ptr<modernapi::IRMSEnvironment>IRMSEnvironmentImpl::Environment() {
