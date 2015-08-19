@@ -27,8 +27,8 @@ TemplateDescriptor::TemplateDescriptor(const string& id,
   , m_description(description)
 {}
 
-TemplateDescriptor::TemplateDescriptor(std::shared_ptr<rmscore::core::
-                                                       ProtectionPolicy>policy)
+TemplateDescriptor::TemplateDescriptor(shared_ptr<rmscore::core::
+                                                  ProtectionPolicy>policy)
   : m_id(policy->GetId())
   , m_name(policy->GetName())
   , m_description(policy->GetDescription())
@@ -38,30 +38,36 @@ TemplateDescriptor::TemplateDescriptor(std::shared_ptr<rmscore::core::
   }
 }
 
-std::vector<TemplateDescriptor>TemplateDescriptor::GetTemplateList(
+shared_future<shared_ptr<vector<TemplateDescriptor> > >
+TemplateDescriptor::GetTemplateListAsync(
   const string           & userId,
-  IAuthenticationCallback& authenticationCallback)
+  IAuthenticationCallback& authenticationCallback,
+  launch                   launchType)
 {
-  TIterable<TemplateDescriptor> result;
   auto authenticationCallbackImpl =
     AuthenticationCallbackImpl { authenticationCallback, userId };
 
-  auto pTemplatesClient = ITemplatesClient::Create();
-  auto response         = pTemplatesClient->GetTemplates(
-    authenticationCallbackImpl,
-    userId);
-
-  for_each(
-    begin(response.templates),
-    end(response.templates),
-    [&](const TemplateResponse& templateResponse)
+  return async(launchType, [&authenticationCallbackImpl](const string& _userId)
+               -> shared_ptr<vector<TemplateDescriptor>>
       {
-        result.push_back(move(TemplateDescriptor(templateResponse.id,
-                                                 templateResponse.name,
-                                                 templateResponse.description)));
-      });
+        auto result = std::make_shared<vector<TemplateDescriptor> >();
 
-  return result;
+        auto pTemplatesClient = ITemplatesClient::Create();
+        auto response         = pTemplatesClient->GetTemplates(
+          authenticationCallbackImpl, _userId);
+
+        for_each(
+          begin(response.templates),
+          end(response.templates),
+          [&](const TemplateResponse& templateResponse)
+        {
+          result->push_back(move(TemplateDescriptor(templateResponse.id,
+                                                    templateResponse.name,
+                                                    templateResponse.description)));
+        });
+
+        return result;
+      }, userId);
 }
 } // namespace modernapi
 } // namespace rmscore

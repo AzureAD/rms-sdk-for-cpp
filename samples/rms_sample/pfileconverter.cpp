@@ -144,22 +144,28 @@ void PFileConverter::ConvertToPFileTemplates(const string           & userId,
                                              IConsentCallback& /*consent*/,
                                              ITemplatesCallback     & templ)
 {
-  auto templates = TemplateDescriptor::GetTemplateList(userId, auth);
+  auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(userId,
+                                                                  auth,
+                                                                  std::launch::deferred);
 
-  rmscore::modernapi::AppDataHashMap signedData;
+  thread([&templatesFuture]() {
+    auto templates = templatesFuture.get();
 
-  size_t pos = templ.SelectTemplate(templates);
+    rmscore::modernapi::AppDataHashMap signedData;
 
-  if (pos < templates.size()) {
-    auto policy = UserPolicy::CreateFromTemplateDescriptor(
-      templates[pos],
-      userId,
-      auth,
-      USER_AllowAuditedExtraction,
-      signedData);
+    size_t pos = templ.SelectTemplate(templates);
 
-    ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
-  }
+    if (pos < templates.size()) {
+      auto policy = UserPolicy::CreateFromTemplateDescriptor(
+        templates[pos],
+        userId,
+        auth,
+        USER_AllowAuditedExtraction,
+        signedData);
+
+      ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
+    }
+  });
 }
 
 void PFileConverter::ConvertToPFileUsingPolicy(shared_ptr<UserPolicy>   policy,
