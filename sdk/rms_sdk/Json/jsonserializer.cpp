@@ -172,7 +172,7 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
   {
     common::DateTime dt = common::DateTime::fromTime_t(
       std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil));
-    pPolicyJson->SetNamedString("LicenseValidUntil", dt.toString(
+        pPolicyJson->SetNamedString("LicenseValidUntil", dt.toUTC().toString(
                                   Qt::ISODate).toStdString());
   }
 
@@ -356,13 +356,15 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
   response.contentValidUntil = pJsonResponse->GetNamedString("ContentValidUntil");
   response.licenseValidUntil = pJsonResponse->GetNamedString("LicenseValidUntil");
 
+  response.bFromTemplate = pJsonResponse->GetNamedBool("FromTemplate");
+
   // parse expiry times
   if (!response.contentValidUntil.empty())
   {
     auto tmp = common::DateTime::fromString(
       QString::fromStdString(response.contentValidUntil), Qt::ISODate);
     response.ftContentValidUntil = std::chrono::system_clock::from_time_t(
-      tmp.toTime_t());
+      tmp.toLocalTime().toTime_t());
   }
   else
   {
@@ -375,7 +377,7 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
       common::DateTime::fromString(
         QString::fromStdString(response.licenseValidUntil), Qt::ISODate);
     response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(
-      tmp.toTime_t());
+      tmp.toLocalTime().toTime_t());
   }
   else
   {

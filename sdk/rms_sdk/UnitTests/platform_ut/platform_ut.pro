@@ -17,9 +17,9 @@ LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/plat
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS += -lplatformhttpd -lplatformloggerd -lplatformxmld -lplatformjsond -lrmscryptod -lplatformfilesystemd -lplatformsettingsd
+    LIBS += -lplatformhttpd -lplatformloggerd -lplatformxmld -lplatformjsond -lplatformfilesystemd -lplatformsettingsd -lrmscryptod
 } else {
-    LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lrmscrypto -lplatformfilesystem -lplatformsettings
+    LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings -lrmscrypto
 }
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32

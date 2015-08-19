@@ -12,6 +12,7 @@
 #include <string>
 #include <cstdio>
 #include <QProcessEnvironment>
+#include "../Settings/IRMSEnvironmentImpl.h"
 
 namespace rmscore {
 namespace platform {
@@ -26,6 +27,11 @@ public:
                      const std::string& record,
                      Arguments ...      arguments) {
     auto cArgs =  sizeof ... (Arguments);
+
+    auto env   = settings::IRMSEnvironmentImpl::Environment();
+    if (!env || (env->LogOption() == modernapi::IRMSEnvironment::LoggerOption::Never)) {
+      return;
+    }
 
     if (cArgs > 0) {
       std::string buff(max_length, '-');
@@ -45,7 +51,7 @@ public:
             # if defined(__clang__)
                 #  pragma clang diagnostic pop
             # endif // if defined(__clang__)
-#endif // ifdef Q_OS_WIN32
+#endif              // ifdef Q_OS_WIN32
 
       if (num_bytes < max_length) {
         buff.resize(num_bytes);

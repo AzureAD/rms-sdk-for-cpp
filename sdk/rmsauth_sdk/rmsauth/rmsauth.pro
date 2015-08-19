@@ -57,7 +57,9 @@ SOURCES += \
     UserAssertion.cpp \
     UserRealmDiscoveryResponseQt.cpp\
     AcquireTokenForClientHandler.cpp \
-    FileCacheEncrypted.cpp
+    FileCacheEncrypted.cpp \
+    IRMSAuthEnvironment.cpp \
+    IRMSAuthEnvironmentImpl.cpp
 
 HEADERS += \
     rmsauth/AuthenticationContext.h \
@@ -103,7 +105,9 @@ HEADERS += \
     rmsauth/UserAssertion.h \
     rmsauth/UserRealmDiscoveryResponse.h \
     rmsauth/AcquireTokenForClientHandler.h \
-    rmsauth/FileCacheEncrypted.h
+    rmsauth/FileCacheEncrypted.h \
+    rmsauth/IRMSAuthEnvironment.h \
+    rmsauth/IRMSAuthEnvironmentImpl.h
 
 # Framework specific (qt based)
 

@@ -117,8 +117,7 @@ public:
   }
 
   bool IsAdhoc() const {
-    return m_id.empty() || m_name.empty() || 0 == m_id.compare(
-      "00000000-0000-0000-0000-000000000000");
+    return !m_bFromTemplate;
   }
 
   bool HasUserRightsInformation() const {
@@ -241,6 +240,7 @@ private:
   std::chrono::time_point<std::chrono::system_clock> m_ftValidityTimeFrom;
   std::chrono::time_point<std::chrono::system_clock> m_ftValidityTimeUntil;
   bool m_bAllowOfflineAccess;
+  bool m_bFromTemplate;
   std::vector<std::string> m_rights;
   std::vector<std::string> m_roles;
   common::ByteArray m_publishLicense;

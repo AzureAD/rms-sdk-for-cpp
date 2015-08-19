@@ -379,7 +379,19 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
       auth,
       this->consent);
 
-    AddLog("Successfully converted to ", fileOut.c_str());
+    switch (pfs->m_status) {
+    case Success:
+      AddLog("Successfully converted to ", fileOut.c_str());
+      break;
+
+    case NoRights:
+      AddLog("User has no rights to PFILE!", "");
+      break;
+
+    case Expired:
+      AddLog("Content has expired!", "");
+      break;
+    }
   }
   catch (const rmsauth::Exception& e)
   {
