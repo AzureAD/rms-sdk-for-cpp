@@ -1,5 +1,14 @@
 ## How to install and use apps on user systems
 
+NOTE: A setup workaround is needed at this time. Follow these steps before running your application:
+- Install the Powershell cmdlets from http://www.microsoft.com/en-us/download/details.aspx?id=30339 (see prerequisites here - https://technet.microsoft.com/library/jj585012.aspx) 
+- Open an elevated Powershell window and run the following commands:
+```
+ Import-Module AADRM
+ Connect-AadrmService (type-in tenant admin credentials)
+ Enable-AadrmDevicePlatform –Web
+```
+
 These instructions utilize the tarball created in [how_to_build_it.md](./how_to_build_it.md), copied to the home directory of a user system.
 
 1. Install run-time dependencies:
