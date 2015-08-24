@@ -14,6 +14,7 @@
 #include <QList>
 #include <QNetworkReply>
 #include <QSslError>
+#include <QThread>
 
 #include <rmsauth/AuthenticationContext.h>
 #include <rmsauth/FileCache.h>
@@ -24,6 +25,9 @@
 
 using namespace rmscore::modernapi;
 using namespace std;
+
+void postToMainThread(const std::function<void()>& func,
+                      QObject                     *mainApp);
 
 class AuthCallback : public IAuthenticationCallback {
 private:
@@ -39,16 +43,37 @@ public:
   virtual std::string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
 };
 
+class AuthCallbackUI : public IAuthenticationCallback {
+private:
+
+  QObject *_mainApp;
+  AuthCallback _callback;
+
+public:
+
+  AuthCallbackUI(QObject           *mainApp,
+                 const std::string& clientId,
+                 const std::string& redirectUrl);
+  virtual std::string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
+};
+
 class ConsentCallback : public IConsentCallback {
 public:
 
   virtual ConsentList Consents(ConsentList& consents) override;
 };
 
-class TemplatesCallback : public ITemplatesCallback {
+class TemplatesCallbackUI : public ITemplatesCallback {
+private:
+
+  QObject *_mainApp;
+
 public:
 
-  virtual size_t SelectTemplate(std::vector<TemplateDescriptor>& templates)
+  TemplatesCallbackUI(QObject *mainApp);
+
+  virtual size_t SelectTemplate(
+    std::shared_ptr<std::vector<TemplateDescriptor> >templates)
   override;
 };
 
@@ -57,7 +82,8 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow,
+                   public std::enable_shared_from_this<MainWindow>{
   Q_OBJECT
 
 public:
@@ -74,9 +100,9 @@ private slots:
 
 private:
 
-  Ui::MainWindow   *ui;
-  ConsentCallback   consent;
-  TemplatesCallback templates;
+  Ui::MainWindow *ui;
+  ConsentCallback consent;
+  TemplatesCallbackUI templatesUI;
 
   void                   addCertificates();
   std::vector<UserRights>openRightsDlg();
@@ -104,5 +130,4 @@ private:
                 const char   *message);
   string SelectFile(const string& msg);
 };
-
 #endif // MAINWINDOW_H
