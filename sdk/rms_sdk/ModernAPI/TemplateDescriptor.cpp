@@ -44,17 +44,17 @@ TemplateDescriptor::GetTemplateListAsync(
   IAuthenticationCallback& authenticationCallback,
   launch                   launchType)
 {
-  auto authenticationCallbackImpl =
-    AuthenticationCallbackImpl { authenticationCallback, userId };
+  auto authenticationCallbackImpl = std::make_shared<AuthenticationCallbackImpl>(
+    authenticationCallback, userId);
 
-  return async(launchType, [&authenticationCallbackImpl](const string& _userId)
-               -> shared_ptr<vector<TemplateDescriptor>>
+  return async(launchType, [authenticationCallbackImpl](const string _userId)
+               -> shared_ptr<vector<TemplateDescriptor> >
       {
         auto result = std::make_shared<vector<TemplateDescriptor> >();
 
         auto pTemplatesClient = ITemplatesClient::Create();
         auto response         = pTemplatesClient->GetTemplates(
-          authenticationCallbackImpl, _userId);
+          *authenticationCallbackImpl.get(), _userId);
 
         for_each(
           begin(response.templates),

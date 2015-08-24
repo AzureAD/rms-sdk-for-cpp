@@ -66,7 +66,7 @@ static void WorkerThread(shared_ptr<iostream>           stdStream,
         threadLocker.unlock();
         auto written =
           pStream->WriteAsync(
-            buffer.data(), toProcess, offsetWrite, std::launch::deferred).get();
+            buffer.data(), toProcess, offsetWrite, launch::deferred).get();
 
         if (written != toProcess) {
           throw rmscore::exceptions::RMSStreamException("Error while writing data");
@@ -80,7 +80,7 @@ static void WorkerThread(shared_ptr<iostream>           stdStream,
         pStream->ReadAsync(&buffer[0],
                            toProcess,
                            offsetRead,
-                           std::launch::deferred).get();
+                           launch::deferred).get();
 
       if (read == 0) {
         break;
@@ -136,42 +136,49 @@ void PFileConverter::ConvertToPFilePredefinedRights(
   ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
 }
 
-void PFileConverter::ConvertToPFileTemplates(const string           & userId,
-                                             shared_ptr<istream>      inStream,
-                                             const string           & fileExt,
-                                             std::shared_ptr<iostream>outStream,
-                                             IAuthenticationCallback& auth,
-                                             IConsentCallback& /*consent*/,
-                                             ITemplatesCallback     & templ)
+future<bool>PFileConverter::ConvertToPFileTemplatesAsync(
+  const string           & userId,
+  shared_ptr<istream>      inStream,
+  const string           & fileExt,
+  shared_ptr<iostream>     outStream,
+  IAuthenticationCallback& auth,
+  IConsentCallback& /*consent*/,
+  ITemplatesCallback     & templ,
+  launch                   launchType)
 {
-  auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(userId,
-                                                                  auth,
-                                                                  std::launch::deferred);
+  auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
+    userId, auth, launch::deferred);
 
-  thread([&templatesFuture]() {
+  return async(launchType, [templatesFuture, &templ, &auth]
+                 (const string _userId,
+                 shared_ptr<istream>_inStream,
+                 const string _fileExt,
+                 shared_ptr<iostream>_outStream) -> bool
+  {
     auto templates = templatesFuture.get();
 
     rmscore::modernapi::AppDataHashMap signedData;
 
     size_t pos = templ.SelectTemplate(templates);
 
-    if (pos < templates.size()) {
+    if (pos < templates->size()) {
       auto policy = UserPolicy::CreateFromTemplateDescriptor(
-        templates[pos],
-        userId,
+        (*templates)[pos],
+        _userId,
         auth,
         USER_AllowAuditedExtraction,
         signedData);
 
-      ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
+      ConvertToPFileUsingPolicy(policy, _inStream, _fileExt, _outStream);
     }
-  });
+    return true;
+  }, userId, inStream, fileExt, outStream);
 }
 
-void PFileConverter::ConvertToPFileUsingPolicy(shared_ptr<UserPolicy>   policy,
-                                               shared_ptr<istream>      inStream,
-                                               const string           & fileExt,
-                                               std::shared_ptr<iostream>outStream)
+void PFileConverter::ConvertToPFileUsingPolicy(shared_ptr<UserPolicy>policy,
+                                               shared_ptr<istream>   inStream,
+                                               const string        & fileExt,
+                                               shared_ptr<iostream>  outStream)
 {
   if (policy.get() != nullptr) {
     auto outIStream = rmscrypto::api::CreateStreamFromStdStream(outStream);

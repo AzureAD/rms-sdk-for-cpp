@@ -80,7 +80,7 @@
           <item row="0" column="2">
            <widget class="QPushButton" name="encryptPFILETemplatesButton">
             <property name="text">
-             <string>Encrypt PFILE (templates)</string>
+             <string>Encrypt Async (templates)</string>
             </property>
            </widget>
           </item>
@@ -121,7 +121,7 @@
           <item row="1" column="2">
            <widget class="QPushButton" name="encryptPFILERightsButton">
             <property name="text">
-             <string>Encrypt  PFILE (rights)</string>
+             <string>Encrypt  Sync (rights)</string>
             </property>
            </widget>
           </item>
