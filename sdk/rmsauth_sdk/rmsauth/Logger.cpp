@@ -38,6 +38,10 @@ void Logger::printf(StringStream& ss, const char *s)
 
 void Logger::record(const String& category, const String& tag, const String& record)
 {
+    auto env = RMSAuthEnvironment();
+    if (!env || (env->LogOption() == IRMSAuthEnvironment::LoggerOption::Never)) {
+      return;
+    }
     Logger::instance().append(category, tag, record);
 }
 

@@ -27,6 +27,15 @@
 using namespace std;
 using namespace rmsauth;
 
+void postToMainThread(const std::function<void()>& func,
+                      QObject                     *mainApp) {
+  QObject signalSource;
+  QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](
+                     QObject *) {
+    func();
+  });
+}
+
 AuthCallback::AuthCallback(const string& clientId, const string& redirectUrl)
   : clientId_(clientId)
   , redirectUrl_(redirectUrl)
@@ -65,35 +74,67 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
   }
 }
 
+AuthCallbackUI::AuthCallbackUI(QObject      *mainApp,
+                               const string& clientId,
+                               const string& redirectUrl)
+  : _mainApp(mainApp), _callback(clientId, redirectUrl)
+{}
+
+string AuthCallbackUI::GetToken(shared_ptr<AuthenticationParameters>& ap) {
+  promise<string> prom;
+  auto res = prom.get_future();
+
+  // readdress call to main UI thread
+  postToMainThread([&]() {
+    prom.set_value(_callback.GetToken(ap));
+  }, _mainApp);
+
+  // wait for result and return it
+  return res.get();
+}
+
 ConsentList ConsentCallback::Consents(ConsentList& /*consents*/) {
   ConsentList result;
 
   return result;
 }
 
-size_t TemplatesCallback::SelectTemplate(
-  vector<TemplateDescriptor>& templates)
+TemplatesCallbackUI::TemplatesCallbackUI(QObject *mainApp) : _mainApp(mainApp) {}
+
+size_t TemplatesCallbackUI::SelectTemplate(
+  std::shared_ptr<std::vector<TemplateDescriptor> >templates)
 {
-  // show dialog
-  auto selectTemplateDlg = new QDialog(0, 0);
+  promise<size_t> prom;
+  auto res = prom.get_future();
 
-  Ui_TemplatesDialog selectTemplate;
+  // readdress call to main UI thread
+  postToMainThread([&]() {
+    // show dialog
+    auto selectTemplateDlg = new QDialog(0, 0);
 
-  selectTemplate.setupUi(selectTemplateDlg);
+    Ui_TemplatesDialog selectTemplate;
 
-  for (size_t pos = 0, last = templates.size(); pos < last; ++pos) {
-    selectTemplate.comboBoxTemplates->insertItem(0, QString::fromStdString(
-                                                   templates[pos].Name()));
-  }
+    selectTemplate.setupUi(selectTemplateDlg);
 
-  selectTemplateDlg->exec();
+    for (size_t pos = 0, last = templates->size(); pos < last; ++pos) {
+      selectTemplate.comboBoxTemplates->insertItem(0, QString::fromStdString(
+                                                     (*templates)[pos].Name()));
+    }
 
-  return static_cast<size_t>(selectTemplate.comboBoxTemplates->currentIndex());
+    selectTemplateDlg->exec();
+
+    prom.set_value(static_cast<size_t>(selectTemplate.comboBoxTemplates->
+                                       currentIndex()));
+  }, _mainApp);
+
+  // wait for result and return it
+  return res.get();
 }
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
+  , templatesUI(this)
 
 {
   ui->setupUi(this);
@@ -201,6 +242,8 @@ void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
                                               const string& clientId,
                                               const string& redirectUrl,
                                               const string& clientEmail) {
+  auto self = shared_from_this();
+
   // generate output filename
   string fileOut = fileIn + ".pfile";
 
@@ -231,30 +274,45 @@ void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
     fileExt = fileIn.substr(pos);
   }
 
-  try {
-    // create authentication callback
-    AuthCallback auth(clientId, redirectUrl);
+  // create thread for conversion
+  auto th = std::thread([inFile, outFile, self](
+                          const string _clientId,
+                          const string _redirectUrl,
+                          const string _clientEmail,
+                          const string _fileExt,
+                          const string _fileOut) {
+    try {
+      // create UI authentication callback
+      AuthCallbackUI authUI(self.get(), _clientId, _redirectUrl);
 
-    // process convertion
-    PFileConverter::ConvertToPFileTemplates(
-      clientEmail, inFile, fileExt, outFile, auth,
-      this->consent, this->templates);
+      // process convertion
+      PFileConverter::ConvertToPFileTemplatesAsync(
+        _clientEmail, inFile, _fileExt, outFile, authUI,
+        self->consent, self->templatesUI, std::launch::deferred).get();
 
-    AddLog("Successfully converted to ", fileOut.c_str());
-  }
-  catch (const rmsauth::Exception& e) {
-    AddLog("ERROR: ", e.error().c_str());
+      postToMainThread([self, _fileOut]() {
+        self->AddLog("Successfully converted to ", _fileOut.c_str());
+      }, self.get());
+    }
+    catch (const rmsauth::Exception& e) {
+      postToMainThread([self, e]() {
+        self->AddLog("ERROR: ", e.error().c_str());
+      }, self.get());
+      outFile->close();
+      remove(_fileOut.c_str());
+    }
+    catch (const rmscore::exceptions::RMSException& e) {
+      postToMainThread([self, e]() {
+        self->AddLog("ERROR: ", e.what());
+      }, self.get());
+      outFile->close();
+      remove(_fileOut.c_str());
+    }
+    inFile->close();
     outFile->close();
-    remove(fileOut.c_str());
-  }
-  catch (const rmscore::exceptions::RMSException& e) {
-    AddLog("ERROR: ", e.what());
+  }, clientId, redirectUrl, clientEmail, fileExt, fileOut);
 
-    outFile->close();
-    remove(fileOut.c_str());
-  }
-  inFile->close();
-  outFile->close();
+  th.detach();
 }
 
 void MainWindow::ConvertToPFILEUsingRights(const string            & fileIn,

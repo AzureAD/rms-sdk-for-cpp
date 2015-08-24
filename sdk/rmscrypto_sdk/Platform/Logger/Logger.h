@@ -14,6 +14,9 @@
 #include <QDebug>
 #include <QProcessEnvironment>
 
+#include "../Settings/IRMSCryptoEnvironmentImpl.h"
+
+
 namespace rmscrypto {
 namespace platform {
 namespace logger {
@@ -27,6 +30,11 @@ public:
                      const std::string& record,
                      Arguments ...      arguments) {
     auto cArgs =  sizeof ... (Arguments);
+
+    auto env   = settings::IRMSCryptoEnvironmentImpl::Environment();
+    if (!env || (env->LogOption() == api::IRMSCryptoEnvironment::LoggerOption::Never)) {
+      return;
+    }
 
     if (cArgs > 0) {
       std::string buff(max_length, '-');

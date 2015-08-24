@@ -13,6 +13,7 @@
 #include <fstream>
 #include "types.h"
 #include "rmsauthExport.h"
+#include "IRMSAuthEnvironment.h"
 
 namespace rmsauth {
 
@@ -55,6 +56,11 @@ private:
 template<typename T, typename... Args>
 void Logger::record(const String& category, const String& tag, const String& record, T value, Args... args)
 {
+    auto env = RMSAuthEnvironment();
+    if (!env || (env->LogOption() == IRMSAuthEnvironment::LoggerOption::Never)) {
+      return;
+    }
+
     StringStream ss;
     Logger::printf(ss, record.c_str(), value, args...);
     Logger::instance().append(category, tag, ss.str());

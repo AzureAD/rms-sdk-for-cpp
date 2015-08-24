@@ -17,9 +17,9 @@ LIBS    += -L$$REPO_ROOT/bin/crypto -L$$REPO_ROOT/bin/crypto/platform
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -lmodcryptod -lplatformkeystoraged -lplatformcryptod -lplatformloggerd
+    LIBS +=  -lmodcryptod -lplatformkeystoraged -lplatformcryptod -lplatformloggerd -lplatformsettingsd
 } else {
-    LIBS +=  -lmodcrypto -lplatformkeystorage -lplatformcrypto -lplatformlogger
+    LIBS +=  -lmodcrypto -lplatformkeystorage -lplatformcrypto -lplatformlogger -lplatformsettings
 }
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
@@ -49,11 +49,13 @@ HEADERS += \
     ICryptoHash.h \
     ICryptoKey.h \
     CryptoAPIExport.h \
-    RMSCryptoExceptions.h
+    RMSCryptoExceptions.h \
+    IRMSCryptoEnvironment.h
 
 SOURCES += \
     BlockBasedProtectedStream.cpp \
     CachedBlock.cpp \
     SimpleProtectedStream.cpp \
     CryptoAPI.cpp \
-    StdStreamAdapter.cpp
+    StdStreamAdapter.cpp \
+    IRMSCryptoEnvironment.cpp

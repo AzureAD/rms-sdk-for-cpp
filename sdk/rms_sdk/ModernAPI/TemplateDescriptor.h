@@ -9,6 +9,7 @@
 #ifndef _RMS_LIB_TEMPLATEDESCRIPTOR_H_
 #define _RMS_LIB_TEMPLATEDESCRIPTOR_H_
 
+#include <future>
 #include "IAuthenticationCallback.h"
 #include "ModernAPIExport.h"
 
@@ -56,9 +57,10 @@ public:
    * @param authenticationCallback Callback to utilize for auth.
    * @return the list of templates
    */
-  static std::vector<TemplateDescriptor>GetTemplateList(
+  static std::shared_future<std::shared_ptr<std::vector<TemplateDescriptor>> >GetTemplateListAsync(
     const std::string      & userId,
-    IAuthenticationCallback& authenticationCallback);
+    IAuthenticationCallback& authenticationCallback,
+    std::launch              launchType);
 
 
   TemplateDescriptor(const std::string& id,
