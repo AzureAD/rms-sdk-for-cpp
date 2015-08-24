@@ -27,6 +27,15 @@
 using namespace std;
 using namespace rmsauth;
 
+void postToMainThread(const std::function<void()>& func,
+                      QObject                     *mainApp) {
+  QObject signalSource;
+  QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](
+                     QObject *) {
+    func();
+  });
+}
+
 AuthCallback::AuthCallback(const string& clientId, const string& redirectUrl)
   : clientId_(clientId)
   , redirectUrl_(redirectUrl)

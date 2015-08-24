@@ -26,14 +26,8 @@
 using namespace rmscore::modernapi;
 using namespace std;
 
-static void postToMainThread(const std::function<void()>& func,
-                             QObject                     *mainApp) {
-  QObject signalSource;
-  QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](
-                     QObject *) {
-    func();
-  });
-}
+void postToMainThread(const std::function<void()>& func,
+                      QObject                     *mainApp);
 
 class AuthCallback : public IAuthenticationCallback {
 private:
