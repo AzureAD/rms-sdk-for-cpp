@@ -26,7 +26,7 @@ public:
     @brief Result of a consent request.
   */
   virtual const ConsentResult& Result() const = 0;
-  // virtual void ConsentResult(const ConsentResult& value) = 0;
+  virtual void ConsentResult(const ConsentResult& value) = 0;
 
   /**
     @brief The type of URL to consented to.
