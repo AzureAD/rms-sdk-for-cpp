@@ -28,7 +28,7 @@ public:
     return this->result_;
   }
 
-  virtual void ConsentResult(const modernapi::ConsentResult& value) {
+  virtual void Result(const modernapi::ConsentResult& value) {
     this->result_ = value;
   }
 

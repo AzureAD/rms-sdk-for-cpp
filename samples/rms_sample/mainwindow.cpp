@@ -96,7 +96,7 @@ string AuthCallbackUI::GetToken(shared_ptr<AuthenticationParameters>& ap) {
 ConsentList ConsentCallback::Consents(ConsentList& consents) {
   for (auto& consent : consents) {
     ConsentResult result(true, false);
-    consent->ConsentResult(result);
+    consent->Result(result);
   }
 
   return consents;
