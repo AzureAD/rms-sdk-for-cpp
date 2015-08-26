@@ -58,7 +58,6 @@ HEADERS += \
     UserRights.h \
     UserRoles.h \
     AuthenticationParameters.h \
-    consent.h \
     ConsentType.h \
     ProtectedFileStream.h \
     CustomProtectedStream.h \

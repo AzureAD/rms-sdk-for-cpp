@@ -93,10 +93,13 @@ string AuthCallbackUI::GetToken(shared_ptr<AuthenticationParameters>& ap) {
   return res.get();
 }
 
-ConsentList ConsentCallback::Consents(ConsentList& /*consents*/) {
-  ConsentList result;
+ConsentList ConsentCallback::Consents(ConsentList& consents) {
+  for (auto& consent : consents) {
+    ConsentResult result(true, false);
+    consent->Result(result);
+  }
 
-  return result;
+  return consents;
 }
 
 TemplatesCallbackUI::TemplatesCallbackUI(QObject *mainApp) : _mainApp(mainApp) {}
