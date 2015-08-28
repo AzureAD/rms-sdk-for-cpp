@@ -104,6 +104,8 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
 1. Install dev dependencies:
   ```
   sudo yum groupinstall "Development Tools"
+  sudo yum install wget
+  sudo yum install gcc-c++
   wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
   sudo rpm -ivh epel-release-7-5.noarch.rpm
   sudo yum --enablerepo=epel install qt5-qtbase-devel
