@@ -111,7 +111,7 @@ public:
     const std::vector<unsigned char>& serializedPolicy,
     const std::string               & userId,
     IAuthenticationCallback         & authenticationCallback,
-    IConsentCallback                & consentCallback,
+    IConsentCallback                 *consentCallback,
     PolicyAcquisitionOptions          options,
     ResponseCacheFlags                cacheMask);
 
