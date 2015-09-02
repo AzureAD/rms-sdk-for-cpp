@@ -48,7 +48,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   SharedStream             stream,
   const string           & userId,
   IAuthenticationCallback& authenticationCallback,
-  IConsentCallback       & consentCallback,
+  IConsentCallback        * /*consentCallback*/,
   PolicyAcquisitionOptions options,
   ResponseCacheFlags       cacheMask)
 {
@@ -89,7 +89,8 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
     auto policyRequest          = UserPolicy::Acquire(publishingLicense,
                                                       userId,
                                                       authenticationCallback,
-                                                      consentCallback,
+                                                      // TODO: remove this in future after consents has been implemented
+                                                      /*consentCallback*/nullptr,
                                                       options,
                                                       cacheMask);
 
@@ -103,7 +104,10 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   }
 
   ProtectedFileStream *protectedFileStream = policy ?
-              CreateProtectedFileStream(policy,stream,header) : nullptr;
+                                             CreateProtectedFileStream(policy,
+                                                                       stream,
+                                                                       header) :
+                                             nullptr;
 
   auto result = make_shared<GetProtectedFileStreamResult>(
     move(status), referrer,

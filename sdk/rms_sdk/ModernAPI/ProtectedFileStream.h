@@ -100,7 +100,7 @@ public:
     rmscrypto::api::SharedStream stream,
     const std::string          & userId,
     IAuthenticationCallback    & authenticationCallback,
-    IConsentCallback           & consentCallback,
+    IConsentCallback           * consentCallback,
     PolicyAcquisitionOptions     options,
     ResponseCacheFlags           cacheMask
       = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |

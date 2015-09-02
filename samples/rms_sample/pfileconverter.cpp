@@ -223,7 +223,7 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
     inIStream,
     userId,
     auth,
-    consent,
+    &consent,
     POL_None,
     static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
                                     | RESPONSE_CACHE_ONDISK));

@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_CONSENTCALLBACKIMPL_H_
 #define _RMS_LIB_CONSENTCALLBACKIMPL_H_
@@ -19,7 +19,7 @@ namespace modernapi {
 class ConsentCallbackImpl : public IConsentCallbackImpl {
 public:
 
-  ConsentCallbackImpl(IConsentCallback & callback,
+  ConsentCallbackImpl(IConsentCallback  *callback,
                       const std::string& userId,
                       bool               isPublishing);
   virtual void Consents(const std::string             & email,
@@ -28,7 +28,7 @@ public:
 
 protected:
 
-  IConsentCallback& m_callback;
+  IConsentCallback *m_callback;
   std::shared_ptr<std::string> m_userId;
   bool                         m_isPublishing;
   std::shared_ptr<std::string> m_domain;

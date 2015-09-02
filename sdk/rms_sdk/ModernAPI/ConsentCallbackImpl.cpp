@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <memory>
 #include <vector>
@@ -23,7 +23,7 @@ using namespace rmscore::modernapi;
 
 namespace rmscore {
 namespace modernapi {
-ConsentCallbackImpl::ConsentCallbackImpl(IConsentCallback & callback,
+ConsentCallbackImpl::ConsentCallbackImpl(IConsentCallback  *callback,
                                          const std::string& userId,
                                          bool               isPublishing)
   : m_callback(callback)
@@ -79,33 +79,35 @@ void ConsentCallbackImpl::Consents(const string             & email,
   }
 
   // call user callback
-  auto results = m_callback.Consents(consentCollection);
+  if (m_callback != nullptr) {
+    auto results = m_callback->Consents(consentCollection);
 
-  for (auto result : results)
-  {
-    //    if (!result->Result()) continue;
-
-    // Persist the result.
-    // If it is accepted - persist. If consent is not accepted - throw
-
-    if (result->Result().Accepted() && !result->Result().ShowAgain())
+    for (auto result : results)
     {
-      // Consent manager to persist this result.
-      if (result->Type() == ConsentType::ServiceUrlConsent)
-      {
-        serviceManager->PersistConsentResult(result->Result());
-      }
-      else
-      {
-        documentManager->PersistConsentResult(result->Result());
-      }
-    }
+      //    if (!result->Result()) continue;
 
-    // Handle the result
-    if (!result->Result().Accepted())
-    {
-      throw exceptions::RMSNetworkException("User did not consent",
-                                            exceptions::RMSNetworkException::UserNotConsented);
+      // Persist the result.
+      // If it is accepted - persist. If consent is not accepted - throw
+
+      if (result->Result().Accepted() && !result->Result().ShowAgain())
+      {
+        // Consent manager to persist this result.
+        if (result->Type() == ConsentType::ServiceUrlConsent)
+        {
+          serviceManager->PersistConsentResult(result->Result());
+        }
+        else
+        {
+          documentManager->PersistConsentResult(result->Result());
+        }
+      }
+
+      // Handle the result
+      if (!result->Result().Accepted())
+      {
+        throw exceptions::RMSNetworkException("User did not consent",
+                                              exceptions::RMSNetworkException::UserNotConsented);
+      }
     }
   }
 }
