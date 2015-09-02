@@ -135,7 +135,7 @@ MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , templatesUI(this)
-  , cancelState(new std::atomic<bool>(true))
+  , cancelState(new std::atomic<bool>(false))
 
 {
   ui->setupUi(this);

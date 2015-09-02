@@ -230,7 +230,8 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
     &consent,
     POL_None,
     static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
-                                    | RESPONSE_CACHE_ONDISK));
+                                    | RESPONSE_CACHE_ONDISK),
+    cancelState);
 
   if ((fsResult.get() != nullptr) && (fsResult->m_status == Success) &&
       (fsResult->m_stream != nullptr)) {
