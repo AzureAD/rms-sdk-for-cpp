@@ -215,7 +215,7 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
   shared_ptr<istream>      inStream,
   shared_ptr<iostream>     outStream,
   IAuthenticationCallback& auth,
-  IConsentCallback       & /*consent*/)
+  IConsentCallback       & consent)
 {
   auto inIStream = rmscrypto::api::CreateStreamFromStdStream(inStream);
 
@@ -223,7 +223,7 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
     inIStream,
     userId,
     auth,
-    /*consent*/nullptr,
+    &consent,
     POL_None,
     static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
                                     | RESPONSE_CACHE_ONDISK));
