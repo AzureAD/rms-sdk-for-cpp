@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_USAGERESTRICTIONSCLIENT_H_
 #define _RMS_LIB_USAGERESTRICTIONSCLIENT_H_
@@ -22,8 +22,8 @@ public:
     modernapi::IConsentCallbackImpl       & consentCallback,
     const std::string                     & email,
     const bool                              bOffline,
-    common::Event                         & hCancelEvent,
-    const modernapi::ResponseCacheFlags    cacheMask) override;
+    std::shared_ptr<std::atomic<bool> >     cancelState,
+    const modernapi::ResponseCacheFlags     cacheMask) override;
 
 private:
 

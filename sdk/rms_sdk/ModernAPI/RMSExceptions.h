@@ -152,7 +152,8 @@ public:
     InvalidPL,
     ServiceDisabled,
     DeviceRejected,
-    NeedsOnline
+    NeedsOnline,
+    CancelledByUser
   };
 
 

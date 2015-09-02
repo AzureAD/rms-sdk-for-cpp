@@ -32,7 +32,7 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
                      modernapi::IConsentCallbackImpl       & consentCallback,
                      const string                          & email,
                      const bool                              bOffline,
-                     common::Event                         & hCancelEvent,
+                     std::shared_ptr<std::atomic<bool> >     cancelState,
                      const ResponseCacheFlags                cacheMask)
 {
   std::shared_ptr<UsageRestrictionsResponse> response =
@@ -64,13 +64,14 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
     request.cbPublishLicense,
     email,
     authCallback,
-    consentCallback);
+    consentCallback,
+    cancelState);
 
   auto httpRequestResult = RestHttpClient::Post(
     endUserLicenseUrl,
     move(serializedRequest),
     authCallback,
-    &hCancelEvent);
+    cancelState);
 
   if (StatusCode::OK != httpRequestResult.status)
   {

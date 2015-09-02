@@ -40,21 +40,23 @@ TemplateDescriptor::TemplateDescriptor(shared_ptr<rmscore::core::
 
 shared_future<shared_ptr<vector<TemplateDescriptor> > >
 TemplateDescriptor::GetTemplateListAsync(
-  const string           & userId,
-  IAuthenticationCallback& authenticationCallback,
-  launch                   launchType)
+  const string                     & userId,
+  IAuthenticationCallback          & authenticationCallback,
+  launch                             launchType,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   auto authenticationCallbackImpl = std::make_shared<AuthenticationCallbackImpl>(
     authenticationCallback, userId);
 
-  return async(launchType, [authenticationCallbackImpl](const string _userId)
+  return async(launchType,
+               [authenticationCallbackImpl, cancelState](const string _userId)
                -> shared_ptr<vector<TemplateDescriptor> >
       {
         auto result = std::make_shared<vector<TemplateDescriptor> >();
 
         auto pTemplatesClient = ITemplatesClient::Create();
         auto response         = pTemplatesClient->GetTemplates(
-          *authenticationCallbackImpl.get(), _userId);
+          *authenticationCallbackImpl.get(), _userId, cancelState);
 
         for_each(
           begin(response.templates),

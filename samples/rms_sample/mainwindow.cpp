@@ -135,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , templatesUI(this)
+  , cancelState(new std::atomic<bool>(true))
 
 {
   ui->setupUi(this);
@@ -198,6 +199,10 @@ void MainWindow::addCertificates() {
 
 void MainWindow::on_encryptPFILETemplatesButton_clicked()
 {
+  if (ui->encryptPFILETemplatesButton->text() == "CANCEL") {
+    cancelState->store(true);
+    return;
+  }
   string fileIn = SelectFile("Select file to encrypt");
 
   if (!fileIn.empty()) {
@@ -274,6 +279,8 @@ void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
     fileExt = fileIn.substr(pos);
   }
 
+  ui->encryptPFILETemplatesButton->setText("CANCEL");
+
   // create thread for conversion
   auto th = std::thread([inFile, outFile, self](
                           const string _clientId,
@@ -285,10 +292,19 @@ void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
       // create UI authentication callback
       AuthCallbackUI authUI(self.get(), _clientId, _redirectUrl);
 
+      self->cancelState->store(false);
+
       // process convertion
       PFileConverter::ConvertToPFileTemplatesAsync(
-        _clientEmail, inFile, _fileExt, outFile, authUI,
-        self->consent, self->templatesUI, std::launch::deferred).get();
+        _clientEmail,
+        inFile,
+        _fileExt,
+        outFile,
+        authUI,
+        self->consent,
+        self->templatesUI,
+        std::launch::deferred,
+        self->cancelState).get();
 
       postToMainThread([self, _fileOut]() {
         self->AddLog("Successfully converted to ", _fileOut.c_str());
@@ -310,6 +326,10 @@ void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
     }
     inFile->close();
     outFile->close();
+
+    postToMainThread([self]() {
+      self->ui->encryptPFILETemplatesButton->setText("Encrypt Async (templates)");
+    }, self.get());
   }, clientId, redirectUrl, clientEmail, fileExt, fileOut);
 
   th.detach();
@@ -370,7 +390,8 @@ void MainWindow::ConvertToPFILEUsingRights(const string            & fileIn,
       outFile,
       auth,
       this->consent,
-      userRights);
+      userRights,
+      this->cancelState);
 
     AddLog("Successfully converted to ", fileOut.c_str());
   }
@@ -435,7 +456,8 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
       inFile,
       outFile,
       auth,
-      this->consent);
+      this->consent,
+      this->cancelState);
 
     switch (pfs->m_status) {
     case Success:

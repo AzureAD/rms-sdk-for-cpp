@@ -108,25 +108,28 @@ class DLL_PUBLIC_RMS UserPolicy {
 public:
 
   static std::shared_ptr<GetUserPolicyResult>Acquire(
-    const std::vector<unsigned char>& serializedPolicy,
-    const std::string               & userId,
-    IAuthenticationCallback         & authenticationCallback,
-    IConsentCallback                 *consentCallback,
-    PolicyAcquisitionOptions          options,
-    ResponseCacheFlags                cacheMask);
+    const std::vector<unsigned char> & serializedPolicy,
+    const std::string                & userId,
+    IAuthenticationCallback          & authenticationCallback,
+    IConsentCallback                  *consentCallback,
+    PolicyAcquisitionOptions           options,
+    ResponseCacheFlags                 cacheMask,
+    std::shared_ptr<std::atomic<bool> >cancelState);
 
   static std::shared_ptr<UserPolicy>CreateFromTemplateDescriptor(
-    const TemplateDescriptor& templateDescriptor,
-    const std::string       & userId,
-    IAuthenticationCallback & authenticationCallback,
-    UserPolicyCreationOptions options,
-    const AppDataHashMap    & signedAppData);
+    const TemplateDescriptor         & templateDescriptor,
+    const std::string                & userId,
+    IAuthenticationCallback          & authenticationCallback,
+    UserPolicyCreationOptions          options,
+    const AppDataHashMap             & signedAppData,
+    std::shared_ptr<std::atomic<bool> >cancelState);
 
   static std::shared_ptr<UserPolicy>Create(
-    PolicyDescriptor        & policyDescriptor,
-    const std::string       & userId,
-    IAuthenticationCallback & authenticationCallback,
-    UserPolicyCreationOptions options);
+    PolicyDescriptor                 & policyDescriptor,
+    const std::string                & userId,
+    IAuthenticationCallback          & authenticationCallback,
+    UserPolicyCreationOptions          options,
+    std::shared_ptr<std::atomic<bool> >cancelState);
 
   bool                                              AccessCheck(
     const std::string& right) const;

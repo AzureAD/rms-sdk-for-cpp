@@ -23,19 +23,22 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {
-RestHttpClient::Result RestHttpClient::Get(const std::string          & sUrl,
-                                           IAuthenticationCallbackImpl& authenticationCallback,
-                                           Event                       * /*hCancelEvent*/)
+RestHttpClient::Result RestHttpClient::Get(
+  const std::string                & sUrl,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   // Performance latency should exclude the time it takes in Authentication and
   // consent operations
   auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-                                                                 authenticationCallback);
+                                                                 authenticationCallback,
+                                                                 cancelState);
   auto parameters = HttpRequestParameters {
     HTTP_GET,            // type
     string(sUrl),        // url
     common::ByteArray(), // requestBody
-    accessToken          // accessToken
+    accessToken,         // accessToken
+    cancelState
   };
 
   // call the DoHttpRequest() and abandon the call when the cancel event is
@@ -43,20 +46,23 @@ RestHttpClient::Result RestHttpClient::Get(const std::string          & sUrl,
   return RestHttpClient::DoHttpRequest(move(parameters));
 }
 
-RestHttpClient::Result RestHttpClient::Post(const string               & sUrl,
-                                            ByteArray                 && requestBody,
-                                            IAuthenticationCallbackImpl& authenticationCallback,
-                                            Event                       * /*hCancelEvent*/)
+RestHttpClient::Result RestHttpClient::Post(
+  const string                     & sUrl,
+  ByteArray                       && requestBody,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   // Performance latency should exclude the time it takes in Authentication and
   // consent operations
   auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-                                                                 authenticationCallback);
+                                                                 authenticationCallback,
+                                                                 cancelState);
   auto parameters = HttpRequestParameters {
     HTTP_POST,         // type
     string(sUrl),      // url
     move(requestBody), // requestBody
-    accessToken        // accessToken
+    accessToken,       // accessToken
+    cancelState
   };
 
   // call the DoHttpRequest() and abandon the call when the cancel event is
@@ -103,7 +109,8 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(
     result.status = pHttpClient->Post(
       parameters.requestUrl,
       parameters.requestBody, std::string("application/json"),
-      result.responseBody);
+      result.responseBody,
+      parameters.cancelState);
 
     break;
 
@@ -115,7 +122,8 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(
       requestId.c_str());
 
     result.status = pHttpClient->Get(
-      parameters.requestUrl, result.responseBody);
+      parameters.requestUrl, result.responseBody,
+      parameters.cancelState);
 
     break;
   }

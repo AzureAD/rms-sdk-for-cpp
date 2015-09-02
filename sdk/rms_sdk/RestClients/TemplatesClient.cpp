@@ -22,14 +22,16 @@ namespace rmscore {
 namespace restclients {
 TemplateListResponse TemplatesClient::GetTemplates(
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                     & sEmail)
+  const std::string                     & sEmail,
+  std::shared_ptr<std::atomic<bool> >     cancelState)
 {
   auto pRestServiceUrlClient = IRestServiceUrlClient::Create();
   auto templatesUrl          = pRestServiceUrlClient->GetTemplatesUrl(sEmail,
-                                                                      authenticationCallback);
+                                                                      authenticationCallback,
+                                                                      cancelState);
 
   auto result =
-    RestHttpClient::Get(templatesUrl, authenticationCallback, nullptr);
+    RestHttpClient::Get(templatesUrl, authenticationCallback, cancelState);
 
   if (StatusCode::OK != result.status)
   {

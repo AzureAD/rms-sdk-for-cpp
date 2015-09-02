@@ -9,6 +9,8 @@
 #ifndef _RMS_LIB_IPUBLISHCLIENT_H_
 #define _RMS_LIB_IPUBLISHCLIENT_H_
 
+#include <atomic>
+
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "RestObjects.h"
 
@@ -20,12 +22,14 @@ public:
   virtual PublishResponse PublishUsingTemplate(
     const PublishUsingTemplateRequest     & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       email)
+    const std::string                       email,
+    std::shared_ptr<std::atomic<bool> >     cancelState)
     = 0;
   virtual PublishResponse PublishCustom(
     const PublishCustomRequest            & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       email)
+    const std::string                       email,
+    std::shared_ptr<std::atomic<bool> >     cancelState)
     = 0;
 
 public:
