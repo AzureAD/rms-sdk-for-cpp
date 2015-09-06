@@ -7,6 +7,7 @@
 */
 
 #ifdef QTFRAMEWORK
+#include <QDebug>
 #include "LocalSettingsQt.h"
 
 namespace rmscore {
@@ -19,8 +20,7 @@ std::shared_ptr<ILocalSettings> ILocalSettings::Create(const std::string& filena
 }
 
 LocalSettingsQt::LocalSettingsQt(const QString& filename) :
-  impl_(filename)
-{}
+  impl_(filename, QSettings::IniFormat) {}
 
 std::string LocalSettingsQt::GetString(const std::string& container,
                                             const std::string& name,
