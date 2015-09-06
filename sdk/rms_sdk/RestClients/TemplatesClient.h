@@ -17,7 +17,8 @@ public:
 
   virtual TemplateListResponse GetTemplates(
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & sEmail) override;
+    const std::string                     & sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState) override;
 };
 } // namespace restclients
 } // namespace rmscore

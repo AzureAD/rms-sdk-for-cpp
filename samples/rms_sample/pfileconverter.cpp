@@ -112,13 +112,14 @@ PFileConverter::~PFileConverter()
 {}
 
 void PFileConverter::ConvertToPFilePredefinedRights(
-  const string            & userId,
-  shared_ptr<istream>       inStream,
-  const string            & fileExt,
-  shared_ptr<iostream>      outStream,
-  IAuthenticationCallback & auth,
+  const string                     & userId,
+  shared_ptr<istream>                inStream,
+  const string                     & fileExt,
+  shared_ptr<iostream>               outStream,
+  IAuthenticationCallback          & auth,
   IConsentCallback& /*consent*/,
-  const vector<UserRights>& userRights)
+  const vector<UserRights>         & userRights,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   auto endValidation = chrono::system_clock::now() + chrono::hours(48);
 
@@ -132,24 +133,25 @@ void PFileConverter::ConvertToPFilePredefinedRights(
   desc.Description("Test Description");
 
   auto policy = UserPolicy::Create(desc, userId, auth,
-                                   USER_AllowAuditedExtraction);
+                                   USER_AllowAuditedExtraction, cancelState);
   ConvertToPFileUsingPolicy(policy, inStream, fileExt, outStream);
 }
 
 future<bool>PFileConverter::ConvertToPFileTemplatesAsync(
-  const string           & userId,
-  shared_ptr<istream>      inStream,
-  const string           & fileExt,
-  shared_ptr<iostream>     outStream,
-  IAuthenticationCallback& auth,
+  const string                     & userId,
+  shared_ptr<istream>                inStream,
+  const string                     & fileExt,
+  shared_ptr<iostream>               outStream,
+  IAuthenticationCallback          & auth,
   IConsentCallback& /*consent*/,
-  ITemplatesCallback     & templ,
-  launch                   launchType)
+  ITemplatesCallback               & templ,
+  launch                             launchType,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
-    userId, auth, launch::deferred);
+    userId, auth, launch::deferred, cancelState);
 
-  return async(launchType, [templatesFuture, &templ, &auth]
+  return async(launchType, [templatesFuture, &templ, &auth, cancelState]
                  (const string _userId,
                  shared_ptr<istream>_inStream,
                  const string _fileExt,
@@ -167,7 +169,8 @@ future<bool>PFileConverter::ConvertToPFileTemplatesAsync(
         _userId,
         auth,
         USER_AllowAuditedExtraction,
-        signedData);
+        signedData,
+        cancelState);
 
       ConvertToPFileUsingPolicy(policy, _inStream, _fileExt, _outStream);
     }
@@ -211,11 +214,12 @@ void PFileConverter::ConvertToPFileUsingPolicy(shared_ptr<UserPolicy>policy,
 }
 
 shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
-  const string           & userId,
-  shared_ptr<istream>      inStream,
-  shared_ptr<iostream>     outStream,
-  IAuthenticationCallback& auth,
-  IConsentCallback       & consent)
+  const string                     & userId,
+  shared_ptr<istream>                inStream,
+  shared_ptr<iostream>               outStream,
+  IAuthenticationCallback          & auth,
+  IConsentCallback                 & consent,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   auto inIStream = rmscrypto::api::CreateStreamFromStdStream(inStream);
 
@@ -223,10 +227,11 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
     inIStream,
     userId,
     auth,
-    consent,
+    &consent,
     POL_None,
     static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY
-                                    | RESPONSE_CACHE_ONDISK));
+                                    | RESPONSE_CACHE_ONDISK),
+    cancelState);
 
   if ((fsResult.get() != nullptr) && (fsResult->m_status == Success) &&
       (fsResult->m_stream != nullptr)) {

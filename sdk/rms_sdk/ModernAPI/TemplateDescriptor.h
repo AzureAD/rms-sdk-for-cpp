@@ -57,10 +57,12 @@ public:
    * @param authenticationCallback Callback to utilize for auth.
    * @return the list of templates
    */
-  static std::shared_future<std::shared_ptr<std::vector<TemplateDescriptor>> >GetTemplateListAsync(
-    const std::string      & userId,
-    IAuthenticationCallback& authenticationCallback,
-    std::launch              launchType);
+  static std::shared_future<std::shared_ptr<std::vector<TemplateDescriptor> > >
+  GetTemplateListAsync(
+    const std::string                & userId,
+    IAuthenticationCallback          & authenticationCallback,
+    std::launch                        launchType,
+    std::shared_ptr<std::atomic<bool> >cancelState = nullptr);
 
 
   TemplateDescriptor(const std::string& id,

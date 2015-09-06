@@ -25,34 +25,34 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace modernapi {
-GetUserPolicyResult::GetUserPolicyResult(GetUserPolicyResultStatus   status,
-                                         std::shared_ptr<string>     referrer,
-                                         std::shared_ptr<UserPolicy> policy) :
+GetUserPolicyResult::GetUserPolicyResult(GetUserPolicyResultStatus  status,
+                                         std::shared_ptr<string>    referrer,
+                                         std::shared_ptr<UserPolicy>policy) :
   Status(status),
   Referrer(referrer),
   Policy(policy)
 {}
 
-UserPolicy::UserPolicy(shared_ptr<core::ProtectionPolicy> pImpl) : m_pImpl(pImpl) {
+UserPolicy::UserPolicy(shared_ptr<core::ProtectionPolicy>pImpl) : m_pImpl(pImpl) {
   if (pImpl->IsAdhoc()) m_policyDescriptor =
       make_shared<modernapi::PolicyDescriptor>(pImpl);
   else m_templateDescriptor = make_shared<modernapi::TemplateDescriptor>(pImpl);
 }
 
-shared_ptr<GetUserPolicyResult> UserPolicy::Acquire(
-      const std::vector<unsigned char>& serializedPolicy,
-      const string                    & userId,
-      IAuthenticationCallback         & authenticationCallback,
-      IConsentCallback                & consentCallback,
-      PolicyAcquisitionOptions          options,
-      ResponseCacheFlags                cacheMask)
+shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
+  const std::vector<unsigned char> & serializedPolicy,
+  const string                     & userId,
+  IAuthenticationCallback          & authenticationCallback,
+  IConsentCallback                  *consentCallback,
+  PolicyAcquisitionOptions           options,
+  ResponseCacheFlags                 cacheMask,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Hidden("+UserPolicy::Acquire");
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
   ConsentCallbackImpl consentCallbackImpl(consentCallback, userId, false);
-  common::Event ev;
 
   shared_ptr<ProtectionPolicy> pImpl = ProtectionPolicy::Acquire(
     serializedPolicy.data(),
@@ -61,7 +61,7 @@ shared_ptr<GetUserPolicyResult> UserPolicy::Acquire(
     consentCallbackImpl,
     userId,
     (options & PolicyAcquisitionOptions::POL_OfflineOnly),
-    ev,
+    cancelState,
     cacheMask);
 
   auto referrer = make_shared<std::string>(pImpl->GetReferrer());
@@ -69,44 +69,45 @@ shared_ptr<GetUserPolicyResult> UserPolicy::Acquire(
   shared_ptr<GetUserPolicyResult> result;
 
   switch (pImpl->GetAccessStatus()) {
-    case AccessStatus::ACCESS_STATUS_ACCESS_GRANTED:
+  case AccessStatus::ACCESS_STATUS_ACCESS_GRANTED:
 
-      result = make_shared<GetUserPolicyResult>(
-        GetUserPolicyResultStatus::Success,
-        referrer,
-        shared_ptr<UserPolicy>(new UserPolicy(pImpl)));
-      break;
+    result = make_shared<GetUserPolicyResult>(
+      GetUserPolicyResultStatus::Success,
+      referrer,
+      shared_ptr<UserPolicy>(new UserPolicy(pImpl)));
+    break;
 
-    case AccessStatus::ACCESS_STATUS_ACCESS_DENIED:
+  case AccessStatus::ACCESS_STATUS_ACCESS_DENIED:
 
-      result = make_shared<GetUserPolicyResult>(
-        GetUserPolicyResultStatus::NoRights,
-        referrer,
-        nullptr);
-      break;
+    result = make_shared<GetUserPolicyResult>(
+      GetUserPolicyResultStatus::NoRights,
+      referrer,
+      nullptr);
+    break;
 
-    case AccessStatus::ACCESS_STATUS_ACCESS_EXPIRED:
+  case AccessStatus::ACCESS_STATUS_ACCESS_EXPIRED:
 
-      result = make_shared<GetUserPolicyResult>(
-        GetUserPolicyResultStatus::Expired,
-        referrer,
-        nullptr);
-      break;
+    result = make_shared<GetUserPolicyResult>(
+      GetUserPolicyResultStatus::Expired,
+      referrer,
+      nullptr);
+    break;
 
-    default:
-      throw exceptions::RMSInvalidArgumentException("Invalid Access Status");
+  default:
+    throw exceptions::RMSInvalidArgumentException("Invalid Access Status");
   } // switch
 
   Logger::Hidden("-UserPolicy::Acquire");
   return result;
 } // UserPolicy::Acquire
 
-std::shared_ptr<UserPolicy> UserPolicy::CreateFromTemplateDescriptor(
+std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
   const modernapi::TemplateDescriptor& templateDescriptor,
   const string                       & userId,
   IAuthenticationCallback            & authenticationCallback,
   UserPolicyCreationOptions            options,
-  const AppDataHashMap               & signedAppData)
+  const AppDataHashMap               & signedAppData,
+  std::shared_ptr<std::atomic<bool> >  cancelState)
 {
   Logger::Hidden("+UserPolicy::CreateFromTemplateDescriptor");
 
@@ -131,18 +132,20 @@ std::shared_ptr<UserPolicy> UserPolicy::CreateFromTemplateDescriptor(
     templateId,
     authenticationCallbackImpl,
     userId,
-    signedApplicationData);
+    signedApplicationData,
+    cancelState);
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
   Logger::Hidden("-UserPolicy::CreateFromTemplateDescriptor");
   return result;
 } // UserPolicy::CreateFromTemplateDescriptor
 
-std::shared_ptr<UserPolicy> UserPolicy::Create(
-  modernapi::PolicyDescriptor& policyDescriptor,
-  const string               & userId,
-  IAuthenticationCallback    & authenticationCallback,
-  UserPolicyCreationOptions    options)
+std::shared_ptr<UserPolicy>UserPolicy::Create(
+  modernapi::PolicyDescriptor      & policyDescriptor,
+  const string                     & userId,
+  IAuthenticationCallback          & authenticationCallback,
+  UserPolicyCreationOptions          options,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Hidden("+UserPolicy::Create");
 
@@ -177,18 +180,23 @@ std::shared_ptr<UserPolicy> UserPolicy::Create(
           auto users = userRights.Users();
 
           transform(begin(users), end(users), back_inserter(userRightsImpl.users),
-            [](string& user) {return user;}
-          );
+                    [](string& user) {
+            return user;
+          }
+                    );
 
           auto rights = userRights.Rights();
 
-          transform(begin(rights), end(rights), back_inserter(userRightsImpl.rights),
-            [](string& right) {return right;}
-          );
+          transform(begin(rights), end(rights),
+                    back_inserter(userRightsImpl.rights),
+                    [](string& right) {
+            return right;
+          }
+                    );
 
           policyDescriptorImpl.userRightsList.emplace_back(move(userRightsImpl));
-       }
-    );
+        }
+             );
   } else { // if (policyDescriptor.UserRolesList != nullptr)
     auto roles = policyDescriptor.UserRolesList();
 
@@ -198,18 +206,22 @@ std::shared_ptr<UserPolicy> UserPolicy::Create(
           auto users = userRoles.Users();
 
           transform(begin(users), end(users), back_inserter(userRolesImpl.users),
-            [](string& user) {return user;}
-          );
+                    [](string& user) {
+            return user;
+          }
+                    );
 
           auto roles = userRoles.Roles();
 
           transform(begin(roles), end(roles), back_inserter(userRolesImpl.roles),
-            [](string& role) {return role;}
-          );
+                    [](string& role) {
+            return role;
+          }
+                    );
 
           policyDescriptorImpl.userRolesList.emplace_back(move(userRolesImpl));
-       }
-    ); // foreach
+        }
+             ); // foreach
   } // if/else
 
   if (!policyDescriptor.EncryptedAppData().empty()) {
@@ -239,7 +251,8 @@ std::shared_ptr<UserPolicy> UserPolicy::Create(
     (options & UserPolicyCreationOptions::USER_AllowAuditedExtraction),
     policyDescriptorImpl,
     authenticationCallbackImpl,
-    userId);
+    userId,
+    cancelState);
 
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
@@ -269,11 +282,11 @@ string UserPolicy::Description() {
   return m_pImpl->GetDescription();
 }
 
-shared_ptr<TemplateDescriptor> UserPolicy::TemplateDescriptor() {
+shared_ptr<TemplateDescriptor>UserPolicy::TemplateDescriptor() {
   return m_templateDescriptor;
 }
 
-shared_ptr<PolicyDescriptor> UserPolicy::PolicyDescriptor() {
+shared_ptr<PolicyDescriptor>UserPolicy::PolicyDescriptor() {
   return m_policyDescriptor;
 }
 
@@ -299,7 +312,7 @@ const AppDataHashMap UserPolicy::EncryptedAppData() {
   AppDataHashMap encryptedAppData;
 
   for_each(begin(encryptedAppDataImpl), end(encryptedAppDataImpl),
-    [&](const pair<string,string>& appDataEntry) {
+           [&](const pair<string, string>& appDataEntry) {
         encryptedAppData[appDataEntry.first] = appDataEntry.second;
       });
 
@@ -312,14 +325,14 @@ const AppDataHashMap UserPolicy::SignedAppData() {
   AppDataHashMap signedAppData;
 
   for_each(begin(signedAppDataImpl), end(signedAppDataImpl),
-    [&](const pair<string,string>& appDataEntry) {
+           [&](const pair<string, string>& appDataEntry) {
         signedAppData[appDataEntry.first] = appDataEntry.second;
       });
 
   return signedAppData;
 }
 
-chrono::time_point<chrono::system_clock> UserPolicy::ContentValidUntil()
+chrono::time_point<chrono::system_clock>UserPolicy::ContentValidUntil()
 {
   return m_pImpl->GetValidityTimeUntil();
 }
@@ -332,12 +345,13 @@ bool UserPolicy::IsAuditedExtractAllowed() {
   return m_pImpl->AccessCheck(CommonRights::AuditedExtract());
 }
 
-const std::vector<unsigned char> UserPolicy::SerializedPolicy() {
+const std::vector<unsigned char>UserPolicy::SerializedPolicy() {
   const auto& pl = m_pImpl->GetPublishLicense();
+
   return pl;
 }
 
-shared_ptr<ProtectionPolicy> UserPolicy::GetImpl() {
+shared_ptr<ProtectionPolicy>UserPolicy::GetImpl() {
   return m_pImpl;
 }
 } // namespace modernapi

@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include "ServiceDiscoveryClient.h"
 #include "RestHttpClient.h"
@@ -20,96 +20,104 @@
 using namespace rmscore::platform;
 using namespace rmscore::platform::logger;
 
-namespace rmscore { namespace restclients {
-
-static const std::string EMAIL_URL_PARAM = "?email=";
+namespace rmscore {
+namespace restclients {
+static const std::string EMAIL_URL_PARAM  = "?email=";
 static const std::string DOMAIN_URL_PARAM = "?service=";
 
-std::shared_ptr<IServiceDiscoveryClient> IServiceDiscoveryClient::Create()
+std::shared_ptr<IServiceDiscoveryClient>IServiceDiscoveryClient::Create()
 {
-    return std::make_shared<ServiceDiscoveryClient>();
+  return std::make_shared<ServiceDiscoveryClient>();
 }
 
 ServiceDiscoveryListResponse ServiceDiscoveryClient::GetServiceDiscoveryDetails(
-        const Domain &domain,
-        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-        const std::string& discoveryUrl)
+  const Domain                          & domain,
+  modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+  const std::string                     & discoveryUrl,
+  std::shared_ptr<std::atomic<bool> >     cancelState)
 {
-    auto url = this->CreateGetRequest(discoveryUrl, domain);
+  auto url = this->CreateGetRequest(discoveryUrl, domain);
 
-    common::Event cancelEvent;
-    auto result = RestHttpClient::Get(
-        url,
-        authenticationCallback,
-        &cancelEvent);
+  auto result = RestHttpClient::Get(
+    url,
+    authenticationCallback,
+    cancelState);
 
-    if (result.status != http::StatusCode::OK)
-    {
-        HandleRestClientError(result.status, result.responseBody);
-    }
+  if (result.status != http::StatusCode::OK)
+  {
+    HandleRestClientError(result.status, result.responseBody);
+  }
 
-    auto pJsonSerializer = json::IJsonSerializer::Create();
+  auto pJsonSerializer = json::IJsonSerializer::Create();
 
-    return pJsonSerializer->DeserializeServiceDiscoveryResponse(result.responseBody);
+  return pJsonSerializer->DeserializeServiceDiscoveryResponse(result.responseBody);
 }
 
 static std::locale s_loc;
 static bool CharEqual(char first, char second)
 {
-    return std::tolower(first, s_loc) == std::tolower(second, s_loc);
+  return std::tolower(first, s_loc) == std::tolower(second, s_loc);
 }
 
-std::string ServiceDiscoveryClient::CreateGetRequest(const std::string& discoveryUrl, const Domain &domain)
+std::string ServiceDiscoveryClient::CreateGetRequest(
+  const std::string& discoveryUrl,
+  const Domain     & domain)
 {
-    const std::string HTTPS_PROTOCOL = "https://";
-    std::stringstream ss;
+  const std::string HTTPS_PROTOCOL = "https://";
+  std::stringstream ss;
 
-    // Received DiscoveryService that begins with HTTP(s)://.
-    if (discoveryUrl.find("//") != std::string::npos)
+  // Received DiscoveryService that begins with HTTP(s)://.
+  if (discoveryUrl.find("//") != std::string::npos)
+  {
+    bool beginsWithHttps = std::equal(HTTPS_PROTOCOL.begin(),
+                                      HTTPS_PROTOCOL.end(),
+                                      discoveryUrl.begin(), CharEqual);
+
+    if (!beginsWithHttps)
     {
-        bool beginsWithHttps = std::equal(HTTPS_PROTOCOL.begin(), HTTPS_PROTOCOL.end(), discoveryUrl.begin(), CharEqual);
-        if (!beginsWithHttps)
-        {
-            Logger::Hidden("The following discovery service is unsecured: %s", discoveryUrl.c_str());
-            throw exceptions::RMSInvalidArgumentException("invalid servise name");
-        }
+      Logger::Hidden("The following discovery service is unsecured: %s",
+                     discoveryUrl.c_str());
+      throw exceptions::RMSInvalidArgumentException("invalid servise name");
     }
-    else
-    {
-        ss << HTTPS_PROTOCOL;
-    }
+  }
+  else
+  {
+    ss << HTTPS_PROTOCOL;
+  }
 
-    ss << discoveryUrl;
+  ss << discoveryUrl;
 
-    //discovery service URL is received in two forms
-    //e.g. 1 - https://<domain>
-    //e.g. 2 - https://<domain>/my/v1/servicediscovery
-    //So fix it
-    auto suffix = RestServiceUrls::GetDefaultTenant() + RestServiceUrls::GetServiceDiscoverySuffix();
-    bool endsWithSuffix = equal(suffix.rbegin(), suffix.rend(), discoveryUrl.rbegin(), CharEqual);
-    if (!endsWithSuffix)
-    {
-        ss << suffix;
-    }
+  // discovery service URL is received in two forms
+  // e.g. 1 - https://<domain>
+  // e.g. 2 - https://<domain>/my/v1/servicediscovery
+  // So fix it
+  auto suffix = RestServiceUrls::GetDefaultTenant() +
+                RestServiceUrls::GetServiceDiscoverySuffix();
+  bool endsWithSuffix = equal(suffix.rbegin(), suffix.rend(),
+                              discoveryUrl.rbegin(), CharEqual);
 
-    switch (domain.GetType())
-    {
-    case DomainType::Email:
-        ss << EMAIL_URL_PARAM;
-        break;
+  if (!endsWithSuffix)
+  {
+    ss << suffix;
+  }
 
-    case DomainType::Url:
-        ss << DOMAIN_URL_PARAM;
-        break;
+  switch (domain.GetType())
+  {
+  case DomainType::Email:
+    ss << EMAIL_URL_PARAM;
+    break;
 
-    default:
-        throw exceptions::RMSInvalidArgumentException("invalid domain type");
-    }
+  case DomainType::Url:
+    ss << DOMAIN_URL_PARAM;
+    break;
 
-    ss << domain.GetOriginalInput();
+  default:
+    throw exceptions::RMSInvalidArgumentException("invalid domain type");
+  }
 
-    return ss.str();
+  ss << domain.GetOriginalInput();
+
+  return ss.str();
 }
-
-}} // namespace rmscore { namespace restclients {
-
+}
+} // namespace rmscore { namespace restclients {

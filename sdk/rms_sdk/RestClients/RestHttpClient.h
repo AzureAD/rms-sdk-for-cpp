@@ -1,3 +1,4 @@
+
 /*
  * ======================================================================
  * Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
@@ -28,13 +29,13 @@ public:
   static Result Get(
     const std::string                     & sUrl,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    common::Event                          *hCancelEvent);
+    std::shared_ptr<std::atomic<bool> >     cancelState);
 
   static Result Post(
     const std::string                     & sUrl,
     common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    common::Event                          *hCancelEvent);
+    std::shared_ptr<std::atomic<bool> >     cancelState);
 
 private:
 
@@ -46,10 +47,11 @@ private:
 
   struct HttpRequestParameters
   {
-    HttpRequestType   type;
-    std::string       requestUrl;
-    common::ByteArray requestBody;
-    std::string       accessToken;
+    HttpRequestType                    type;
+    std::string                        requestUrl;
+    common::ByteArray                  requestBody;
+    std::string                        accessToken;
+    std::shared_ptr<std::atomic<bool> >cancelState;
   };
 
   static Result      DoHttpRequest(const HttpRequestParameters& parameters);

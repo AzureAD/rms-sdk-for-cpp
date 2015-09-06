@@ -23,41 +23,49 @@ namespace restclients {
 PublishResponse PublishClient::PublishUsingTemplate(
   const PublishUsingTemplateRequest     & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                       sEmail)
+  const std::string                       sEmail,
+  std::shared_ptr<std::atomic<bool> >     cancelState)
 {
   auto pJsonSerializer   = IJsonSerializer::Create();
   auto serializedRequest = pJsonSerializer->SerializePublishUsingTemplateRequest(
     request);
 
-  return PublishCommon(move(serializedRequest), authenticationCallback, sEmail);
+  return PublishCommon(move(
+                         serializedRequest), authenticationCallback, sEmail,
+                       cancelState);
 }
 
 PublishResponse PublishClient::PublishCustom(
   const PublishCustomRequest            & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                       sEmail)
+  const std::string                       sEmail,
+  std::shared_ptr<std::atomic<bool> >     cancelState)
 {
   auto pJsonSerializer   = IJsonSerializer::Create();
   auto serializedRequest =
     pJsonSerializer->SerializePublishCustomRequest(request);
 
-  return PublishCommon(move(serializedRequest), authenticationCallback, sEmail);
+  return PublishCommon(move(
+                         serializedRequest), authenticationCallback, sEmail,
+                       cancelState);
 }
 
 PublishResponse PublishClient::PublishCommon(
   common::ByteArray                    && requestBody,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                     & sEmail)
+  const std::string                     & sEmail,
+  std::shared_ptr<std::atomic<bool> >     cancelState)
 {
   auto pRestServiceUrlClient = RestServiceUrlClient::Create();
   auto publishUrl            = pRestServiceUrlClient->GetPublishUrl(sEmail,
-                                                                    authenticationCallback);
+                                                                    authenticationCallback,
+                                                                    cancelState);
 
   auto result = RestHttpClient::Post(
     publishUrl,
     move(requestBody),
     authenticationCallback,
-    nullptr);
+    cancelState);
 
   if (StatusCode::OK != result.status)
   {

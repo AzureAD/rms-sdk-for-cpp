@@ -96,16 +96,16 @@ public:
    @param cacheMask How API responses should be cached.
    @return A GetProtectedFileStreamResult struct with status and pointer to wrapped stream.
   */
-  static std::shared_ptr<GetProtectedFileStreamResult> Acquire(
-    rmscrypto::api::SharedStream stream,
+  static std::shared_ptr<GetProtectedFileStreamResult> Acquire(rmscrypto::api::SharedStream stream,
     const std::string          & userId,
     IAuthenticationCallback    & authenticationCallback,
-    IConsentCallback           & consentCallback,
+    IConsentCallback           * consentCallback,
     PolicyAcquisitionOptions     options,
     ResponseCacheFlags           cacheMask
       = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
                                         RESPONSE_CACHE_ONDISK |
-                                        RESPONSE_CACHE_CRYPTED));
+                                        RESPONSE_CACHE_CRYPTED),
+    std::shared_ptr<std::atomic<bool> > cancelState = nullptr);
 
   /*!
   @brief Wrap a new stream as a protected stream.

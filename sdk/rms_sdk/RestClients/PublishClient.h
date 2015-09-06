@@ -17,12 +17,14 @@ public:
   virtual PublishResponse PublishUsingTemplate(
     const PublishUsingTemplateRequest     & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       sEmail)
+    const std::string                       sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState)
   override;
   virtual PublishResponse PublishCustom(
     const PublishCustomRequest            & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       sEmail)
+    const std::string                       sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState)
   override;
 
 private:
@@ -30,7 +32,8 @@ private:
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & sEmail);
+    const std::string                     & sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState);
 };
 } // namespace restclients
 } // namespace rmscore

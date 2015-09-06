@@ -62,7 +62,7 @@ public:
     return m_accessStatus;
   }
 
-  bool AccessCheck(const std::string& right) const;
+  bool              AccessCheck(const std::string& right) const;
 
   const std::string GetId() const {
     return m_id;
@@ -100,9 +100,9 @@ public:
     m_requester = requester;
   }
 
-  bool IsIssuedToOwner() const;
+  bool                                              IsIssuedToOwner() const;
 
-  std::chrono::time_point<std::chrono::system_clock> GetValidityTimeFrom() const {
+  std::chrono::time_point<std::chrono::system_clock>GetValidityTimeFrom() const {
     return m_ftValidityTimeFrom;
   }
 
@@ -112,7 +112,7 @@ public:
 
   uint64_t GetValidityTimeDuration() const;
 
-  bool AllowOfflineAccess() const {
+  bool     AllowOfflineAccess() const {
     return m_bAllowOfflineAccess;
   }
 
@@ -124,11 +124,11 @@ public:
     return m_bHasUserRightsInformation;
   }
 
-  const std::vector<UserRightsImpl> GetUserRightsList() const {
+  const std::vector<UserRightsImpl>GetUserRightsList() const {
     return m_userRightsList;
   }
 
-  const std::vector<UserRolesImpl> GetUserRolesList() const {
+  const std::vector<UserRolesImpl>GetUserRolesList() const {
     return m_userRolesList;
   }
 
@@ -144,7 +144,7 @@ public:
     return m_cipherMode;
   }
 
-  std::shared_ptr<rmscrypto::api::ICryptoProvider> GetCryptoProvider() const {
+  std::shared_ptr<rmscrypto::api::ICryptoProvider>GetCryptoProvider() const {
     return m_pCryptoProvider;
   }
 
@@ -154,41 +154,43 @@ public:
 
 public:
 
-  static std::shared_ptr<ProtectionPolicy> Acquire(
+  static std::shared_ptr<ProtectionPolicy>Acquire(
     const uint8_t                          *pbPublishLicense,
     const size_t                            cbPublishLicense,
     modernapi::IAuthenticationCallbackImpl& authCallback,
     const std::string                     & email,
     const bool                              bOffline,
-    common::Event                         & hCancelEvent,
+    std::shared_ptr<std::atomic<bool> >     cancelState,
     modernapi::ResponseCacheFlags           cacheMask);
 
-  static std::shared_ptr<ProtectionPolicy> Acquire(
+  static std::shared_ptr<ProtectionPolicy>Acquire(
     const uint8_t                          *pbPublishLicense,
     const size_t                            cbPublishLicense,
     modernapi::IAuthenticationCallbackImpl& authCallback,
     modernapi::IConsentCallbackImpl       & consentCallback,
     const std::string                     & email,
     const bool                              bOffline,
-    common::Event                         & hCancelEvent,
+    std::shared_ptr<std::atomic<bool> >     cancelState,
     modernapi::ResponseCacheFlags           cacheMask);
 
-  static std::shared_ptr<ProtectionPolicy> Create(
+  static std::shared_ptr<ProtectionPolicy>Create(
     const bool                              bPreferDeprecatedAlgorithms,
     const bool                              bAllowAuditedExtraction,
     const std::string                     & templateId,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & email,
-    const modernapi::AppDataHashMap       & signedAppData);
+    const modernapi::AppDataHashMap       & signedAppData,
+    std::shared_ptr<std::atomic<bool> >     cancelState);
 
-  static std::shared_ptr<ProtectionPolicy> Create(
+  static std::shared_ptr<ProtectionPolicy>Create(
     const bool                              bPreferDeprecatedAlgorithms,
     const bool                              bAllowAuditedExtraction,
     PolicyDescriptorImpl                  & descriptor,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & email);
+    const std::string                     & email,
+    std::shared_ptr<std::atomic<bool> >     cancelState);
 
-  static std::shared_ptr<ProtectionPolicy> GetCachedProtectionPolicy(
+  static std::shared_ptr<ProtectionPolicy>GetCachedProtectionPolicy(
     const uint8_t    *pbPublishLicense,
     const size_t      cbPublishLicense,
     const std::string requester = std::string());
@@ -196,9 +198,9 @@ public:
   ProtectionPolicy();
 
   void Initialize(
-    const uint8_t                                          *pbPublishLicense,
-    size_t                                                  cbPublishLicense,
-    std::shared_ptr<restclients::UsageRestrictionsResponse> response);
+    const uint8_t                                         *pbPublishLicense,
+    size_t                                                 cbPublishLicense,
+    std::shared_ptr<restclients::UsageRestrictionsResponse>response);
 
   void Initialize(restclients::PublishResponse   & response,
                   bool                             bAllowAuditedExtraction,
@@ -208,15 +210,15 @@ public:
                   const modernapi::AppDataHashMap& encryptedData =
                     modernapi::AppDataHashMap());
 
-  void InitializeValidityTime(
+  void        InitializeValidityTime(
     const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil);
-  void InitializeIntervalTime(
+  void        InitializeIntervalTime(
     const std::chrono::time_point<std::chrono::system_clock>& ftLicenseValidUntil);
 
-  void InitializeKey(restclients::KeyDetailsResponse& response);
+  void        InitializeKey(restclients::KeyDetailsResponse& response);
 
   static void AddProtectionPolicyToCache(
-    std::shared_ptr<ProtectionPolicy> pProtectionPolicy);
+    std::shared_ptr<ProtectionPolicy>pProtectionPolicy);
 
 private:
 
@@ -255,7 +257,7 @@ private:
 
 private:
 
-  typedef std::list<std::shared_ptr<ProtectionPolicy>> CachedProtectionPolicies;
+  typedef std::list<std::shared_ptr<ProtectionPolicy> >CachedProtectionPolicies;
 
   static CachedProtectionPolicies *s_pCachedProtectionPolicies;
   static common::Mutex s_cachedProtectionPoliciesMutex;
