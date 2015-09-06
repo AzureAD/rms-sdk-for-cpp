@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include "PlatformHttpClientTest.h"
 #include "../../Platform/Logger/Logger.h"
@@ -28,7 +28,8 @@ void PlatformHttpClientTest::testHttpClient(bool enabled)
 
   http::StatusCode status = pclient->Get(
     url,
-    response);
+    response,
+    nullptr);
 
   QVERIFY2(status == http::StatusCode::UNAUTHORIZED,
            "pclient->Get: Unexpected status code");
@@ -38,12 +39,15 @@ void PlatformHttpClientTest::testHttpClient(bool enabled)
     url,
     rmscore::common::ByteArray(request.begin(), request.end()),
     "any",
-    response);
+    response,
+    nullptr);
 
-  QByteArray expected = QString("{\"Message\":\"The authorization token is not well-formed.\"}").toUtf8();
-  QByteArray actual((const char*)response.data(), (int)response.size());
+  QByteArray expected = QString(
+    "{\"Message\":\"The authorization token is not well-formed.\"}").toUtf8();
+  QByteArray actual((const char *)response.data(), (int)response.size());
 
   QCOMPARE(expected, actual);
 
-  QVERIFY2(status == http::StatusCode::UNAUTHORIZED, "pclient->Post: Unexpected status code");
+  QVERIFY2(status == http::StatusCode::UNAUTHORIZED,
+           "pclient->Post: Unexpected status code");
 }

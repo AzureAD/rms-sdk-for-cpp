@@ -9,9 +9,11 @@
 #ifndef _RMS_LIB_ITEMPLATESCLIENT_H_
 #define _RMS_LIB_ITEMPLATESCLIENT_H_
 
+#include <memory>
+#include <atomic>
+
 #include "RestObjects.h"
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
-#include <memory>
 namespace rmscore {
 namespace restclients {
 class ITemplatesClient {
@@ -19,8 +21,8 @@ public:
 
   virtual TemplateListResponse GetTemplates(
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & sEmail)
-    = 0;
+    const std::string                     & sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState) = 0;
 
 public:
 

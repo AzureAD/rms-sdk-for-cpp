@@ -103,6 +103,7 @@ private:
   Ui::MainWindow *ui;
   ConsentCallback consent;
   TemplatesCallbackUI templatesUI;
+  std::shared_ptr<std::atomic<bool> > cancelState;
 
   void                   addCertificates();
   std::vector<UserRights>openRightsDlg();

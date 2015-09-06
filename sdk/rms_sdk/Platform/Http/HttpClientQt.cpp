@@ -12,6 +12,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QEventLoop>
+#include <QTimer>
 
 #include "../Logger/Logger.h"
 #include "../../ModernAPI/RMSExceptions.h"
@@ -83,10 +84,12 @@ void HttpClientQt::AddHeader(const string& headerName,
   this->request_.setRawHeader(headerName.c_str(), headerValue.c_str());
 }
 
-StatusCode HttpClientQt::Post(const string           & url,
-                              const common::ByteArray& request,
-                              const string           & mediaType,
-                              common::ByteArray      & response) {
+StatusCode HttpClientQt::Post(const string                     & url,
+                              const common::ByteArray          & request,
+                              const string                     & mediaType,
+                              common::ByteArray                & response,
+                              std::shared_ptr<std::atomic<bool> >cancelState)
+{
   Logger::Info("==> HttpClientQt::POST %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
@@ -101,13 +104,39 @@ StatusCode HttpClientQt::Post(const string           & url,
   std::string req(request.begin(), request.end());
   Logger::Hidden("==> Request Body: %s", req.c_str());
 
-  lastReply_ =
-    this->manager_.post(this->request_,
-                        QByteArray(reinterpret_cast<const char *>(request.data()),
-                                   static_cast<int>(request.size())));
+  // first abort previous
+
+  lastReply_ = this->manager_.post(
+    this->request_,
+    QByteArray(reinterpret_cast<const char *>(request.data()),
+               static_cast<int>(request.size())));
+
+  QTimer timer;
   QEventLoop loop;
+  QObject::connect(&timer,     SIGNAL(timeout()),  &loop, SLOT(quit()));
   QObject::connect(lastReply_, SIGNAL(finished()), &loop, SLOT(quit()));
-  loop.exec();
+  QObject::connect(lastReply_, &QNetworkReply::sslErrors,
+                   [ = ](QList<QSslError>errorList) {
+          for (auto& error : errorList) {
+            Logger::Error("QSslError: %s",
+                          error.errorString().toStdString().c_str());
+            throw exceptions::RMSNetworkException(
+              error.errorString().toStdString(),
+              exceptions::RMSNetworkException::ServerError);
+          }
+        });
+
+  do {
+    timer.start(500);
+    loop.exec();
+
+    // check abandom
+    if ((cancelState != nullptr) && cancelState->load()) {
+      throw exceptions::RMSNetworkException(
+              "Network operation was cancelled by user",
+              exceptions::RMSNetworkException::CancelledByUser);
+    }
+  } while (!timer.isActive() || !lastReply_->isFinished());
 
   QVariant statusCode = lastReply_->attribute(
     QNetworkRequest::HttpStatusCodeAttribute);
@@ -133,7 +162,10 @@ StatusCode HttpClientQt::Post(const string           & url,
   return StatusCode(statusCode.toInt());
 }
 
-StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
+StatusCode HttpClientQt::Get(const string                     & url,
+                             common::ByteArray                & response,
+                             std::shared_ptr<std::atomic<bool> >cancelState)
+{
   Logger::Info("==> HttpClientQt::GET %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
@@ -145,7 +177,9 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
   }
 
   lastReply_ = this->manager_.get(this->request_);
+  QTimer timer;
   QEventLoop loop;
+  QObject::connect(&timer,     SIGNAL(timeout()),  &loop, SLOT(quit()));
   QObject::connect(lastReply_, SIGNAL(finished()), &loop, SLOT(quit()));
   QObject::connect(lastReply_, &QNetworkReply::sslErrors,
                    [ = ](QList<QSslError>errorList) {
@@ -157,7 +191,18 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
               exceptions::RMSNetworkException::ServerError);
           }
         });
-  loop.exec();
+
+  do {
+    timer.start(500);
+    loop.exec();
+
+    // check abandom
+    if ((cancelState != nullptr) && cancelState->load()) {
+      throw exceptions::RMSNetworkException(
+              "Network operation was cancelled by user",
+              exceptions::RMSNetworkException::CancelledByUser);
+    }
+  } while (!timer.isActive() || !lastReply_->isFinished());
 
   QVariant statusCode = lastReply_->attribute(
     QNetworkRequest::HttpStatusCodeAttribute);
@@ -184,7 +229,7 @@ StatusCode HttpClientQt::Get(const string& url, common::ByteArray& response) {
 }
 
 const string HttpClientQt::GetResponseHeader(const string& headerName) {
-  return string(this->lastReply_->rawHeader(headerName.c_str()).data());
+  return string(lastReply_->rawHeader(headerName.c_str()).data());
 }
 
 void HttpClientQt::SetAllowUI(bool /* allow*/)

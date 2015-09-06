@@ -69,11 +69,12 @@ void RestServiceUrlClient::GetConsent(IConsentCallbackImpl& consentCallback,
 }
 
 string RestServiceUrlClient::GetEndUserLicensesUrl(
-  const void                  *pbPublishLicense,
-  const size_t                 cbPublishLicense,
-  const string               & sEmail,
-  IAuthenticationCallbackImpl& authenticationCallback,
-  IConsentCallbackImpl       & consentCallback)
+  const void                        *pbPublishLicense,
+  const size_t                       cbPublishLicense,
+  const string                     & sEmail,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  IConsentCallbackImpl             & consentCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -84,7 +85,8 @@ string RestServiceUrlClient::GetEndUserLicensesUrl(
                                                          cbPublishLicense,
                                                          sEmail,
                                                          authenticationCallback,
-                                                         &consentCallback);
+                                                         &consentCallback,
+                                                         cancelState);
   }
   else
   {
@@ -94,8 +96,10 @@ string RestServiceUrlClient::GetEndUserLicensesUrl(
   return string(serviceDiscoveryDetails->EndUserLicensesUrl);
 }
 
-string RestServiceUrlClient::GetTemplatesUrl(const string               & sEmail,
-                                             IAuthenticationCallbackImpl& authenticationCallback)
+string RestServiceUrlClient::GetTemplatesUrl(
+  const string                     & sEmail,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -106,14 +110,18 @@ string RestServiceUrlClient::GetTemplatesUrl(const string               & sEmail
       nullptr,
       0,
       sEmail,
-      authenticationCallback);
+      authenticationCallback,
+      nullptr,
+      cancelState);
     serviceDiscoveryDetailsCache[string(sEmail)] = serviceDiscoveryDetails;
   }
   return string(serviceDiscoveryDetails->TemplatesUrl);
 }
 
-string RestServiceUrlClient::GetPublishUrl(const string               & sEmail,
-                                           IAuthenticationCallbackImpl& authenticationCallback)
+string RestServiceUrlClient::GetPublishUrl(
+  const string                     & sEmail,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -124,15 +132,18 @@ string RestServiceUrlClient::GetPublishUrl(const string               & sEmail,
       nullptr,
       0,
       sEmail,
-      authenticationCallback);
+      authenticationCallback,
+      nullptr,
+      cancelState);
     serviceDiscoveryDetailsCache[string(sEmail)] = serviceDiscoveryDetails;
   }
   return string(serviceDiscoveryDetails->PublishingLicensesUrl);
 }
 
 string RestServiceUrlClient::GetCloudDiagnosticsServerUrl(
-  const string               & sEmail,
-  IAuthenticationCallbackImpl& authenticationCallback)
+  const string                     & sEmail,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -143,15 +154,18 @@ string RestServiceUrlClient::GetCloudDiagnosticsServerUrl(
       nullptr,
       0,
       sEmail,
-      authenticationCallback);
+      authenticationCallback,
+      nullptr,
+      cancelState);
     serviceDiscoveryDetailsCache[string(sEmail)] = serviceDiscoveryDetails;
   }
   return string(serviceDiscoveryDetails->CloudDiagnosticsServerUrl);
 }
 
 string RestServiceUrlClient::GetPerformanceServerUrl(
-  const string               & sEmail,
-  IAuthenticationCallbackImpl& authenticationCallback)
+  const string                     & sEmail,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
     FindCache(sEmail);
@@ -162,7 +176,9 @@ string RestServiceUrlClient::GetPerformanceServerUrl(
       nullptr,
       0,
       sEmail,
-      authenticationCallback);
+      authenticationCallback,
+      nullptr,
+      cancelState);
     serviceDiscoveryDetailsCache[string(sEmail)] = serviceDiscoveryDetails;
   }
   return string(serviceDiscoveryDetails->PerformanceServerUrl);
@@ -170,11 +186,12 @@ string RestServiceUrlClient::GetPerformanceServerUrl(
 
 shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::
 GetServiceDiscoveryDetails(
-  const void                  *pbPublishLicense,
-  const size_t                 cbPublishLicense,
-  const string               & sEmail,
-  IAuthenticationCallbackImpl& authenticationCallback,
-  IConsentCallbackImpl        *consentCallback)
+  const void                        *pbPublishLicense,
+  const size_t                       cbPublishLicense,
+  const string                     & sEmail,
+  IAuthenticationCallbackImpl      & authenticationCallback,
+  IConsentCallbackImpl              *consentCallback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   // If service discovery is not enabled, return default
   // In publish if empty string is passed as userid, return default
@@ -345,7 +362,7 @@ GetServiceDiscoveryDetails(
     IServiceDiscoveryClient::Create();
   auto serviceDiscoveryResponse =
     serviceDiscoveryClient->GetServiceDiscoveryDetails(
-      *selectedDomain, authenticationCallback, discoveryUrl);
+      *selectedDomain, authenticationCallback, discoveryUrl, cancelState);
 
   auto serviceDiscoveryDetails = make_shared<ServiceDiscoveryDetails>();
   serviceDiscoveryDetails->Ttl = static_cast<uint32_t>(-1); // TODO : Currently

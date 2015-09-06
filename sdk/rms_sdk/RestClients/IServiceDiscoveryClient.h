@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #ifndef _RMS_LIB_ISERVICEDISCOVERYCLIENT_H_
 #define _RMS_LIB_ISERVICEDISCOVERYCLIENT_H_
@@ -16,20 +16,23 @@
 
 #include <string>
 #include <memory>
+#include <atomic>
 
-namespace rmscore { namespace restclients {
-
+namespace rmscore {
+namespace restclients {
 class IServiceDiscoveryClient {
 public:
-    virtual ServiceDiscoveryListResponse GetServiceDiscoveryDetails(
-        const Domain &domain,
-        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-        const std::string& discoveryUrl) = 0;
+
+  virtual ServiceDiscoveryListResponse GetServiceDiscoveryDetails(
+    const Domain                          & domain,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string                     & discoveryUrl,
+    std::shared_ptr<std::atomic<bool> >     cancelState) = 0;
 
 public:
+
   static std::shared_ptr<IServiceDiscoveryClient>Create();
 };
-
 } // namespace restclients
 } // namespace rmscore
 #endif // _RMS_LIB_ISERVICEDISCOVERYCLIENT_H_

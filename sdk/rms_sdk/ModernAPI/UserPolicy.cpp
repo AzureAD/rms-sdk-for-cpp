@@ -40,19 +40,19 @@ UserPolicy::UserPolicy(shared_ptr<core::ProtectionPolicy>pImpl) : m_pImpl(pImpl)
 }
 
 shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
-  const std::vector<unsigned char>& serializedPolicy,
-  const string                    & userId,
-  IAuthenticationCallback         & authenticationCallback,
-  IConsentCallback                 *consentCallback,
-  PolicyAcquisitionOptions          options,
-  ResponseCacheFlags                cacheMask)
+  const std::vector<unsigned char> & serializedPolicy,
+  const string                     & userId,
+  IAuthenticationCallback          & authenticationCallback,
+  IConsentCallback                  *consentCallback,
+  PolicyAcquisitionOptions           options,
+  ResponseCacheFlags                 cacheMask,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Hidden("+UserPolicy::Acquire");
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
   ConsentCallbackImpl consentCallbackImpl(consentCallback, userId, false);
-  common::Event ev;
 
   shared_ptr<ProtectionPolicy> pImpl = ProtectionPolicy::Acquire(
     serializedPolicy.data(),
@@ -61,7 +61,7 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
     consentCallbackImpl,
     userId,
     (options & PolicyAcquisitionOptions::POL_OfflineOnly),
-    ev,
+    cancelState,
     cacheMask);
 
   auto referrer = make_shared<std::string>(pImpl->GetReferrer());
@@ -106,7 +106,8 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
   const string                       & userId,
   IAuthenticationCallback            & authenticationCallback,
   UserPolicyCreationOptions            options,
-  const AppDataHashMap               & signedAppData)
+  const AppDataHashMap               & signedAppData,
+  std::shared_ptr<std::atomic<bool> >  cancelState)
 {
   Logger::Hidden("+UserPolicy::CreateFromTemplateDescriptor");
 
@@ -131,7 +132,8 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
     templateId,
     authenticationCallbackImpl,
     userId,
-    signedApplicationData);
+    signedApplicationData,
+    cancelState);
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
   Logger::Hidden("-UserPolicy::CreateFromTemplateDescriptor");
@@ -139,10 +141,11 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
 } // UserPolicy::CreateFromTemplateDescriptor
 
 std::shared_ptr<UserPolicy>UserPolicy::Create(
-  modernapi::PolicyDescriptor& policyDescriptor,
-  const string               & userId,
-  IAuthenticationCallback    & authenticationCallback,
-  UserPolicyCreationOptions    options)
+  modernapi::PolicyDescriptor      & policyDescriptor,
+  const string                     & userId,
+  IAuthenticationCallback          & authenticationCallback,
+  UserPolicyCreationOptions          options,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Hidden("+UserPolicy::Create");
 
@@ -248,7 +251,8 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
     (options & UserPolicyCreationOptions::USER_AllowAuditedExtraction),
     policyDescriptorImpl,
     authenticationCallbackImpl,
-    userId);
+    userId,
+    cancelState);
 
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 

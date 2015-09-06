@@ -45,12 +45,13 @@ ProtectedFileStream::ProtectedFileStream(SharedStream          pImpl,
 ProtectedFileStream::~ProtectedFileStream() {}
 
 shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
-  SharedStream             stream,
-  const string           & userId,
-  IAuthenticationCallback& authenticationCallback,
+  SharedStream                       stream,
+  const string                     & userId,
+  IAuthenticationCallback          & authenticationCallback,
   IConsentCallback        * /*consentCallback*/,
-  PolicyAcquisitionOptions options,
-  ResponseCacheFlags       cacheMask)
+  PolicyAcquisitionOptions           options,
+  ResponseCacheFlags                 cacheMask,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Hidden("+ProtectedFileStream::Get");
 
@@ -83,16 +84,18 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
       throw;
     }
   }
-
   if (pHeader != nullptr) {
     ByteArray publishingLicense = pHeader->GetPublishingLicense();
     auto policyRequest          = UserPolicy::Acquire(publishingLicense,
                                                       userId,
                                                       authenticationCallback,
-                                                      // TODO: remove this in future after consents has been implemented
-                                                      /*consentCallback*/nullptr,
+
+// TODO: remove this in future after consents has been implemented
+
+                                                      /*consentCallback*/ nullptr,
                                                       options,
-                                                      cacheMask);
+                                                      cacheMask,
+                                                      cancelState);
 
     if ((policyRequest->Status == GetUserPolicyResultStatus::Success) &&
         (policyRequest->Policy != nullptr)) {

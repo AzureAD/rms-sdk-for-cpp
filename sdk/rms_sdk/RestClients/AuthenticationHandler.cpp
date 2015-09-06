@@ -4,7 +4,7 @@
  * Licensed under the MIT License.
  * See LICENSE.md in the project root for license information.
  * ======================================================================
-*/
+ */
 
 #include <algorithm>
 #include <vector>
@@ -24,8 +24,9 @@ using namespace std;
 namespace rmscore {
 namespace restclients {
 string AuthenticationHandler::GetAccessTokenForUrl(
-  const string               & sUrl,
-  IAuthenticationCallbackImpl& callback)
+  const string                     & sUrl,
+  IAuthenticationCallbackImpl      & callback,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   AuthenticationChallenge challenge;
 
@@ -33,7 +34,7 @@ string AuthenticationHandler::GetAccessTokenForUrl(
   // for now)
   if (callback.NeedsChallenge())
   {
-    challenge = GetChallengeForUrl(sUrl);
+    challenge = GetChallengeForUrl(sUrl, cancelState);
   }
 
   return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
@@ -41,14 +42,15 @@ string AuthenticationHandler::GetAccessTokenForUrl(
 }
 
 AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(
-  const string& sUrl)
+  const string                     & sUrl,
+  std::shared_ptr<std::atomic<bool> >cancelState)
 {
   // do a dummy get to the url to get the auth challenge
 
   auto pHttpClient = IHttpClient::Create();
 
   common::ByteArray response;
-  StatusCode nStatusCode = pHttpClient->Get(sUrl, response);
+  StatusCode nStatusCode = pHttpClient->Get(sUrl, response, cancelState);
 
   // this must be an authenticated endpoint and we must get a 401
   // (unauthorized).
