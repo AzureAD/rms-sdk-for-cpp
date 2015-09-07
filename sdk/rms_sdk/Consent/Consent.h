@@ -28,6 +28,10 @@ public:
     return this->result_;
   }
 
+  virtual void Result(const modernapi::ConsentResult& value) {
+    this->result_ = value;
+  }
+
   //    virtual void ConsentResult(const modernapi::ConsentResult& value)
   // override
   //    {
