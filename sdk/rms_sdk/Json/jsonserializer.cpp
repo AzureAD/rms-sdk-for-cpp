@@ -361,6 +361,10 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
   // parse expiry times
   if (!response.contentValidUntil.empty())
   {
+    // add Z at end - because Content Valid in UTC
+    if(response.contentValidUntil.end()[-1] != 'Z') {
+        response.contentValidUntil += 'Z';
+    }
     auto tmp = common::DateTime::fromString(
       QString::fromStdString(response.contentValidUntil), Qt::ISODate);
     response.ftContentValidUntil = std::chrono::system_clock::from_time_t(
