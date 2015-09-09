@@ -21,6 +21,18 @@ See the [API reference](http://azuread.github.io/rms-sdk-for-cpp/index.html), cr
 
 Documentation of the source is ongoing.
 
+## Platform support
+* Ubuntu 14.04 or above
+* Red Hat 6.5 or above
+* CentOS 6.5 or above
+* OpenSuSe 13.2 or above
+
+## Requirements
+* gcc-c++ 4.8 or above
+* openssl 1.0 or above
+* libsecret 1.0 or above
+* Qt 5.2.1 or above 
+
 ## Troubleshooting
 
 Information about requests is logged to `rms_log_*`, `rmsauth_log_*`, and `rmscrypto_log_*` in the folder where the executable using these libraries is called from. Request and response headers and some other info is not logged by default to avoid leaking sensitive information. To enable these hidden logs, set an environment variable `RMS_HIDDEN_LOG` to `ON`. For example:
