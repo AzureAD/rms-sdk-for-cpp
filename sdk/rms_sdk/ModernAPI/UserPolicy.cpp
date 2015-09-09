@@ -43,7 +43,7 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
   const std::vector<unsigned char> & serializedPolicy,
   const string                     & userId,
   IAuthenticationCallback          & authenticationCallback,
-  IConsentCallback                  *consentCallback,
+  IConsentCallback                  * /*consentCallback*/,
   PolicyAcquisitionOptions           options,
   ResponseCacheFlags                 cacheMask,
   std::shared_ptr<std::atomic<bool> >cancelState)
@@ -52,7 +52,9 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
-  ConsentCallbackImpl consentCallbackImpl(consentCallback, userId, false);
+  ConsentCallbackImpl consentCallbackImpl(/*consentCallback*/ nullptr,
+                                                              userId,
+                                                              false);
 
   shared_ptr<ProtectionPolicy> pImpl = ProtectionPolicy::Acquire(
     serializedPolicy.data(),

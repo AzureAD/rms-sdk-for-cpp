@@ -48,7 +48,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   SharedStream                       stream,
   const string                     & userId,
   IAuthenticationCallback          & authenticationCallback,
-  IConsentCallback        * /*consentCallback*/,
+  IConsentCallback                  *consentCallback,
   PolicyAcquisitionOptions           options,
   ResponseCacheFlags                 cacheMask,
   std::shared_ptr<std::atomic<bool> >cancelState)
@@ -89,10 +89,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
     auto policyRequest          = UserPolicy::Acquire(publishingLicense,
                                                       userId,
                                                       authenticationCallback,
-
-// TODO: remove this in future after consents has been implemented
-
-                                                      /*consentCallback*/ nullptr,
+                                                      consentCallback,
                                                       options,
                                                       cacheMask,
                                                       cancelState);
