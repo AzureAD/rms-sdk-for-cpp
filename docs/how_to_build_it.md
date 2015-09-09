@@ -14,6 +14,54 @@ Note: When the libs are compiled you will have created four libs; librms.so, lib
 
 Libs and samples have been successfully compiled on Windows and OSX as well, but these are not fully supported at this time.
 
+### Windows
+
+1. Install Visual Studio 2012/2013
+2. Install Qt Creator
+  ```
+  open https://www.qt.io/download-open-source/
+  download the last version of Qt Creator and install it
+  ```
+
+3. Install openssl for windows
+  ```
+  open https://slproweb.com/products/Win32OpenSSL.html
+  download the last version of openssl and install it
+  ```
+
+4. Install git
+  ```
+  open https://git-scm.com/download/win. The latest version will be downloaded automatically
+  install downloaded version
+  ```
+
+5. Clone this repo:
+  ```
+  open git-bash
+  enter the directory you want to clone project in
+  execute command: git clone https://github.com/AzureAD/rms-sdk-for-cpp
+  ```
+
+6. Copy openssl environment
+  ```
+  in cloned folder 'rms-sdk-for-cpp' create subfolder 'third_party'
+  copy 'include' folder from OpenSSL installed directory to 'third_party'
+  copy libraries from OpenSSL\lib\vc\static to third_party\lib\eay
+  ```
+
+7. Build projects
+  ```
+  Open sdk\sdk.pro project in Qt and build it
+  Open samples\samples.pro project in Qt and build it
+  ```
+
+8. Run sample applications:
+  ```
+  cd ../bin
+  rms_sample.exe	# RMS sample
+  rmsauth_sample.exe	# auth sample
+  ```
+
 ### Ubuntu 14.04
 
 1. Install dev dependencies:
