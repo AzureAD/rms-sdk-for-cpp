@@ -8,7 +8,7 @@ For detailed guidance of the code samples, see [Linux code examples](https://msd
 ## Supported targets
 - [Ubuntu 14.04](#ubuntu-1404)
 - [OpenSUSE 13.2](#opensuse-132)
-- [CentOS 7](#centos-7)
+- [CentOS 7.1](#centos-7)
  
 Note: When the libs are compiled you will have created four libs; librms.so, librmsauth.so, librmscrypto.so, and libwebAuthDialog.so. All four are necessary if you use our ADAL for OAuth authentication.
 
