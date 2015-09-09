@@ -23,8 +23,8 @@ Documentation of the source is ongoing.
 
 ## Platform support
 * Ubuntu 14.04 or above
-* Red Hat 6.5 or above
-* CentOS 6.5 or above
+* Red Hat 7.1 or above
+* CentOS 7.1 or above
 * OpenSuSe 13.2 or above
 
 ## Requirements
