@@ -164,7 +164,7 @@ string RestHttpClient::GenerateRequestId()
 string RestHttpClient::GetPlatformIdHeader()
 {
   string platformId(
-    "AppName=rmscore;AppVersion=1.0;DevicePlatform=Web;SDKVersion=4.1;");
+    "AppName=rmscore;AppVersion=1.0;DevicePlatform=WindowsStore;SDKVersion=4.1;");
 
   return platformId;
 }
