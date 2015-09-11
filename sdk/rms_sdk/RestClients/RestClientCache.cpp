@@ -17,6 +17,7 @@
 #include <sstream>
 #include <fstream>
 #include <future>
+#include <QStandardPaths>
 
 using namespace std;
 using namespace rmscore::platform::logger;
@@ -341,7 +342,9 @@ void RestClientCache::StoreDnsClientResult(
 // static /////////////////////////////////////////////////////////////
 
 // the folder name, where we store the cache
-const string RestClientCache::cacheFolderName = "~/.ms-ad/";
+const string RestClientCache::cacheFolderName = (QStandardPaths::writableLocation(
+                                                   QStandardPaths::HomeLocation) +
+                                                 "/.ms-ad/").toStdString();
 
 // cache settings name constants
 const string RestClientCache::cacheSettingsContainerName =
@@ -359,10 +362,15 @@ mutex RestClientCache::cacheMutex;
 
 bool RestClientCache::IsCacheLookupDisableTestHookOn()
 {
-  return platform::settings::ILocalSettings::Create()->GetBool(
+  bool res = platform::settings::ILocalSettings::Create()->GetBool(
     SELF::cacheSettingsContainerName,
     SELF::cacheSettingsCacheLookupDisableTestHook,
     false);
+
+  Logger::Info("RestClientCache::IsCacheLookupDisableTestHookOn: %s state",
+               res ? "TRUE" : "FALSE");
+
+  return res;
 }
 
 // hashes the key and returns base64 of the hash
@@ -632,7 +640,8 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
         }
         catch (exceptions::RMSException)
         {
-          Logger::Warning("RestClientCache::DeleteCacheFile: exception while cache cleanup.");
+          Logger::Warning(
+            "RestClientCache::DeleteCacheFile: exception while cache cleanup.");
         }
         Logger::Info("RestClientCache::LaunchCleanup: cleanup finished.");
       });
