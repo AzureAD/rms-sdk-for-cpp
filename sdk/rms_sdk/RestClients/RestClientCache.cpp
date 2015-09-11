@@ -17,6 +17,7 @@
 #include <sstream>
 #include <fstream>
 #include <future>
+#include <QStandardPaths>
 
 using namespace std;
 using namespace rmscore::platform::logger;
@@ -341,7 +342,9 @@ void RestClientCache::StoreDnsClientResult(
 // static /////////////////////////////////////////////////////////////
 
 // the folder name, where we store the cache
-const string RestClientCache::cacheFolderName = "~/.ms-ad/";
+const string RestClientCache::cacheFolderName = (QStandardPaths::writableLocation(
+                                                   QStandardPaths::HomeLocation) +
+                                                 "/.ms-ad/").toStdString();
 
 // cache settings name constants
 const string RestClientCache::cacheSettingsContainerName =
