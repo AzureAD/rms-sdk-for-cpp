@@ -359,10 +359,15 @@ mutex RestClientCache::cacheMutex;
 
 bool RestClientCache::IsCacheLookupDisableTestHookOn()
 {
-  return platform::settings::ILocalSettings::Create()->GetBool(
+  bool res = platform::settings::ILocalSettings::Create()->GetBool(
     SELF::cacheSettingsContainerName,
     SELF::cacheSettingsCacheLookupDisableTestHook,
     false);
+
+  Logger::Info("RestClientCache::IsCacheLookupDisableTestHookOn: %s state",
+               res ? "TRUE" : "FALSE");
+
+  return res;
 }
 
 // hashes the key and returns base64 of the hash
@@ -632,7 +637,8 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
         }
         catch (exceptions::RMSException)
         {
-          Logger::Warning("RestClientCache::DeleteCacheFile: exception while cache cleanup.");
+          Logger::Warning(
+            "RestClientCache::DeleteCacheFile: exception while cache cleanup.");
         }
         Logger::Info("RestClientCache::LaunchCleanup: cleanup finished.");
       });
