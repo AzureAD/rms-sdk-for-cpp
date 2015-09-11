@@ -16,6 +16,7 @@
 # include <iostream>
 # include <memory>
 # include <QDebug>
+# include <QStandardPaths>
 
 namespace rmscore {
 namespace consent {
@@ -32,26 +33,29 @@ public:
 
   static ConsentDBHelper& GetInstance();
 
-  bool                    Initialize(const std::string &path = "~/.ms-ad/");
-  void                    AddApprovedServiceDomain(const std::string& userId,
-                                                   const std::string& domain);
-  void                    AddDocumentTrackingConsent(const std::string& userId,
-                                                     const std::string& domain);
-  bool                    IsApprovedServiceDomainPresent(
+  bool                    Initialize(
+    const std::string& path = (QStandardPaths::writableLocation(
+                                 QStandardPaths::HomeLocation) +
+                               "/.ms-ad/").toStdString());
+  void AddApprovedServiceDomain(const std::string& userId,
+                                const std::string& domain);
+  void AddDocumentTrackingConsent(const std::string& userId,
+                                  const std::string& domain);
+  bool IsApprovedServiceDomainPresent(
     const std::string& userId,
     const std::string& domain);
-  bool                    IsDocumentTrackingConsentnPresent(
+  bool IsDocumentTrackingConsentnPresent(
     const std::string& userId,
     const std::string& domain);
-  void                    ClearAllEntriesFromDataBase();
+  void ClearAllEntriesFromDataBase();
 
 private:
 
   bool                   ReadFileContent(std::fstream           & stream,
                                          std::vector<UserDomain>& content);
-  bool                   IsConsentPresentCommon(const std::string    & userId,
-                                                const std::string    & domain,
-                                                std::vector<UserDomain> &cache);
+  bool                   IsConsentPresentCommon(const std::string      & userId,
+                                                const std::string      & domain,
+                                                std::vector<UserDomain>& cache);
   std::vector<UserDomain>GetApprovedDomainsForConsent(
     const std::string      & userId,
     const std::string      & domain,
