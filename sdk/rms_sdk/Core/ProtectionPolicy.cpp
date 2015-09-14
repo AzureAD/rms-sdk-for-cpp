@@ -411,6 +411,7 @@ void ProtectionPolicy::InitializeKey(restclients::KeyDetailsResponse& response) 
             "Got an invalid response from the server : access is granted but the key is empty.");
 
 
+
   try {
     std::vector<unsigned char> key(common::ConvertBase64ToBytes(response.value));
     m_cipherMode      = MapCipherMode(response.cipherMode);
@@ -499,10 +500,10 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
 
   // find in the list of cached protection policies
   auto i =
-    find_if(begin(*s_pCachedProtectionPolicies), end(
-              *s_pCachedProtectionPolicies),
-            [pbPublishLicense, cbPublishLicense, requester](
-              const shared_ptr<ProtectionPolicy>& pProtectionPolicy) {
+    find_if(
+      s_pCachedProtectionPolicies->begin(), s_pCachedProtectionPolicies->end(),
+      [pbPublishLicense, cbPublishLicense, requester](
+        const shared_ptr<ProtectionPolicy>& pProtectionPolicy) {
         // return if the PL matches
         const std::vector<unsigned char>& pl = pProtectionPolicy->GetPublishLicense();
 
@@ -531,9 +532,10 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
   shared_ptr<ProtectionPolicy> pCachedPolicy = *i;
 
   // push to front as the most recently used if it's not already
-  if (begin(*s_pCachedProtectionPolicies) != i) {
+  if (s_pCachedProtectionPolicies->begin() != i) {
     s_pCachedProtectionPolicies->erase(i);
     s_pCachedProtectionPolicies->push_front(pCachedPolicy);
+    i = s_pCachedProtectionPolicies->begin();
   }
   return *i;
 } // ProtectionPolicy::GetCachedProtectionPolicy
