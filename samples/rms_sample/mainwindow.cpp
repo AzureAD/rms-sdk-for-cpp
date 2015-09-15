@@ -19,10 +19,13 @@
 #include <ModernAPI/HttpHelper.h>
 #include <ModernAPI/RMSExceptions.h>
 
-#include "mainwindow.h"
 #include "ui_templatesdialog.h"
-#include "rightsdialog.h"
+#include "ui_consentlistdialog.h"
 #include "ui_mainwindow.h"
+
+#include "consentlistdialog.h"
+#include "rightsdialog.h"
+#include "mainwindow.h"
 
 using namespace std;
 using namespace rmsauth;
@@ -94,11 +97,117 @@ string AuthCallbackUI::GetToken(shared_ptr<AuthenticationParameters>& ap) {
 }
 
 ConsentList ConsentCallback::Consents(ConsentList& consents) {
-  for (auto& consent : consents) {
-    ConsentResult result(true, false);
-    consent->Result(result);
+  ConsentListDialog dlg;
+
+  QStandardItemModel model(&dlg);
+  QStringList columnsNames { "User", "URLs", "Type", "Domain" };
+
+  static QMap<QString, QStringList> preventsList;
+
+  bool added = false;
+
+  model.setHorizontalHeaderLabels(columnsNames);
+
+  for (size_t row = 0, rowMax = consents.size(); row < rowMax; ++row) {
+    std::shared_ptr<IConsent> consent = consents[row];
+
+    // check for preventing
+    auto user = consent->User();
+
+    if (user.empty()) continue;
+
+    auto elems         = preventsList[QString::fromStdString(user)];
+    bool isAnyNotFound = false;
+
+    // insert urls
+    for (auto& url : consent->Urls()) {
+      auto urlQt = QString::fromStdString(url);
+      bool found = false;
+
+      for (auto& u : elems) {
+        if (u.compare(urlQt, Qt::CaseInsensitive) == 0) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        isAnyNotFound = true;
+        break;
+      }
+    }
+
+    if(!isAnyNotFound) continue;
+
+
+    for (int col = 0, colMax = columnsNames.size(); col < colMax; ++col) {
+      QStandardItem *item = new QStandardItem;
+      QString val;
+
+      switch (col) {
+      case 0:
+        val = QString::fromStdString(consent->User());
+        break;
+
+      case 1:
+
+        for (auto& url : consent->Urls()) {
+          val += QString::fromStdString(url) + ";";
+        }
+        break;
+
+      case 2:
+        val = QString::fromStdString(
+          consent->Type() == ConsentType::DocumentTrackingConsent ?
+          "DocumentTracking" : "ServiceUrl");
+        break;
+
+      case 3:
+        val = QString::fromStdString(consent->Domain());
+        break;
+      }
+
+      item->setText(val);
+      model.setItem(static_cast<int>(row), col, item);
+      added = true;
+    }
   }
 
+  dlg.InitConsentList(model);
+
+  bool accepted = !added ? true : (dlg.exec() == QDialog::Accepted);
+
+  // check for checkbox
+  if (added && accepted && dlg.PreventInFuture()) {
+    for (size_t row = 0, rowMax = consents.size(); row < rowMax; ++row) {
+      std::shared_ptr<IConsent> consent = consents[row];
+      auto user                         = consent->User();
+
+      if (user.empty()) continue;
+
+      auto &elems = preventsList[QString::fromStdString(user)];
+
+      // insert urls
+      for (auto& url : consent->Urls()) {
+        auto urlQt = QString::fromStdString(url);
+        bool found = false;
+
+        for (auto& u : elems) {
+          if (u.compare(urlQt, Qt::CaseInsensitive) == 0) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) elems.push_back(urlQt);
+      }
+    }
+  }
+
+  for (auto& consent : consents) {
+    ConsentResult result(accepted, false);
+    consent->Result(result);
+  }
   return consents;
 }
 
