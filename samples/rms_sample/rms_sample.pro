@@ -24,17 +24,20 @@ SOURCES +=\
     main.cpp\
     mainwindow.cpp \
     pfileconverter.cpp \
-    rightsdialog.cpp
+    rightsdialog.cpp \
+    consentlistdialog.cpp
 
 HEADERS +=\
     mainwindow.h \
     pfileconverter.h \
-    rightsdialog.h
+    rightsdialog.h \
+    consentlistdialog.h
 
 FORMS +=\
     mainwindow.ui \
     templatesdialog.ui \
-    rightsdialog.ui
+    rightsdialog.ui \
+    consentlistdialog.ui
 
 OTHER_FILES += \
     data/test.txt
