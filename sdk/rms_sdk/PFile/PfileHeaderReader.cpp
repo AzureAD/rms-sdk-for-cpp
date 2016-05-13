@@ -173,24 +173,6 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   string extension = ReadExtension(stream, extensionOffset, extensionLength);
 
   ReadAtOffset(publishingLicense, stream, plOffset, plLength);
-
-  // test if publishingLicense is UTF-16
-  if ((publishingLicense.size() > 10) && (publishingLicense[0] == '\0' || publishingLicense[1] == '\0')) {
-      publishingLicense.push_back(0);
-      auto strUnicode = QString::fromUtf16((const ushort*)&publishingLicense[publishingLicense[0] == '\0' ? 1 : 0],
-                                           static_cast<int>(publishingLicense.size() / sizeof(ushort)));
-      auto str = strUnicode.toUtf8();
-
-      publishingLicense = ByteArray(str.begin(), str.end());
-
-  } else
-  // remove UTF-8 BOM
-  if ((publishingLicense.size() > 3) &&
-      (memcmp(publishingLicense.data(), "\xEF\xBB\xBF", 3) == 0)) {
-    publishingLicense.erase(publishingLicense.begin(),
-                            publishingLicense.begin() + 3);
-  }
-
   if ((majorVersion == 2) && (minorVersion == 1))
   {
     ReadAtOffset(metadata, stream, metadataOffset, metadataLength);

@@ -16,13 +16,17 @@
 
 using namespace std;
 
-namespace rmscore {
-namespace restclients {
+namespace rmscore 
+{
+namespace restclients 
+{
+const uint8_t BOM_UTF8[] = {0xef, 0xbb, 0xbf};
+
 const vector<shared_ptr<Domain> >LicenseParser::
 ExtractDomainsFromPublishingLicense(const void *pbPublishLicense,
                                     size_t      cbPublishLicense)
 {
-  return ExtractDomainsFromPublishingLicenseInner(pbPublishLicense,
+    return ExtractDomainsFromPublishingLicenseInner(pbPublishLicense,
                                                   cbPublishLicense);
 }
 
@@ -30,69 +34,87 @@ const vector<shared_ptr<Domain> >LicenseParser::
 ExtractDomainsFromPublishingLicenseInner(const void *pbPublishLicense,
                                          size_t      cbPublishLicense)
 {
-  string publishLicense(reinterpret_cast<const uint8_t *>(pbPublishLicense),
+    string publishLicense;
+    if ((cbPublishLicense > sizeof(BOM_UTF8)) &&
+        (memcmp(pbPublishLicense, BOM_UTF8, sizeof(BOM_UTF8)) == 0))
+    {
+        string utf8NoBOM(reinterpret_cast<const uint8_t *>(pbPublishLicense) + sizeof(BOM_UTF8),
                         reinterpret_cast<const uint8_t *>(pbPublishLicense) +
                         cbPublishLicense);
-  size_t finalSize = publishLicense.size();
+        publishLicense = utf8NoBOM;
+    }
+    else if (cbPublishLicense % 2 == 0)
+    {
+        // Assume UTF16LE (Unicode)
+        auto strUnicode = QString::fromUtf16(reinterpret_cast<const uint16_t*>(pbPublishLicense), 
+                                                              static_cast<int>(cbPublishLicense) / sizeof(uint16_t));
+        auto utf8ByteArray = strUnicode.toUtf8();
+        string utfString(utf8ByteArray.constData(), utf8ByteArray.length());
+        publishLicense = utfString;
+    }
+    else 
+    {
+        throw exceptions::RMSNetworkException("Invalid publishing license encoding",
+                                              exceptions::RMSNetworkException::InvalidPL);
+    }
+    size_t finalSize = publishLicense.size();
 
-  string publishLicenseWithRoot;
-  CXMLUtils::WrapWithRoot(
-    publishLicense.c_str(), finalSize, publishLicenseWithRoot);
+    string publishLicenseWithRoot;
+    CXMLUtils::WrapWithRoot(publishLicense.c_str(), finalSize, publishLicenseWithRoot);
 
-  string extranetXpath =
-    "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
-  string intranetXpath =
-    "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
+    string extranetXpath =
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
+    string intranetXpath =
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
 
-  auto document = IDomDocument::create();
-  std::string errMsg;
-  int errLine   = 0;
-  int errColumn = 0;
+    auto document = IDomDocument::create();
+    std::string errMsg;
+    int errLine   = 0;
+    int errColumn = 0;
 
-  auto ok = document->setContent(publishLicenseWithRoot,
+    auto ok = document->setContent(publishLicenseWithRoot,
                                  errMsg,
                                  errLine,
                                  errColumn);
 
-  if (!ok) {
-    throw exceptions::RMSNetworkException("Invalid publishing license",
+    if (!ok) 
+    {
+        throw exceptions::RMSNetworkException("Invalid publishing license",
                                           exceptions::RMSNetworkException::InvalidPL);
-  }
+    }
 
-  auto extranetDomainNode = document->SelectSingleNode(extranetXpath);
-  auto intranetDomainNode = document->SelectSingleNode(intranetXpath);
+    auto extranetDomainNode = document->SelectSingleNode(extranetXpath);
+    auto intranetDomainNode = document->SelectSingleNode(intranetXpath);
 
-  string extranetDomain = (nullptr != extranetDomainNode.get())
+    string extranetDomain = (nullptr != extranetDomainNode.get())
                           ? extranetDomainNode->text()
                           : string();
-
-  string intranetDomain = (nullptr != intranetDomainNode.get())
+    string intranetDomain = (nullptr != intranetDomainNode.get())
                           ? intranetDomainNode->text()
                           : string();
 
-  vector<shared_ptr<Domain> > domains;
+    vector<shared_ptr<Domain> > domains;
 
-  if (!extranetDomain.empty())
-  {
-    domains.push_back(Domain::CreateFromUrl(extranetDomain));
-  }
-
-  if (!intranetDomain.empty())
-  {
-    // don't add the intranet domain if it's the same as extranet
-    if (extranetDomain.empty() ||
-        (0 != _stricmp(intranetDomain.data(), extranetDomain.data())))
+    if (!extranetDomain.empty())
     {
-      domains.push_back(Domain::CreateFromUrl(intranetDomain));
+        domains.push_back(Domain::CreateFromUrl(extranetDomain));
     }
-  }
 
-  if (domains.empty()) {
-    throw exceptions::RMSNetworkException("Invalid domains publishing license",
+    if (!intranetDomain.empty())
+    {
+        // don't add the intranet domain if it's the same as extranet
+        if (extranetDomain.empty() ||
+           (0 != _stricmp(intranetDomain.data(), extranetDomain.data())))
+        {
+            domains.push_back(Domain::CreateFromUrl(intranetDomain));
+        }
+    }
+    if (domains.empty()) 
+    {
+        throw exceptions::RMSNetworkException("Invalid domains publishing license",
                                           exceptions::RMSNetworkException::InvalidPL);
-  }
-
-  return domains;
+    }
+    return domains;
 }
 } // namespace restclients
 } // namespace rmscore

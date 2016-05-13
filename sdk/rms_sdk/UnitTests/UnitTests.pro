@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    platform_ut
+    platform_ut \
+    rest_clients_ut
