@@ -23,27 +23,17 @@ ConsentDBHelper& ConsentDBHelper::GetInstance()
 bool ConsentDBHelper::Initialize(const string& path)
 {
   if (m_init == true) return true;
+  m_init = true;
 
   // create cache folder if non-existant
   platform::filesystem::IFileSystem::CreateDirectory(path);
 
-  // create if no exists
-  //m_serviceUrlFile.open(path + m_serviceUrlDBFileName,
-  //                      fstream::out | ios_base::app);
-  //m_serviceUrlFile.close();
-  // reopen
   m_serviceUrlFile.open(path + m_serviceUrlDBFileName,
                         fstream::in | fstream::out);
 
-  // create if no exists
-  //m_docTrackingFile.open(path + m_documentTrackingDBFileName,
-  //                      fstream::out | ios_base::app);
-  //m_docTrackingFile.close();
-  // reopen
   m_docTrackingFile.open(path + m_documentTrackingDBFileName,
                          fstream::in | fstream::out);
 
-  m_init = true;
   if (m_serviceUrlFile.is_open())
       ReadFileContent(m_serviceUrlFile, m_serviceUrlCache);
   if(m_docTrackingFile.is_open())
@@ -57,7 +47,7 @@ bool ConsentDBHelper::Initialize(const string& path)
   m_docTrackingFile.open(path + m_documentTrackingDBFileName,
                         fstream::out |
                         ios_base::app);
-  return m_init;
+  return true;
 }
 
 // Helper to read the storage file
