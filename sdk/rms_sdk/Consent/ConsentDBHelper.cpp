@@ -24,30 +24,39 @@ bool ConsentDBHelper::Initialize(const string& path)
 {
   if (m_init == true) return true;
 
-  // create chache folder
+  // create cache folder if non-existant
   platform::filesystem::IFileSystem::CreateDirectory(path);
 
   // create if no exists
-  m_serviceUrlFile.open(path + m_serviceUrlDBFileName, fstream::out);
-
+  //m_serviceUrlFile.open(path + m_serviceUrlDBFileName,
+  //                      fstream::out | ios_base::app);
+  //m_serviceUrlFile.close();
   // reopen
   m_serviceUrlFile.open(path + m_serviceUrlDBFileName,
                         fstream::in | fstream::out);
 
   // create if no exists
-  m_docTrackingFile.open(path + m_documentTrackingDBFileName, fstream::out);
-
+  //m_docTrackingFile.open(path + m_documentTrackingDBFileName,
+  //                      fstream::out | ios_base::app);
+  //m_docTrackingFile.close();
   // reopen
   m_docTrackingFile.open(path + m_documentTrackingDBFileName,
                          fstream::in | fstream::out);
 
-  if (!m_serviceUrlFile.is_open() || !m_docTrackingFile.is_open()) {
-    return false;
-  }
+  m_init = true;
+  if (m_serviceUrlFile.is_open())
+      ReadFileContent(m_serviceUrlFile, m_serviceUrlCache);
+  if(m_docTrackingFile.is_open())
+      ReadFileContent(m_docTrackingFile, m_docTrackingCache);
 
-  m_init = ReadFileContent(m_serviceUrlFile, m_serviceUrlCache) &&
-           ReadFileContent(m_docTrackingFile, m_docTrackingCache);
-
+  m_serviceUrlFile.close();
+  m_serviceUrlFile.open(path + m_serviceUrlDBFileName,
+                        fstream::out |
+                        ios_base::app);
+  m_docTrackingFile.close();
+  m_docTrackingFile.open(path + m_documentTrackingDBFileName,
+                        fstream::out |
+                        ios_base::app);
   return m_init;
 }
 
@@ -57,12 +66,15 @@ bool ConsentDBHelper::Initialize(const string& path)
 bool ConsentDBHelper::ReadFileContent(fstream           & stream,
                                       vector<UserDomain>& content)
 {
-  std::string line;
+    std::string line;
 
   try
   {
     while (std::getline(stream, line))
     {
+      if(line.length() <= 0)
+        break;
+
       auto pos = line.find_first_of("|");
 
       if (pos != string::npos)
@@ -72,7 +84,7 @@ bool ConsentDBHelper::ReadFileContent(fstream           & stream,
         content.push_back(UserDomain { user, domain });
       }
     }
-
+    stream.seekg(0,ios_base::end);
     return true;
   }
   catch (...)
@@ -216,7 +228,8 @@ vector<string>ConsentDBHelper::GetPossibleDomainNames(const string& domain)
 // Adds a line to the file
 void ConsentDBHelper::AddLine(const string& line, std::fstream& stream)
 {
-  stream << line << "\r\n";
+    stream << line << std::endl;
+    stream.flush();
 }
 } // namespace consent
 } // namespace rmscore
