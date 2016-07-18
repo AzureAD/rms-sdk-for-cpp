@@ -22,6 +22,13 @@ string RestServiceUrls::GetEndUserLicensesUrl()
     return GetServiceRootUrl() + sPath;
 }
 
+string RestServiceUrls::GetClientLicensorCertificatesUrl()
+{
+    string sPath = "/clientlicensorcertificates";
+
+    return GetServiceRootUrl() + sPath;
+}
+
 string RestServiceUrls::GetTemplatesUrl()
 {
     string sPath = "/templates";

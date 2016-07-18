@@ -48,6 +48,11 @@ public:
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     std::shared_ptr<std::atomic<bool> >     cancelState)
   override;
+    virtual std::string GetClientLicensorCertificatesUrl(
+      const std::string                     & sEmail,
+      modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+      std::shared_ptr<std::atomic<bool> >     cancelState)
+    override;
   virtual std::string GetPublishUrl(
     const std::string                     & sEmail,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,

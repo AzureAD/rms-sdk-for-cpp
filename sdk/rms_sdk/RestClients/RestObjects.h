@@ -93,6 +93,11 @@ struct ServiceDiscoveryListResponse {
   std::vector<ServiceDiscoveryResponse>serviceEndpoints;
 };
 
+struct CertificateResponse
+{
+    std::string serializedCert;
+};
+
 struct PublishUsingTemplateRequest {
   bool                      bPreferDeprecatedAlgorithms;
   bool                      bAllowAuditedExtraction;

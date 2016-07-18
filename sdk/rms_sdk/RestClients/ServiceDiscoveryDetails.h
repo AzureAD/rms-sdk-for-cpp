@@ -20,6 +20,7 @@ struct ServiceDiscoveryDetails
   std::string PublishingLicensesUrl;
   std::string CloudDiagnosticsServerUrl;
   std::string PerformanceServerUrl;
+  std::string ClientLicensorCertificatesUrl;
   std::string Domain;
   uint32_t    Ttl;
 };

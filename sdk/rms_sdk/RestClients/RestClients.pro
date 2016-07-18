@@ -55,4 +55,5 @@ HEADERS += \
     ServiceDiscoveryClient.h \
     TemplatesClient.h \
     ITemplatesClient.h \
-    PublishClient.h
+    PublishClient.h \
+    CLCCacheResult.h

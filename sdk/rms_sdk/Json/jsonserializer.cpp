@@ -7,6 +7,7 @@
  */
 
 #include <algorithm>
+#include <tgmath.h>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Common/tools.h"
 #include "../Common/FrameworkSpecificTypes.h"
@@ -403,8 +404,7 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
     auto pJsonPolicy = pJsonResponse->GetNamedObject("Policy");
 
     auto intervalTime =
-      static_cast<int>(round(pJsonPolicy->GetNamedNumber("IntervalTimeInDays",
-                                                         -1.0)));
+      static_cast<int>(round(pJsonPolicy->GetNamedNumber("IntervalTimeInDays", -1.0f)));
 
     if (intervalTime <= 0) response.bAllowOfflineAccess = false;
 
@@ -504,6 +504,20 @@ ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
   }
 
   return response;
+}
+
+CertificateResponse JsonSerializer::DeserializeCertificateResponse(ByteArray &sResponse)
+{
+    auto pJsonParser = IJsonParser::Create();
+
+    shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(sResponse);
+
+    CertificateResponse response;
+
+    if (pJsonResponse->HasName("SerializedThinCLC") && !pJsonResponse->IsNull("SerializedThinCLC"))
+        response.serializedCert = pJsonResponse->GetNamedString("SerializedThinCLC");
+
+    return response;
 }
 
 TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(

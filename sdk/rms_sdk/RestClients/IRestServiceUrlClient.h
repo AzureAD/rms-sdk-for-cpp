@@ -57,8 +57,13 @@ public:
     const std::string                     & sEmail,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     modernapi::IConsentCallbackImpl        *consentCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState
-    ) = 0;
+    std::shared_ptr<std::atomic<bool> >     cancelState)
+    = 0;
+  virtual std::string GetClientLicensorCertificatesUrl(
+    const std::string                     & sEmail,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    std::shared_ptr<std::atomic<bool> >     cancelState)
+    = 0;
 
 public:
 

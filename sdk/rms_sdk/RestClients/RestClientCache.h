@@ -14,6 +14,7 @@
 
 namespace rmscore {
 namespace restclients {
+
 class RestClientCache : public IRestClientCache {
 public:
   RestClientCache(CacheType type);

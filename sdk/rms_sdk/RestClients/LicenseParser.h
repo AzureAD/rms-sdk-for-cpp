@@ -9,9 +9,10 @@
 #ifndef _RMS_LIB_LICENSEPARSER_H_
 #define _RMS_LIB_LICENSEPARSER_H_
 
-#include "Domain.h"
 #include <vector>
 #include <memory>
+#include "Domain.h"
+
 namespace rmscore {
 namespace restclients {
 class LicenseParser {

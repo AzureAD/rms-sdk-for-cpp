@@ -29,6 +29,7 @@ public:
     virtual restclients::TemplateListResponse DeserializeTemplateListResponse(common::ByteArray &sResponse) = 0;
     virtual restclients::PublishResponse DeserializePublishResponse(common::ByteArray &sResponse) = 0;
     virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(common::ByteArray &sResponse) = 0;
+    virtual restclients::CertificateResponse DeserializeCertificateResponse(common::ByteArray &sResponse) = 0;
 
 public:
     static std::shared_ptr<IJsonSerializer> Create();

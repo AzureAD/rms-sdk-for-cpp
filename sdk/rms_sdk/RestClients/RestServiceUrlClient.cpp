@@ -118,6 +118,27 @@ string RestServiceUrlClient::GetTemplatesUrl(
   return string(serviceDiscoveryDetails->TemplatesUrl);
 }
 
+string RestServiceUrlClient::GetClientLicensorCertificatesUrl(
+  const string &sEmail,
+  IAuthenticationCallbackImpl &authenticationCallback,
+  std::shared_ptr<std::atomic<bool> > cancelState)
+{
+    shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
+            FindCache(sEmail);
+    if (serviceDiscoveryDetails == nullptr)
+    {
+      serviceDiscoveryDetails = GetServiceDiscoveryDetails(
+        nullptr,
+        0,
+        sEmail,
+        authenticationCallback,
+        nullptr,
+        cancelState);
+      serviceDiscoveryDetailsCache[string(sEmail)] = serviceDiscoveryDetails;
+    }
+    return string(serviceDiscoveryDetails->ClientLicensorCertificatesUrl);
+}
+
 string RestServiceUrlClient::GetPublishUrl(
   const string                     & sEmail,
   IAuthenticationCallbackImpl      & authenticationCallback,
@@ -215,6 +236,8 @@ GetServiceDiscoveryDetails(
       RestServiceUrls::GetCloudDiagnosticsServerUrl();
     serviceDiscoveryDetails->PerformanceServerUrl =
       RestServiceUrls::GetPerformanceServerUrl();
+    serviceDiscoveryDetails->ClientLicensorCertificatesUrl =
+      RestServiceUrls::GetClientLicensorCertificatesUrl();
 
     if (consentCallback)
     {

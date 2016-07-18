@@ -24,12 +24,13 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {
-static const string END_USER_LICENSES_TAG   = "END_USER_LICENSES_UR";
-static const string PUBLISHING_LICENSES_TAG = "PUBLISHING_LICENSES_UR";
-static const string TEMPLATES_TAG           = "TEMPLATES_UR";
-static const string CLOUD_DIAGNOSTICS_TAG   = "CLOUD_DIAGNOSTICS_UR";
-static const string PERFORMANCE_TAG         = "PERFORMANCE_UR";
-static const string DNS_CLIENT_RESULT_TAG   = "DNS_CLIENT_RESULT";
+static const string END_USER_LICENSES_TAG            = "END_USER_LICENSES_UR";
+static const string PUBLISHING_LICENSES_TAG          = "PUBLISHING_LICENSES_UR";
+static const string TEMPLATES_TAG                    = "TEMPLATES_UR";
+static const string CLOUD_DIAGNOSTICS_TAG            = "CLOUD_DIAGNOSTICS_UR";
+static const string PERFORMANCE_TAG                  = "PERFORMANCE_UR";
+static const string DNS_CLIENT_RESULT_TAG            = "DNS_CLIENT_RESULT";
+static const string CLIENT_LICENSOR_CERTIFICATES_TAG = "CLIENT_LICENSOR_CERTIFICATES_UR";
 
 using SELF = RestClientCache;
 

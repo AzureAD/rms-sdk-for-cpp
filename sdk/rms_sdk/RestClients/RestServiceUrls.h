@@ -23,7 +23,7 @@ public:
   static std::string GetPublishUrl();
   static std::string GetCloudDiagnosticsServerUrl();
   static std::string GetPerformanceServerUrl();
-
+  static std::string GetClientLicensorCertificatesUrl();
 private:
 
   static std::string GetServiceRootUrl();
