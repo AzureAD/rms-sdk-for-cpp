@@ -64,6 +64,17 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
   return ByteArray(convArray.begin(), convArray.end());
 }
 
+shared_ptr<uint8_t> HashString(const string &str, size_t *size)
+{
+    shared_ptr<uint8_t> hash(new uint8_t[SHA256_DIGEST_LENGTH], std::default_delete<uint8_t[]>());
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.length());
+    SHA256_Final(hash.get(), &sha256);
+    *size = SHA256_DIGEST_LENGTH;
+    return hash;
+}
+
 string GenerateAGuid()
 {
   return QUuid::createUuid().toString().toStdString();

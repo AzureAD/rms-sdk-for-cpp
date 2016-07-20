@@ -11,15 +11,22 @@
 
 #include "CommonTypes.h"
 #include "FrameworkSpecificTypes.h"
+#include "openssl/sha.h"
+#include <stdint.h>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 namespace rmscore {
 namespace common {
+
 uint64_t    timeToWinFileTime(const QDateTime& dateTime);
 std::string timeToString(const QDateTime& dateTime);
 ByteArray   ConvertBase64ToBytes(const ByteArray& base64str);
 ByteArray   ConvertBytesToBase64(const ByteArray& bytes);
 ByteArray   ConvertBytesToBase64(const void  *bytes,
                                  const size_t size);
+std::shared_ptr<uint8_t> HashString(const std::string& str, size_t *size);
 std::string GenerateAGuid();
 } // namespace common
 } // namespace rmscore

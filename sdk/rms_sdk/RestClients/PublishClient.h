@@ -42,7 +42,7 @@ public:
   override;
 
 private:
-  std::shared_ptr<CLCCacheResult> GetCLCCache(std::shared_ptr<IRestClientCache> cache);
+  std::shared_ptr<CLCCacheResult> GetCLCCache(std::shared_ptr<IRestClientCache> cache, const std::string &email);
   std::string& GetCLC(modernapi::IAuthenticationCallbackImpl &authenticationCallback, const std::string &sEmail, std::shared_ptr<std::atomic<bool> > cancelState);
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,

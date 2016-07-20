@@ -6,7 +6,6 @@
  * ======================================================================
  */
 
-#include <QUuid>
 #include "PublishClient.h"
 #include "RestClientCache.h"
 #include "RestClientErrorHandling.h"
@@ -18,6 +17,8 @@
 #include "../Platform/Json/IJsonObject.h"
 #include "../Platform/Json/IJsonParser.h"
 #include "../Platform/Json/JsonObjectQt.h"
+#include "../Common/tools.h"
+#include "QUuid"
 
 using namespace std;
 using namespace rmscore::json;
@@ -64,7 +65,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     pJsonAll->SetNamedObject("hdr", *header);
 
     auto license = IJsonObject::Create();
-    license->SetNamedString("id", QUuid().toString().toStdString());
+    license->SetNamedString("id", QUuid::createUuid().toString().toStdString());
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
     license->SetNamedObject("cre", *pClcPubData);
 
@@ -95,10 +96,12 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     return PublishResponse();
 }
 
-shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCache> cache)
+shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCache> cache, const std::string& email)
 {
     shared_ptr<CLCCacheResult> result;
-    auto clc = cache->Lookup(CLCCacheName, CLCCacheTag, 0, 0, true);
+    size_t size;
+    shared_ptr<uint8_t> pKey = common::HashString(email, &size);
+    auto clc = cache->Lookup(CLCCacheName, CLCCacheTag, pKey.get(), size, true);
     if (clc.capacity() > 0)
         result = make_shared<CLCCacheResult>(clc.at(0), false);
     else
@@ -176,7 +179,7 @@ std::string& PublishClient::GetCLC(
 {
     auto pCache = RestClientCache::Create(RestClientCache::CACHE_ENCRYPTED);
     std::string clientcert;
-    auto pcacheresult = GetCLCCache(pCache);
+    auto pcacheresult = GetCLCCache(pCache, sEmail);
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
         auto pRestServiceUrlClient = RestServiceUrlClient::Create();
@@ -201,7 +204,9 @@ std::string& PublishClient::GetCLC(
             //cache it
             const common::ByteArray response;
             const std::string exp =  pri->GetNamedString("exp");
-            pCache->Store(CLCCacheName, CLCCacheTag, 0, 0, exp, response, true);
+            size_t size;
+            auto key = common::HashString(sEmail, &size);
+            pCache->Store(CLCCacheName, CLCCacheTag, key.get(), size, exp, response, true);
         }
         catch(exceptions::RMSException)
         {
