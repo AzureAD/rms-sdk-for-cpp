@@ -6,6 +6,7 @@
  * ======================================================================
  */
 
+#include "openssl/rand.h"
 #include "PublishClient.h"
 #include "RestClientCache.h"
 #include "RestClientErrorHandling.h"
@@ -18,12 +19,12 @@
 #include "../Platform/Json/IJsonParser.h"
 #include "../Platform/Json/JsonObjectQt.h"
 #include "../Common/tools.h"
-#include "QUuid"
 
 using namespace std;
 using namespace rmscore::json;
 using namespace rmscore::platform::http;
 using namespace rmscore::platform::json;
+using namespace rmscrypto::api;
 
 namespace rmscore {
 namespace restclients {
@@ -43,6 +44,7 @@ PublishResponse PublishClient::PublishUsingTemplate(
                          serializedRequest), authenticationCallback, sEmail,
                        cancelState);
 }
+
 PublishResponse PublishClient::LocalPublishUsingTemplate(
   const PublishUsingTemplateRequest     & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
@@ -65,7 +67,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     pJsonAll->SetNamedObject("hdr", *header);
 
     auto license = IJsonObject::Create();
-    license->SetNamedString("id", QUuid::createUuid().toString().toStdString());
+    license->SetNamedString("id", common::GenerateAGuid());
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
     license->SetNamedObject("cre", *pClcPubData);
 
@@ -82,14 +84,26 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
           pSignedApplicationDataJson->SetNamedString(appData.first,
                                                      appData.second);
         });
+
     license->SetNamedObject("sad", *pSignedApplicationDataJson);
 
     auto pEncryptedPolicy = IJsonObject::Create();
     pEncryptedPolicy->SetNamedString("crem", pClcIssuedTo->GetNamedString("em"));
     pEncryptedPolicy->SetNamedString("tid", request.templateId);
     //encrypted app data
-    //session key
     license->SetNamedObject("enp", *pEncryptedPolicy);
+    //session key
+    auto pSessionKey = IJsonObject::Create();
+    unique_ptr<uint8_t[]> buf;
+    RAND_bytes(buf.get(), 256);
+    auto pContentKey = IJsonObject::Create();
+    pContentKey->SetNamedString("alg", "AES");
+    pContentKey->SetNamedString("cm", "CBC4K");
+    pContentKey->SetNamedValue("k", common::ByteArray(buf.get(), buf.get() + sizeof buf.get() / sizeof buf.get()[0]));
+    auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
+    pSessionKey->SetNamedString("eck", std::string(bytes.begin(), bytes.end()));
+
+
     //sig
 
 
@@ -197,8 +211,7 @@ std::string& PublishClient::GetCLC(
             auto bytearray = common::ByteArray(clc.serializedCert.begin(), clc.serializedCert.end());
 
             auto pCLC =  IJsonParser::Create()->Parse(bytearray);
-            auto issto = pCLC->GetNamedObject("pub")->GetNamedObject("pld");
-            auto pubkey = issto->GetNamedObject("pubk");
+            auto pub = pCLC->GetNamedObject("pub")->GetNamedObject("pld");
             auto pri = pCLC->GetNamedObject("pri");
 
             //cache it
@@ -219,6 +232,13 @@ std::string& PublishClient::GetCLC(
     }
     return clientcert;
 }
+//std::shared_ptr<ICryptoKey> PublishClient::CreateKey(size_t size, CryptoAlgorithm algorithm, shared_ptr<const uint8_t[]>& outBuf)
+//{
+//    outBuf = make_shared(new uint8_t[size]);
+//    RAND_bytes(const_cast<const uint8_t[]>(outBuf.get()), size);
+//    auto engine = ICryptoEngine::Create();
+//    return engine->CreateKey(outBuf, size, algorithm);
+//}
 
 shared_ptr<IPublishClient>IPublishClient::Create()
 {

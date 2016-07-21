@@ -11,6 +11,7 @@
 #include "IPublishClient.h"
 #include "CLCCacheResult.h"
 #include "RestClientCache.h"
+#include "../../rmscrypto_sdk/CryptoAPI/CryptoAPI.h"
 
 namespace rmscore {
 namespace restclients {
@@ -42,8 +43,16 @@ public:
   override;
 
 private:
-  std::shared_ptr<CLCCacheResult> GetCLCCache(std::shared_ptr<IRestClientCache> cache, const std::string &email);
-  std::string& GetCLC(modernapi::IAuthenticationCallbackImpl &authenticationCallback, const std::string &sEmail, std::shared_ptr<std::atomic<bool> > cancelState);
+  std::shared_ptr<CLCCacheResult> GetCLCCache(
+    std::shared_ptr<IRestClientCache> cache,
+    const std::string               & email);
+  std::string& GetCLC(
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string                     & sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState);
+  std::shared_ptr<rmscrypto::api::ICryptoKey> CreateKey(size_t                           size,
+    rmscrypto::api::CryptoAlgorithm  algorithm,
+    std::shared_ptr<const uint8_t[]> &outBuf);
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
