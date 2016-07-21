@@ -26,7 +26,8 @@ ByteArray   ConvertBase64ToBytes(const ByteArray& base64str);
 ByteArray   ConvertBytesToBase64(const ByteArray& bytes);
 ByteArray   ConvertBytesToBase64(const void  *bytes,
                                  const size_t size);
-std::shared_ptr<uint8_t> HashString(const std::string& str, size_t *size);
+template <typename T> inline std::vector<T> ConvertArrayToVector(T buf[]) { return std::vector<T>(buf, buf + sizeof buf / sizeof buf[0]); }
+std::unique_ptr<uint8_t> HashString(const std::string& str, size_t *size);
 std::string GenerateAGuid();
 } // namespace common
 } // namespace rmscore

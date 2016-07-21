@@ -43,10 +43,12 @@ public:
   override;
 
 private:
+  const size_t KEY_SIZE = 256;
+  const size_t AES_BLOCK_SIZE = 16;
   std::shared_ptr<CLCCacheResult> GetCLCCache(
     std::shared_ptr<IRestClientCache> cache,
     const std::string               & email);
-  std::string& GetCLC(
+  std::string GetCLC(
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & sEmail,
     std::shared_ptr<std::atomic<bool> >     cancelState);
