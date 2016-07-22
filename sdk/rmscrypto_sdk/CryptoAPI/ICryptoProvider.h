@@ -22,6 +22,12 @@ enum CipherMode
   CIPHER_MODE_ECB,
   CIPHER_MODE_CBC512NOPADDING
 };
+static const char* EnumStrings[] = { "MICROSOFT.CBC4K", "MICROSOFT.ECB", "MICROSOFT.CBC512.NOPADDING" };
+
+const char* CipherModeString(CipherMode cm)
+{
+    return EnumStrings[cm];
+}
 
 class ICryptoProvider {
 public:
