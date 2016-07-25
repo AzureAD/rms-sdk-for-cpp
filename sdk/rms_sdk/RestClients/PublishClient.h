@@ -45,16 +45,34 @@ public:
 private:
   const size_t KEY_SIZE = 256;
   const size_t AES_BLOCK_SIZE = 16;
+
+  std::string RSASignKey(const char* exp,
+    const char* mod,
+    uint8_t* buf,
+    size_t size);
+
+  common::ByteArray EncryptPolicyToBase64(
+    std::shared_ptr<platform::json::IJsonObject> pPolicy,
+    uint8_t *buf,
+    size_t size,
+    rmscrypto::api::CipherMode cm);
+
+  std::shared_ptr<platform::json::IJsonArray> ConvertUserRights(
+     const PublishCustomRequest& request);
+
+  std::string EscapeJson(
+    std::shared_ptr<platform::json::IJsonObject> pPayload);
+
   std::shared_ptr<CLCCacheResult> GetCLCCache(
     std::shared_ptr<IRestClientCache> cache,
     const std::string               & email);
+
   std::string GetCLC(
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & sEmail,
     std::shared_ptr<std::atomic<bool> >     cancelState);
-  std::shared_ptr<rmscrypto::api::ICryptoKey> CreateKey(size_t                           size,
-    rmscrypto::api::CryptoAlgorithm  algorithm,
-    std::shared_ptr<const uint8_t[]> &outBuf);
+
+
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,

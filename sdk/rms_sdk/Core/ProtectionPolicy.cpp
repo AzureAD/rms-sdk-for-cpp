@@ -169,7 +169,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
     signedAppData
   };
 
-  auto response = pPublishClient->PublishUsingTemplate(request,
+  auto response = pPublishClient->LocalPublishUsingTemplate(request,
                                                        authenticationCallback,
                                                        email,
                                                        cancelState);
@@ -257,7 +257,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   if (descriptor.referrer.size() >
       0) request.wsReferralInfo = descriptor.referrer;
 
-  auto response = pPublishClient->PublishCustom(request,
+  auto response = pPublishClient->LocalPublishCustom(request,
                                                 authenticationCallback,
                                                 email,
                                                 cancelState);

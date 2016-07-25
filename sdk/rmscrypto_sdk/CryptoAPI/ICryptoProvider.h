@@ -22,16 +22,12 @@ enum CipherMode
   CIPHER_MODE_ECB,
   CIPHER_MODE_CBC512NOPADDING
 };
-static const char* EnumStrings[] = { "MICROSOFT.CBC4K", "MICROSOFT.ECB", "MICROSOFT.CBC512.NOPADDING" };
 
-const char* CipherModeString(CipherMode cm)
-{
-    return EnumStrings[cm];
-}
+static const char* EnumStrings[] = { "MICROSOFT.CBC4K", "MICROSOFT.ECB", "MICROSOFT.CBC512.NOPADDING" };
 
 class ICryptoProvider {
 public:
-
+  const static char* CipherModeString(CipherMode cm) { return EnumStrings[cm]; }
   virtual void Encrypt(const uint8_t *pbIn,
                        uint32_t       cbIn,
                        uint32_t       dwStartingBlockNumber,
@@ -53,6 +49,9 @@ public:
 
   virtual uint32_t            GetBlockSize() = 0;
   virtual std::vector<uint8_t>GetKey() = 0;
+private:
+
+
 };
 } // namespace api
 } // namespace rmscrypto

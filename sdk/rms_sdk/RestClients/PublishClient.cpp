@@ -33,6 +33,7 @@ namespace rmscore {
 namespace restclients {
 const static string CLCCacheName = "CLC";
 const static string CLCCacheTag = "CLIENT_LICENSOR_CERTIFICATES_UR";
+
 PublishResponse PublishClient::PublishUsingTemplate(
   const PublishUsingTemplateRequest     & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
@@ -101,30 +102,14 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     pEncryptedPolicy->SetNamedString("tid", request.templateId);
     //encrypted app data would go here
 
-    //session key init/crypto provider
+    //session key init
     unique_ptr<uint8_t[]> skbuf(new uint8_t(KEY_SIZE));
     RAND_bytes(skbuf.get(), KEY_SIZE);
-    CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K; //dont know if I need to be doing this, i think it's always going to be ECB
-    auto crypto = CreateCryptoProvider(cm, common::ConvertArrayToVector<uint8_t>(skbuf.get()));
+    CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
+
 
     //encrypted policy
-    vector<uint8_t> encryptedPolicyBytes = pEncryptedPolicy->Stringify();
-    auto encPolByteArr = &encryptedPolicyBytes[0];
-    auto len = sizeof encryptedPolicyBytes;
-    auto AlignedSize = len + (len % AES_BLOCK_SIZE);
-    unique_ptr<uint8_t[]> outbuffer(new uint8_t[AlignedSize]);
-    unique_ptr<uint8_t[]> inputbuffer(new uint8_t[AlignedSize]);
-    memset(input, 0, AlignedSize);
-    memcpy(inputbuffer, encPolByteArr, AlignedSize);
-    uint32_t byteswritten = 0;
-    crypto->Encrypt(inputbuffer.get(), AlignedSize, 0, false, outputbufer.get(), AlignedSize, &byteswritten);
-    if (cm == CIPHER_MODE_ECB)
-        if (byteswritten != AlignedSize)
-            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
-    else
-        if (byteswritten != len)
-            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
-    license->SetNamedValue("enp", common::ConvertBytesToBase64(common::ConvertArrayToVector<uint8_t>(outputbuffer.get())));
+    license->SetNamedValue("enp", EncryptPolicyToBase64(pEncryptedPolicy, skbuf.get(), KEY_SIZE, cm));
 
     //session key
     auto pSessionKey = IJsonObject::Create();
@@ -133,48 +118,38 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto pContentKey = IJsonObject::Create();
     pContentKey->SetNamedString("alg", "AES");
     pContentKey->SetNamedString("cm", "CBC4K");
-    pContentKey->SetNamedValue("k", common::ConvertArrayToVector<uint8_t>(buf.get()));
+    pContentKey->SetNamedValue("k", common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE));
     auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
     pSessionKey->SetNamedString("eck", std::string(bytes.begin(), bytes.end()));
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    shared_ptr<RSA> rsa = RSA_new();
-    BIGNUM* exponent = BN_new();
-    BN_dec2bn(&exponent, pServerPubRsaKey->GetNamedString("e").c_str());
-    BIGNUM* modulus_ = BN_new();
-    BN_dec2bn(&modulus_, pServerPubRsaKey->GetNamedString("n").c_str());
-    rsa->n = modulus_;
-    rsa->e = exponent;
-    unique_ptr<uint8_t[]> rsaEncryptedSessionKey(new uint8_t[RSA_size(rsa)]);
-    int result = RSA_public_encrypt(KEY_SIZE, skbuf.get(), rsaEncryptedSessionKey, rsa, RSA_PKCS1_PADDING);
-    if (result != 1)
-        throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key");
+    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), skbuf.get(), KEY_SIZE);
 
-    pPayload->SetNamedObject("lic", license);
+    pSessionKey->SetNamedString("sk", esk);
 
-    //convert payload to escaped string
-    auto bytePayload = pPayload->Stringify();
-    string sPldBytes = string(bytePayload.begin(), bytePayload.end());
-    string sPldEscaped = "";
-    for (int i = 0; i < sPldBytes.length(); i++)
-        sPldEscaped += sPldBytes[i] == "\"" ? "\\\"" : sPldBytes[i];
+    license->SetNamedObject("sk", *pSessionKey);
+
+    pPayload->SetNamedObject("lic", *license);
 
     //sig
     auto pSig = IJsonObject::Create();
+    string sPldEscaped = EscapeJson(pPayload);
     size_t size;
     auto digest = common::HashString(sPldEscaped, &size);
+    auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
+    string sDigest(vDigest.begin(), vDigest.end());
     pSig->SetNamedString("alg", "SHA256");
-    pSig->SetNamedString("dig", digest);
+    pSig->SetNamedString("dig", sDigest);
 
     pJsonRoot->SetNamedString("pld", sPldEscaped);
-    pJsonRoot->SetNamedObject("sig", pSig);
+    pJsonRoot->SetNamedObject("sig", *pSig);
 
     response.serializedLicense = pJsonRoot->Stringify();
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
-    responseKey.cipherMode = CipherModeString(cm);
-    responseKey.value = common::ConvertArrayToVector<uint8_t>(buf.get());
+    responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
+    responseKey.value = common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE);
     response.key = responseKey;
     response.signedApplicationData = request.signedApplicationData;
     response.name = "Restricted Access";
@@ -209,6 +184,7 @@ PublishResponse PublishClient::PublishCustom(
                          serializedRequest), authenticationCallback, sEmail,
                        cancelState);
 }
+
 PublishResponse PublishClient::LocalPublishCustom(
   const PublishCustomRequest            & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
@@ -259,51 +235,20 @@ PublishResponse PublishClient::LocalPublishCustom(
 
     auto pEncryptedPolicy = IJsonObject::Create();
     pEncryptedPolicy->SetNamedString("crem", pClcIssuedTo->GetNamedString("em"));
-    pEncryptedPolicy->SetNamedString("tid", request.templateId);
     //encrypted app data would go here
+    auto rights = ConvertUserRights(request);
     auto pCustomPolicy = IJsonObject::Create();
+    pCustomPolicy->SetNamedArray("usrts", *rights);
+    pEncryptedPolicy->SetNamedObject("cp", *pCustomPolicy);
 
-    auto userts = IJsonArray::Create();
-    for (int i = 0; i < request.userRightsList.size(); i++)
-    {
-        auto _user = IJsonObject::Create();
-        auto _usrs = IJsonArray::Create();
-        auto _rghts = IJsonArray::Create();
-        UserRightsRequest curr = request.userRightsList[i];
-        for (int j = 0; j < curr.users.size(); i++)
-            _usrs->Append(curr.users[j]);
-        for (int j = 0; j < curr.rights.size(); i++)
-            _rghts->Append(curr.rights[j]);
-        _user->SetNamedArray("usrs", _usrs);
-        _user->SetNamedArray("rghts", _rghts);
-        userts->Append(_user);
-    }
-    pCustomPolicy->SetNamedArray("usrts", userts);
-
-    //session key init/crypto provider
+    //session key init
     unique_ptr<uint8_t[]> skbuf(new uint8_t(KEY_SIZE));
     RAND_bytes(skbuf.get(), KEY_SIZE);
-    CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K; //dont know if I need to be doing this, i think it's always going to be ECB
-    auto crypto = CreateCryptoProvider(cm, common::ConvertArrayToVector<uint8_t>(skbuf.get()));
+    CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
+
 
     //encrypted policy
-    vector<uint8_t> encryptedPolicyBytes = pEncryptedPolicy->Stringify();
-    auto encPolByteArr = &encryptedPolicyBytes[0];
-    auto len = sizeof encryptedPolicyBytes;
-    auto AlignedSize = len + (len % AES_BLOCK_SIZE);
-    unique_ptr<uint8_t[]> outbuffer(new uint8_t[AlignedSize]);
-    unique_ptr<uint8_t[]> inputbuffer(new uint8_t[AlignedSize]);
-    memset(input, 0, AlignedSize);
-    memcpy(inputbuffer, encPolByteArr, AlignedSize);
-    uint32_t byteswritten = 0;
-    crypto->Encrypt(inputbuffer.get(), AlignedSize, 0, false, outputbufer.get(), AlignedSize, &byteswritten);
-    if (cm == CIPHER_MODE_ECB)
-        if (byteswritten != AlignedSize)
-            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
-    else
-        if (byteswritten != len)
-            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
-    license->SetNamedValue("enp", common::ConvertBytesToBase64(common::ConvertArrayToVector<uint8_t>(outputbuffer.get())));
+    license->SetNamedValue("enp", EncryptPolicyToBase64(pEncryptedPolicy, skbuf.get(), KEY_SIZE, cm));
 
     //session key
     auto pSessionKey = IJsonObject::Create();
@@ -312,52 +257,42 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto pContentKey = IJsonObject::Create();
     pContentKey->SetNamedString("alg", "AES");
     pContentKey->SetNamedString("cm", "CBC4K");
-    pContentKey->SetNamedValue("k", common::ConvertArrayToVector<uint8_t>(buf.get()));
+    pContentKey->SetNamedValue("k", common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE));
     auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
     pSessionKey->SetNamedString("eck", std::string(bytes.begin(), bytes.end()));
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    shared_ptr<RSA> rsa = RSA_new();
-    BIGNUM* exponent = BN_new();
-    BN_dec2bn(&exponent, pServerPubRsaKey->GetNamedString("e").c_str());
-    BIGNUM* modulus_ = BN_new();
-    BN_dec2bn(&modulus_, pServerPubRsaKey->GetNamedString("n").c_str());
-    rsa->n = modulus_;
-    rsa->e = exponent;
-    unique_ptr<uint8_t[]> rsaEncryptedSessionKey(new uint8_t[RSA_size(rsa)]);
-    int result = RSA_public_encrypt(KEY_SIZE, skbuf.get(), rsaEncryptedSessionKey, rsa, RSA_PKCS1_PADDING);
-    if (result != 1)
-        throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key");
+    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), skbuf.get(), KEY_SIZE);
 
-    pPayload->SetNamedObject("lic", license);
+    pSessionKey->SetNamedString("sk", esk);
 
-    //convert payload to escaped string
-    auto bytePayload = pPayload->Stringify();
-    string sPldBytes = string(bytePayload.begin(), bytePayload.end());
-    string sPldEscaped = "";
-    for (int i = 0; i < sPldBytes.length(); i++)
-        sPldEscaped += sPldBytes[i] == "\"" ? "\\\"" : sPldBytes[i];
+    license->SetNamedObject("sk", *pSessionKey);
+
+    pPayload->SetNamedObject("lic", *license);
 
     //sig
     auto pSig = IJsonObject::Create();
+    string sPldEscaped = EscapeJson(pPayload);
     size_t size;
     auto digest = common::HashString(sPldEscaped, &size);
+    auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
+    string sDigest(vDigest.begin(), vDigest.end());
     pSig->SetNamedString("alg", "SHA256");
-    pSig->SetNamedString("dig", digest);
+    pSig->SetNamedString("dig", sDigest);
 
     pJsonRoot->SetNamedString("pld", sPldEscaped);
-    pJsonRoot->SetNamedObject("sig", pSig);
+    pJsonRoot->SetNamedObject("sig", *pSig);
 
     response.serializedLicense = pJsonRoot->Stringify();
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
-    responseKey.cipherMode = CipherModeString(cm);
-    responseKey.value = common::ConvertArrayToVector<uint8_t>(buf.get());
+    responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
+    responseKey.value = common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE);
     response.key = responseKey;
     response.signedApplicationData = request.signedApplicationData;
-    response.name = request.name;
-    response.description = request.description;
+    response.name = "Restricted Access";
+    response.description = "Permission is currently restricted. Only specified users can access this content.";
     return response;
 }
 
@@ -395,6 +330,86 @@ PublishResponse PublishClient::PublishCommon(
             "PublishClient: Got an invalid json from the REST service.",
             exceptions::RMSNetworkException::ServerError);
   }
+}
+
+string PublishClient::EscapeJson(shared_ptr<IJsonObject> pPayload)
+{
+    //convert payload to escaped string
+    auto bytePayload = pPayload->Stringify();
+    string sPldBytes = string(bytePayload.begin(), bytePayload.end());
+    string sPldEscaped = "";
+    for (unsigned int i = 0; i < sPldBytes.length(); i++)
+    {
+        string character(1, sPldBytes[i]);
+        sPldEscaped += sPldBytes[i] == '\"' ? "\\\"" : character;
+    }
+    return sPldEscaped;
+}
+
+common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, uint8_t* buf, size_t size, CipherMode cm)
+{
+    auto crypto = CreateCryptoProvider(cm, common::ConvertArrayToVector<uint8_t>(buf, size));
+    vector<uint8_t> encryptedPolicyBytes = pPolicy->Stringify();
+    auto encPolByteArr = &encryptedPolicyBytes[0];
+    auto len = sizeof encryptedPolicyBytes;
+    auto AlignedSize = len + (len % AES_BLOCK_SIZE);
+    unique_ptr<uint8_t[]> outbuffer(new uint8_t[AlignedSize]);
+    unique_ptr<uint8_t[]> inputbuffer(new uint8_t[AlignedSize]);
+    memset(reinterpret_cast<void*>(inputbuffer.get()), 0, AlignedSize);
+    memcpy(reinterpret_cast<void*>(inputbuffer.get()), encPolByteArr, AlignedSize);
+    uint32_t byteswritten = 0;
+    crypto->Encrypt(inputbuffer.get(), AlignedSize, 0, false, outbuffer.get(), AlignedSize, &byteswritten);
+    if (cm == CIPHER_MODE_ECB)
+    {
+        if (byteswritten != AlignedSize)
+            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
+    }
+    else
+    {
+        if (byteswritten != len)
+            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
+    }
+
+    return common::ConvertBytesToBase64(common::ConvertArrayToVector<uint8_t>(outbuffer.get(), size));
+}
+
+string PublishClient::RSASignKey(const char* exp, const char* mod, uint8_t* buf, size_t size)
+{
+    RSA* rsa = RSA_new();
+    BIGNUM* exponent = BN_new();
+    BN_dec2bn(&exponent, exp);
+    BIGNUM* modulus_ = BN_new();
+    BN_dec2bn(&modulus_, mod);
+    rsa->n = modulus_;
+    rsa->e = exponent;
+    unique_ptr<uint8_t[]> rsaEncryptedSessionKey(new uint8_t[RSA_size(const_cast<const RSA*>(rsa))]);
+    int result = RSA_public_encrypt(KEY_SIZE, buf, rsaEncryptedSessionKey.get(), rsa, RSA_PKCS1_PADDING);
+    if (result != 1)
+        throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key");
+    auto vEsk = common::ConvertArrayToVector(rsaEncryptedSessionKey.get(), size);
+    string sEsk(vEsk.begin(), vEsk.end());
+    delete rsa;
+    return sEsk;
+}
+
+std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustomRequest &request)
+{
+    auto userts = IJsonArray::Create();
+    for (unsigned int i = 0; i < request.userRightsList.size(); i++)
+    {
+        auto _user = IJsonObject::Create();
+        auto _usrs = IJsonArray::Create();
+        auto _rghts = IJsonArray::Create();
+        UserRightsRequest curr = request.userRightsList[i];
+        for (unsigned int j = 0; j < curr.users.size(); i++)
+            _usrs->Append(curr.users[j]);
+        for (unsigned int j = 0; j < curr.rights.size(); i++)
+            _rghts->Append(curr.rights[j]);
+        _user->SetNamedArray("usrs", *_usrs);
+        _user->SetNamedArray("rghts", *_rghts);
+        userts->Append(*_user);
+    }
+    return userts;
 }
 
 std::string PublishClient::GetCLC(
@@ -443,13 +458,6 @@ std::string PublishClient::GetCLC(
     }
     return clientcert;
 }
-//std::shared_ptr<ICryptoKey> PublishClient::CreateKey(size_t size, CryptoAlgorithm algorithm, shared_ptr<const uint8_t[]>& outBuf)
-//{
-//    outBuf = make_shared(new uint8_t[size]);
-//    RAND_bytes(const_cast<const uint8_t[]>(outBuf.get()), size);
-//    auto engine = ICryptoEngine::Create();
-//    return engine->CreateKey(outBuf, size, algorithm);
-//}
 
 shared_ptr<IPublishClient>IPublishClient::Create()
 {
