@@ -24,15 +24,21 @@ using namespace rmscore::restclients;
 namespace rmscore {
 namespace json {
 ByteArray JsonSerializer::SerializeUsageRestrictionsRequest(
-  const UsageRestrictionsRequest& request)
+  const UsageRestrictionsRequest& request, bool encode)
 {
-  // convert the PL to base64 encoded string
-  ByteArray base64PL(ConvertBytesToBase64(request.pbPublishLicense,
+    ByteArray PL;
+    if (encode)
+    {
+        // convert the PL to base64 encoded string
+        PL = ByteArray(ConvertBytesToBase64(request.pbPublishLicense,
                                           request.cbPublishLicense));
+    }
+    else
+        PL.assign(request.pbPublishLicense, request.pbPublishLicense + request.cbPublishLicense);
 
   auto pJsonObject = IJsonObject::Create();
 
-  pJsonObject->SetNamedValue("SerializedPublishingLicense", base64PL);
+  pJsonObject->SetNamedValue("SerializedPublishingLicense", PL);
 
   return pJsonObject->Stringify();
 }

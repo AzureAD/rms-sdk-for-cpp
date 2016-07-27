@@ -46,15 +46,14 @@ private:
   const size_t KEY_SIZE = 256;
   const size_t AES_BLOCK_SIZE = 16;
 
+  std::string Unescape(std::string source);
+
   std::string RSASignKey(const char* exp,
     const char* mod,
-    uint8_t* buf,
-    size_t size);
+    std::vector<uint8_t> buf);
 
-  common::ByteArray EncryptPolicyToBase64(
-    std::shared_ptr<platform::json::IJsonObject> pPolicy,
-    uint8_t *buf,
-    size_t size,
+  common::ByteArray EncryptPolicyToBase64(std::shared_ptr<platform::json::IJsonObject> pPolicy,
+    std::vector<uint8_t> key,
     rmscrypto::api::CipherMode cm);
 
   std::shared_ptr<platform::json::IJsonArray> ConvertUserRights(

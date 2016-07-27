@@ -20,7 +20,7 @@ namespace json {
 class IJsonSerializer
 {
 public:
-    virtual common::ByteArray SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request) = 0;
+    virtual common::ByteArray SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request, bool encode) = 0;
     virtual common::ByteArray SerializePublishUsingTemplateRequest(const restclients::PublishUsingTemplateRequest& request) = 0;
     virtual common::ByteArray SerializePublishCustomRequest(const restclients::PublishCustomRequest& request) = 0;
 

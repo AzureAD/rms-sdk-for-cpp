@@ -22,6 +22,10 @@
 #include "../Platform/Json/IJsonParser.h"
 #include "../Platform/Json/JsonObjectQt.h"
 #include "../Common/tools.h"
+#include "../Crypto/CryptoConstants.h"
+#include <sstream>
+#include <ostream>
+#include <fstream>
 
 using namespace std;
 using namespace rmscore::json;
@@ -63,8 +67,9 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto bytearray = common::ByteArray(sCLC.begin(), sCLC.end());
 
     auto pCLC =  IJsonParser::Create()->Parse(bytearray);
-    auto pClcPubData = pCLC->GetNamedObject("pub");
-    auto pClcPubPayload = pClcPubData->GetNamedObject("pub");
+    auto pClcPld = pCLC->GetNamedObject("pld");
+    auto pClcPubData = pClcPld->GetNamedObject("pub");
+    auto pClcPubPayload = pClcPubData->GetNamedObject("pld");
     auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
     auto pClcIssuer = pClcPubPayload->GetNamedObject("iss");
     auto pServerPubRsaKey = pClcIssuer->GetNamedObject("pubk");
@@ -81,7 +86,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
     license->SetNamedObject("cre", *pClcPubData);
 
-    auto clcPrivData = pCLC->GetNamedObject("pri");
+    auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
     license->SetNamedString("exp", clcPrivData->GetNamedString("exp"));
 
@@ -103,28 +108,40 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     //encrypted app data would go here
 
     //session key init
-    unique_ptr<uint8_t[]> skbuf(new uint8_t(KEY_SIZE));
-    RAND_bytes(skbuf.get(), KEY_SIZE);
+    const unsigned int keysize = 32;
+    uint8_t* skbuf = new uint8_t[keysize];
+    RAND_bytes(skbuf, keysize);
+    vector<uint8_t> sessionkey;
+    sessionkey.assign(skbuf, skbuf + keysize);
+    delete[] skbuf;
     CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
 
 
     //encrypted policy
-    license->SetNamedValue("enp", EncryptPolicyToBase64(pEncryptedPolicy, skbuf.get(), KEY_SIZE, cm));
+    auto enp = EncryptPolicyToBase64(pEncryptedPolicy, sessionkey, cm);
+    license->SetNamedValue("enp", enp);
 
     //session key
     auto pSessionKey = IJsonObject::Create();
-    unique_ptr<uint8_t[]> buf(new uint8_t[KEY_SIZE]);
-    RAND_bytes(buf.get(), KEY_SIZE);
+
+    uint8_t* ckbuf = new uint8_t[keysize];
+    RAND_bytes(ckbuf, keysize);
+    vector<uint8_t> contentkey;
+    contentkey.assign(ckbuf, skbuf + keysize);
+    delete[] ckbuf;
+
     auto pContentKey = IJsonObject::Create();
     pContentKey->SetNamedString("alg", "AES");
     pContentKey->SetNamedString("cm", "CBC4K");
-    pContentKey->SetNamedValue("k", common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE));
+    pContentKey->SetNamedValue("k", common::ConvertBytesToBase64(contentkey)); //not sure if correct
     auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
+    pSessionKey->SetNamedObject("eck", *pContentKey);
+
     pSessionKey->SetNamedString("eck", std::string(bytes.begin(), bytes.end()));
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), skbuf.get(), KEY_SIZE);
+    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), sessionkey);
 
     pSessionKey->SetNamedString("sk", esk);
 
@@ -149,7 +166,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
-    responseKey.value = common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE);
+    responseKey.value = common::ConvertBytesToBase64(contentkey);
     response.key = responseKey;
     response.signedApplicationData = request.signedApplicationData;
     response.name = "Restricted Access";
@@ -199,8 +216,9 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto bytearray = common::ByteArray(sCLC.begin(), sCLC.end());
 
     auto pCLC =  IJsonParser::Create()->Parse(bytearray);
-    auto pClcPubData = pCLC->GetNamedObject("pub");
-    auto pClcPubPayload = pClcPubData->GetNamedObject("pub");
+    auto pClcPld = pCLC->GetNamedObject("pld");
+    auto pClcPubData = pClcPld->GetNamedObject("pub");
+    auto pClcPubPayload = pClcPubData->GetNamedObject("pld");
     auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
     auto pClcIssuer = pClcPubPayload->GetNamedObject("iss");
     auto pServerPubRsaKey = pClcIssuer->GetNamedObject("pubk");
@@ -217,7 +235,7 @@ PublishResponse PublishClient::LocalPublishCustom(
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
     license->SetNamedObject("cre", *pClcPubData);
 
-    auto clcPrivData = pCLC->GetNamedObject("pri");
+    auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
     license->SetNamedString("exp", clcPrivData->GetNamedString("exp"));
 
@@ -242,28 +260,40 @@ PublishResponse PublishClient::LocalPublishCustom(
     pEncryptedPolicy->SetNamedObject("cp", *pCustomPolicy);
 
     //session key init
-    unique_ptr<uint8_t[]> skbuf(new uint8_t(KEY_SIZE));
-    RAND_bytes(skbuf.get(), KEY_SIZE);
+    const unsigned int keysize = 32;
+    uint8_t* skbuf = new uint8_t[keysize];
+    RAND_bytes(skbuf, keysize);
+    vector<uint8_t> sessionkey;
+    sessionkey.assign(skbuf, skbuf + keysize);
+    delete[] skbuf;
     CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
 
 
     //encrypted policy
-    license->SetNamedValue("enp", EncryptPolicyToBase64(pEncryptedPolicy, skbuf.get(), KEY_SIZE, cm));
+    auto enp = EncryptPolicyToBase64(pEncryptedPolicy, sessionkey, cm);
+    license->SetNamedValue("enp", enp);
 
     //session key
     auto pSessionKey = IJsonObject::Create();
-    unique_ptr<uint8_t[]> buf(new uint8_t[KEY_SIZE]);
-    RAND_bytes(buf.get(), KEY_SIZE);
+
+    uint8_t* ckbuf = new uint8_t[keysize];
+    RAND_bytes(ckbuf, keysize);
+    vector<uint8_t> contentkey;
+    contentkey.assign(ckbuf, skbuf + keysize);
+    delete[] ckbuf;
+
     auto pContentKey = IJsonObject::Create();
     pContentKey->SetNamedString("alg", "AES");
     pContentKey->SetNamedString("cm", "CBC4K");
-    pContentKey->SetNamedValue("k", common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE));
+    pContentKey->SetNamedValue("k", common::ConvertBytesToBase64(contentkey)); //not sure if correct
     auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
+    pSessionKey->SetNamedObject("eck", *pContentKey);
+
     pSessionKey->SetNamedString("eck", std::string(bytes.begin(), bytes.end()));
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), skbuf.get(), KEY_SIZE);
+    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), sessionkey);
 
     pSessionKey->SetNamedString("sk", esk);
 
@@ -288,7 +318,7 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
-    responseKey.value = common::ConvertArrayToVector<uint8_t>(buf.get(), KEY_SIZE);
+    responseKey.value = common::ConvertBytesToBase64(contentkey);
     response.key = responseKey;
     response.signedApplicationData = request.signedApplicationData;
     response.name = "Restricted Access";
@@ -346,34 +376,27 @@ string PublishClient::EscapeJson(shared_ptr<IJsonObject> pPayload)
     return sPldEscaped;
 }
 
-common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, uint8_t* buf, size_t size, CipherMode cm)
+common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, vector<uint8_t> key, CipherMode cm)
 {
-    auto crypto = CreateCryptoProvider(cm, common::ConvertArrayToVector<uint8_t>(buf, size));
+    auto crypto = CreateCryptoProvider(cm, key);
     vector<uint8_t> encryptedPolicyBytes = pPolicy->Stringify();
-    auto encPolByteArr = &encryptedPolicyBytes[0];
-    auto len = sizeof encryptedPolicyBytes;
-    auto AlignedSize = len + (len % AES_BLOCK_SIZE);
-    unique_ptr<uint8_t[]> outbuffer(new uint8_t[AlignedSize]);
-    unique_ptr<uint8_t[]> inputbuffer(new uint8_t[AlignedSize]);
-    memset(reinterpret_cast<void*>(inputbuffer.get()), 0, AlignedSize);
-    memcpy(reinterpret_cast<void*>(inputbuffer.get()), encPolByteArr, AlignedSize);
-    uint32_t byteswritten = 0;
-    crypto->Encrypt(inputbuffer.get(), AlignedSize, 0, false, outbuffer.get(), AlignedSize, &byteswritten);
-    if (cm == CIPHER_MODE_ECB)
-    {
-        if (byteswritten != AlignedSize)
-            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
-    }
-    else
-    {
-        if (byteswritten != len)
-            throw exceptions::RMSCryptographyException("Wrote an invalid number of bytes.");
-    }
 
-    return common::ConvertBytesToBase64(common::ConvertArrayToVector<uint8_t>(outbuffer.get(), size));
+    auto len = encryptedPolicyBytes.size();
+
+    unsigned int blockSize = cm == CIPHER_MODE_CBC4K ? rmscrypto::crypto::CBC4K_BLOCK_SIZE : rmscrypto::crypto::AES128_BLOCK_SIZE;
+    auto AlignedSize = len + (len >= blockSize ? (len % blockSize) : (blockSize - len));
+
+    vector<uint8_t> outbuffer(AlignedSize, 0);
+    vector<uint8_t> inputbuffer(encryptedPolicyBytes);
+    inputbuffer.resize(AlignedSize, 0);
+
+    uint32_t byteswritten = 0;
+    crypto->Encrypt(&inputbuffer[0], AlignedSize, 0, false, &outbuffer[0], AlignedSize, &byteswritten);
+
+    return common::ConvertBytesToBase64(outbuffer);
 }
 
-string PublishClient::RSASignKey(const char* exp, const char* mod, uint8_t* buf, size_t size)
+string PublishClient::RSASignKey(const char* exp, const char* mod, vector<uint8_t> buf)
 {
     RSA* rsa = RSA_new();
     BIGNUM* exponent = BN_new();
@@ -382,13 +405,22 @@ string PublishClient::RSASignKey(const char* exp, const char* mod, uint8_t* buf,
     BN_dec2bn(&modulus_, mod);
     rsa->n = modulus_;
     rsa->e = exponent;
-    unique_ptr<uint8_t[]> rsaEncryptedSessionKey(new uint8_t[RSA_size(const_cast<const RSA*>(rsa))]);
-    int result = RSA_public_encrypt(KEY_SIZE, buf, rsaEncryptedSessionKey.get(), rsa, RSA_PKCS1_PADDING);
-    if (result != 1)
+    auto size = RSA_size(const_cast<const RSA*>(rsa));
+    uint8_t* rsaEncryptedSessionKey = new uint8_t[size];
+    int result = RSA_public_encrypt(buf.size(), &buf[0], rsaEncryptedSessionKey, rsa, RSA_PKCS1_PADDING);
+    if (result == -1)
         throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key");
-    auto vEsk = common::ConvertArrayToVector(rsaEncryptedSessionKey.get(), size);
+    else if (result != size)
+        throw exceptions::RMSCryptographyException("RSA_public_encrypt returned unexpected size.");
+    vector<uint8_t> vEsk;
+    vEsk.assign(rsaEncryptedSessionKey, rsaEncryptedSessionKey + size);
     string sEsk(vEsk.begin(), vEsk.end());
+
     delete rsa;
+    delete[] rsaEncryptedSessionKey;
+    delete exponent;
+    delete modulus_;
+
     return sEsk;
 }
 
@@ -422,23 +454,37 @@ std::string PublishClient::GetCLC(
     auto pcacheresult = GetCLCCache(pCache, sEmail);
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
+        /*
+        **UNCOMMENT THIS SECTION FOR RELEASE. TEST CODE ONLY**
         auto pRestServiceUrlClient = RestServiceUrlClient::Create();
         auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
         auto result = RestHttpClient::Get(clcUrl, authenticationCallback, cancelState);
 
         if (result.status != StatusCode::OK)
             HandleRestClientError(result.status, result.responseBody);
+        */
+
+        //TEST CODE
+        std::ifstream ifs;
+        ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
+        string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
+
+        auto r = CertificateResponse();
+        r.serializedCert = str;
 
         auto pJsonSerializer = IJsonSerializer::Create();
         try
         {
             //get clc
-            auto clc = pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
+            auto clc = r;//pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
+
+            clc.serializedCert = Unescape(clc.serializedCert);
+
             auto bytearray = common::ByteArray(clc.serializedCert.begin(), clc.serializedCert.end());
 
             auto pCLC =  IJsonParser::Create()->Parse(bytearray);
-            auto pub = pCLC->GetNamedObject("pub")->GetNamedObject("pld");
-            auto pri = pCLC->GetNamedObject("pri");
+
+            auto pri = pCLC->GetNamedObject("pld")->GetNamedObject("pri");
 
             //cache it
             const common::ByteArray response;
@@ -446,6 +492,7 @@ std::string PublishClient::GetCLC(
             size_t size;
             auto key = common::HashString(sEmail, &size);
             pCache->Store(CLCCacheName, CLCCacheTag, key.get(), size, exp, response, true);
+            clientcert = clc.serializedCert;
         }
         catch(exceptions::RMSException)
         {
@@ -457,6 +504,18 @@ std::string PublishClient::GetCLC(
         clientcert = pcacheresult->CLC;
     }
     return clientcert;
+}
+
+string PublishClient::Unescape(string source)
+{
+    stringstream ss;
+    for (size_t i = 0; i < source.length(); i++)
+        if (source[i] != '\\')
+            ss << source[i];
+    auto ret = ss.str();
+    ret = common::ReplaceString(ret, "\"{\"", "{\"");
+    ret = common::ReplaceString(ret, "}}\"", "}}");
+    return ret;
 }
 
 shared_ptr<IPublishClient>IPublishClient::Create()

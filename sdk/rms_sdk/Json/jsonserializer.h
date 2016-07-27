@@ -17,7 +17,7 @@ namespace json {
 class JsonSerializer : public IJsonSerializer
 {
 public:
-    virtual common::ByteArray SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request) override;
+    virtual common::ByteArray SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request, bool encode) override;
     virtual common::ByteArray SerializePublishUsingTemplateRequest(const restclients::PublishUsingTemplateRequest& request) override;
     virtual common::ByteArray SerializePublishCustomRequest(const restclients::PublishCustomRequest& request) override;
 

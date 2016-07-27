@@ -395,8 +395,8 @@ void ProtectionPolicy::Initialize(
   m_bAllowAuditedExtraction = bAllowAuditedExtraction;
 
   // if access is granted verify the key and create a crypto provider
-  if (ACCESS_STATUS_ACCESS_GRANTED ==
-      m_accessStatus) InitializeKey(response.key);
+  if (ACCESS_STATUS_ACCESS_GRANTED == m_accessStatus)
+      InitializeKey(response.key);
 
   // initialize the publishing license
   m_publishLicense = response.serializedLicense;

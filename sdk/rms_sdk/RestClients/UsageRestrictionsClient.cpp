@@ -56,7 +56,7 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
   }
   auto pJsonSerializer   = json::IJsonSerializer::Create();
   auto serializedRequest = pJsonSerializer->SerializeUsageRestrictionsRequest(
-    request);
+    request, false); //this will not work if the PL is XrML. Change later.
 
   auto pRestServiceUrlClient = IRestServiceUrlClient::Create();
   auto endUserLicenseUrl     = pRestServiceUrlClient->GetEndUserLicensesUrl(
