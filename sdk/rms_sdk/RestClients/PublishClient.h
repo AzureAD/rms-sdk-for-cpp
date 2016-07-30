@@ -48,19 +48,21 @@ private:
 
   std::string Unescape(std::string source);
 
-  std::string RSASignKey(const char* exp,
-    const char* mod,
+  std::string RSASignPayload(std::string &sPkey,
+    std::vector<uint8_t> digest);
+
+  std::string RSAEncryptKey(
+    const char*          exp,
+    const char*          mod,
     std::vector<uint8_t> buf);
 
-  common::ByteArray EncryptPolicyToBase64(std::shared_ptr<platform::json::IJsonObject> pPolicy,
-    std::vector<uint8_t> key,
-    rmscrypto::api::CipherMode cm);
+  common::ByteArray EncryptPolicyToBase64(
+    std::shared_ptr<platform::json::IJsonObject> pPolicy,
+    std::vector<uint8_t>                         key,
+    rmscrypto::api::CipherMode                   cm);
 
   std::shared_ptr<platform::json::IJsonArray> ConvertUserRights(
      const PublishCustomRequest& request);
-
-  std::string EscapeJson(
-    std::shared_ptr<platform::json::IJsonObject> pPayload);
 
   std::shared_ptr<CLCCacheResult> GetCLCCache(
     std::shared_ptr<IRestClientCache> cache,

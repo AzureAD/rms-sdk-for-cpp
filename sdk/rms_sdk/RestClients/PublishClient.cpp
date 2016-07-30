@@ -6,8 +6,12 @@
  * ======================================================================
  */
 
-#include "openssl/rand.h"
-#include "openssl/rsa.h"
+#include <openssl/rand.h>
+#include <openssl/rsa.h>
+#include <openssl/x509.h>
+#include <openssl/err.h>
+#include <openssl/bio.h>
+#include <openssl/pem.h>
 #include "PublishClient.h"
 #include "RestClientCache.h"
 #include "RestClientErrorHandling.h"
@@ -73,6 +77,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
     auto pClcIssuer = pClcPubPayload->GetNamedObject("iss");
     auto pServerPubRsaKey = pClcIssuer->GetNamedObject("pubk");
+    auto pClientPriKey = pClcPld->GetNamedObject("pri")->GetNamedObject("prik");
 
     auto header = IJsonObject::Create();
     header->SetNamedString("ver", "1");
@@ -84,7 +89,9 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto license = IJsonObject::Create();
     license->SetNamedString("id", common::GenerateAGuid());
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
-    license->SetNamedObject("cre", *pClcPubData);
+    auto vCre = pClcPubData->Stringify();
+    string sCre(vCre.begin(), vCre.end());
+    license->SetNamedString("cre", sCre);
 
     auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
@@ -141,7 +148,9 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), sessionkey);
+    auto e = pServerPubRsaKey->GetNamedString("e").c_str();
+    auto n = pServerPubRsaKey->GetNamedString("n").c_str();
+    auto esk = RSAEncryptKey(e, n, sessionkey);
 
     pSessionKey->SetNamedString("sk", esk);
 
@@ -151,13 +160,18 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
 
     //sig
     auto pSig = IJsonObject::Create();
-    string sPldEscaped = EscapeJson(pPayload);
+    auto vPld = pPayload->Stringify();
+    string sPldEscaped(vPld.begin(), vPld.end());//= EscapeJson(pPayload);
     size_t size;
     auto digest = common::HashString(sPldEscaped, &size);
     auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
-    string sDigest(vDigest.begin(), vDigest.end());
+
     pSig->SetNamedString("alg", "SHA256");
-    pSig->SetNamedString("dig", sDigest);
+    auto k = pClientPriKey->GetNamedString("d");
+    pSig->SetNamedString("dig", RSASignPayload(k, vDigest));
+
+    sPldEscaped = common::ReplaceString(sPldEscaped, "\\\\\\\"pld:\\\\\\\"", "\\\"pld:\\\"");
+    sPldEscaped = common::ReplaceString(sPldEscaped, "\\\\\\\"sig:\\\\\\\"", "\\\"sig:\\\"");
 
     pJsonRoot->SetNamedString("pld", sPldEscaped);
     pJsonRoot->SetNamedObject("sig", *pSig);
@@ -293,7 +307,7 @@ PublishResponse PublishClient::LocalPublishCustom(
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto esk = RSASignKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), sessionkey);
+    auto esk = RSAEncryptKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), sessionkey);
 
     pSessionKey->SetNamedString("sk", esk);
 
@@ -303,7 +317,7 @@ PublishResponse PublishClient::LocalPublishCustom(
 
     //sig
     auto pSig = IJsonObject::Create();
-    string sPldEscaped = EscapeJson(pPayload);
+    string sPldEscaped = "";//EscapeJson(pPayload);
     size_t size;
     auto digest = common::HashString(sPldEscaped, &size);
     auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
@@ -311,7 +325,6 @@ PublishResponse PublishClient::LocalPublishCustom(
     pSig->SetNamedString("alg", "SHA256");
     pSig->SetNamedString("dig", sDigest);
 
-    pJsonRoot->SetNamedString("pld", sPldEscaped);
     pJsonRoot->SetNamedObject("sig", *pSig);
 
     response.serializedLicense = pJsonRoot->Stringify();
@@ -362,19 +375,19 @@ PublishResponse PublishClient::PublishCommon(
   }
 }
 
-string PublishClient::EscapeJson(shared_ptr<IJsonObject> pPayload)
-{
-    //convert payload to escaped string
-    auto bytePayload = pPayload->Stringify();
-    string sPldBytes = string(bytePayload.begin(), bytePayload.end());
-    string sPldEscaped = "";
-    for (unsigned int i = 0; i < sPldBytes.length(); i++)
-    {
-        string character(1, sPldBytes[i]);
-        sPldEscaped += sPldBytes[i] == '\"' ? "\\\"" : character;
-    }
-    return sPldEscaped;
-}
+//string PublishClient::EscapeJson(shared_ptr<IJsonObject> pPayload)
+//{
+//    //convert payload to escaped string
+//    auto bytePayload = pPayload->Stringify();
+//    string sPldBytes = string(bytePayload.begin(), bytePayload.end());
+//    string sPldEscaped = "";
+//    for (unsigned int i = 0; i < sPldBytes.length(); i++)
+//    {
+//        string character(1, sPldBytes[i]);
+//        sPldEscaped += sPldBytes[i] == '\"' ? "\\\"" : character;
+//    }
+//    return sPldEscaped;
+//}
 
 common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, vector<uint8_t> key, CipherMode cm)
 {
@@ -396,7 +409,7 @@ common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObje
     return common::ConvertBytesToBase64(outbuffer);
 }
 
-string PublishClient::RSASignKey(const char* exp, const char* mod, vector<uint8_t> buf)
+string PublishClient::RSAEncryptKey(const char* exp, const char* mod, vector<uint8_t> buf)
 {
     RSA* rsa = RSA_new();
     BIGNUM* exponent = BN_new();
@@ -416,12 +429,55 @@ string PublishClient::RSASignKey(const char* exp, const char* mod, vector<uint8_
     vEsk.assign(rsaEncryptedSessionKey, rsaEncryptedSessionKey + size);
     string sEsk(vEsk.begin(), vEsk.end());
 
-    delete rsa;
+    RSA_free(rsa);
     delete[] rsaEncryptedSessionKey;
-    delete exponent;
-    delete modulus_;
 
     return sEsk;
+}
+string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> digest)
+{
+    //unfortunately, pkey will be in raw bytes, but openssl needs x509 PEM format
+    //so we have to create the x509 cert ourselves
+
+    EVP_PKEY* pkey = EVP_PKEY_new();
+    RSA* rsa = RSA_new();
+    if (rsa == NULL)
+        throw exceptions::RMSCryptographyException("Failed to generate new RSA key.");
+    BIGNUM* d = BN_new();
+    BN_dec2bn(&d, sPkey.c_str());
+    rsa->d = d;
+    EVP_PKEY_assign_RSA(pkey, rsa);
+    X509* x509 = X509_new();
+    ASN1_INTEGER_set(X509_get_serialNumber(x509), 1);
+    X509_gmtime_adj(X509_get_notBefore(x509), 0);
+    X509_gmtime_adj(X509_get_notAfter(x509), 31536000L);
+    X509_set_pubkey(x509, pkey);
+    X509_NAME* name = X509_get_subject_name(x509);
+    X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC,
+                               (unsigned char *)"US", -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC,
+                               (unsigned char *)"Microsoft Inc.", -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
+                               (unsigned char *)"localhost", -1, -1, 0);
+    X509_set_issuer_name(x509, name);
+    auto dig = EVP_sha256();
+    X509_sign(x509, pkey, dig);
+
+
+    auto size = RSA_size(const_cast<const RSA*>(rsa));
+    vector<uint8_t> sigbuf(size);
+    unsigned int retsize;
+    auto sret = RSA_sign(NID_sha256, &digest[0], digest.size(), &sigbuf[0], &retsize, rsa);
+    if (sret != 1)
+        throw exceptions::RMSCryptographyException("RSA_sign failed. Error: " + string(ERR_error_string(ERR_get_error(), NULL)));
+    auto vret = RSA_verify(NID_sha256, &digest[0], digest.size(), &sigbuf[0], retsize, rsa);
+    if (vret != 1)
+        throw exceptions::RMSCryptographyException("RSA_verify returned false. Error: " + string(ERR_error_string(ERR_get_error(), NULL)));
+
+    X509_free(x509);
+    EVP_PKEY_free(pkey); //rsa struct is freed with the evp pkey
+
+    return string(sigbuf.begin(), sigbuf.end());
 }
 
 std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustomRequest &request)
