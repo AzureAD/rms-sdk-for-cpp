@@ -51,9 +51,8 @@ private:
   std::string RSASignPayload(std::string &sPkey,
     std::vector<uint8_t> digest);
 
-  std::string RSAEncryptKey(
-    const char*          exp,
-    const char*          mod,
+  std::string RSAEncryptKey(const common::ByteArray &exp,
+    const common::ByteArray &mod,
     std::vector<uint8_t> buf);
 
   common::ByteArray EncryptPolicyToBase64(
@@ -68,11 +67,9 @@ private:
     std::shared_ptr<IRestClientCache> cache,
     const std::string               & email);
 
-  std::string GetCLC(
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState);
+  std::string GetCLC(const std::string& sEmail, std::string &outClcPubData);
 
+  std::string Reformat(std::string source);
 
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,

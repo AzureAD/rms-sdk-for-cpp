@@ -50,12 +50,19 @@ string timeToString(const QDateTime& dateTime) {
 }
 
 std::string ReplaceString(std::string subject, const std::string& search,
-                          const std::string& replace)
+                          const std::string& replace, int occurrences)
 {
     size_t pos = 0;
+    int found = 0;
     while ((pos = subject.find(search, pos)) != std::string::npos)
     {
          subject.replace(pos, search.length(), replace);
+         if (occurrences != 0)
+         {
+            ++found;
+            if (found >= occurrences)
+                break;
+         }
          pos += replace.length();
     }
     return subject;

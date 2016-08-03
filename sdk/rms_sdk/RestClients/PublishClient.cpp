@@ -30,8 +30,10 @@
 #include <sstream>
 #include <ostream>
 #include <fstream>
+#include <QDebug>
 
 using namespace std;
+using namespace rmscore::common;
 using namespace rmscore::json;
 using namespace rmscore::platform::http;
 using namespace rmscore::platform::json;
@@ -67,7 +69,8 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto pJsonRoot = IJsonObject::Create();
     auto pPayload = IJsonObject::Create();
 
-    auto sCLC = GetCLC(authenticationCallback, sEmail, cancelState);
+    string clcPubData;
+    auto sCLC = GetCLC(sEmail, clcPubData);
     auto bytearray = common::ByteArray(sCLC.begin(), sCLC.end());
 
     auto pCLC =  IJsonParser::Create()->Parse(bytearray);
@@ -80,7 +83,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto pClientPriKey = pClcPld->GetNamedObject("pri")->GetNamedObject("prik");
 
     auto header = IJsonObject::Create();
-    header->SetNamedString("ver", "1");
+    header->SetNamedString("ver", "1.0.0.0");
     pPayload->SetNamedObject("hdr", *header);
 
     response.contentId = common::GenerateAGuid();
@@ -89,9 +92,10 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto license = IJsonObject::Create();
     license->SetNamedString("id", common::GenerateAGuid());
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
-    auto vCre = pClcPubData->Stringify();
-    string sCre(vCre.begin(), vCre.end());
-    license->SetNamedString("cre", sCre);
+    //auto vCre = pClcPubData->Stringify();
+    //string sCre(vCre.begin(), vCre.end());
+
+    license->SetNamedString("cre", clcPubData);
 
     auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
@@ -106,8 +110,8 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
           pSignedApplicationDataJson->SetNamedString(appData.first,
                                                      appData.second);
         });
-
-    license->SetNamedObject("sad", *pSignedApplicationDataJson);
+    if (request.signedApplicationData.size() != 0)
+        license->SetNamedObject("sad", *pSignedApplicationDataJson);
 
     auto pEncryptedPolicy = IJsonObject::Create();
     pEncryptedPolicy->SetNamedString("crem", pClcIssuedTo->GetNamedString("em"));
@@ -148,9 +152,12 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto e = pServerPubRsaKey->GetNamedString("e").c_str();
-    auto n = pServerPubRsaKey->GetNamedString("n").c_str();
-    auto esk = RSAEncryptKey(e, n, sessionkey);
+    auto e = pServerPubRsaKey->GetNamedString("e");
+    auto n = pServerPubRsaKey->GetNamedString("n");
+    common::ByteArray sn(n.begin(),n.end());
+    common::ByteArray se(e.begin(), e.end());
+    common::ByteArray bn = common::ConvertBase64ToBytes(sn);
+    auto esk = RSAEncryptKey(se, bn, sessionkey);
 
     pSessionKey->SetNamedString("sk", esk);
 
@@ -161,22 +168,31 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     //sig
     auto pSig = IJsonObject::Create();
     auto vPld = pPayload->Stringify();
-    string sPldEscaped(vPld.begin(), vPld.end());//= EscapeJson(pPayload);
+    string sPldEscaped(vPld.begin(), vPld.end());
+
+    pJsonRoot->SetNamedString("pld", sPldEscaped);
+
+    auto vt = pJsonRoot->Stringify();
+    string st(vt.begin(), vt.end());
+    st = Reformat(st);
+
     size_t size;
-    auto digest = common::HashString(sPldEscaped, &size);
+    auto digest = common::HashString(st, &size);
     auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
 
     pSig->SetNamedString("alg", "SHA256");
     auto k = pClientPriKey->GetNamedString("d");
     pSig->SetNamedString("dig", RSASignPayload(k, vDigest));
 
-    sPldEscaped = common::ReplaceString(sPldEscaped, "\\\\\\\"pld:\\\\\\\"", "\\\"pld:\\\"");
-    sPldEscaped = common::ReplaceString(sPldEscaped, "\\\\\\\"sig:\\\\\\\"", "\\\"sig:\\\"");
-
-    pJsonRoot->SetNamedString("pld", sPldEscaped);
     pJsonRoot->SetNamedObject("sig", *pSig);
 
-    response.serializedLicense = pJsonRoot->Stringify();
+    auto vJsonRoot = pJsonRoot->Stringify();
+    auto sJsonRoot = string(vJsonRoot.begin(), vJsonRoot.end());
+    sJsonRoot = Reformat(sJsonRoot);
+
+    auto vFinal = vector<uint8_t>(sJsonRoot.begin(), sJsonRoot.end());
+
+    response.serializedLicense = vFinal;
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
@@ -226,7 +242,8 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto pJsonRoot = IJsonObject::Create();
     auto pPayload = IJsonObject::Create();
 
-    auto sCLC = GetCLC(authenticationCallback, sEmail, cancelState);
+    string clcPubData;
+    auto sCLC = GetCLC(sEmail, clcPubData);
     auto bytearray = common::ByteArray(sCLC.begin(), sCLC.end());
 
     auto pCLC =  IJsonParser::Create()->Parse(bytearray);
@@ -236,9 +253,10 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
     auto pClcIssuer = pClcPubPayload->GetNamedObject("iss");
     auto pServerPubRsaKey = pClcIssuer->GetNamedObject("pubk");
+    auto pClientPriKey = pClcPld->GetNamedObject("pri")->GetNamedObject("prik");
 
     auto header = IJsonObject::Create();
-    header->SetNamedString("ver", "1");
+    header->SetNamedString("ver", "1.0.0.0");
     pPayload->SetNamedObject("hdr", *header);
 
     response.contentId = common::GenerateAGuid();
@@ -247,7 +265,10 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto license = IJsonObject::Create();
     license->SetNamedString("id", common::GenerateAGuid());
     license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
-    license->SetNamedObject("cre", *pClcPubData);
+    //auto vCre = pClcPubData->Stringify();
+    //string sCre(vCre.begin(), vCre.end());
+
+    license->SetNamedString("cre", clcPubData);
 
     auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
@@ -262,8 +283,8 @@ PublishResponse PublishClient::LocalPublishCustom(
           pSignedApplicationDataJson->SetNamedString(appData.first,
                                                      appData.second);
         });
-
-    license->SetNamedObject("sad", *pSignedApplicationDataJson);
+    if (request.signedApplicationData.size() != 0)
+        license->SetNamedObject("sad", *pSignedApplicationDataJson);
 
     auto pEncryptedPolicy = IJsonObject::Create();
     pEncryptedPolicy->SetNamedString("crem", pClcIssuedTo->GetNamedString("em"));
@@ -307,7 +328,12 @@ PublishResponse PublishClient::LocalPublishCustom(
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto esk = RSAEncryptKey(pServerPubRsaKey->GetNamedString("e").c_str(), pServerPubRsaKey->GetNamedString("n").c_str(), sessionkey);
+    auto e = pServerPubRsaKey->GetNamedString("e");
+    auto n = pServerPubRsaKey->GetNamedString("n");
+    common::ByteArray sn(n.begin(),n.end());
+    common::ByteArray se(e.begin(), e.end());
+    common::ByteArray bn = common::ConvertBase64ToBytes(sn);
+    auto esk = RSAEncryptKey(se, bn, sessionkey);
 
     pSessionKey->SetNamedString("sk", esk);
 
@@ -317,17 +343,32 @@ PublishResponse PublishClient::LocalPublishCustom(
 
     //sig
     auto pSig = IJsonObject::Create();
-    string sPldEscaped = "";//EscapeJson(pPayload);
+    auto vPld = pPayload->Stringify();
+    string sPldEscaped(vPld.begin(), vPld.end());
+
+    pJsonRoot->SetNamedString("pld", sPldEscaped);
+
+    auto vt = pJsonRoot->Stringify();
+    string st(vt.begin(), vt.end());
+    st = Reformat(st);
+
     size_t size;
-    auto digest = common::HashString(sPldEscaped, &size);
+    auto digest = common::HashString(st, &size);
     auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
-    string sDigest(vDigest.begin(), vDigest.end());
+
     pSig->SetNamedString("alg", "SHA256");
-    pSig->SetNamedString("dig", sDigest);
+    auto k = pClientPriKey->GetNamedString("d");
+    pSig->SetNamedString("dig", RSASignPayload(k, vDigest));
 
     pJsonRoot->SetNamedObject("sig", *pSig);
 
-    response.serializedLicense = pJsonRoot->Stringify();
+    auto vJsonRoot = pJsonRoot->Stringify();
+    auto sJsonRoot = string(vJsonRoot.begin(), vJsonRoot.end());
+    sJsonRoot = Reformat(sJsonRoot);
+
+    auto vFinal = vector<uint8_t>(sJsonRoot.begin(), sJsonRoot.end());
+
+    response.serializedLicense = vFinal;
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
@@ -375,62 +416,123 @@ PublishResponse PublishClient::PublishCommon(
   }
 }
 
-//string PublishClient::EscapeJson(shared_ptr<IJsonObject> pPayload)
-//{
-//    //convert payload to escaped string
-//    auto bytePayload = pPayload->Stringify();
-//    string sPldBytes = string(bytePayload.begin(), bytePayload.end());
-//    string sPldEscaped = "";
-//    for (unsigned int i = 0; i < sPldBytes.length(); i++)
-//    {
-//        string character(1, sPldBytes[i]);
-//        sPldEscaped += sPldBytes[i] == '\"' ? "\\\"" : character;
-//    }
-//    return sPldEscaped;
-//}
+std::string PublishClient::Reformat(string source)
+{
+    string ret;
+    ret = common::ReplaceString(source, R"(\"{\\\"pld\\\")", R"({\"pld\")");
+    //ret = common::ReplaceString(ret, "R(\\\"sig\\\")", R"(\"sig\")");
+    ret = common::ReplaceString(ret, R"(\"pld\":{)", R"(\"pld\":\"{)");
+    ret = common::ReplaceString(ret, R"(\"pld\": {)", R"(\"pld\": \"{)");
+    ret = common::ReplaceString(ret, "}}},\\", R"(}}}\",\)");
+    //ret = common::ReplaceString(ret, R"(\\\"sig\\\")", R"()");
+    auto pos = ret.find(R"(\\\"sig\\\")");
+    if (pos == std::string::npos)
+        throw exceptions::RMSInvalidArgumentException("source");
+
+    string final = ret.substr(0, pos);
+
+    bool end = false;
+    uint32_t it = pos;
+    while (!end)
+    {
+        string s = ret.substr(it, 2);
+        if (s == "\\\\")
+            final += "";
+        else
+            final += s;
+
+        if (s == "}}")
+            end = true;
+        it += 2;
+    }
+    final += ret.substr(it + 1);
+    final = common::ReplaceString(final, R"(}}},"s)", R"(}}}","s)");
+    final = common::ReplaceString(final, R"("}}")", R"("}})", 1);
+    final = common::ReplaceString(final, R"(}}\",\"enp)", R"(}},\"enp)");
+    final = common::ReplaceString(final, R"(}}},"s)", R"(}}}","s)");
+    return final;
+}
 
 common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, vector<uint8_t> key, CipherMode cm)
 {
+    //test
+    //cm = CIPHER_MODE_ECB;
+
     auto crypto = CreateCryptoProvider(cm, key);
     vector<uint8_t> encryptedPolicyBytes = pPolicy->Stringify();
 
-    auto len = encryptedPolicyBytes.size();
+    auto totalLen = encryptedPolicyBytes.size();
 
-    unsigned int blockSize = cm == CIPHER_MODE_CBC4K ? rmscrypto::crypto::CBC4K_BLOCK_SIZE : rmscrypto::crypto::AES128_BLOCK_SIZE;
-    auto AlignedSize = len + (len >= blockSize ? (len % blockSize) : (blockSize - len));
+    const bool CBC4K = cm == CIPHER_MODE_CBC4K;
 
-    vector<uint8_t> outbuffer(AlignedSize, 0);
-    vector<uint8_t> inputbuffer(encryptedPolicyBytes);
-    inputbuffer.resize(AlignedSize, 0);
+    unsigned int blockSize = CBC4K ? rmscrypto::crypto::CBC4K_BLOCK_SIZE : rmscrypto::crypto::AES128_BLOCK_SIZE;
+    vector<vector<uint8_t>> blockList((totalLen / blockSize) + 1);
 
-    uint32_t byteswritten = 0;
-    crypto->Encrypt(&inputbuffer[0], AlignedSize, 0, false, &outbuffer[0], AlignedSize, &byteswritten);
+    for (unsigned int i = 0; i < blockList.size(); i++)
+    {
+        bool isFinal = i == blockList.size() - 1;
+        if (!isFinal)
+            blockList[i] = vector<uint8_t>(encryptedPolicyBytes.begin() + (i * blockSize), encryptedPolicyBytes.begin() + ((i + 1) * blockSize));
+        else
+        {
+            vector<uint8_t> finalBlock(encryptedPolicyBytes.begin() + (i * blockSize), encryptedPolicyBytes.end());
+            //finalBlock.resize(blockSize, 0);
+            blockList[i] = finalBlock;
+        }
+    }
 
-    return common::ConvertBytesToBase64(outbuffer);
+    vector<uint8_t> final;
+
+    auto len = totalLen;
+
+    const unsigned int PADDED_CBC4K_SIZE = 4412;
+
+    for (unsigned int i = 0; i < blockList.size(); i++)
+    {
+        vector<uint8_t> outbuffer;
+        vector<uint8_t> inputbuffer = blockList[i];
+        uint32_t _size = inputbuffer.size();
+
+        uint32_t byteswritten = 0;
+        bool isLastBlock = len < blockSize;
+        if (CBC4K)
+        {
+            if (!isLastBlock)
+                outbuffer = vector<uint8_t>(blockSize, 0);
+            else
+                outbuffer = vector<uint8_t>(PADDED_CBC4K_SIZE, 0);
+        }
+        crypto->Encrypt(&inputbuffer[0], blockSize, i, isLastBlock, &outbuffer[0], outbuffer.size(), &byteswritten);
+        uint32_t actualEncryptedBytes = _size - (_size % 16) + 16;
+        final.insert(
+          final.end(),
+          outbuffer.begin(),
+          outbuffer.begin() + (_size < rmscrypto::crypto::CBC4K_BLOCK_SIZE ? actualEncryptedBytes : PADDED_CBC4K_SIZE));
+        len -= blockSize;
+    }
+    return common::ConvertBytesToBase64(final);
 }
 
-string PublishClient::RSAEncryptKey(const char* exp, const char* mod, vector<uint8_t> buf)
+string PublishClient::RSAEncryptKey(const ByteArray& exp, const ByteArray& mod, vector<uint8_t> buf)
 {
     RSA* rsa = RSA_new();
     BIGNUM* exponent = BN_new();
-    BN_dec2bn(&exponent, exp);
+    BN_dec2bn(&exponent, reinterpret_cast<const char*>(&exp[0]));
     BIGNUM* modulus_ = BN_new();
-    BN_dec2bn(&modulus_, mod);
+    BN_dec2bn(&modulus_, reinterpret_cast<const char*>(&mod[0]));
     rsa->n = modulus_;
     rsa->e = exponent;
     auto size = RSA_size(const_cast<const RSA*>(rsa));
-    uint8_t* rsaEncryptedSessionKey = new uint8_t[size];
-    int result = RSA_public_encrypt(buf.size(), &buf[0], rsaEncryptedSessionKey, rsa, RSA_PKCS1_PADDING);
+    vector<uint8_t> encryptedKeyBuf(size);
+    int result = RSA_public_encrypt(buf.size() - 12, &buf[0], &encryptedKeyBuf[0], rsa, RSA_PKCS1_PADDING);
     if (result == -1)
         throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key");
     else if (result != size)
         throw exceptions::RMSCryptographyException("RSA_public_encrypt returned unexpected size.");
-    vector<uint8_t> vEsk;
-    vEsk.assign(rsaEncryptedSessionKey, rsaEncryptedSessionKey + size);
+    vector<uint8_t> vEsk = common::ConvertBytesToBase64(encryptedKeyBuf);
     string sEsk(vEsk.begin(), vEsk.end());
 
     RSA_free(rsa);
-    delete[] rsaEncryptedSessionKey;
 
     return sEsk;
 }
@@ -440,9 +542,13 @@ string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> di
     //so we have to create the x509 cert ourselves
 
     EVP_PKEY* pkey = EVP_PKEY_new();
-    RSA* rsa = RSA_new();
-    if (rsa == NULL)
-        throw exceptions::RMSCryptographyException("Failed to generate new RSA key.");
+//    RSA* rsa = RSA_new();
+//    if (rsa == NULL)
+//        throw exceptions::RMSCryptographyException("Failed to generate new RSA key.");
+//    BIGNUM* d = BN_new();
+//    BN_dec2bn(&d, sPkey.c_str());
+//    rsa->d = d;
+    RSA* rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
     BIGNUM* d = BN_new();
     BN_dec2bn(&d, sPkey.c_str());
     rsa->d = d;
@@ -477,7 +583,11 @@ string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> di
     X509_free(x509);
     EVP_PKEY_free(pkey); //rsa struct is freed with the evp pkey
 
-    return string(sigbuf.begin(), sigbuf.end());
+    sigbuf = common::ConvertBytesToBase64(sigbuf);
+
+    auto ret = string(sigbuf.begin(), sigbuf.end());
+
+    return ret;
 }
 
 std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustomRequest &request)
@@ -500,10 +610,7 @@ std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustom
     return userts;
 }
 
-std::string PublishClient::GetCLC(
-        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-        const std::string& sEmail,
-        std::shared_ptr<std::atomic<bool> > cancelState)
+std::string PublishClient::GetCLC(const std::string& sEmail, string& outClcPubData)
 {
     auto pCache = RestClientCache::Create(RestClientCache::CACHE_ENCRYPTED);
     std::string clientcert;
@@ -534,6 +641,23 @@ std::string PublishClient::GetCLC(
             //get clc
             auto clc = r;//pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
 
+            string search = R"(\"pub\":)";
+            auto pos = clc.serializedCert.find(search);
+            if (pos == std::string::npos)
+                throw exceptions::RMSInvalidArgumentException("Invalid CLC from server.");
+            int bracketcount = 1;
+            outClcPubData = "{";
+            for(uint32_t i = pos + search.size() + 1; i < clc.serializedCert.size(); i++)
+            {
+                if (bracketcount == 0)
+                    break;
+                if (clc.serializedCert[i] == '{')
+                    ++bracketcount;
+                else if (clc.serializedCert[i] == '}')
+                    --bracketcount;
+                outClcPubData += clc.serializedCert[i];
+            }
+            outClcPubData = Unescape(outClcPubData);
             clc.serializedCert = Unescape(clc.serializedCert);
 
             auto bytearray = common::ByteArray(clc.serializedCert.begin(), clc.serializedCert.end());

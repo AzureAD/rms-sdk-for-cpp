@@ -28,7 +28,7 @@ ByteArray   ConvertBytesToBase64(const void  *bytes,
                                  const size_t size);
 std::string ReplaceString(std::string subject,
                           const std::string& search,
-                          const std::string& replace);
+                          const std::string& replace, int occurrences = 0);
 
 template <typename T> inline std::vector<T> ConvertArrayToVector(T* buf, const size_t len) { return std::vector<T>(buf, buf + len); }
 std::unique_ptr<uint8_t[]> HashString(const std::string& str, size_t *size);
