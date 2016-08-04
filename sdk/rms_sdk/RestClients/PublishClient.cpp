@@ -177,7 +177,9 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     st = Reformat(st);
 
     size_t size;
-    auto digest = common::HashString(st, &size);
+    QString qs(st.c_str());
+    QByteArray utf16ba((const char*)qs.utf16(), qs.size() * 2);
+    auto digest = common::HashString(vector<uint8_t>(utf16ba.begin(), utf16ba.end()), &size);
     auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
 
     pSig->SetNamedString("alg", "SHA256");
@@ -208,7 +210,7 @@ shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCach
 {
     shared_ptr<CLCCacheResult> result;
     size_t size;
-    shared_ptr<uint8_t> pKey = common::HashString(email, &size);
+    shared_ptr<uint8_t> pKey = common::HashString(vector<uint8_t>(email.begin(), email.end()), &size);
     auto clc = cache->Lookup(CLCCacheName, CLCCacheTag, pKey.get(), size, true);
     if (clc.capacity() > 0)
         result = make_shared<CLCCacheResult>(clc.at(0), false);
@@ -353,7 +355,11 @@ PublishResponse PublishClient::LocalPublishCustom(
     st = Reformat(st);
 
     size_t size;
-    auto digest = common::HashString(st, &size);
+    //payload must be hashed and signed as utf-16, or the server will
+    //fail to verify the signature
+    QString qs(st.c_str());
+    QByteArray utf16ba((const char*)qs.utf16(), qs.size() * 2);
+    auto digest = common::HashString(vector<uint8_t>(utf16ba.begin(), utf16ba.end()), &size);
     auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
 
     pSig->SetNamedString("alg", "SHA256");
@@ -455,9 +461,6 @@ std::string PublishClient::Reformat(string source)
 
 common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, vector<uint8_t> key, CipherMode cm)
 {
-    //test
-    //cm = CIPHER_MODE_ECB;
-
     auto crypto = CreateCryptoProvider(cm, key);
     vector<uint8_t> encryptedPolicyBytes = pPolicy->Stringify();
 
@@ -670,7 +673,7 @@ std::string PublishClient::GetCLC(const std::string& sEmail, string& outClcPubDa
             const common::ByteArray response;
             const std::string exp =  pri->GetNamedString("exp");
             size_t size;
-            auto key = common::HashString(sEmail, &size);
+            auto key = common::HashString(vector<uint8_t>(sEmail.begin(), sEmail.end()), &size);
             pCache->Store(CLCCacheName, CLCCacheTag, key.get(), size, exp, response, true);
             clientcert = clc.serializedCert;
         }
