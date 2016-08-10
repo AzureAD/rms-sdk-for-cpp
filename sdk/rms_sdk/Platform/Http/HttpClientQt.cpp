@@ -32,12 +32,13 @@ common::ByteArray ReadAllBytes(QIODevice *from) {
   if (bytesAvailable > 0) {
     result.resize(static_cast<size_t>(bytesAvailable));
     char *buf = reinterpret_cast<char *>(&result[0]);
-
+    size_t offset = 0;
     while (bytesAvailable > 0) {
-      auto read = from->read(buf, bytesAvailable);
+      auto read = from->read(&buf[offset], bytesAvailable);
 
       if (read <= 0) break;
       bytesAvailable -= read;
+      offset += read;
     }
   }
 
