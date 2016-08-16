@@ -31,6 +31,7 @@
 #include <ostream>
 #include <fstream>
 #include <QDebug>
+#include <functional>
 
 using namespace std;
 using namespace rmscore::common;
@@ -63,14 +64,19 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
   const PublishUsingTemplateRequest     & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   const std::string                       sEmail,
-  std::shared_ptr<std::atomic<bool> >     cancelState)
+  std::shared_ptr<std::atomic<bool> >     cancelState,
+  const std::function<std::string(std::string, std::string&)>& getCLCCallback)
 {
     auto response = PublishResponse();
     auto pJsonRoot = IJsonObject::Create();
     auto pPayload = IJsonObject::Create();
 
     string clcPubData;
-    auto sCLC = GetCLC(sEmail, clcPubData);
+    string sCLC;
+    if (getCLCCallback == nullptr)
+        sCLC = GetCLC(sEmail, authenticationCallback, cancelState, clcPubData);
+    else
+        sCLC = getCLCCallback(sEmail, clcPubData);
     auto bytearray = common::ByteArray(sCLC.begin(), sCLC.end());
 
     auto pCLC =  IJsonParser::Create()->Parse(bytearray);
@@ -177,16 +183,13 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     st = Reformat(st);
 
     size_t size;
-    QString qs(st.c_str());
-    QByteArray utf16ba((const char*)qs.utf16(), qs.size() * 2);
-    auto digest = common::HashString(vector<uint8_t>(utf16ba.begin(), utf16ba.end()), &size);
-    auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
-
+    auto digest = common::HashString(vector<uint8_t>(st.begin(), st.end()), &size);
     pSig->SetNamedString("alg", "SHA256");
     auto k = pClientPriKey->GetNamedString("d");
-    pSig->SetNamedString("dig", RSASignPayload(k, vDigest));
-
+    pSig->SetNamedString("dig", RSASignPayload(k, digest));
+    pSig->SetNamedString("enc", "utf-8");
     pJsonRoot->SetNamedObject("sig", *pSig);
+
 
     auto vJsonRoot = pJsonRoot->Stringify();
     auto sJsonRoot = string(vJsonRoot.begin(), vJsonRoot.end());
@@ -210,8 +213,8 @@ shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCach
 {
     shared_ptr<CLCCacheResult> result;
     size_t size;
-    shared_ptr<uint8_t> pKey = common::HashString(vector<uint8_t>(email.begin(), email.end()), &size);
-    auto clc = cache->Lookup(CLCCacheName, CLCCacheTag, pKey.get(), size, true);
+    vector<uint8_t> pKey = common::HashString(vector<uint8_t>(email.begin(), email.end()), &size);
+    auto clc = cache->Lookup(CLCCacheName, CLCCacheTag, &pKey[0], size, true);
     if (clc.capacity() > 0)
         result = make_shared<CLCCacheResult>(clc.at(0), false);
     else
@@ -238,14 +241,19 @@ PublishResponse PublishClient::LocalPublishCustom(
   const PublishCustomRequest            & request,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   const std::string                       sEmail,
-  std::shared_ptr<std::atomic<bool> >     cancelState)
+  std::shared_ptr<std::atomic<bool> >     cancelState,
+  const std::function<std::string(std::string, std::string&)>& getCLCCallback)
 {
     auto response = PublishResponse();
     auto pJsonRoot = IJsonObject::Create();
     auto pPayload = IJsonObject::Create();
 
     string clcPubData;
-    auto sCLC = GetCLC(sEmail, clcPubData);
+    string sCLC;
+    if (getCLCCallback == nullptr)
+        sCLC = GetCLC(sEmail, authenticationCallback, cancelState, clcPubData);
+    else
+        sCLC = getCLCCallback(sEmail, clcPubData);
     auto bytearray = common::ByteArray(sCLC.begin(), sCLC.end());
 
     auto pCLC =  IJsonParser::Create()->Parse(bytearray);
@@ -355,17 +363,11 @@ PublishResponse PublishClient::LocalPublishCustom(
     st = Reformat(st);
 
     size_t size;
-    //payload must be hashed and signed as utf-16, or the server will
-    //fail to verify the signature
-    QString qs(st.c_str());
-    QByteArray utf16ba((const char*)qs.utf16(), qs.size() * 2);
-    auto digest = common::HashString(vector<uint8_t>(utf16ba.begin(), utf16ba.end()), &size);
-    auto vDigest = common::ConvertArrayToVector<uint8_t>(digest.get(), size);
-
+    auto digest = common::HashString(vector<uint8_t>(st.begin(), st.end()), &size);
     pSig->SetNamedString("alg", "SHA256");
     auto k = pClientPriKey->GetNamedString("d");
-    pSig->SetNamedString("dig", RSASignPayload(k, vDigest));
-
+    pSig->SetNamedString("dig", RSASignPayload(k, digest));
+    pSig->SetNamedString("enc", "utf-8");
     pJsonRoot->SetNamedObject("sig", *pSig);
 
     auto vJsonRoot = pJsonRoot->Stringify();
@@ -545,12 +547,6 @@ string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> di
     //so we have to create the x509 cert ourselves
 
     EVP_PKEY* pkey = EVP_PKEY_new();
-//    RSA* rsa = RSA_new();
-//    if (rsa == NULL)
-//        throw exceptions::RMSCryptographyException("Failed to generate new RSA key.");
-//    BIGNUM* d = BN_new();
-//    BN_dec2bn(&d, sPkey.c_str());
-//    rsa->d = d;
     RSA* rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
     BIGNUM* d = BN_new();
     BN_dec2bn(&d, sPkey.c_str());
@@ -613,36 +609,37 @@ std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustom
     return userts;
 }
 
-std::string PublishClient::GetCLC(const std::string& sEmail, string& outClcPubData)
+std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, string& outClcPubData)
 {
     auto pCache = RestClientCache::Create(RestClientCache::CACHE_ENCRYPTED);
     std::string clientcert;
     auto pcacheresult = GetCLCCache(pCache, sEmail);
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
-        /*
-        **UNCOMMENT THIS SECTION FOR RELEASE. TEST CODE ONLY**
         auto pRestServiceUrlClient = RestServiceUrlClient::Create();
         auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
-        auto result = RestHttpClient::Get(clcUrl, authenticationCallback, cancelState);
+        auto request = IJsonObject::Create();
+        request->SetNamedString("EncodingToSignWith", "utf-8");
+        auto result = RestHttpClient::Post(clcUrl, request->Stringify(),authenticationCallback, cancelState);
 
         if (result.status != StatusCode::OK)
             HandleRestClientError(result.status, result.responseBody);
-        */
+
 
         //TEST CODE
+        /*
         std::ifstream ifs;
         ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
         string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
 
         auto r = CertificateResponse();
         r.serializedCert = str;
-
+        */
         auto pJsonSerializer = IJsonSerializer::Create();
         try
         {
             //get clc
-            auto clc = r;//pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
+            auto clc = pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
 
             string search = R"(\"pub\":)";
             auto pos = clc.serializedCert.find(search);
@@ -674,7 +671,7 @@ std::string PublishClient::GetCLC(const std::string& sEmail, string& outClcPubDa
             const std::string exp =  pri->GetNamedString("exp");
             size_t size;
             auto key = common::HashString(vector<uint8_t>(sEmail.begin(), sEmail.end()), &size);
-            pCache->Store(CLCCacheName, CLCCacheTag, key.get(), size, exp, response, true);
+            pCache->Store(CLCCacheName, CLCCacheTag, &key[0], size, exp, response, true);
             clientcert = clc.serializedCert;
         }
         catch(exceptions::RMSException)

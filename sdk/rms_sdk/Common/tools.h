@@ -31,7 +31,7 @@ std::string ReplaceString(std::string subject,
                           const std::string& replace, int occurrences = 0);
 
 template <typename T> inline std::vector<T> ConvertArrayToVector(T* buf, const size_t len) { return std::vector<T>(buf, buf + len); }
-std::unique_ptr<uint8_t[]> HashString(const ByteArray &bytes, size_t *size);
+ByteArray HashString(const ByteArray &bytes, size_t *size);
 std::string GenerateAGuid();
 } // namespace common
 } // namespace rmscore

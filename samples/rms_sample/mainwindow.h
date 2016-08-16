@@ -50,7 +50,6 @@ private:
   AuthCallback _callback;
 
 public:
-
   AuthCallbackUI(QObject           *mainApp,
                  const std::string& clientId,
                  const std::string& redirectUrl);

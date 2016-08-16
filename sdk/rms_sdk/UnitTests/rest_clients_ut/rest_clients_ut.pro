@@ -37,8 +37,12 @@ SOURCES += \
     main.cpp \
     LicenseParserTest.cpp \
     LicenseParserTestConstants.cpp \
+    OfflinePublishTest.cpp \
+    DummyAuthCallback.cpp
 
 HEADERS += \
     LicenseParserTest.h \
     LicenseParserTestConstants.h \
+    OfflinePublishTest.h \
+    DummyAuthCallback.h
     

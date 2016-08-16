@@ -12,6 +12,7 @@
 #include "CLCCacheResult.h"
 #include "RestClientCache.h"
 #include "../../rmscrypto_sdk/CryptoAPI/CryptoAPI.h"
+#include <functional>
 
 namespace rmscore {
 namespace restclients {
@@ -27,7 +28,8 @@ public:
     const PublishUsingTemplateRequest     & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
+    std::shared_ptr<std::atomic<bool> >     cancelState,
+   const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
   override;
   virtual PublishResponse PublishCustom(
     const PublishCustomRequest            & request,
@@ -39,7 +41,8 @@ public:
     const PublishCustomRequest            & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
+    std::shared_ptr<std::atomic<bool> >     cancelState,
+    const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
   override;
 
 private:
@@ -67,7 +70,7 @@ private:
     std::shared_ptr<IRestClientCache> cache,
     const std::string               & email);
 
-  std::string GetCLC(const std::string& sEmail, std::string &outClcPubData);
+  std::string GetCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, std::string &outClcPubData);
 
   std::string Reformat(std::string source);
 
