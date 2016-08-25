@@ -74,7 +74,7 @@ string RestServiceUrls::GetServiceDiscoverySuffix()
 
 string RestServiceUrls::GetServiceRootUrl()
 {
-    string sProductionServiceUrl = "https://api.aadrm.com" + GetDefaultTenant();
+    string sProductionServiceUrl = "https://api.hostedrms.com" + GetDefaultTenant();
 
     shared_ptr<ILocalSettings> pLocalSettings = ILocalSettings::Create();
     return pLocalSettings->GetString("MSIPCThin", "ServiceRootURLOverride", sProductionServiceUrl);

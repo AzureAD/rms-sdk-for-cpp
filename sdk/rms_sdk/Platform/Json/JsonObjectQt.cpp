@@ -267,11 +267,14 @@ modernapi::AppDataHashMap JsonObjectQt::ToStringDictionary()
   return result;
 }
 
-common::ByteArray JsonObjectQt::Stringify()
+common::ByteArray JsonObjectQt::Stringify(bool withEscaping)
 {
   QJsonDocument doc(this->impl_.toObject());
-
-  auto res = doc.toJson(QJsonDocument::Compact);
+  QByteArray res;
+  if (withEscaping)
+    res = doc.toJson(QJsonDocument::Compact);
+  else
+    res = doc.toVariant().toByteArray();
 
   return common::ByteArray(res.begin(), res.end());
 }

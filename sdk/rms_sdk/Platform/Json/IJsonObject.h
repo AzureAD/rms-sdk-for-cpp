@@ -52,7 +52,7 @@ public:
 
     virtual modernapi::AppDataHashMap ToStringDictionary() = 0;
 
-    virtual common::ByteArray Stringify() = 0;
+    virtual common::ByteArray Stringify(bool withEscaping = true) = 0;
 
 public:
     static std::shared_ptr<IJsonObject> Create();

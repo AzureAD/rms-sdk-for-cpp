@@ -49,7 +49,7 @@ private:
   const size_t KEY_SIZE = 256;
   const size_t AES_BLOCK_SIZE = 16;
 
-  std::string Unescape(std::string source);
+  std::string Unescape(std::string source, bool skipReformat = false);
 
   std::string RSASignPayload(std::string &sPkey,
     std::vector<uint8_t> digest);
@@ -72,7 +72,9 @@ private:
 
   std::string GetCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, std::string &outClcPubData);
 
-  std::string Reformat(std::string source);
+  common::ByteArray Reformat(common::ByteArray source, int currentlevel = 2);
+
+  common::ByteArray Escape(common::ByteArray source);
 
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,

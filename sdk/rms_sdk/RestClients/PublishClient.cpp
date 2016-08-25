@@ -103,6 +103,8 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
 
     license->SetNamedString("cre", clcPubData);
 
+    license->SetNamedString("cid", pClcIssuedTo->GetNamedString("em"));
+
     auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
     license->SetNamedString("exp", clcPrivData->GetNamedString("exp"));
@@ -122,6 +124,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto pEncryptedPolicy = IJsonObject::Create();
     pEncryptedPolicy->SetNamedString("crem", pClcIssuedTo->GetNamedString("em"));
     pEncryptedPolicy->SetNamedString("tid", request.templateId);
+
     //encrypted app data would go here
 
     //session key init
@@ -171,33 +174,27 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
 
     pPayload->SetNamedObject("lic", *license);
 
-    //sig
-    auto pSig = IJsonObject::Create();
     auto vPld = pPayload->Stringify();
-    string sPldEscaped(vPld.begin(), vPld.end());
-
-    pJsonRoot->SetNamedString("pld", sPldEscaped);
-
-    auto vt = pJsonRoot->Stringify();
-    string st(vt.begin(), vt.end());
-    st = Reformat(st);
 
     size_t size;
-    auto digest = common::HashString(vector<uint8_t>(st.begin(), st.end()), &size);
-    pSig->SetNamedString("alg", "SHA256");
+    auto toHash = Reformat(vPld, 1);
+
+    string sToHash(toHash.begin(), toHash.end());
+    auto digest = common::HashString(toHash, &size, false);
+    toHash = Escape(toHash);
+    sToHash = string(toHash.begin(), toHash.end());
+
     auto k = pClientPriKey->GetNamedString("d");
-    pSig->SetNamedString("dig", RSASignPayload(k, digest));
-    pSig->SetNamedString("enc", "utf-8");
-    pJsonRoot->SetNamedObject("sig", *pSig);
 
+    string sSig = R"("sig":{"alg":"SHA1", "penc":"utf-8", "dig":")" + RSASignPayload(k, digest) + "\"}}";
+    string sFinal = R"({"pld":")" + sToHash + R"(",)" + sSig;
+    vector<uint8_t> vFinal(sFinal.begin(), sFinal.end());
 
-    auto vJsonRoot = pJsonRoot->Stringify();
-    auto sJsonRoot = string(vJsonRoot.begin(), vJsonRoot.end());
-    sJsonRoot = Reformat(sJsonRoot);
-
-    auto vFinal = vector<uint8_t>(sJsonRoot.begin(), sJsonRoot.end());
-
+    //add byte-order marker
+    vector<uint8_t> UTF8bom = { 0xEF, 0xBB, 0xBF };
+    vFinal.insert(vFinal.begin(), UTF8bom.begin(), UTF8bom.end());
     response.serializedLicense = vFinal;
+
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
@@ -280,6 +277,8 @@ PublishResponse PublishClient::LocalPublishCustom(
 
     license->SetNamedString("cre", clcPubData);
 
+    license->SetNamedString("cid", pClcIssuedTo->GetNamedString("em"));
+
     auto clcPrivData = pClcPld->GetNamedObject("pri");
     license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
     license->SetNamedString("exp", clcPrivData->GetNamedString("exp"));
@@ -330,7 +329,7 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto pContentKey = IJsonObject::Create();
     pContentKey->SetNamedString("alg", "AES");
     pContentKey->SetNamedString("cm", "CBC4K");
-    pContentKey->SetNamedValue("k", common::ConvertBytesToBase64(contentkey)); //not sure if correct
+    pContentKey->SetNamedValue("k", common::ConvertBytesToBase64(contentkey));
     auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
     pSessionKey->SetNamedObject("eck", *pContentKey);
 
@@ -351,32 +350,27 @@ PublishResponse PublishClient::LocalPublishCustom(
 
     pPayload->SetNamedObject("lic", *license);
 
-    //sig
-    auto pSig = IJsonObject::Create();
     auto vPld = pPayload->Stringify();
-    string sPldEscaped(vPld.begin(), vPld.end());
-
-    pJsonRoot->SetNamedString("pld", sPldEscaped);
-
-    auto vt = pJsonRoot->Stringify();
-    string st(vt.begin(), vt.end());
-    st = Reformat(st);
 
     size_t size;
-    auto digest = common::HashString(vector<uint8_t>(st.begin(), st.end()), &size);
-    pSig->SetNamedString("alg", "SHA256");
+    auto toHash = Reformat(vPld, 1);
+
+    string sToHash(toHash.begin(), toHash.end());
+    auto digest = common::HashString(toHash, &size, false);
+    toHash = Escape(toHash);
+    sToHash = string(toHash.begin(), toHash.end());
+
     auto k = pClientPriKey->GetNamedString("d");
-    pSig->SetNamedString("dig", RSASignPayload(k, digest));
-    pSig->SetNamedString("enc", "utf-8");
-    pJsonRoot->SetNamedObject("sig", *pSig);
 
-    auto vJsonRoot = pJsonRoot->Stringify();
-    auto sJsonRoot = string(vJsonRoot.begin(), vJsonRoot.end());
-    sJsonRoot = Reformat(sJsonRoot);
+    string sSig = R"("sig":{"alg":"SHA1", "penc":"utf-8", "dig":")" + RSASignPayload(k, digest) + "\"}}";
+    string sFinal = R"({"pld":")" + sToHash + R"(",)" + sSig;
+    vector<uint8_t> vFinal(sFinal.begin(), sFinal.end());
 
-    auto vFinal = vector<uint8_t>(sJsonRoot.begin(), sJsonRoot.end());
-
+    //add byte-order marker
+    vector<uint8_t> UTF8bom = { 0xEF, 0xBB, 0xBF };
+    vFinal.insert(vFinal.begin(), UTF8bom.begin(), UTF8bom.end());
     response.serializedLicense = vFinal;
+
     auto responseKey = KeyDetailsResponse();
     responseKey.algorithm = "AES";
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
@@ -424,41 +418,82 @@ PublishResponse PublishClient::PublishCommon(
   }
 }
 
-std::string PublishClient::Reformat(string source)
+common::ByteArray PublishClient::Escape(common::ByteArray source)
 {
+    string op(source.begin(), source.end());
     string ret;
-    ret = common::ReplaceString(source, R"(\"{\\\"pld\\\")", R"({\"pld\")");
-    //ret = common::ReplaceString(ret, "R(\\\"sig\\\")", R"(\"sig\")");
-    ret = common::ReplaceString(ret, R"(\"pld\":{)", R"(\"pld\":\"{)");
-    ret = common::ReplaceString(ret, R"(\"pld\": {)", R"(\"pld\": \"{)");
-    ret = common::ReplaceString(ret, "}}},\\", R"(}}}\",\)");
-    //ret = common::ReplaceString(ret, R"(\\\"sig\\\")", R"()");
-    auto pos = ret.find(R"(\\\"sig\\\")");
-    if (pos == std::string::npos)
-        throw exceptions::RMSInvalidArgumentException("source");
-
-    string final = ret.substr(0, pos);
-
-    bool end = false;
-    uint32_t it = pos;
-    while (!end)
+    for (uint32_t i = 0; i < op.size(); i++)
     {
-        string s = ret.substr(it, 2);
-        if (s == "\\\\")
-            final += "";
+        if (op[i] == '\\')
+            ret += R"(\\)";
+        else if (op[i] == '"')
+            ret += R"(\")";
         else
-            final += s;
-
-        if (s == "}}")
-            end = true;
-        it += 2;
+            ret += op[i];
     }
-    final += ret.substr(it + 1);
-    final = common::ReplaceString(final, R"(}}},"s)", R"(}}}","s)");
-    final = common::ReplaceString(final, R"("}}")", R"("}})", 1);
-    final = common::ReplaceString(final, R"(}}\",\"enp)", R"(}},\"enp)");
-    final = common::ReplaceString(final, R"(}}},"s)", R"(}}}","s)");
-    return final;
+    return ByteArray(ret.begin(), ret.end());
+}
+
+common::ByteArray PublishClient::Reformat(common::ByteArray source, int currentlevel)
+{
+    string ret(source.begin(), source.end());
+    if (currentlevel != 1)
+    {
+        auto pos = ret.find(R"(\\\"sig\\\")");
+        if (pos != std::string::npos)
+        {
+            ret = common::ReplaceString(ret, R"(\"{\\\"pld\\\":)", R"({\"pld\":\")");
+            pos = ret.find(R"(\\\"sig\\\")");
+
+            string final = ret.substr(0, pos - 1);
+            final += R"(\",)";
+
+            bool end = false;
+            uint32_t it = pos;
+            while (!end)
+            {
+                string s = ret.substr(it, 2);
+                if (s == "\\\\")
+                    final += "";
+                else
+                    final += s;
+
+                if (s == "}}")
+                    end = true;
+                it += 2;
+            }
+            final += ret.substr(it + 2);
+            return vector<uint8_t>(final.begin(), final.end());
+        }
+        return vector<uint8_t>(ret.begin(), ret.end());
+    }
+    else
+    {
+        ret = common::ReplaceString(ret, R"("{\"pld\":)", R"({"pld":")");
+        auto pos = ret.find(R"(\"sig\")");
+        if (pos == std::string::npos)
+            throw exceptions::RMSInvalidArgumentException("source");
+
+        string final = ret.substr(0, pos - 1);
+        final += R"(",)";
+
+        bool end = false;
+        uint32_t it = pos;
+        while (!end)
+        {
+            string s = ret.substr(it, 1);
+            if (s == "\\")
+                final += "";
+            else
+                final += s;
+
+            if (ret.substr(it, 2) == "}}")
+                end = true;
+            ++it;
+        }
+        final += "}" + ret.substr(it + 2);
+        return vector<uint8_t>(final.begin(), final.end());
+    }
 }
 
 common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObject> pPolicy, vector<uint8_t> key, CipherMode cm)
@@ -546,10 +581,12 @@ string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> di
     //unfortunately, pkey will be in raw bytes, but openssl needs x509 PEM format
     //so we have to create the x509 cert ourselves
 
+    auto decodedKey = common::ConvertBase64ToBytes(vector<uint8_t>(sPkey.begin(), sPkey.end()));
+
     EVP_PKEY* pkey = EVP_PKEY_new();
-    RSA* rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
+    RSA* rsa = RSA_generate_key(1024, RSA_F4, NULL, NULL);
     BIGNUM* d = BN_new();
-    BN_dec2bn(&d, sPkey.c_str());
+    BN_dec2bn(&d, const_cast<const char*>(reinterpret_cast<char*>(&decodedKey[0])));
     rsa->d = d;
     EVP_PKEY_assign_RSA(pkey, rsa);
     X509* x509 = X509_new();
@@ -582,6 +619,9 @@ string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> di
     X509_free(x509);
     EVP_PKEY_free(pkey); //rsa struct is freed with the evp pkey
 
+    //reverse it because windows i guess?
+    std::reverse(sigbuf.begin(), sigbuf.end());
+
     sigbuf = common::ConvertBytesToBase64(sigbuf);
 
     auto ret = string(sigbuf.begin(), sigbuf.end());
@@ -598,9 +638,9 @@ std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustom
         auto _usrs = IJsonArray::Create();
         auto _rghts = IJsonArray::Create();
         UserRightsRequest curr = request.userRightsList[i];
-        for (unsigned int j = 0; j < curr.users.size(); i++)
+        for (unsigned int j = 0; j < curr.users.size(); j++)
             _usrs->Append(curr.users[j]);
-        for (unsigned int j = 0; j < curr.rights.size(); i++)
+        for (unsigned int j = 0; j < curr.rights.size(); j++)
             _rghts->Append(curr.rights[j]);
         _user->SetNamedArray("usrs", *_usrs);
         _user->SetNamedArray("rghts", *_rghts);
@@ -616,30 +656,31 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
     auto pcacheresult = GetCLCCache(pCache, sEmail);
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
+        /* prod
         auto pRestServiceUrlClient = RestServiceUrlClient::Create();
         auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
         auto request = IJsonObject::Create();
-        request->SetNamedString("EncodingToSignWith", "utf-8");
+        request->SetNamedString("SignatureEncoding", "utf-8");
         auto result = RestHttpClient::Post(clcUrl, request->Stringify(),authenticationCallback, cancelState);
 
         if (result.status != StatusCode::OK)
             HandleRestClientError(result.status, result.responseBody);
-
+        */
 
         //TEST CODE
-        /*
         std::ifstream ifs;
         ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
         string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
 
         auto r = CertificateResponse();
         r.serializedCert = str;
-        */
+        //
+
         auto pJsonSerializer = IJsonSerializer::Create();
         try
         {
             //get clc
-            auto clc = pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
+            auto clc = r;//pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
 
             string search = R"(\"pub\":)";
             auto pos = clc.serializedCert.find(search);
@@ -668,7 +709,14 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
 
             //cache it
             const common::ByteArray response;
-            const std::string exp =  pri->GetNamedString("exp");
+            std::string exp =  pri->GetNamedString("exp");
+
+            //REMOVE THIS WHEN THE EXPIRATION CHANGE HITS PROD
+            //************************************************
+            //if (exp == "0001-01-01T00:00:00")
+            //    exp = "3001-01-01T00:00:00";
+            //************************************************
+
             size_t size;
             auto key = common::HashString(vector<uint8_t>(sEmail.begin(), sEmail.end()), &size);
             pCache->Store(CLCCacheName, CLCCacheTag, &key[0], size, exp, response, true);
@@ -686,15 +734,18 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
     return clientcert;
 }
 
-string PublishClient::Unescape(string source)
+string PublishClient::Unescape(string source, bool skipReformat)
 {
     stringstream ss;
     for (size_t i = 0; i < source.length(); i++)
         if (source[i] != '\\')
             ss << source[i];
     auto ret = ss.str();
-    ret = common::ReplaceString(ret, "\"{\"", "{\"");
-    ret = common::ReplaceString(ret, "}}\"", "}}");
+    if (!skipReformat)
+    {
+        ret = common::ReplaceString(ret, "\"{\"", "{\"");
+        ret = common::ReplaceString(ret, "}}\"", "}}");
+    }
     return ret;
 }
 

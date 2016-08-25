@@ -73,7 +73,7 @@ private:
 
   virtual modernapi::AppDataHashMap ToStringDictionary() override;
 
-  virtual common::ByteArray         Stringify() override;
+  virtual common::ByteArray         Stringify(bool withEscaping = true) override;
 
 private:
 

@@ -83,15 +83,26 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
   return ByteArray(convArray.begin(), convArray.end());
 }
 
-ByteArray HashString(const ByteArray& bytes, size_t *size)
+ByteArray HashString(const ByteArray& bytes, size_t *size, bool isSHA256)
 {
-    ByteArray hash(SHA256_DIGEST_LENGTH);
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, &bytes[0], bytes.size());
-    SHA256_Final(&hash[0], &sha256);
-    *size = SHA256_DIGEST_LENGTH;
-    return hash;
+    if (isSHA256)
+    {
+        ByteArray hash(SHA256_DIGEST_LENGTH);
+        SHA256_CTX sha256;
+        SHA256_Init(&sha256);
+        SHA256_Update(&sha256, &bytes[0], bytes.size());
+        SHA256_Final(&hash[0], &sha256);
+        *size = SHA256_DIGEST_LENGTH;
+        return hash;
+    }
+    else
+    {
+        //sha1
+        ByteArray hash(SHA_DIGEST_LENGTH);
+        SHA1(&bytes[0], bytes.size(), &hash[0]);
+        *size = SHA_DIGEST_LENGTH;
+        return hash;
+    }
 }
 
 string GenerateAGuid()
