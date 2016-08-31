@@ -86,6 +86,7 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
     auto pClcIssuer = pClcPubPayload->GetNamedObject("iss");
     auto pServerPubRsaKey = pClcIssuer->GetNamedObject("pubk");
+    auto pClientPubRsaKey = pClcIssuedTo->GetNamedObject("pubk");
     auto pClientPriKey = pClcPld->GetNamedObject("pri")->GetNamedObject("prik");
 
     auto header = IJsonObject::Create();
@@ -161,8 +162,8 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto e = pServerPubRsaKey->GetNamedString("e");
-    auto n = pServerPubRsaKey->GetNamedString("n");
+    auto e = pClientPubRsaKey->GetNamedString("e");
+    auto n = pClientPubRsaKey->GetNamedString("n");
     common::ByteArray sn(n.begin(),n.end());
     common::ByteArray se(e.begin(), e.end());
     common::ByteArray bn = common::ConvertBase64ToBytes(sn);
@@ -184,9 +185,11 @@ PublishResponse PublishClient::LocalPublishUsingTemplate(
     toHash = Escape(toHash);
     sToHash = string(toHash.begin(), toHash.end());
 
-    auto k = pClientPriKey->GetNamedString("d");
+    auto d = pClientPriKey->GetNamedString("d");
 
-    string sSig = R"("sig":{"alg":"SHA1", "penc":"utf-8", "dig":")" + RSASignPayload(k, digest) + "\"}}";
+    e = pClientPubRsaKey->GetNamedString("e");
+    n = pClientPubRsaKey->GetNamedString("n");
+    string sSig = R"("sig":{"alg":"SHA1", "penc":"utf-8", "dig":")" + RSASignPayload(d, n, e, digest) + "\"}}";
     string sFinal = R"({"pld":")" + sToHash + R"(",)" + sSig;
     vector<uint8_t> vFinal(sFinal.begin(), sFinal.end());
 
@@ -260,6 +263,7 @@ PublishResponse PublishClient::LocalPublishCustom(
     auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
     auto pClcIssuer = pClcPubPayload->GetNamedObject("iss");
     auto pServerPubRsaKey = pClcIssuer->GetNamedObject("pubk");
+    auto pClientPubRsaKey = pClcIssuedTo->GetNamedObject("pubk");
     auto pClientPriKey = pClcPld->GetNamedObject("pri")->GetNamedObject("prik");
 
     auto header = IJsonObject::Create();
@@ -304,14 +308,11 @@ PublishResponse PublishClient::LocalPublishCustom(
     pEncryptedPolicy->SetNamedObject("cp", *pCustomPolicy);
 
     //session key init
-    const unsigned int keysize = 32;
+    const unsigned int keysize = AES_BLOCK_SIZE;
     uint8_t* skbuf = new uint8_t[keysize];
     RAND_bytes(skbuf, keysize);
-    vector<uint8_t> sessionkey;
-    sessionkey.assign(skbuf, skbuf + keysize);
-    delete[] skbuf;
+    vector<uint8_t> sessionkey(skbuf, skbuf + keysize);
     CipherMode cm = request.bPreferDeprecatedAlgorithms ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
-
 
     //encrypted policy
     auto enp = EncryptPolicyToBase64(pEncryptedPolicy, sessionkey, cm);
@@ -322,9 +323,7 @@ PublishResponse PublishClient::LocalPublishCustom(
 
     uint8_t* ckbuf = new uint8_t[keysize];
     RAND_bytes(ckbuf, keysize);
-    vector<uint8_t> contentkey;
-    contentkey.assign(ckbuf, skbuf + keysize);
-    delete[] ckbuf;
+    vector<uint8_t> contentkey(ckbuf, ckbuf + keysize);
 
     auto pContentKey = IJsonObject::Create();
     pContentKey->SetNamedString("alg", "AES");
@@ -337,8 +336,8 @@ PublishResponse PublishClient::LocalPublishCustom(
     pSessionKey->SetNamedString("alg", "AES");
     pSessionKey->SetNamedString("cm", request.bPreferDeprecatedAlgorithms ? "ECB" : "CBC4K");
     //encrypt session key with public RSA key from CLC
-    auto e = pServerPubRsaKey->GetNamedString("e");
-    auto n = pServerPubRsaKey->GetNamedString("n");
+    auto e = pClientPubRsaKey->GetNamedString("e");
+    auto n = pClientPubRsaKey->GetNamedString("n");
     common::ByteArray sn(n.begin(),n.end());
     common::ByteArray se(e.begin(), e.end());
     common::ByteArray bn = common::ConvertBase64ToBytes(sn);
@@ -361,8 +360,9 @@ PublishResponse PublishClient::LocalPublishCustom(
     sToHash = string(toHash.begin(), toHash.end());
 
     auto k = pClientPriKey->GetNamedString("d");
-
-    string sSig = R"("sig":{"alg":"SHA1", "penc":"utf-8", "dig":")" + RSASignPayload(k, digest) + "\"}}";
+    e = pClientPubRsaKey->GetNamedString("e");
+    n = pClientPubRsaKey->GetNamedString("n");
+    string sSig = R"("sig":{"alg":"SHA1", "penc":"utf-8", "dig":")" + RSASignPayload(k, n, e, digest) + "\"}}";
     string sFinal = R"({"pld":")" + sToHash + R"(",)" + sSig;
     vector<uint8_t> vFinal(sFinal.begin(), sFinal.end());
 
@@ -379,6 +379,10 @@ PublishResponse PublishClient::LocalPublishCustom(
     response.signedApplicationData = request.signedApplicationData;
     response.name = "Restricted Access";
     response.description = "Permission is currently restricted. Only specified users can access this content.";
+
+    delete[] skbuf;
+    delete[] ckbuf;
+
     return response;
 }
 
@@ -516,7 +520,6 @@ common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObje
         else
         {
             vector<uint8_t> finalBlock(encryptedPolicyBytes.begin() + (i * blockSize), encryptedPolicyBytes.end());
-            //finalBlock.resize(blockSize, 0);
             blockList[i] = finalBlock;
         }
     }
@@ -553,20 +556,152 @@ common::ByteArray PublishClient::EncryptPolicyToBase64(std::shared_ptr<IJsonObje
     return common::ConvertBytesToBase64(final);
 }
 
+bool PublishClient::Even(BIGNUM *num)
+{
+    auto res = BN_mod_word(num, 2);
+    return res == 0;
+}
+
+shared_ptr<RSA> PublishClient::CreateRSA(BIGNUM *d, BIGNUM *n, BIGNUM* e)
+{
+    //note to reader: don't modify this function. it works. trust me.
+    shared_ptr<RSA> rsa(RSA_new(), [](RSA* r){ RSA_free(r); });
+
+    BIGNUM* TWO = BN_new();
+    BN_set_word(TWO, 2);
+    BIGNUM* ONE = BN_new();
+    BN_one(ONE);
+
+    rsa->d = d;
+    rsa->n = n;
+    rsa->e = e;
+    BN_CTX* ctx = BN_CTX_new();
+    BIGNUM* result = BN_new();
+    // k = (d * e) - 1
+    BN_mul(result, d, e, ctx);
+    BN_sub_word(result, 1);
+    if (!BN_is_odd(result))
+    {
+        BIGNUM* r = result;
+        BIGNUM* t = BN_new();
+        BN_zero(t);
+
+        do {
+            // r = r / 2
+            // t++;
+            BN_div(r, NULL, r, TWO, ctx);
+            BN_add(t, t, ONE);
+        } while (!BN_is_odd(r));
+
+        BIGNUM* y = BN_new();
+        BIGNUM* nmo = BN_new();
+        BIGNUM* g = BN_new();
+        BIGNUM* x = BN_new();
+        BIGNUM* tmo = BN_new();
+        BN_sub(nmo, n, ONE);
+        for (int i = 0; i < 100; i++)
+        {
+STEP3:
+            do
+            {
+                BN_rand_range(g, nmo);
+                BN_mod_exp(y, g, r, n, ctx);
+            } while (BN_cmp(y, ONE) == 0 || BN_cmp(y, nmo) == 0);
+            BN_sub(tmo, tmo, ONE);
+            for (BIGNUM* j = ONE; BN_cmp(j, tmo) <= 0; BN_add_word(j, 1))
+            {
+                BN_mod_exp(x, y, TWO, n, ctx);
+                if (BN_cmp(x, ONE) == 0)
+                    goto STEP5;
+                if (BN_cmp(x, nmo) == 0)
+                    goto STEP3;
+                y = x;
+            }
+            BN_mod_exp(x, y, TWO, n, ctx);
+            if (BN_cmp(x, ONE) == 0)
+                goto STEP5;
+        }
+STEP5:
+        BN_sub_word(y, 1);
+        BIGNUM* p = BN_new();
+        BN_gcd(p, y, n, ctx);
+        BIGNUM* q = BN_new();
+        BN_div(q, NULL, n, p, ctx);
+        BN_mul(result, p, q, ctx);
+
+        if (BN_cmp(n, result) != 0)
+        {
+            throw exceptions::RMSCryptographyException("Incorrect calculation of p and q");
+        }
+        rsa->p = p;
+        rsa->q = q;
+
+        rsa->dmp1 = BN_new();
+        BN_sub(result, p, ONE);
+        BN_mod(rsa->dmp1, d, result, ctx);
+
+        rsa->dmq1 = BN_new();
+        BN_sub(result, q, ONE);
+        BN_mod(rsa->dmq1, d, result, ctx);
+
+        rsa->iqmp = BN_new();
+        BN_mod_inverse(rsa->iqmp, q, p, ctx);
+        BN_free(result);
+        BN_free(TWO);
+        BN_free(ONE);
+        BN_free(x);
+        BN_free(y);
+        BN_free(tmo);
+        BN_free(g);
+        BN_free(nmo);
+        BN_CTX_free(ctx);
+
+        auto ret = RSA_check_key(rsa.get());
+        if (ret != 1)
+        {
+            throw exceptions::RMSCryptographyException("RSA_sign failed. Error: " + string(ERR_error_string(ERR_get_error(), NULL)));
+        }
+
+        return rsa;
+    }
+    BN_free(result);
+    BN_free(TWO);
+    BN_free(ONE);
+    BN_CTX_free(ctx);
+    throw exceptions::RMSCryptographyException("No prime factorization of given RSA public key");
+}
+
 string PublishClient::RSAEncryptKey(const ByteArray& exp, const ByteArray& mod, vector<uint8_t> buf)
 {
     RSA* rsa = RSA_new();
-    BIGNUM* exponent = BN_new();
+    BIGNUM* exponent = NULL;
     BN_dec2bn(&exponent, reinterpret_cast<const char*>(&exp[0]));
-    BIGNUM* modulus_ = BN_new();
-    BN_dec2bn(&modulus_, reinterpret_cast<const char*>(&mod[0]));
-    rsa->n = modulus_;
+    BIGNUM* modulus_ = NULL;
+    /*
+        Convert to big endian.
+    */
+    vector<uint8_t> mod_reverse(mod.size());
+
+    std::reverse_copy(mod.begin(), mod.end(), mod_reverse.begin());
+
+    modulus_ = BN_bin2bn(&mod_reverse[0], mod_reverse.size(), NULL);
+
     rsa->e = exponent;
+    rsa->n = modulus_;
+
     auto size = RSA_size(const_cast<const RSA*>(rsa));
     vector<uint8_t> encryptedKeyBuf(size);
-    int result = RSA_public_encrypt(buf.size() - 12, &buf[0], &encryptedKeyBuf[0], rsa, RSA_PKCS1_PADDING);
+    int result = RSA_public_encrypt(buf.size(), &buf[0], &encryptedKeyBuf[0], rsa, RSA_PKCS1_PADDING);
     if (result == -1)
-        throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key");
+    {
+        string ret;
+        unsigned long code;
+        do {
+            code = ERR_get_error();
+            ret += string(ERR_error_string(code, NULL)) + '\n';
+        } while (code != 0);
+        throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key: " + ret);
+    }
     else if (result != size)
         throw exceptions::RMSCryptographyException("RSA_public_encrypt returned unexpected size.");
     vector<uint8_t> vEsk = common::ConvertBytesToBase64(encryptedKeyBuf);
@@ -576,57 +711,41 @@ string PublishClient::RSAEncryptKey(const ByteArray& exp, const ByteArray& mod, 
 
     return sEsk;
 }
-string PublishClient::RSASignPayload(std::string& sPkey, std::vector<uint8_t> digest)
+
+string PublishClient::RSASignPayload(std::string& sPrivatekey, std::string& sPublickey, std::string& exponent, std::vector<uint8_t> digest)
 {
-    //unfortunately, pkey will be in raw bytes, but openssl needs x509 PEM format
-    //so we have to create the x509 cert ourselves
+    auto decodedPrivateKey = common::ConvertBase64ToBytes(vector<uint8_t>(sPrivatekey.begin(), sPrivatekey.end()));
+    auto decodedPublicKey = common::ConvertBase64ToBytes(vector<uint8_t>(sPublickey.begin(), sPublickey.end()));
 
-    auto decodedKey = common::ConvertBase64ToBytes(vector<uint8_t>(sPkey.begin(), sPkey.end()));
+    vector<uint8_t> rDecodedPrivateKey(decodedPrivateKey.size());
+    std::reverse_copy(decodedPrivateKey.begin(), decodedPrivateKey.end(), rDecodedPrivateKey.begin());
 
-    EVP_PKEY* pkey = EVP_PKEY_new();
-    RSA* rsa = RSA_generate_key(1024, RSA_F4, NULL, NULL);
-    BIGNUM* d = BN_new();
-    BN_dec2bn(&d, const_cast<const char*>(reinterpret_cast<char*>(&decodedKey[0])));
-    rsa->d = d;
-    EVP_PKEY_assign_RSA(pkey, rsa);
-    X509* x509 = X509_new();
-    ASN1_INTEGER_set(X509_get_serialNumber(x509), 1);
-    X509_gmtime_adj(X509_get_notBefore(x509), 0);
-    X509_gmtime_adj(X509_get_notAfter(x509), 31536000L);
-    X509_set_pubkey(x509, pkey);
-    X509_NAME* name = X509_get_subject_name(x509);
-    X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC,
-                               (unsigned char *)"US", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC,
-                               (unsigned char *)"Microsoft Inc.", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
-                               (unsigned char *)"localhost", -1, -1, 0);
-    X509_set_issuer_name(x509, name);
-    auto dig = EVP_sha256();
-    X509_sign(x509, pkey, dig);
+    vector<uint8_t> rDecodedPublicKey(decodedPublicKey.size());
+    std::reverse_copy(decodedPublicKey.begin(), decodedPublicKey.end(), rDecodedPublicKey.begin());
 
+    BIGNUM* d = NULL;
+    d = BN_bin2bn(&rDecodedPrivateKey[0], rDecodedPrivateKey.size(), NULL);
+    BIGNUM* e = BN_new();
+    BN_dec2bn(&e, exponent.c_str());
+    BIGNUM* n = NULL;
+    n = BN_bin2bn(&rDecodedPublicKey[0], rDecodedPublicKey.size(), NULL);
 
-    auto size = RSA_size(const_cast<const RSA*>(rsa));
+    auto rsa = CreateRSA(d, n, e);
+
+    int32_t ret;
+    auto size = RSA_size(const_cast<const RSA*>(rsa.get()));
     vector<uint8_t> sigbuf(size);
     unsigned int retsize;
-    auto sret = RSA_sign(NID_sha256, &digest[0], digest.size(), &sigbuf[0], &retsize, rsa);
-    if (sret != 1)
+    ret = RSA_sign(NID_sha1, &digest[0], digest.size(), &sigbuf[0], &retsize, rsa.get());
+    if (ret != 1)
         throw exceptions::RMSCryptographyException("RSA_sign failed. Error: " + string(ERR_error_string(ERR_get_error(), NULL)));
-    auto vret = RSA_verify(NID_sha256, &digest[0], digest.size(), &sigbuf[0], retsize, rsa);
-    if (vret != 1)
+    ret = RSA_verify(NID_sha1, &digest[0], digest.size(), &sigbuf[0], retsize, rsa.get());
+    if (ret != 1)
         throw exceptions::RMSCryptographyException("RSA_verify returned false. Error: " + string(ERR_error_string(ERR_get_error(), NULL)));
-
-    X509_free(x509);
-    EVP_PKEY_free(pkey); //rsa struct is freed with the evp pkey
-
-    //reverse it because windows i guess?
-    std::reverse(sigbuf.begin(), sigbuf.end());
 
     sigbuf = common::ConvertBytesToBase64(sigbuf);
 
-    auto ret = string(sigbuf.begin(), sigbuf.end());
-
-    return ret;
+    return string(sigbuf.begin(), sigbuf.end());
 }
 
 std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustomRequest &request)
@@ -656,7 +775,6 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
     auto pcacheresult = GetCLCCache(pCache, sEmail);
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
-        /* prod
         auto pRestServiceUrlClient = RestServiceUrlClient::Create();
         auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
         auto request = IJsonObject::Create();
@@ -665,22 +783,20 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
 
         if (result.status != StatusCode::OK)
             HandleRestClientError(result.status, result.responseBody);
-        */
 
-        //TEST CODE
-        std::ifstream ifs;
-        ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
-        string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
+          /*TEST CODE*/
+//        std::ifstream ifs;
+//        ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
+//        string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
 
-        auto r = CertificateResponse();
-        r.serializedCert = str;
-        //
+//        auto r = CertificateResponse();
+//        r.serializedCert = str;
 
         auto pJsonSerializer = IJsonSerializer::Create();
         try
         {
             //get clc
-            auto clc = r;//pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
+            auto clc = pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
 
             string search = R"(\"pub\":)";
             auto pos = clc.serializedCert.find(search);
@@ -710,12 +826,6 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
             //cache it
             const common::ByteArray response;
             std::string exp =  pri->GetNamedString("exp");
-
-            //REMOVE THIS WHEN THE EXPIRATION CHANGE HITS PROD
-            //************************************************
-            //if (exp == "0001-01-01T00:00:00")
-            //    exp = "3001-01-01T00:00:00";
-            //************************************************
 
             size_t size;
             auto key = common::HashString(vector<uint8_t>(sEmail.begin(), sEmail.end()), &size);

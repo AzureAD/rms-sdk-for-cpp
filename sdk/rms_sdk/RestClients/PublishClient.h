@@ -13,6 +13,7 @@
 #include "RestClientCache.h"
 #include "../../rmscrypto_sdk/CryptoAPI/CryptoAPI.h"
 #include <functional>
+#include <openssl/rsa.h>
 
 namespace rmscore {
 namespace restclients {
@@ -51,7 +52,7 @@ private:
 
   std::string Unescape(std::string source, bool skipReformat = false);
 
-  std::string RSASignPayload(std::string &sPkey,
+  std::string RSASignPayload(std::string &sPkey, std::string &sPubkey, std::string &exponent,
     std::vector<uint8_t> digest);
 
   std::string RSAEncryptKey(const common::ByteArray &exp,
@@ -75,6 +76,10 @@ private:
   common::ByteArray Reformat(common::ByteArray source, int currentlevel = 2);
 
   common::ByteArray Escape(common::ByteArray source);
+
+  std::shared_ptr<RSA> CreateRSA(BIGNUM* d, BIGNUM* n, BIGNUM *e);
+
+  bool Even(BIGNUM* num);
 
   PublishResponse PublishCommon(
     common::ByteArray                    && requestBody,
