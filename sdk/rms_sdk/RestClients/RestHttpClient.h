@@ -15,6 +15,7 @@
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../Platform/Http/IHttpClient.h"
 
+using namespace std;
 namespace rmscore {
 namespace restclients {
 class RestHttpClient {
@@ -23,7 +24,7 @@ public:
   struct Result
   {
     platform::http::StatusCode status;
-    common::ByteArray          responseBody;
+    vector<uint8_t>          responseBody;
   };
 
   static Result Get(
@@ -33,7 +34,7 @@ public:
 
   static Result Post(
     const std::string                     & sUrl,
-    common::ByteArray                    && requestBody,
+    vector<uint8_t>                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     std::shared_ptr<std::atomic<bool> >     cancelState);
 
@@ -49,7 +50,7 @@ private:
   {
     HttpRequestType                    type;
     std::string                        requestUrl;
-    common::ByteArray                  requestBody;
+    vector<uint8_t>                  requestBody;
     std::string                        accessToken;
     std::shared_ptr<std::atomic<bool> >cancelState;
   };

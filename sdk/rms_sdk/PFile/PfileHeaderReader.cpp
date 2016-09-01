@@ -17,7 +17,7 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace pfile {
-const ByteArray ExpectedPreamble = { 0x2E, 0x70, 0x66, 0x69, 0x6C, 0x65 }; // byte
+const vector<uint8_t> ExpectedPreamble = { 0x2E, 0x70, 0x66, 0x69, 0x6C, 0x65 }; // byte
                                                                            // representation
                                                                            // of
                                                                            // ".pfile"
@@ -39,7 +39,7 @@ shared_ptr<PfileHeader>PfileHeaderReader::Read(rmscrypto::api::SharedStream stre
 
 void PfileHeaderReader::CheckPreamble(rmscrypto::api::SharedStream stream)
 {
-  ByteArray pr;
+  vector<uint8_t> pr;
 
   Logger::Hidden("PfileHeaderReader: Checking preamble");
 
@@ -89,7 +89,7 @@ tuple<uint32_t, uint32_t>PfileHeaderReader::ReadVersionNumber(
 string PfileHeaderReader::ReadCleartextRedirectionHeader(
   rmscrypto::api::SharedStream stream)
 {
-  ByteArray redirectHeader;
+  vector<uint8_t> redirectHeader;
   uint32_t  redirectHeaderLength;
 
   stream->Read(reinterpret_cast<uint8_t *>(&redirectHeaderLength),
@@ -111,7 +111,7 @@ string PfileHeaderReader::ReadExtension(rmscrypto::api::SharedStream stream,
                                         uint32_t                     offset,
                                         uint32_t                     length)
 {
-  ByteArray ext;
+  vector<uint8_t> ext;
 
   if (offset >= stream->Size()) {
     throw exceptions::RMSPFileException("Bad extension",
@@ -151,8 +151,8 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   uint32_t metadataOffset   = 0;
   uint32_t metadataLength   = 0;
 
-  ByteArray metadata;
-  ByteArray publishingLicense;
+  vector<uint8_t> metadata;
+  vector<uint8_t> publishingLicense;
 
   if ((majorVersion >= 2) && (minorVersion >= 1))
   {
@@ -183,7 +183,7 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
                                   cleartextRedirectionHeader);
 }
 
-void PfileHeaderReader::ReadAtOffset(ByteArray                  & dst,
+void PfileHeaderReader::ReadAtOffset(vector<uint8_t>                  & dst,
                                      rmscrypto::api::SharedStream stream,
                                      uint32_t                     offset,
                                      uint32_t                     length)
@@ -192,7 +192,7 @@ void PfileHeaderReader::ReadAtOffset(ByteArray                  & dst,
   ReadBytes(dst, stream, length);
 }
 
-void PfileHeaderReader::ReadBytes(ByteArray                  & dst,
+void PfileHeaderReader::ReadBytes(vector<uint8_t>                  & dst,
                                   rmscrypto::api::SharedStream stream,
                                   uint32_t                     length)
 {

@@ -37,14 +37,14 @@ public:
                                const std::string& headerValue) override;
 
   virtual StatusCode Post(const std::string                & url,
-                          const common::ByteArray          & request,
+                          const std::vector<uint8_t>          & request,
                           const std::string                & mediaType,
-                          common::ByteArray                & response,
+                          std::vector<uint8_t>                & response,
                           std::shared_ptr<std::atomic<bool> >cancelState)
   override;
 
   virtual StatusCode Get(const std::string                & url,
-                         common::ByteArray                & response,
+                         std::vector<uint8_t>                & response,
                          std::shared_ptr<std::atomic<bool> >cancelState)
   override;
 

@@ -99,7 +99,7 @@ string FileQt::ReadAllAsText()
   return string(data);
 }
 
-void FileQt::AppendText(const common::ByteArray& text)
+void FileQt::AppendText(const vector<uint8_t>& text)
 {
   QTextStream out(&this->impl_);
 

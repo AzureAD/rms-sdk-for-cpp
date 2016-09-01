@@ -26,7 +26,7 @@ uint64_t timeToWinFileTime(const QDateTime& dateTime) {
   return TIME_CONVERSION_MS_TO_100NS * origin.msecsTo(dateTime);
 }
 
-ByteArray ConvertBase64ToBytes(const ByteArray& base64str) {
+vector<uint8_t> ConvertBase64ToBytes(const vector<uint8_t>& base64str) {
   QByteArray ba;
 
   ba.append(QByteArray(reinterpret_cast<const char *>(base64str.data()),
@@ -34,7 +34,7 @@ ByteArray ConvertBase64ToBytes(const ByteArray& base64str) {
 
   auto convArray = QByteArray::fromBase64(ba);
 
-  return ByteArray(convArray.begin(), convArray.end());
+  return vector<uint8_t>(convArray.begin(), convArray.end());
 }
 
 string timeToString(const QDateTime& dateTime) {
@@ -68,11 +68,11 @@ std::string ReplaceString(std::string subject, const std::string& search,
     return subject;
 }
 
-ByteArray ConvertBytesToBase64(const ByteArray& bytes) {
+vector<uint8_t> ConvertBytesToBase64(const vector<uint8_t>& bytes) {
   return ConvertBytesToBase64(bytes.data(), bytes.size());
 }
 
-ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
+vector<uint8_t> ConvertBytesToBase64(const void *bytes, const size_t size)
 {
   QByteArray ba;
 
@@ -80,14 +80,14 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
 
   auto convArray = ba.toBase64();
 
-  return ByteArray(convArray.begin(), convArray.end());
+  return vector<uint8_t>(convArray.begin(), convArray.end());
 }
 
-ByteArray HashString(const ByteArray& bytes, size_t *size, bool isSHA256)
+vector<uint8_t> HashString(const vector<uint8_t>& bytes, size_t *size, bool isSHA256)
 {
     if (isSHA256)
     {
-        ByteArray hash(SHA256_DIGEST_LENGTH);
+        vector<uint8_t> hash(SHA256_DIGEST_LENGTH);
         SHA256_CTX sha256;
         SHA256_Init(&sha256);
         SHA256_Update(&sha256, &bytes[0], bytes.size());
@@ -98,7 +98,7 @@ ByteArray HashString(const ByteArray& bytes, size_t *size, bool isSHA256)
     else
     {
         //sha1
-        ByteArray hash(SHA_DIGEST_LENGTH);
+        vector<uint8_t> hash(SHA_DIGEST_LENGTH);
         SHA1(&bytes[0], bytes.size(), &hash[0]);
         *size = SHA_DIGEST_LENGTH;
         return hash;

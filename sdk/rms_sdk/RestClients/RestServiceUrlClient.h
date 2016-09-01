@@ -12,6 +12,8 @@
 #include <memory>
 #include <algorithm>
 #include <map>
+#include <vector>
+#include <string>
 #include "IRestServiceUrlClient.h"
 
 namespace rmscore {
@@ -23,8 +25,8 @@ struct MyStringCompare
   {
     auto a = lhs;
     auto b = rhs;
-    std::transform(a.begin(), a.end(), a.begin(), toupper);
-    std::transform(b.begin(), b.end(), b.begin(), toupper);
+    std::transform(a.begin(), a.end(), a.begin(), ::toupper);
+    std::transform(b.begin(), b.end(), b.begin(), ::toupper);
 
     return a < b;
   }

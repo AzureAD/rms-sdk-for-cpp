@@ -19,19 +19,25 @@
 
 namespace rmscore {
 namespace common {
-
+using namespace std;
 uint64_t    timeToWinFileTime(const QDateTime& dateTime);
 std::string timeToString(const QDateTime& dateTime);
-ByteArray   ConvertBase64ToBytes(const ByteArray& base64str);
-ByteArray   ConvertBytesToBase64(const ByteArray& bytes);
-ByteArray   ConvertBytesToBase64(const void  *bytes,
+vector<uint8_t>   ConvertBase64ToBytes(const vector<uint8_t>& base64str);
+vector<uint8_t>   ConvertBytesToBase64(const vector<uint8_t>& bytes);
+vector<uint8_t>   ConvertBytesToBase64(const void  *bytes,
                                  const size_t size);
 std::string ReplaceString(std::string subject,
                           const std::string& search,
                           const std::string& replace, int occurrences = 0);
 
-template <typename T> inline std::vector<T> ConvertArrayToVector(T* buf, const size_t len) { return std::vector<T>(buf, buf + len); }
-ByteArray HashString(const ByteArray &bytes, size_t *size, bool isSHA256 = true);
+template<typename OP, typename... Args>
+inline void operate_many(OP func, Args&&... args)
+{
+    for (auto o : {std::forward<Args>(args)...})
+        func(o);
+}
+
+vector<uint8_t> HashString(const vector<uint8_t> &bytes, size_t *size, bool isSHA256 = true);
 std::string GenerateAGuid();
 } // namespace common
 } // namespace rmscore

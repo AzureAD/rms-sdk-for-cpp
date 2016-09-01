@@ -50,7 +50,7 @@ size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream      stream,
 uint32_t PfileHeaderWriter::WritePreamble(rmscrypto::api::SharedStream writer)
 {
   Logger::Hidden("PfileHeaderWriter::WritePreamble");
-  common::ByteArray preamble = { 0x2E, 0x70, 0x66, 0x69, 0x6C, 0x65 }; // byte
+  vector<uint8_t> preamble = { 0x2E, 0x70, 0x66, 0x69, 0x6C, 0x65 }; // byte
 
   // representation
   // of

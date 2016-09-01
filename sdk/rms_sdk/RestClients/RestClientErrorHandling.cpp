@@ -19,7 +19,7 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace restclients {
 void HandleRestClientError(StatusCode         httpStatusCode,
-                           common::ByteArray& sResponse)
+                           vector<uint8_t>& sResponse)
 {
   if (StatusCode::OK == httpStatusCode)
   {

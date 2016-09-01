@@ -30,7 +30,7 @@ public:
     virtual void Clear() = 0;
     virtual void Close() = 0;
     virtual std::string ReadAllAsText() = 0;
-    virtual void AppendText(const common::ByteArray& text) = 0;
+    virtual void AppendText(const std::vector<uint8_t>& text) = 0;
 
     virtual size_t GetSize() = 0;
 

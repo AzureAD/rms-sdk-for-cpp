@@ -49,7 +49,7 @@ AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(
 
   auto pHttpClient = IHttpClient::Create();
 
-  common::ByteArray response;
+  vector<uint8_t> response;
   StatusCode nStatusCode = pHttpClient->Get(sUrl, response, cancelState);
 
   // this must be an authenticated endpoint and we must get a 401

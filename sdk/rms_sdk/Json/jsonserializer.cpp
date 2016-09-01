@@ -23,14 +23,14 @@ using namespace rmscore::restclients;
 
 namespace rmscore {
 namespace json {
-ByteArray JsonSerializer::SerializeUsageRestrictionsRequest(
+vector<uint8_t> JsonSerializer::SerializeUsageRestrictionsRequest(
   const UsageRestrictionsRequest& request, bool encode)
 {
-    ByteArray PL;
+    vector<uint8_t> PL;
     if (encode)
     {
         // convert the PL to base64 encoded string
-        PL = ByteArray(ConvertBytesToBase64(request.pbPublishLicense,
+        PL = vector<uint8_t>(ConvertBytesToBase64(request.pbPublishLicense,
                                           request.cbPublishLicense));
     }
     else
@@ -43,7 +43,7 @@ ByteArray JsonSerializer::SerializeUsageRestrictionsRequest(
   return pJsonObject->Stringify();
 }
 
-common::ByteArray JsonSerializer::SerializePublishUsingTemplateRequest(
+vector<uint8_t> JsonSerializer::SerializePublishUsingTemplateRequest(
   const PublishUsingTemplateRequest& request)
 {
   auto pJson = IJsonObject::Create();
@@ -75,7 +75,7 @@ common::ByteArray JsonSerializer::SerializePublishUsingTemplateRequest(
   return pJson->Stringify();
 }
 
-common::ByteArray JsonSerializer::SerializePublishCustomRequest(
+vector<uint8_t> JsonSerializer::SerializePublishCustomRequest(
   const PublishCustomRequest& request)
 {
   auto pJson = IJsonObject::Create();
@@ -303,7 +303,7 @@ void JsonSerializer::AddUserRightsOrRolesInCustomRequest(
 }
 
 UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
-  common::ByteArray& sResponse)
+  vector<uint8_t>& sResponse)
 {
   shared_ptr<IJsonParser> pJsonParser = IJsonParser::Create();
 
@@ -488,7 +488,7 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
 }
 
 ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
-  ByteArray& sResponse)
+  vector<uint8_t>& sResponse)
 {
   shared_ptr<IJsonParser> pJsonParser = IJsonParser::Create();
 
@@ -512,7 +512,7 @@ ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
   return response;
 }
 
-CertificateResponse JsonSerializer::DeserializeCertificateResponse(ByteArray &sResponse)
+CertificateResponse JsonSerializer::DeserializeCertificateResponse(vector<uint8_t> &sResponse)
 {
     auto pJsonParser = IJsonParser::Create();
 
@@ -527,7 +527,7 @@ CertificateResponse JsonSerializer::DeserializeCertificateResponse(ByteArray &sR
 }
 
 TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(
-  ByteArray& sResponse)
+  vector<uint8_t>& sResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
@@ -567,7 +567,7 @@ TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(
   return response;
 }
 
-PublishResponse JsonSerializer::DeserializePublishResponse(ByteArray& sResponse)
+PublishResponse JsonSerializer::DeserializePublishResponse(vector<uint8_t>& sResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
@@ -638,7 +638,7 @@ PublishResponse JsonSerializer::DeserializePublishResponse(ByteArray& sResponse)
 }
 
 ServiceDiscoveryListResponse JsonSerializer::DeserializeServiceDiscoveryResponse(
-  ByteArray& sResponse)
+  vector<uint8_t>& sResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 

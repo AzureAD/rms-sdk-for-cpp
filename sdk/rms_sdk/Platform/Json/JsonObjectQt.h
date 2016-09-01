@@ -16,6 +16,7 @@
 
 #include "IJsonObject.h"
 
+using namespace std;
 namespace rmscore {
 namespace platform {
 namespace json {
@@ -63,9 +64,9 @@ private:
   override;
 
   virtual void                      SetNamedValue(const std::string      & name,
-                                                  const common::ByteArray& value)
+                                                  const vector<uint8_t>& value)
   override;
-  virtual common::ByteArray         GetNamedValue(const std::string& name)
+  virtual vector<uint8_t>         GetNamedValue(const std::string& name)
   override;
 
   virtual StringArray               GetNamedStringArray(const std::string& name)
@@ -73,7 +74,7 @@ private:
 
   virtual modernapi::AppDataHashMap ToStringDictionary() override;
 
-  virtual common::ByteArray         Stringify(bool withEscaping = true) override;
+  virtual vector<uint8_t>         Stringify(bool withEscaping = true) override;
 
 private:
 

@@ -14,6 +14,7 @@
 #include "ModernAPIExport.h"
 #include "CacheControl.h"
 
+using namespace std;
 namespace rmscore {
 namespace pfile {
 class PfileHeader;

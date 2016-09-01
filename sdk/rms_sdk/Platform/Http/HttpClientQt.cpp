@@ -25,8 +25,8 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace platform {
 namespace http {
-common::ByteArray ReadAllBytes(QIODevice *from) {
-  common::ByteArray result;
+vector<uint8_t> ReadAllBytes(QIODevice *from) {
+  vector<uint8_t> result;
   auto bytesAvailable = from->bytesAvailable();
 
   if (bytesAvailable > 0) {
@@ -85,9 +85,9 @@ void HttpClientQt::AddHeader(const string& headerName,
 }
 
 StatusCode HttpClientQt::Post(const string                     & url,
-                              const common::ByteArray          & request,
+                              const vector<uint8_t>          & request,
                               const string                     & mediaType,
-                              common::ByteArray                & response,
+                              vector<uint8_t>                & response,
                               std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Info("==> HttpClientQt::POST %s", url.data());
@@ -163,7 +163,7 @@ StatusCode HttpClientQt::Post(const string                     & url,
 }
 
 StatusCode HttpClientQt::Get(const string                     & url,
-                             common::ByteArray                & response,
+                             vector<uint8_t>                & response,
                              std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Info("==> HttpClientQt::GET %s", url.data());

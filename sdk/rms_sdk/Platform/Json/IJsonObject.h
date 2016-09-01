@@ -45,14 +45,14 @@ public:
     virtual std::shared_ptr<IJsonArray> GetNamedArray(const std::string &name) = 0;
     virtual void SetNamedArray(const std::string &name, const IJsonArray &jsonArray) = 0;
 
-    virtual void SetNamedValue(const std::string &name, const common::ByteArray &value) = 0;
-    virtual common::ByteArray GetNamedValue(const std::string &name) = 0;
+    virtual void SetNamedValue(const std::string &name, const std::vector<uint8_t> &value) = 0;
+    virtual std::vector<uint8_t> GetNamedValue(const std::string &name) = 0;
 
     virtual StringArray GetNamedStringArray(const std::string &name) = 0;
 
     virtual modernapi::AppDataHashMap ToStringDictionary() = 0;
 
-    virtual common::ByteArray Stringify(bool withEscaping = true) = 0;
+    virtual std::vector<uint8_t> Stringify(bool withEscaping = true) = 0;
 
 public:
     static std::shared_ptr<IJsonObject> Create();

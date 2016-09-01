@@ -141,6 +141,18 @@ public:
   virtual ~RMSNotFoundException() _NOEXCEPT {}
 };
 
+class RMSNotImplementedException : public RMSLogicException {
+public:
+
+  RMSNotImplementedException(const std::string& message) _NOEXCEPT
+    : RMSLogicException(NullPointer, message) {}
+
+  RMSNotImplementedException(const char *const& message) _NOEXCEPT
+    : RMSLogicException(NullPointer, message) {}
+
+  virtual ~RMSNotImplementedException() _NOEXCEPT {}
+};
+
 class RMSNetworkException : public RMSLogicException {
 public:
 

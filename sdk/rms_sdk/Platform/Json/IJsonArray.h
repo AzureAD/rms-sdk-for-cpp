@@ -32,7 +32,7 @@ public:
     virtual void Append(const IJsonObject& jsonObject) = 0;
     virtual void Append(const std::string& name) = 0;
 
-    virtual common::ByteArray Stringify() = 0;
+    virtual std::vector<uint8_t> Stringify() = 0;
 
 public:
     static std::shared_ptr<IJsonArray> Create();

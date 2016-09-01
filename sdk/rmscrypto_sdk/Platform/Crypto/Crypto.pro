@@ -19,9 +19,11 @@ CONFIG(debug, debug|release) {
 
 HEADERS += CryptoEngine.h \
     CryptoHash.h \
-    AESCryptoKey.h
+    AESCryptoKey.h \
+    RSAKeyBlob.h
 
 SOURCES += \
     CryptoEngine.cpp \
     CryptoHash.cpp \
-    AESCryptoKey.cpp
+    AESCryptoKey.cpp \
+    RSAKeyBlob.cpp

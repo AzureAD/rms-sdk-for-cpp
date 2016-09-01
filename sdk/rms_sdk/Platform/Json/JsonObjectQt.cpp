@@ -198,7 +198,7 @@ void JsonObjectQt::SetNamedArray(const std::string& name,
 }
 
 void JsonObjectQt::SetNamedValue(const std::string      & name,
-                                 const common::ByteArray& value) {
+                                 const vector<uint8_t>& value) {
   QJsonObject jo = this->impl_.toObject();
 
   QVariant jsonVar(QByteArray(reinterpret_cast<const char *>(value.data()),
@@ -208,7 +208,7 @@ void JsonObjectQt::SetNamedValue(const std::string      & name,
   this->impl_ = QJsonValue(jo);
 }
 
-common::ByteArray JsonObjectQt::GetNamedValue(const std::string& name)
+vector<uint8_t> JsonObjectQt::GetNamedValue(const std::string& name)
 {
   QJsonObject jo = this->impl_.toObject();
   auto nameStr   = name.c_str();
@@ -219,7 +219,7 @@ common::ByteArray JsonObjectQt::GetNamedValue(const std::string& name)
                            "JsonObjectQt::GetNamedValue: convertion error")
                          : QByteArray();
 
-  return common::ByteArray(ret.begin(), ret.end());
+  return vector<uint8_t>(ret.begin(), ret.end());
 }
 
 StringArray JsonObjectQt::GetNamedStringArray(const std::string& name)
@@ -267,7 +267,7 @@ modernapi::AppDataHashMap JsonObjectQt::ToStringDictionary()
   return result;
 }
 
-common::ByteArray JsonObjectQt::Stringify(bool withEscaping)
+vector<uint8_t> JsonObjectQt::Stringify(bool withEscaping)
 {
   QJsonDocument doc(this->impl_.toObject());
   QByteArray res;
@@ -276,7 +276,7 @@ common::ByteArray JsonObjectQt::Stringify(bool withEscaping)
   else
     res = doc.toVariant().toByteArray();
 
-  return common::ByteArray(res.begin(), res.end());
+  return vector<uint8_t>(res.begin(), res.end());
 }
 }
 }

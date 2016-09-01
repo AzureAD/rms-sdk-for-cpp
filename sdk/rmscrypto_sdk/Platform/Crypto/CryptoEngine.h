@@ -12,6 +12,8 @@
 #include "../../CryptoAPI/ICryptoEngine.h"
 #include "AESCryptoKey.h"
 #include "CryptoHash.h"
+#include "RSAKeyBlob.h"
+
 namespace rmscrypto {
 namespace platform {
 namespace crypto {
@@ -23,6 +25,13 @@ public:
                                                api::CryptoAlgorithm algorithm)
   override;
   virtual std::shared_ptr<api::ICryptoHash>CreateHash(api::CryptoHashAlgorithm algorithm)
+  override;
+
+  virtual std::shared_ptr<api::IRSAKeyBlob>CreateRSAKeyBlob(
+            std::vector<uint8_t> d,
+            std::vector<uint8_t> e,
+            std::vector<uint8_t> n,
+            bool                 checkKey)
   override;
 };
 } // namespace crypto

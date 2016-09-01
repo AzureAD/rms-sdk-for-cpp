@@ -38,13 +38,13 @@ public:
                                const std::string& headerValue) = 0;
 
   virtual StatusCode Post(const std::string                & url,
-                          const common::ByteArray          & request,
+                          const std::vector<uint8_t>          & request,
                           const std::string                & mediaType,
-                          common::ByteArray                & response,
+                          std::vector<uint8_t>                & response,
                           std::shared_ptr<std::atomic<bool> >cancelState) = 0;
 
   virtual StatusCode Get(const std::string                & url,
-                         common::ByteArray                & response,
+                         std::vector<uint8_t>                & response,
                          std::shared_ptr<std::atomic<bool> >cancelState) = 0;
 
   virtual const std::string GetResponseHeader(const std::string& headerName) = 0;

@@ -27,7 +27,7 @@ public:
 private:
   void SendPacket(
     common::DataStream &sendStream,
-    const common::ByteArray &requestMessage);
+    const std::vector<uint8_t> &requestMessage);
 
   common::StringArray GetPossibleDomains(const std::string& domain);
 };

@@ -111,7 +111,7 @@ void UsageRestrictionsClient::StoreToCache(
   const UsageRestrictionsRequest          & request,
   const std::string                       & email,
   std::shared_ptr<UsageRestrictionsResponse>response,
-  const common::ByteArray                 & strResponse,
+  const vector<uint8_t>                 & strResponse,
   bool                                      encryptData)
 {
   if (0 != _stricmp("AccessGranted", response->accessStatus.c_str()))
@@ -178,7 +178,7 @@ bool UsageRestrictionsClient::TryGetFromCache(
       // try to deserialize the cached response
       try
       {
-        common::ByteArray tmpArr(iResponse.begin(), iResponse.end());
+        vector<uint8_t> tmpArr(iResponse.begin(), iResponse.end());
         response = make_shared<UsageRestrictionsResponse>(
           pJsonSerializer->DeserializeUsageRestrictionsResponse(tmpArr));
 

@@ -13,6 +13,7 @@ namespace crypto {
 const unsigned int AES128_KEY_BYTE_LENGTH = 16;
 const unsigned int AES128_BLOCK_SIZE      = 16;
 const unsigned int CBC4K_BLOCK_SIZE       = 4096;
+const unsigned int PADDED_CBC4K_SIZE = 4412;
 const unsigned int CBC512_BLOCK_SIZE      = 512;
 } // namespace crypto
 } // namespace rmscrypto

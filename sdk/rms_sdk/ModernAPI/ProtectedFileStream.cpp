@@ -85,7 +85,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
     }
   }
   if (pHeader != nullptr) {
-    ByteArray publishingLicense = pHeader->GetPublishingLicense();
+    vector<uint8_t> publishingLicense = pHeader->GetPublishingLicense();
     auto policyRequest          = UserPolicy::Acquire(publishingLicense,
                                                       userId,
                                                       authenticationCallback,
@@ -131,7 +131,7 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
     auto headerWriter = IPfileHeaderWriter::Create();
 
     auto publishingLicense = policy->SerializedPolicy();
-    ByteArray metadata; // No metadata
+    vector<uint8_t> metadata; // No metadata
 
     // calculate content size
     uint32_t contentStartPosition =

@@ -23,7 +23,7 @@ std::shared_ptr<IJsonParser>IJsonParser::Create()
 }
 
 std::shared_ptr<IJsonObject>JsonParserQt::Parse(
-  const common::ByteArray& jsonObject)
+  const vector<uint8_t>& jsonObject)
 {
   QJsonParseError error;
   auto data = jsonObject.data();
@@ -47,7 +47,7 @@ std::shared_ptr<IJsonObject>JsonParserQt::Parse(
 }
 
 std::shared_ptr<IJsonArray>JsonParserQt::ParseArray(
-  const common::ByteArray& jsonArray)
+  const vector<uint8_t>& jsonArray)
 {
   QJsonParseError error;
   auto qdoc =

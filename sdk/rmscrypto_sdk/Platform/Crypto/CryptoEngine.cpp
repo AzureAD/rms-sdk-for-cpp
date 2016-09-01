@@ -50,6 +50,11 @@ shared_ptr<api::ICryptoKey>CryptoEngine::CreateKey(const uint8_t       *pbKey,
   throw exceptions::RMSCryptoInvalidArgumentException("Invalid algorithm");
 }
 
+shared_ptr<api::IRSAKeyBlob> CryptoEngine::CreateRSAKeyBlob(std::vector<uint8_t> d, std::vector<uint8_t> e, std::vector<uint8_t> n, bool checkKey)
+{
+    return make_shared<RSAKeyBlob>(d, e, n, checkKey);
+}
+
 shared_ptr<api::ICryptoHash>CryptoEngine::CreateHash(
   api::CryptoHashAlgorithm algorithm)
 {

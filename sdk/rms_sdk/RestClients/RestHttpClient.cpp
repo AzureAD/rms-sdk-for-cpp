@@ -36,7 +36,7 @@ RestHttpClient::Result RestHttpClient::Get(
   auto parameters = HttpRequestParameters {
     HTTP_GET,            // type
     string(sUrl),        // url
-    common::ByteArray(), // requestBody
+    vector<uint8_t>(), // requestBody
     accessToken,         // accessToken
     cancelState
   };
@@ -48,7 +48,7 @@ RestHttpClient::Result RestHttpClient::Get(
 
 RestHttpClient::Result RestHttpClient::Post(
   const string                     & sUrl,
-  ByteArray                       && requestBody,
+  vector<uint8_t>                       && requestBody,
   IAuthenticationCallbackImpl      & authenticationCallback,
   std::shared_ptr<std::atomic<bool> >cancelState)
 {
