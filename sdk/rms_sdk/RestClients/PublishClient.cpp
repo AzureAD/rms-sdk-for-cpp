@@ -97,6 +97,7 @@ PublishResponse PublishClient::LocalPublishCommon(bool isAdhoc,
   std::shared_ptr<std::atomic<bool> > cancelState,
   const std::function<string(string, string &)> &getCLCCallback)
 {
+    //determines which request to use
     PublishCustomRequest pcr(false, false);
     PublishUsingTemplateRequest putr;
     if (isAdhoc)
@@ -307,7 +308,7 @@ void PublishClient::RSAInit(shared_ptr<IJsonObject> pClc)
     auto n = common::ConvertBase64ToBytes(pubk->GetNamedValue("n"));
     auto e = pubk->GetNamedValue("e");
 
-    rsaKeyBlob = ICryptoEngine::Create()->CreateRSAKeyBlob(d, e, n, true);
+    rsaKeyBlob = ICryptoEngine::Create()->CreateRSAKeyBlob(d, e, n, true); //set to false to skip key verification check
 }
 
 vector<uint8_t> PublishClient::SetSessionKey(shared_ptr<IJsonObject> pLicense, bool prefDeprecatedAlgs, vector<uint8_t>& outSK)
@@ -527,28 +528,28 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
     auto pcacheresult = GetCLCCache(pCache, sEmail);
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
-//        auto pRestServiceUrlClient = RestServiceUrlClient::Create();
-//        auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
-//        auto request = IJsonObject::Create();
-//        request->SetNamedString("SignatureEncoding", "utf-8");
-//        auto result = RestHttpClient::Post(clcUrl, request->Stringify(),authenticationCallback, cancelState);
+        auto pRestServiceUrlClient = RestServiceUrlClient::Create();
+        auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
+        auto request = IJsonObject::Create();
+        request->SetNamedString("SignatureEncoding", "utf-8");
+        auto result = RestHttpClient::Post(clcUrl, request->Stringify(),authenticationCallback, cancelState);
 
-//        if (result.status != StatusCode::OK)
-//            HandleRestClientError(result.status, result.responseBody);
+        if (result.status != StatusCode::OK)
+            HandleRestClientError(result.status, result.responseBody);
 
-          /*TEST CODE*/
-        std::ifstream ifs;
-        ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
-        string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
+        /*TEST CODE: uncomment to use local CLC*/
+//        std::ifstream ifs;
+//        ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
+//        string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
 
-        auto r = CertificateResponse();
-        r.serializedCert = str;
+//        auto r = CertificateResponse();
+//        r.serializedCert = str;
 
         auto pJsonSerializer = IJsonSerializer::Create();
         try
         {
             //get clc
-            auto clc = r;//pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
+            auto clc = pJsonSerializer->DeserializeCertificateResponse(result.responseBody);
 
             string search = R"(\"pub\":)";
             auto pos = clc.serializedCert.find(search);
