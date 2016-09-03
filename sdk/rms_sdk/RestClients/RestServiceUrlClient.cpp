@@ -28,8 +28,8 @@ namespace restclients {
 const uint32_t DEFAULT_DNS_TTL = 30 * 24 * 60 * 60; // 30 days in seconds.
 
 map<string, shared_ptr<ServiceDiscoveryDetails>,
-    MyStringCompare> RestServiceUrlClient::serviceDiscoveryDetailsCache =
-  map<string, shared_ptr<ServiceDiscoveryDetails>, MyStringCompare>();
+    StringComparer> RestServiceUrlClient::serviceDiscoveryDetailsCache =
+  map<string, shared_ptr<ServiceDiscoveryDetails>, StringComparer>();
 
 RestServiceUrlClient::~RestServiceUrlClient()
 {}

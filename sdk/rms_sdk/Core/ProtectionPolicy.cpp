@@ -39,23 +39,9 @@ static AccessStatus MapAccessStatus(const string& accessStatus) {
   }
 }
 
-static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode) {
-  if (0 ==
-      _stricmp("MICROSOFT.CBC4K",
-               cipherMode.c_str())) return rmscrypto::api::CIPHER_MODE_CBC4K;
-
-  if (0 == _stricmp("MICROSOFT.CBC512.NOPADDING", cipherMode.c_str())) {
-    return rmscrypto::api::CIPHER_MODE_CBC512NOPADDING;
-  } else if (0 == _stricmp("MICROSOFT.ECB", cipherMode.c_str())) {
-    return rmscrypto::api::CIPHER_MODE_ECB;
-  } else {
-    ostringstream str;
-
-    str << "Got an invalid CipherMode (" << cipherMode.c_str() <<
-      ") from the server.";
-    throw exceptions::RMSNetworkException(
-            str.str(), exceptions::RMSNetworkException::ServerError);
-  }
+static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode)
+{
+    return rmscrypto::api::ICryptoProvider::StringToCipherMode(cipherMode);
 }
 
 shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(

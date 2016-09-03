@@ -28,6 +28,8 @@ static const char* EnumStrings[] = { "MICROSOFT.CBC4K", "MICROSOFT.ECB", "MICROS
 class ICryptoProvider {
 public:
   const static char* CipherModeString(CipherMode cm) { return EnumStrings[cm]; }
+  static CipherMode StringToCipherMode(std::string s) { return s == EnumStrings[0] ? CIPHER_MODE_CBC4K : s == EnumStrings[1] ? CIPHER_MODE_ECB : s == EnumStrings[2] ? CIPHER_MODE_CBC512NOPADDING : CIPHER_MODE_CBC4K; }
+
   virtual void Encrypt(const uint8_t *pbIn,
                        uint32_t       cbIn,
                        uint32_t       dwStartingBlockNumber,

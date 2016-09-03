@@ -21,6 +21,7 @@
 #include "../Platform/Json/JsonObjectQt.h"
 #include "../Common/tools.h"
 #include "../Crypto/CryptoConstants.h"
+#include "../Common/Constants.h"
 #include <sstream>
 #include <ostream>
 #include <fstream>
@@ -98,30 +99,30 @@ PublishResponse PublishClient::LocalPublishCommon(bool isAdhoc,
   const std::function<string(string, string &)> &getCLCCallback)
 {
     //determines which request to use
-    PublishCustomRequest pcr(false, false);
-    PublishUsingTemplateRequest putr;
+    PublishCustomRequest publishCustomRequest(false, false);
+    PublishUsingTemplateRequest publishUsingTemplateRequest;
     if (isAdhoc)
     {
-        if (cbRequest != sizeof pcr)
+        if (cbRequest != sizeof publishCustomRequest)
             throw exceptions::RMSInvalidArgumentException("Request size did not match given size.");
-        pcr = *((PublishCustomRequest*)_request);
+        publishCustomRequest = *((PublishCustomRequest*)_request);
     }
     else
     {
-        if (cbRequest != sizeof putr)
+        if (cbRequest != sizeof publishUsingTemplateRequest)
             throw exceptions::RMSInvalidArgumentException("Request size did not match given size.");
-        putr = *((PublishUsingTemplateRequest*)_request);
+        publishUsingTemplateRequest = *((PublishUsingTemplateRequest*)_request);
     }
-    auto sad = isAdhoc ? pcr.signedApplicationData : putr.signedApplicationData;
-    auto pda = isAdhoc ? pcr.bPreferDeprecatedAlgorithms : putr.bPreferDeprecatedAlgorithms;
+    auto signedAppData = isAdhoc ? publishCustomRequest.signedApplicationData : publishUsingTemplateRequest.signedApplicationData;
+    auto preferDeprecatedAlgs = isAdhoc ? publishCustomRequest.bPreferDeprecatedAlgorithms : publishUsingTemplateRequest.bPreferDeprecatedAlgorithms;
 
     auto pPayload = IJsonObject::Create();
 
     string clcPubData;
     auto pCLC = CreateCLC(clcPubData, getCLCCallback, sEmail, authenticationCallback, cancelState);
-    auto pCLCPld = pCLC->GetNamedObject("pld");
+    auto pCLCPld = pCLC->GetNamedObject(JsonConstants::PAYLOAD);
 
-    auto em = pCLCPld->GetNamedObject("pub")->GetNamedObject("pld")->GetNamedObject("issto")->GetNamedString("em");
+    auto em = pCLCPld->GetNamedObject(JsonConstants::PUBLIC_DATA)->GetNamedObject(JsonConstants::PAYLOAD)->GetNamedObject(JsonConstants::ISSUED_TO)->GetNamedString(JsonConstants::EMAIL);
 
     RSAInit(pCLC);
 
@@ -129,27 +130,27 @@ PublishResponse PublishClient::LocalPublishCommon(bool isAdhoc,
 
     auto license = CreateLicense(pCLCPld, clcPubData);
 
-    if (sad.size() > 0)
-        license->SetNamedObject("sad", *(CreateSignedAppData(sad)));
+    if (signedAppData.size() > 0)
+        license->SetNamedObject(JsonConstants::SIGNED_APPLICATION_DATA, *(CreateSignedAppData(signedAppData)));
 
-    CipherMode cm = pda ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
+    CipherMode cm = preferDeprecatedAlgs ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
 
     vector<uint8_t> sessionkey;
-    auto contentkey = SetSessionKey(license, pda, sessionkey);
+    auto contentkey = SetSessionKey(license, preferDeprecatedAlgs, sessionkey);
 
     //encrypted policy
     shared_ptr<IJsonObject> pEncryptedPolicy;
     if (isAdhoc)
-        pEncryptedPolicy = CreatePolicyAdhoc(pcr, em);
+        pEncryptedPolicy = CreatePolicyAdhoc(publishCustomRequest, em);
     else
-        pEncryptedPolicy = CreatePolicyTemplate(putr, em);
-    license->SetNamedValue("enp", EncryptBytesToBase64(pEncryptedPolicy->Stringify(), sessionkey, cm));
+        pEncryptedPolicy = CreatePolicyTemplate(publishUsingTemplateRequest, em);
+    license->SetNamedValue(JsonConstants::ENCRYPTED_POLICY, EncryptBytesToBase64(pEncryptedPolicy->Stringify(), sessionkey, cm));
 
-    pPayload->SetNamedObject("lic", *license);
+    pPayload->SetNamedObject(JsonConstants::LICENSE, *license);
 
     auto vFinal = SignPayload(pPayload->Stringify());
 
-    return CreateResponse(vFinal, sad, cm, contentkey, em);
+    return CreateResponse(vFinal, signedAppData, cm, contentkey, em);
 }
 
 PublishResponse PublishClient::PublishCommon(
@@ -194,11 +195,7 @@ shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCach
     size_t size;
     vector<uint8_t> pKey = common::HashString(vector<uint8_t>(email.begin(), email.end()), &size);
     auto clc = cache->Lookup(CLCCacheName, CLCCacheTag, &pKey[0], size, true);
-    if (clc.capacity() > 0)
-        result = make_shared<CLCCacheResult>(clc.at(0), false);
-    else
-        result = make_shared<CLCCacheResult>("", true);
-    return result;
+    return clc.capacity() > 0 ? make_shared<CLCCacheResult>(clc.at(0), false) : make_shared<CLCCacheResult>("", true);
 }
 
 
@@ -209,14 +206,8 @@ shared_ptr<IJsonObject> PublishClient::CreateCLC(
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   shared_ptr<atomic<bool>> cancelState)
 {
-    string sCLC;
-    if (getCLCCallback == nullptr)
-        sCLC = GetCLC(sEmail, authenticationCallback, cancelState, outClcPubData);
-    else
-        sCLC = getCLCCallback(sEmail, outClcPubData);
-    auto ByteArray = vector<uint8_t>(sCLC.begin(), sCLC.end());
-    auto pCLC =  IJsonParser::Create()->Parse(ByteArray);
-    return pCLC;
+    string sCLC = getCLCCallback == nullptr ? GetCLC(sEmail, authenticationCallback, cancelState, outClcPubData) : sCLC = getCLCCallback(sEmail, outClcPubData);
+    return IJsonParser::Create()->Parse(vector<uint8_t>(sCLC.begin(), sCLC.end()));
 }
 
 PublishResponse PublishClient::CreateResponse(std::vector<uint8_t> licenseNoBOM, modernapi::AppDataHashMap signedAppData, CipherMode cm, std::vector<uint8_t> contentkey, string ownerName)
@@ -228,7 +219,7 @@ PublishResponse PublishClient::CreateResponse(std::vector<uint8_t> licenseNoBOM,
     response.serializedLicense = licenseNoBOM;
 
     auto responseKey = KeyDetailsResponse();
-    responseKey.algorithm = "AES";
+    responseKey.algorithm = rmscrypto::crypto::szAES;
     responseKey.cipherMode = ICryptoProvider::CipherModeString(cm);
     responseKey.value = common::ConvertBytesToBase64(contentkey);
     response.key = responseKey;
@@ -244,39 +235,39 @@ PublishResponse PublishClient::CreateResponse(std::vector<uint8_t> licenseNoBOM,
 
 shared_ptr<IJsonObject> PublishClient::CreateLicense(std::shared_ptr<IJsonObject> clcPayload, string clcPubData)
 {
-    auto pClcPubData = clcPayload->GetNamedObject("pub");
-    auto pClcPubPayload = pClcPubData->GetNamedObject("pld");
-    auto pClcIssuedTo = pClcPubPayload->GetNamedObject("issto");
+    auto pClcPubData = clcPayload->GetNamedObject(JsonConstants::PUBLIC_DATA);
+    auto pClcPubPayload = pClcPubData->GetNamedObject(JsonConstants::PAYLOAD);
+    auto pClcIssuedTo = pClcPubPayload->GetNamedObject(JsonConstants::ISSUED_TO);
 
     auto license = IJsonObject::Create();
-    license->SetNamedString("id", common::GenerateAGuid());
-    license->SetNamedString("o", pClcIssuedTo->GetNamedString("fname"));
-    license->SetNamedString("cre", clcPubData);
-    license->SetNamedString("cid", pClcIssuedTo->GetNamedString("em"));
+    license->SetNamedString(JsonConstants::ID, common::GenerateAGuid());
+    license->SetNamedString(JsonConstants::OWNER, pClcIssuedTo->GetNamedString(JsonConstants::FRIENDLY_NAME));
+    license->SetNamedString(JsonConstants::CREATOR, clcPubData);
+    license->SetNamedString(JsonConstants::CONTENT_ID, pClcIssuedTo->GetNamedString(JsonConstants::EMAIL));
 
-    auto clcPrivData = clcPayload->GetNamedObject("pri");
-    license->SetNamedString("lcd", clcPrivData->GetNamedString("issd"));
-    license->SetNamedString("exp", clcPrivData->GetNamedString("exp"));
+    auto clcPrivData = clcPayload->GetNamedObject(JsonConstants::PRIVATE_DATA);
+    license->SetNamedString(JsonConstants::LICENSE_CREATION_DATE, clcPrivData->GetNamedString(JsonConstants::ISSUED_TIME));
+    license->SetNamedString(JsonConstants::EXPIRATION_TIME, clcPrivData->GetNamedString(JsonConstants::EXPIRATION_TIME));
     return license;
 }
 
 shared_ptr<IJsonObject> PublishClient::CreatePolicyAdhoc(PublishCustomRequest request, string isstoEmail)
 {
     auto pEncryptedPolicy = IJsonObject::Create();
-    pEncryptedPolicy->SetNamedString("crem", isstoEmail);
+    pEncryptedPolicy->SetNamedString(JsonConstants::CREATOR_EMAIL, isstoEmail);
     //encrypted app data would go here
     auto rights = ConvertUserRights(request);
     auto pCustomPolicy = IJsonObject::Create();
-    pCustomPolicy->SetNamedArray("usrts", *rights);
-    pEncryptedPolicy->SetNamedObject("cp", *pCustomPolicy);
+    pCustomPolicy->SetNamedArray(JsonConstants::USER_RIGHTS, *rights);
+    pEncryptedPolicy->SetNamedObject(JsonConstants::CUSTOM_POLICY, *pCustomPolicy);
     return pEncryptedPolicy;
 }
 
 shared_ptr<IJsonObject> PublishClient::CreatePolicyTemplate(PublishUsingTemplateRequest request, string isstoEmail)
 {
     auto pEncryptedPolicy = IJsonObject::Create();
-    pEncryptedPolicy->SetNamedString("crem", isstoEmail);
-    pEncryptedPolicy->SetNamedString("tid", request.templateId);
+    pEncryptedPolicy->SetNamedString(JsonConstants::CREATOR_EMAIL, isstoEmail);
+    pEncryptedPolicy->SetNamedString(JsonConstants::TEMPLATE_ID, request.templateId);
     return pEncryptedPolicy;
 }
 
@@ -303,10 +294,22 @@ void PublishClient::SetHeader(std::shared_ptr<IJsonObject> pld)
 
 void PublishClient::RSAInit(shared_ptr<IJsonObject> pClc)
 {
-    auto pubk = pClc->GetNamedObject("pld")->GetNamedObject("pub")->GetNamedObject("pld")->GetNamedObject("issto")->GetNamedObject("pubk");
-    auto d = common::ConvertBase64ToBytes(pClc->GetNamedObject("pld")->GetNamedObject("pri")->GetNamedObject("prik")->GetNamedValue("d"));
-    auto n = common::ConvertBase64ToBytes(pubk->GetNamedValue("n"));
-    auto e = pubk->GetNamedValue("e");
+    auto pubk = pClc->
+            GetNamedObject(JsonConstants::PAYLOAD)->
+            GetNamedObject(JsonConstants::PUBLIC_DATA)->
+            GetNamedObject(JsonConstants::PAYLOAD)->
+            GetNamedObject(JsonConstants::ISSUED_TO)->
+            GetNamedObject(JsonConstants::PUBLIC_KEY);
+
+    auto d = common::ConvertBase64ToBytes(
+                pClc->GetNamedObject(JsonConstants::PAYLOAD)->
+                GetNamedObject(JsonConstants::PRIVATE_DATA)->
+                GetNamedObject(JsonConstants::PRIVATE_KEY)->
+                GetNamedValue(JsonConstants::PRIVATE_MODULUS));
+
+    auto n = common::ConvertBase64ToBytes(pubk->GetNamedValue(JsonConstants::PUBLIC_MODULUS));
+
+    auto e = pubk->GetNamedValue(JsonConstants::PUBLIC_EXPONENT);
 
     rsaKeyBlob = ICryptoEngine::Create()->CreateRSAKeyBlob(d, e, n, true); //set to false to skip key verification check
 }
@@ -316,7 +319,7 @@ vector<uint8_t> PublishClient::SetSessionKey(shared_ptr<IJsonObject> pLicense, b
     auto pSessionKey = IJsonObject::Create();
 
     //session key init
-    const unsigned int keysize = AES_BLOCK_SIZE;
+    const unsigned int keysize = AES_BLOCK_SIZE_BYTES;
     vector<uint8_t> sessionkey(keysize);
     RAND_bytes(&sessionkey[0], keysize);
 
@@ -324,20 +327,20 @@ vector<uint8_t> PublishClient::SetSessionKey(shared_ptr<IJsonObject> pLicense, b
     RAND_bytes(&contentkey[0], keysize);
 
     auto pContentKey = IJsonObject::Create();
-    pContentKey->SetNamedString("alg", "AES");
-    pContentKey->SetNamedString("cm", "CBC4K");
-    pContentKey->SetNamedValue("k", EncryptBytesToBase64(contentkey, sessionkey, prefDeprecatedAlgs ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K));
+    pContentKey->SetNamedString(JsonConstants::ALGORITHM, rmscrypto::crypto::szAES);
+    pContentKey->SetNamedString(JsonConstants::CIPHER_MODE, rmscrypto::crypto::szCBC4K);
+    pContentKey->SetNamedValue(JsonConstants::KEY, EncryptBytesToBase64(contentkey, sessionkey, prefDeprecatedAlgs ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K));
     auto bytes = common::ConvertBytesToBase64(pContentKey->Stringify());
-    pSessionKey->SetNamedObject("eck", *pContentKey);
+    pSessionKey->SetNamedObject(JsonConstants::ENCRYPTED_CONTENT_KEY, *pContentKey);
 
-    pSessionKey->SetNamedValue("eck", bytes);
-    pSessionKey->SetNamedString("alg", "AES");
-    pSessionKey->SetNamedString("cm", prefDeprecatedAlgs ? "ECB" : "CBC4K");
+    pSessionKey->SetNamedValue(JsonConstants::ENCRYPTED_CONTENT_KEY, bytes);
+    pSessionKey->SetNamedString(JsonConstants::ALGORITHM, rmscrypto::crypto::szAES);
+    pSessionKey->SetNamedString(JsonConstants::CIPHER_MODE, prefDeprecatedAlgs ? rmscrypto::crypto::szECB : rmscrypto::crypto::szCBC4K);
 
     auto esk = common::ConvertBytesToBase64(rsaKeyBlob->PublicEncrypt(sessionkey));
-    pSessionKey->SetNamedString("sk", string(esk.begin(), esk.end()));
+    pSessionKey->SetNamedString(JsonConstants::SESSION_KEY, string(esk.begin(), esk.end()));
 
-    pLicense->SetNamedObject("sk", *pSessionKey);
+    pLicense->SetNamedObject(JsonConstants::SESSION_KEY, *pSessionKey);
 
     outSK = sessionkey;
 
@@ -354,10 +357,10 @@ vector<uint8_t> PublishClient::SignPayload(std::vector<uint8_t> pld)
     toHash = Escape(toHash);
     sToHash = string(toHash.begin(), toHash.end());
 
-    uint32_t retsize;
-    auto _signed = rsaKeyBlob->Sign(digest, retsize);
+    uint32_t retSize;
+    auto _signed = rsaKeyBlob->Sign(digest, retSize);
     string errmsg;
-    if (!rsaKeyBlob->VerifySignature(_signed, digest, errmsg, retsize))
+    if (!rsaKeyBlob->VerifySignature(_signed, digest, errmsg, retSize))
         throw exceptions::RMSCryptographyException("Could not verify payload signature: " + errmsg);
 
     auto b64 = common::ConvertBytesToBase64(_signed);
@@ -403,11 +406,8 @@ vector<uint8_t> PublishClient::Reformat(vector<uint8_t> source, int currentlevel
             while (!end)
             {
                 string s = ret.substr(it, 2);
-                if (s == "\\\\")
-                    final += "";
-                else
+                if (s != "\\\\")
                     final += s;
-
                 if (s == "}}")
                     end = true;
                 it += 2;
@@ -452,9 +452,9 @@ vector<uint8_t> PublishClient::EncryptBytesToBase64(vector<uint8_t> bytesToEncry
 
     auto totalLen = bytesToEncrypt.size();
 
-    const bool CBC4K = cm == CIPHER_MODE_CBC4K;
+    const bool isCBC4K = cm == CIPHER_MODE_CBC4K;
 
-    unsigned int blockSize = CBC4K ? rmscrypto::crypto::CBC4K_BLOCK_SIZE : rmscrypto::crypto::AES128_BLOCK_SIZE;
+    unsigned int blockSize = isCBC4K ? rmscrypto::crypto::CBC4K_BLOCK_SIZE : rmscrypto::crypto::AES128_BLOCK_SIZE;
     vector<vector<uint8_t>> blockList((totalLen / blockSize) + 1);
 
     for (unsigned int i = 0; i < blockList.size(); i++)
@@ -483,7 +483,7 @@ vector<uint8_t> PublishClient::EncryptBytesToBase64(vector<uint8_t> bytesToEncry
 
         uint32_t byteswritten = 0;
         bool isLastBlock = len < blockSize;
-        if (CBC4K)
+        if (isCBC4K)
         {
             if (!isLastBlock)
                 outbuffer = vector<uint8_t>(blockSize, 0);
@@ -491,7 +491,7 @@ vector<uint8_t> PublishClient::EncryptBytesToBase64(vector<uint8_t> bytesToEncry
                 outbuffer = vector<uint8_t>(PADDED_CBC4K_SIZE, 0);
         }
         crypto->Encrypt(&inputbuffer[0], blockSize, i, isLastBlock, &outbuffer[0], outbuffer.size(), &byteswritten);
-        uint32_t actualEncryptedBytes = _size - (_size % 16) + 16;
+        uint32_t actualEncryptedBytes = _size - (_size % AES_KEY_SIZE) + AES_KEY_SIZE;
         final.insert(
           final.end(),
           outbuffer.begin(),
@@ -536,14 +536,6 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
 
         if (result.status != StatusCode::OK)
             HandleRestClientError(result.status, result.responseBody);
-
-        /*TEST CODE: uncomment to use local CLC*/
-//        std::ifstream ifs;
-//        ifs.open("/home/rms/Desktop/clc.drm", ifstream::in);
-//        string str{ istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() };
-
-//        auto r = CertificateResponse();
-//        r.serializedCert = str;
 
         auto pJsonSerializer = IJsonSerializer::Create();
         try

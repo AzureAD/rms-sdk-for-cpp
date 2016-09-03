@@ -20,16 +20,14 @@
 #include <unordered_map>
 
 using namespace rmscore::platform::json;
+
 namespace rmscore {
 namespace restclients {
+
+class OfflinePublishTest;
+
 class PublishClient : public IPublishClient {
 public:
-  virtual PublishResponse PublishUsingTemplate(
-    const PublishUsingTemplateRequest     & request,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-  override;
   virtual PublishResponse LocalPublishUsingTemplate(
     const PublishUsingTemplateRequest     & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
@@ -37,12 +35,7 @@ public:
     std::shared_ptr<std::atomic<bool> >     cancelState,
    const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
   override;
-  virtual PublishResponse PublishCustom(
-    const PublishCustomRequest            & request,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-  override;
+
   virtual PublishResponse LocalPublishCustom(
     const PublishCustomRequest            & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
@@ -51,9 +44,10 @@ public:
     const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
   override;
 
-private:
-  const size_t KEY_SIZE = 256;
-  const size_t AES_BLOCK_SIZE = 16;
+  friend class OfflinePublishTest;
+protected:
+  const size_t AES_KEY_SIZE = 256;
+  const size_t AES_BLOCK_SIZE_BYTES = 16;
 
   //removes escaping
   std::string Unescape(std::string source, bool skipReformat = false);
@@ -119,10 +113,21 @@ private:
     std::shared_ptr<std::atomic<bool> >     cancelState,
     const std::function<std::string(std::string, std::string&)>& getCLCCallback);
 
+  //LEGACY
   PublishResponse PublishCommon(
     vector<uint8_t>                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState);
+  PublishResponse PublishCustom(
+    const PublishCustomRequest            & request,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string                       sEmail,
+    std::shared_ptr<std::atomic<bool> >     cancelState);
+  PublishResponse PublishUsingTemplate(
+    const PublishUsingTemplateRequest     & request,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string                       sEmail,
     std::shared_ptr<std::atomic<bool> >     cancelState);
 };
 } // namespace restclients

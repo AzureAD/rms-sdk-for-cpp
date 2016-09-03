@@ -14,7 +14,9 @@ CONFIG(debug, debug|release) {
 
 HEADERS += CommonTypes.h \
     FrameworkSpecificTypes.h \
-    tools.h
+    tools.h \
+    Constants.h
 
 SOURCES += \
-    tools.cpp
+    tools.cpp \
+    Constants.cpp

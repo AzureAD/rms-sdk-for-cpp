@@ -10,8 +10,8 @@
 #define LICENSEPARSERTEST_H
 #include <QtTest>
 
-namespace UnitTests {
-namespace RestClientsUT {
+namespace unittest {
+namespace restclientsut {
 class LicenseParserTest : public QObject
 {
     Q_OBJECT

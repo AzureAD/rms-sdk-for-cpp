@@ -1,8 +1,8 @@
 #include "DummyAuthCallback.h"
 #include <QtGlobal>
 
-namespace UnitTests {
-namespace RestClientsUT {
+namespace unittest {
+namespace restclientsut {
 
 DummyAuthCallback::DummyAuthCallback() : IAuthenticationCallbackImpl()
 {

@@ -18,16 +18,16 @@ namespace json {
 class JsonSerializer : public IJsonSerializer
 {
 public:
-    virtual vector<uint8_t> SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request, bool encode) override;
+    virtual vector<uint8_t> SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request, bool bEncode) override;
     virtual vector<uint8_t> SerializePublishUsingTemplateRequest(const restclients::PublishUsingTemplateRequest& request) override;
     virtual vector<uint8_t> SerializePublishCustomRequest(const restclients::PublishCustomRequest& request) override;
 
-    virtual restclients::UsageRestrictionsResponse DeserializeUsageRestrictionsResponse(vector<uint8_t> &sResponse) override;
-    virtual restclients::ServerErrorResponse DeserializeErrorResponse(vector<uint8_t> &sResponse) override;
-    virtual restclients::TemplateListResponse DeserializeTemplateListResponse(vector<uint8_t> &sResponse) override;
-    virtual restclients::PublishResponse DeserializePublishResponse(vector<uint8_t> &sResponse) override;
-    virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(vector<uint8_t> &sResponse) override;
-    virtual restclients::CertificateResponse DeserializeCertificateResponse(vector<uint8_t> &sResponse) override;
+    virtual restclients::UsageRestrictionsResponse DeserializeUsageRestrictionsResponse(vector<uint8_t> &vResponse) override;
+    virtual restclients::ServerErrorResponse DeserializeErrorResponse(vector<uint8_t> &vResponse) override;
+    virtual restclients::TemplateListResponse DeserializeTemplateListResponse(vector<uint8_t> &vResponse) override;
+    virtual restclients::PublishResponse DeserializePublishResponse(vector<uint8_t> &vResponse) override;
+    virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(vector<uint8_t> &vResponse) override;
+    virtual restclients::CertificateResponse DeserializeCertificateResponse(vector<uint8_t> &vResponse) override;
 
 private:
     std::string ProcessReferrerResponse(const std::string&& referrerResponse);

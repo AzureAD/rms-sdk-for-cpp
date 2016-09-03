@@ -19,7 +19,7 @@
 #include "../ModernAPI/PolicyDescriptor.h"
 #include "../RestClients/RestObjects.h"
 
-using namespace std;
+
 namespace rmscore {
 namespace core {
 enum AccessStatus {
@@ -149,7 +149,7 @@ public:
     return m_pCryptoProvider;
   }
 
-  const vector<uint8_t> GetPublishLicense() const {
+  const std::vector<uint8_t> GetPublishLicense() const {
     return m_publishLicense;
   }
 
@@ -246,7 +246,7 @@ private:
   bool m_bFromTemplate;
   std::vector<std::string> m_rights;
   std::vector<std::string> m_roles;
-  vector<uint8_t> m_publishLicense;
+  std::vector<uint8_t> m_publishLicense;
   rmscrypto::api::CipherMode m_cipherMode;
   std::shared_ptr<rmscrypto::api::ICryptoProvider> m_pCryptoProvider;
   bool m_bAllowAuditedExtraction;

@@ -16,9 +16,9 @@ class RSAKeyBlob : public IRSAKeyBlob
 public:
     RSAKeyBlob(std::vector<uint8_t> privateKey, std::vector<uint8_t> exponent, std::vector<uint8_t> publicKey, bool checkKey);
 
-    virtual std::vector<uint8_t> Sign(std::vector<uint8_t> digest, uint32_t& outsize) override;
+    virtual std::vector<uint8_t> Sign(std::vector<uint8_t> digest, uint32_t& outSize) override;
 
-    virtual bool VerifySignature(std::vector<uint8_t> signature, std::vector<uint8_t> digest, std::string& outMsg, uint32_t retsize) override;
+    virtual bool VerifySignature(std::vector<uint8_t> signature, std::vector<uint8_t> digest, std::string& outMsg, uint32_t retSize) override;
 
     virtual std::vector<uint8_t> PublicEncrypt(std::vector<uint8_t> buffer) override;
 
@@ -28,8 +28,8 @@ public:
 
 private:
     std::shared_ptr<RSA> m_rsa;
-    std::shared_ptr<RSA> create_and_check(BIGNUM* d, BIGNUM* n, BIGNUM* e);
-    std::shared_ptr<RSA> create_no_check(BIGNUM* d, BIGNUM* n, BIGNUM* e);
+    std::shared_ptr<RSA> CreateAndCheck(BIGNUM* d, BIGNUM* n, BIGNUM* e);
+    std::shared_ptr<RSA> CreateNoCheck(BIGNUM* d, BIGNUM* n, BIGNUM* e);
 };
 } //crypto
 } //platform

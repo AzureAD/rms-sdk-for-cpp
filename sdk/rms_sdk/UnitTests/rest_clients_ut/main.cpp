@@ -10,7 +10,7 @@
 #include "LicenseParserTest.h"
 #include "OfflinePublishTest.h"
 
-using namespace UnitTests::RestClientsUT;
+using namespace unittest::restclientsut;
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);

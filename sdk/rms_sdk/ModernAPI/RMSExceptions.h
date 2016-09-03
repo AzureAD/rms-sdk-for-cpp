@@ -32,6 +32,7 @@ public:
     InvalidArgument = 0,
     NullPointer,
     NotFound,
+    NotImplemented,
     NetworkError,
     CryptoError,
     StreamError,
@@ -145,10 +146,10 @@ class RMSNotImplementedException : public RMSLogicException {
 public:
 
   RMSNotImplementedException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(NullPointer, message) {}
+    : RMSLogicException(NotImplemented, message) {}
 
   RMSNotImplementedException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(NullPointer, message) {}
+    : RMSLogicException(NotImplemented, message) {}
 
   virtual ~RMSNotImplementedException() _NOEXCEPT {}
 };

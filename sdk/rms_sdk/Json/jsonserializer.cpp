@@ -303,12 +303,12 @@ void JsonSerializer::AddUserRightsOrRolesInCustomRequest(
 }
 
 UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
-  vector<uint8_t>& sResponse)
+  vector<uint8_t>& vResponse)
 {
   shared_ptr<IJsonParser> pJsonParser = IJsonParser::Create();
 
   // parse the JSON
-  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(sResponse);
+  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
 
   UsageRestrictionsResponse response;
 
@@ -488,12 +488,12 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
 }
 
 ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
-  vector<uint8_t>& sResponse)
+  vector<uint8_t>& vResponse)
 {
   shared_ptr<IJsonParser> pJsonParser = IJsonParser::Create();
 
   // parse the JSON
-  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(sResponse);
+  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
 
   ServerErrorResponse response;
 
@@ -512,11 +512,11 @@ ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
   return response;
 }
 
-CertificateResponse JsonSerializer::DeserializeCertificateResponse(vector<uint8_t> &sResponse)
+CertificateResponse JsonSerializer::DeserializeCertificateResponse(vector<uint8_t> &vResponse)
 {
     auto pJsonParser = IJsonParser::Create();
 
-    shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(sResponse);
+    shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
 
     CertificateResponse response;
 
@@ -527,12 +527,12 @@ CertificateResponse JsonSerializer::DeserializeCertificateResponse(vector<uint8_
 }
 
 TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(
-  vector<uint8_t>& sResponse)
+  vector<uint8_t>& vResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
   // template list should be an array
-  auto pJsonArray = pJsonParser->ParseArray(sResponse);
+  auto pJsonArray = pJsonParser->ParseArray(vResponse);
 
   TemplateListResponse response;
 
@@ -567,12 +567,12 @@ TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(
   return response;
 }
 
-PublishResponse JsonSerializer::DeserializePublishResponse(vector<uint8_t>& sResponse)
+PublishResponse JsonSerializer::DeserializePublishResponse(vector<uint8_t>& vResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
   // parse the JSON
-  auto pJson = pJsonParser->Parse(sResponse);
+  auto pJson = pJsonParser->Parse(vResponse);
 
   PublishResponse response;
 
@@ -638,12 +638,12 @@ PublishResponse JsonSerializer::DeserializePublishResponse(vector<uint8_t>& sRes
 }
 
 ServiceDiscoveryListResponse JsonSerializer::DeserializeServiceDiscoveryResponse(
-  vector<uint8_t>& sResponse)
+  vector<uint8_t>& vResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
   // service discovery response should be an array
-  auto pJsonArray = pJsonParser->ParseArray(sResponse);
+  auto pJsonArray = pJsonParser->ParseArray(vResponse);
 
   ServiceDiscoveryListResponse response;
 

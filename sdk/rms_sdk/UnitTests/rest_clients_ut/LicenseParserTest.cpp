@@ -19,23 +19,20 @@ using namespace std;
 using namespace rmscore::common;
 using namespace rmscore::restclients;
 
-namespace UnitTests {
-namespace RestClientsUT {
+namespace unittest {
+namespace restclientsut {
 void LicenseParserTest::test_UTF16LE_License()
 {
-    auto data = new uint8_t[PL_0101right_ECB_xml_len];
-    //void* spData(reinterpret_cast<void*>(data));
-    memcpy(data, PL_0101right_ECB_xml, PL_0101right_ECB_xml_len);
-    auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(data, PL_0101right_ECB_xml_len);
-    delete data;
+    auto data = vector<uint8_t>(PL_0101right_ECB_xml_len);
+    memcpy(&data[0], PL_0101right_ECB_xml, PL_0101right_ECB_xml_len);
+    auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(&data[0], PL_0101right_ECB_xml_len);
 }
 
 void LicenseParserTest::test_UTF8_License()
 {
-    auto data = new uint8_t[PL_0101right_CBC_xml_len];
-    //void* spData(reinterpret_cast<void*>(data));
-    memcpy(data, PL_0101right_CBC_xml, PL_0101right_CBC_xml_len);
-    auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(data, PL_0101right_CBC_xml_len);
+    auto data = vector<uint8_t>(PL_0101right_ECB_xml_len);
+    memcpy(&data[0], PL_0101right_CBC_xml, PL_0101right_CBC_xml_len);
+    auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(&data[0], PL_0101right_CBC_xml_len);
 }
 
 } //UnitTests

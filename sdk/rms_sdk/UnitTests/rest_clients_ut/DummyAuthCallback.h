@@ -7,8 +7,8 @@
 using namespace rmscore;
 using namespace rmscore::modernapi;
 
-namespace UnitTests {
-namespace RestClientsUT {
+namespace unittest {
+namespace restclientsut {
 
 class DummyAuthCallback : public IAuthenticationCallbackImpl
 {

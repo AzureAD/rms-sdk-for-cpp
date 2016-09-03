@@ -36,12 +36,12 @@ RSAKeyBlob::RSAKeyBlob(std::vector<uint8_t> privateKey, std::vector<uint8_t> exp
     n = BN_bin2bn(&publicKey[0], publicKey.size(), NULL);
 
     if (checkKey)
-        this->m_rsa = create_and_check(d, n, e);
+        this->m_rsa = CreateAndCheck(d, n, e);
     else
-        this->m_rsa = create_no_check(d, n, e);
+        this->m_rsa = CreateNoCheck(d, n, e);
 }
 
-shared_ptr<RSA> RSAKeyBlob::create_no_check(BIGNUM *d, BIGNUM *n, BIGNUM* e)
+shared_ptr<RSA> RSAKeyBlob::CreateNoCheck(BIGNUM *d, BIGNUM *n, BIGNUM* e)
 {
     shared_ptr<RSA> rsa(RSA_new(), [](RSA* r){ RSA_free(r); });
     rsa->d = d;
@@ -50,7 +50,7 @@ shared_ptr<RSA> RSAKeyBlob::create_no_check(BIGNUM *d, BIGNUM *n, BIGNUM* e)
     return rsa;
 }
 
-shared_ptr<RSA> RSAKeyBlob::create_and_check(BIGNUM *d, BIGNUM *n, BIGNUM* e)
+shared_ptr<RSA> RSAKeyBlob::CreateAndCheck(BIGNUM *d, BIGNUM *n, BIGNUM* e)
 {
     //note to reader: don't modify this function. it works. trust me.
     shared_ptr<RSA> rsa(RSA_new(), [](RSA* r){ RSA_free(r); });
@@ -152,16 +152,16 @@ STEP5:
     throw exceptions::RMSCryptographyException("No prime factorization of given RSA public key");
 }
 
-vector<uint8_t> RSAKeyBlob::Sign(std::vector<uint8_t> digest, uint32_t& outsize)
+vector<uint8_t> RSAKeyBlob::Sign(std::vector<uint8_t> digest, uint32_t& outSize)
 {
-    uint32_t retsize;
+    uint32_t retSize;
     auto rsaSize = RSA_size(m_rsa.get());
-    vector<uint8_t> sigbuf(rsaSize);
-    int32_t ret = RSA_sign(NID_sha1, &digest[0], digest.size(), &sigbuf[0], &retsize, m_rsa.get());
+    vector<uint8_t> sigBuf(rsaSize);
+    int32_t ret = RSA_sign(NID_sha1, &digest[0], digest.size(), &sigBuf[0], &retSize, m_rsa.get());
     if (ret != 1)
         throw exceptions::RMSCryptographyException("RSA_sign failed. Error: " + string(ERR_error_string(ERR_get_error(), NULL)));
-    outsize = retsize;
-    return sigbuf;
+    outSize = retSize;
+    return sigBuf;
 }
 
 bool RSAKeyBlob::VerifySignature(std::vector<uint8_t> signature, std::vector<uint8_t> digest, string& outMsg, uint32_t retsize)
@@ -197,8 +197,22 @@ vector<uint8_t> RSAKeyBlob::PublicEncrypt(std::vector<uint8_t> buffer)
 
 vector<uint8_t> RSAKeyBlob::PrivateDecrypt(std::vector<uint8_t> buffer)
 {
-    Q_UNUSED(buffer);
-    throw exceptions::RMSNotImplementedException("PrivateDecrypt was called, but the function is not implemented.");
+    auto size = RSA_size(m_rsa.get());
+    vector<uint8_t> decryptedKeyBuf(size);
+    int result = RSA_private_decrypt(buffer.size(), &buffer[0], &decryptedKeyBuf[0], m_rsa.get(), RSA_PKCS1_PADDING);
+    if (result == -1)
+    {
+        string ret;
+        unsigned long code;
+        do {
+            code = ERR_get_error();
+            ret += string(ERR_error_string(code, NULL)) + '\n';
+        } while (code != 0);
+        throw exceptions::RMSCryptographyException("Failed to RSA encrypt session key: " + ret);
+    }
+    else if (result != size)
+        throw exceptions::RMSCryptographyException("RSA_public_encrypt returned unexpected size.");
+    return decryptedKeyBuf;
 }
 } //crypto
 } //platform

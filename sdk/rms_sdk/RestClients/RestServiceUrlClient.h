@@ -18,8 +18,8 @@
 
 namespace rmscore {
 namespace restclients {
-// TODO: What this???
-struct MyStringCompare
+
+struct StringComparer
 {
   bool operator()(const std::string& lhs, const std::string& rhs) const
   {
@@ -85,7 +85,7 @@ private:
   static std::shared_ptr<ServiceDiscoveryDetails>FindCache(
     const std::string& sEmail);
   static std::map<std::string, std::shared_ptr<ServiceDiscoveryDetails>,
-                  MyStringCompare> serviceDiscoveryDetailsCache;
+                  StringComparer> serviceDiscoveryDetailsCache;
 
   static void GetConsent(
     modernapi::IConsentCallbackImpl       & consentCallback,

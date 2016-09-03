@@ -85,9 +85,9 @@ void HttpClientQt::AddHeader(const string& headerName,
 }
 
 StatusCode HttpClientQt::Post(const string                     & url,
-                              const vector<uint8_t>          & request,
+                              const vector<uint8_t>            & request,
                               const string                     & mediaType,
-                              vector<uint8_t>                & response,
+                              vector<uint8_t>                  & response,
                               std::shared_ptr<std::atomic<bool> >cancelState)
 {
   Logger::Info("==> HttpClientQt::POST %s", url.data());
