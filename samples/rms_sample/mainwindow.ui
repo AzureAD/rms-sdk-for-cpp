@@ -73,7 +73,7 @@
           <item row="3" column="1" rowspan="2">
            <widget class="QLineEdit" name="lineEdit_resourseId">
             <property name="text">
-             <string>api.aadrm.com</string>
+             <string>api.hostedrms.com</string>
             </property>
            </widget>
           </item>

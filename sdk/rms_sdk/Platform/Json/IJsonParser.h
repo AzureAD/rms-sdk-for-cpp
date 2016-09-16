@@ -22,9 +22,8 @@ class IJsonParser
 {
 public:
     virtual std::shared_ptr<IJsonObject> Parse(const std::vector<uint8_t>& json) = 0;
+    virtual std::shared_ptr<IJsonObject> Parse(const std::string& json) = 0;
     virtual std::shared_ptr<IJsonArray> ParseArray(const std::vector<uint8_t>& jsonArray) = 0;
-
-public:
     static std::shared_ptr<IJsonParser> Create();
 };
 

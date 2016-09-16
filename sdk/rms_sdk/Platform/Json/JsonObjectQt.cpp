@@ -253,6 +253,36 @@ StringArray JsonObjectQt::GetNamedStringArray(const std::string& name)
   return list;
 }
 
+std::shared_ptr<IJsonObject> JsonObjectQt::GetNestedNamedObject(const string &name)
+{
+    QJsonObject jo = this->impl_.toObject();
+    auto objstr = GetNamedString(name, "");
+    string ret = "";
+    uint32_t limit = objstr.size() - 1;
+
+    uint32_t i;
+    for (i = 0; i < limit; i++)
+    {
+        char currchar = objstr[i];
+        char nextchar = objstr[i + 1];
+
+        if (currchar != '\\')
+            ret += currchar;
+        else if (currchar == '\\' && nextchar == '\\')
+        {
+            ++i;
+            while (objstr[i] == '\\')
+            {
+                ++i;
+                ret += objstr[i];
+            }
+        }
+
+    }
+
+    return IJsonParser::Create()->Parse(vector<uint8_t>(ret.begin(), ret.end()));
+}
+
 modernapi::AppDataHashMap JsonObjectQt::ToStringDictionary()
 {
   QVariantMap map =  this->impl_.toObject().toVariantMap();

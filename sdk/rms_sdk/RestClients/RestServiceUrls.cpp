@@ -28,6 +28,19 @@ string RestServiceUrls::GetClientLicensorCertificatesUrl()
 
     return GetServiceRootUrl() + sPath;
 }
+string RestServiceUrls::GetDocTrackingLandingPageUrl()
+{
+    string sPath = "/doctrackinglandingpage";
+
+    return GetServiceRootUrl() + sPath;
+}
+
+string RestServiceUrls::GetPublishedPoliciesUrl()
+{
+    string sPath = "/publishedpolicies";
+
+    return GetServiceRootUrl() + sPath;
+}
 
 string RestServiceUrls::GetTemplatesUrl()
 {

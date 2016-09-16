@@ -30,6 +30,8 @@ std::string ReplaceString(std::string subject,
                           const std::string& search,
                           const std::string& replace, int occurrences = 0);
 
+inline bool isJson(std::string document) { return document[0] == '{'; }
+
 template<typename OP, typename... Args>
 inline void operate_many(OP func, Args&&... args)
 {

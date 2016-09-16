@@ -72,6 +72,9 @@ private:
   virtual StringArray               GetNamedStringArray(const std::string& name)
   override;
 
+  virtual std::shared_ptr<IJsonObject> GetNestedNamedObject(const string &name)
+  override;
+
   virtual modernapi::AppDataHashMap ToStringDictionary() override;
 
   virtual vector<uint8_t>         Stringify(bool withEscaping = true) override;

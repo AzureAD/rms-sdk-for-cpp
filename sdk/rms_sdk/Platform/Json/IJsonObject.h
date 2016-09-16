@@ -50,6 +50,8 @@ public:
 
     virtual StringArray GetNamedStringArray(const std::string &name) = 0;
 
+    virtual std::shared_ptr<IJsonObject> GetNestedNamedObject(const std::string &name) = 0;
+
     virtual modernapi::AppDataHashMap ToStringDictionary() = 0;
 
     virtual std::vector<uint8_t> Stringify(bool withEscaping = true) = 0;

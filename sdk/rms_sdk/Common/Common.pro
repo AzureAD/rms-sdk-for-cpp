@@ -19,4 +19,5 @@ HEADERS += CommonTypes.h \
 
 SOURCES += \
     tools.cpp \
+    Constants.cpp \
     Constants.cpp

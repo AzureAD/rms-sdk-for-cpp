@@ -119,7 +119,19 @@ PublishResponse PublishClient::LocalPublishCommon(bool isAdhoc,
     auto pPayload = IJsonObject::Create();
 
     string clcPubData;
-    auto pCLC = CreateCLC(clcPubData, getCLCCallback, sEmail, authenticationCallback, cancelState);
+    shared_ptr<IJsonObject> pCLC;
+    try
+    {
+        //check if we entirely failed to get a CLC.
+        //this should only occur for onprem use cases.
+        //if it does occur, we will use the old online publishing flow.
+        pCLC = CreateCLC(clcPubData, getCLCCallback, sEmail, authenticationCallback, cancelState);
+    }
+    catch (exceptions::RMSEndpointNotFoundException)
+    {
+        return isAdhoc ? PublishCustom(publishCustomRequest, authenticationCallback, sEmail, cancelState) :
+                         PublishUsingTemplate(publishUsingTemplateRequest, authenticationCallback, sEmail, cancelState);
+    }
     auto pCLCPld = pCLC->GetNamedObject(JsonConstants::PAYLOAD);
 
     auto em = pCLCPld->GetNamedObject(JsonConstants::PUBLIC_DATA)->GetNamedObject(JsonConstants::PAYLOAD)->GetNamedObject(JsonConstants::ISSUED_TO)->GetNamedString(JsonConstants::EMAIL);
@@ -206,7 +218,7 @@ shared_ptr<IJsonObject> PublishClient::CreateCLC(
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   shared_ptr<atomic<bool>> cancelState)
 {
-    string sCLC = getCLCCallback == nullptr ? GetCLC(sEmail, authenticationCallback, cancelState, outClcPubData) : sCLC = getCLCCallback(sEmail, outClcPubData);
+    string sCLC = getCLCCallback == nullptr ? RetrieveCLC(sEmail, authenticationCallback, cancelState, outClcPubData) : sCLC = getCLCCallback(sEmail, outClcPubData);
     return IJsonParser::Create()->Parse(vector<uint8_t>(sCLC.begin(), sCLC.end()));
 }
 
@@ -389,6 +401,7 @@ vector<uint8_t> PublishClient::Escape(vector<uint8_t> source)
 
 vector<uint8_t> PublishClient::Reformat(vector<uint8_t> source, int currentlevel)
 {
+    //TODO: Get rid of this
     string ret(source.begin(), source.end());
     if (currentlevel != 1)
     {
@@ -521,15 +534,20 @@ std::shared_ptr<IJsonArray> PublishClient::ConvertUserRights(const PublishCustom
     return userts;
 }
 
-std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, string& outClcPubData)
+std::string PublishClient::RetrieveCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, string& outClcPubData)
 {
     auto pCache = RestClientCache::Create(RestClientCache::CACHE_ENCRYPTED);
     std::string clientcert;
     auto pcacheresult = GetCLCCache(pCache, sEmail);
+    pcacheresult->CacheMissed = true;
     if (pcacheresult->CacheMissed) //cache missed, we need to get CLC from server
     {
         auto pRestServiceUrlClient = RestServiceUrlClient::Create();
         auto clcUrl = pRestServiceUrlClient->GetClientLicensorCertificatesUrl(sEmail, authenticationCallback, cancelState);
+        if (clcUrl == "")
+        {
+            throw exceptions::RMSEndpointNotFoundException("Could not find ClientLicensorCertificates URL.");
+        }
         auto request = IJsonObject::Create();
         request->SetNamedString("SignatureEncoding", "utf-8");
         auto result = RestHttpClient::Post(clcUrl, request->Stringify(),authenticationCallback, cancelState);
@@ -547,6 +565,7 @@ std::string PublishClient::GetCLC(const std::string& sEmail, modernapi::IAuthent
             auto pos = clc.serializedCert.find(search);
             if (pos == std::string::npos)
                 throw exceptions::RMSInvalidArgumentException("Invalid CLC from server.");
+
             int bracketcount = 1;
             outClcPubData = "{";
             for(uint32_t i = pos + search.size() + 1; i < clc.serializedCert.size(); i++)

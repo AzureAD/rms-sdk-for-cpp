@@ -64,7 +64,19 @@ void OfflinePublishTest::testEncryptBytes()
 
 void OfflinePublishTest::testCreatePLCustom()
 {
-
+    auto pPublishClient = IPublishClient::Create();
+    PublishCustomRequest req(false, false);
+    req.bAllowAuditedExtraction = false;
+    req.bPreferDeprecatedAlgorithms = false;
+    req.name = "test name";
+    UserRightsRequest r;
+    r.users = { "john.smith@microsoft.com" };
+    r.rights = { "OWNER" };
+    req.userRightsList = { r };
+    auto em = "john.smith@microsoft.com";
+    auto d = DummyAuthCallback();
+    auto result = pPublishClient->LocalPublishCustom(req, d, em, nullptr, OfflinePublishTest::generateMockCLC);
+    Q_ASSERT(result.name == req.name);
 }
 
 std::string OfflinePublishTest::generateMockCLC(std::string email, std::string& outCLC)

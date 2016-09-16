@@ -66,7 +66,7 @@ protected:
     const std::string               & email);
 
   //retrives CLC from server or cache, depending on if the cache exists
-  std::string GetCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, std::string &outClcPubData);
+  std::string RetrieveCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, std::string &outClcPubData);
 
   //fixes stray quotes and braces in stringified payload
   std::vector<uint8_t> Reformat(std::vector<uint8_t> source, int currentlevel = 2);

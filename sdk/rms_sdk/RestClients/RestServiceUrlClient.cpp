@@ -236,6 +236,10 @@ GetServiceDiscoveryDetails(
       RestServiceUrls::GetCloudDiagnosticsServerUrl();
     serviceDiscoveryDetails->PerformanceServerUrl =
       RestServiceUrls::GetPerformanceServerUrl();
+    serviceDiscoveryDetails->PublishedPoliciesUrl =
+      RestServiceUrls::GetPublishedPoliciesUrl();
+    serviceDiscoveryDetails->DocTrackingLandingPageUrl =
+      RestServiceUrls::GetDocTrackingLandingPageUrl();
     serviceDiscoveryDetails->ClientLicensorCertificatesUrl =
       RestServiceUrls::GetClientLicensorCertificatesUrl();
 
@@ -415,6 +419,18 @@ GetServiceDiscoveryDetails(
     {
       serviceDiscoveryDetails->PerformanceServerUrl = (*endpoint).uri;
     }
+    else if (_strcmpi((*endpoint).name.c_str(), "doctrackinglandingpage") == 0)
+    {
+      serviceDiscoveryDetails->DocTrackingLandingPageUrl = (*endpoint).uri;
+    }
+    else if (_strcmpi((*endpoint).name.c_str(), "publishedpolicies") == 0)
+    {
+      serviceDiscoveryDetails->PublishedPoliciesUrl = (*endpoint).uri;
+    }
+    else if (_strcmpi((*endpoint).name.c_str(), "clientlicensorcertificates") == 0)
+    {
+      serviceDiscoveryDetails->ClientLicensorCertificatesUrl = (*endpoint).uri;
+    }
   }
 
   if (serviceDiscoveryDetails->EndUserLicensesUrl.empty()) {
@@ -445,7 +461,10 @@ GetServiceDiscoveryDetails(
     serviceDiscoveryDetails->PublishingLicensesUrl.c_str(),
     serviceDiscoveryDetails->TemplatesUrl.c_str(),
     serviceDiscoveryDetails->CloudDiagnosticsServerUrl.c_str(),
-    serviceDiscoveryDetails->PerformanceServerUrl.c_str());
+    serviceDiscoveryDetails->PerformanceServerUrl.c_str(),
+    serviceDiscoveryDetails->DocTrackingLandingPageUrl.c_str(),
+    serviceDiscoveryDetails->PublishedPoliciesUrl.c_str(),
+    serviceDiscoveryDetails->ClientLicensorCertificatesUrl.c_str());
 
   // Store answer only if DNS record was found
   // don't store when dns record was not found as the result could be user's

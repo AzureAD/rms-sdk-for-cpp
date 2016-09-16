@@ -37,7 +37,8 @@ public:
     CryptoError,
     StreamError,
     PFileError,
-    RightsError
+    RightsError,
+    EndpointNotFound
   };
 
   RMSException(const ExceptionTypes type,
@@ -116,6 +117,18 @@ public:
     : RMSLogicException(InvalidArgument, message) {}
 
   virtual ~RMSInvalidArgumentException() _NOEXCEPT {}
+};
+
+class RMSEndpointNotFoundException : public RMSLogicException {
+public:
+
+  RMSEndpointNotFoundException(const std::string& message) _NOEXCEPT
+    : RMSLogicException(EndpointNotFound, message) {}
+
+  RMSEndpointNotFoundException(const char *const& message) _NOEXCEPT
+    : RMSLogicException(EndpointNotFound, message) {}
+
+  virtual ~RMSEndpointNotFoundException() _NOEXCEPT {}
 };
 
 class RMSNullPointerException : public RMSLogicException {
