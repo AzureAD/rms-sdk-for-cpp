@@ -135,10 +135,9 @@ private:
                       const std::string          & originalFileExtension);
 
 
-  static ProtectedFileStream* CreateProtectedFileStream(
-    std::shared_ptr<UserPolicy>         policy,
+  static ProtectedFileStream* CreateProtectedFileStream(std::shared_ptr<UserPolicy>         policy,
     rmscrypto::api::SharedStream        stream,
-    std::shared_ptr<pfile::PfileHeader> header);
+    std::shared_ptr<pfile::PfileHeader> pHeader);
 
 private:
 
