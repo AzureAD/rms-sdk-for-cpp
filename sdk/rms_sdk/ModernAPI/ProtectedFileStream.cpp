@@ -150,10 +150,8 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
                                        static_cast<uint64_t>(-1), // No known
                                                                   // originalFileSize
                                        move(metadata),
-                                       static_cast<uint32_t>(2),  // Major
-                                                                  // version
-                                       static_cast<uint32_t>(1),  // Minor
-                                                                  // version
+                                       static_cast<uint32_t>(rmscore::pfile::MJVERSION_FOR_WRITING),
+                                       static_cast<uint32_t>(rmscore::pfile::MNVERSION_FOR_WRITING),
                                        CleartextRedirectHeader);
 
     headerWriter->Write(stream, pHeader);
