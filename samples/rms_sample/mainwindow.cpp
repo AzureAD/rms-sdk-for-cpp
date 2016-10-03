@@ -647,7 +647,7 @@ vector<UserRights>MainWindow::openRightsDlg() {
     rmscore::modernapi::RightList rights;
     QString tmpStr;
 
-    for (int col = 0; col < 6; ++col) {
+    for (int col = 0, colMax = model.columnCount(); col < colMax; ++col) {
       QStandardItem *item = model.item(row, col);
 
       if (item == nullptr) continue;
@@ -659,7 +659,9 @@ vector<UserRights>MainWindow::openRightsDlg() {
           users.push_back(tmpStr.toStdString());
         }
       } else {
-        rights.push_back(columnsNames[col].toStdString());
+        if(item->checkState() == Qt::CheckState::Checked) {
+          rights.push_back(columnsNames[col].toStdString());
+        }
       }
     }
 
