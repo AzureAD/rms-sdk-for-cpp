@@ -6,6 +6,7 @@
  * ======================================================================
  */
 
+#include <cmath>
 #include <algorithm>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Common/tools.h"
@@ -78,19 +79,20 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
   //	"PreferDeprecatedAlgorithms": ...,
   //	"AllowAuditedExtraction": ...,
   //	"ReferralInfo":...,
-  //  "Descriptors": [
-  //      {       "Name": "Protected by Microsoft AADRM service",
-  //              "Description" : "This email is protected with Microsoft AADRM
-  // service. Your actions may be audited",
-  //              "Language" : "en-us"
-  //      }],
   //	"SignedApplicationData": {
   //          "SignedAppDataName1": "EncryptedAppDataValue1"
   //          "SignedAppDataName2": "EncryptedAppDataValue2"
   //          ...
   //      },
-  // "Policy" : {
-  //	...
+  //    "Policy" : {
+  //          "Descriptors": [{
+  //              "Name": "Protected by Microsoft AADRM service",
+  //              "Description" : "This email is protected with Microsoft AADRM
+  // service. Your actions may be audited",
+  //              "Language" : "en-us"
+  //            }],
+  //	      ...
+  //      }
   // }
 
   pJson->SetNamedBool("PreferDeprecatedAlgorithms",

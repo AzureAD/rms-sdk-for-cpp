@@ -19,14 +19,14 @@ using namespace rmscore::restclients;
 
 void LicenseParserTest::test_UTF16LE_License()
 {
-    shared_ptr<void> spData(reinterpret_cast<void*>(new uint8_t[PL_0101right_ECB_xml_len]));
+    shared_ptr<uint8_t> spData(new uint8_t[PL_0101right_ECB_xml_len]);
     memcpy(spData.get(), PL_0101right_ECB_xml, PL_0101right_ECB_xml_len);
     auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(spData.get(), PL_0101right_ECB_xml_len); 
 }
 
 void LicenseParserTest::test_UTF8_License()
 {
-    shared_ptr<void> spData(reinterpret_cast<void*>(new uint8_t[PL_0101right_CBC_xml_len]));
+    shared_ptr<uint8_t> spData(new uint8_t[PL_0101right_CBC_xml_len]);
     memcpy(spData.get(), PL_0101right_CBC_xml, PL_0101right_CBC_xml_len);
     auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(spData.get(), PL_0101right_CBC_xml_len);
 }

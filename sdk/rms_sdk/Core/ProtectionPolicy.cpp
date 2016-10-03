@@ -423,6 +423,14 @@ void ProtectionPolicy::InitializeKey(restclients::KeyDetailsResponse& response) 
   }
 }
 
+// Used to provide backwards comatibility with older PFileVersions.
+void ProtectionPolicy::ReinitilizeCryptoProvider(rmscrypto::api::CipherMode cipherMode)
+{
+    auto key = m_pCryptoProvider->GetKey();
+    m_cipherMode = cipherMode;
+    m_pCryptoProvider = rmscrypto::api::CreateCryptoProvider(m_cipherMode, key);
+}
+
 void ProtectionPolicy::InitializeValidityTime(
   const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil)
 {

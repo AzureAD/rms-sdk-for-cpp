@@ -20,24 +20,13 @@ private Q_SLOTS:
     void testGetNamedBool(bool enabled = true);
     void testGetNamedBool_data();
 
-//    void testGetNamedNumber(bool enabled = true);
-//    void testGetNamedNumber_data();
-
     void testGetNamedObject(bool enabled = true);
     void testGetNamedObject_data();
-
-//    void testGetNamedArray();
-//    void testGetNamedArray_data();
-
-//    void testToStringDictionary();
-//    void testToStringDictionary_data();
 
     void testStringify();
     void testStringify_data();
 
     void testSetNamedString();
-//    void testSetNamedBool();
-//    void testSetNamedNumber();
     void testSetNamedObject();
     void testSetNamedArray();
 };
