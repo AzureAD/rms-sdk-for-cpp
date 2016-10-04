@@ -28,52 +28,56 @@ struct UserDomain
 
 // DB helper class
 // Provides a wrapper for accessing data from file
-class ConsentDBHelper {
+class ConsentDBHelper
+{
 public:
 
-  static ConsentDBHelper& GetInstance();
+    static ConsentDBHelper& GetInstance();
 
-  bool                    Initialize(
-    const std::string& path = (QStandardPaths::writableLocation(
-                                 QStandardPaths::HomeLocation) +
+    bool Initialize(const std::string& path = (QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
                                "/.ms-ad/").toStdString());
-  void AddApprovedServiceDomain(const std::string& userId,
-                                const std::string& domain);
-  void AddDocumentTrackingConsent(const std::string& userId,
+
+    void AddApprovedServiceDomain(const std::string& userId,
                                   const std::string& domain);
-  bool IsApprovedServiceDomainPresent(
-    const std::string& userId,
-    const std::string& domain);
-  bool IsDocumentTrackingConsentnPresent(
-    const std::string& userId,
-    const std::string& domain);
-  void ClearAllEntriesFromDataBase();
+
+    void AddDocumentTrackingConsent(const std::string& userId,
+                                    const std::string& domain);
+
+    bool IsApprovedServiceDomainPresent(const std::string& userId,
+                                        const std::string& domain);
+
+    bool IsDocumentTrackingConsentnPresent(const std::string& userId,
+                                           const std::string& domain);
+    void ClearAllEntriesFromDataBase();
 
 private:
-  static bool InitializeDb(std::fstream& stream,
-                           const std::string& fullPath,
-                           std::vector<UserDomain>& content);
 
-  bool                   ReadFileContent(std::fstream           & stream,
-                                         std::vector<UserDomain>& content);
-  bool                   IsConsentPresentCommon(const std::string      & userId,
-                                                const std::string      & domain,
-                                                std::vector<UserDomain>& cache);
-  std::vector<UserDomain>GetApprovedDomainsForConsent(
-    const std::string      & userId,
-    const std::string      & domain,
-    std::vector<UserDomain>& cache);
-  std::vector<std::string>GetPossibleDomainNames(const std::string& domain);
-  UserDomain              AddConsentCommon(const std::string& userId,
-                                           const std::string& domain,
-                                           std::fstream     & stream);
-  void                    AddLine(const std::string& line,
-                                  std::fstream     & stream);
+    static bool InitializeDb(std::fstream&            stream,
+                             const std::string&       fullPath,
+                             std::vector<UserDomain>& content);
 
-  const std::string m_serviceUrlDBFileName = std::string(
-    "approvedserviceconsents.db");
-  const std::string m_documentTrackingDBFileName = std::string(
-    "approveddoctrackingconsents.db");
+    static bool ReadFileContent(std::fstream & stream,
+                                std::vector<UserDomain>& content);
+
+    bool IsConsentPresentCommon(const std::string&       userId,
+                                const std::string&       domain,
+                                std::vector<UserDomain>& cache);
+
+    std::vector<UserDomain> GetApprovedDomainsForConsent(const std::string&       userId,
+                                                         const std::string&       domain,
+                                                         std::vector<UserDomain>& cache);
+
+    std::vector<std::string> GetPossibleDomainNames(const std::string& domain);
+
+    UserDomain AddConsentCommon(const std::string& userId,
+                                const std::string& domain,
+                                std::fstream&      stream);
+
+    void AddLine(const std::string& line,
+                 std::fstream&      stream);
+
+  const std::string m_serviceUrlDBFileName = std::string("approvedserviceconsents.db");
+  const std::string m_documentTrackingDBFileName = std::string("approveddoctrackingconsents.db");
   const std::string m_genericUserName = std::string("GENERIC_USER");
   static const std::string logFileName;
   static const std::string logEnableAlways;
@@ -87,6 +91,7 @@ private:
   std::vector<UserDomain> m_serviceUrlCache;
   std::vector<UserDomain> m_docTrackingCache;
 };
+
 } // namespace consent
 } // namespace rmscore
 #endif // _RMS_LIB_CONSENTDBHELPER_H_
