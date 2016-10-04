@@ -105,7 +105,7 @@ void ConsentDBHelper::AddDocumentTrackingConsent(const string& userId, const str
 }
 
 // Helper to add an entry to any of dbs
-UserDomain ConsentDBHelper::AddConsentCommon(const string& userId, const string& domain, fstream     & stream)
+UserDomain ConsentDBHelper::AddConsentCommon(const string& userId, const string& domain, fstream& stream)
 {
     string user = userId.size() == 0 ? m_genericUserName : userId;
     string line = user + string("|") + domain;
@@ -115,8 +115,8 @@ UserDomain ConsentDBHelper::AddConsentCommon(const string& userId, const string&
 }
 
 // Helper to verify whether an entry is present in db
-bool ConsentDBHelper::IsConsentPresentCommon(const string           & userId,
-                                             const string           & domain,
+bool ConsentDBHelper::IsConsentPresentCommon(const string&            userId,
+                                             const string&            domain,
                                              std::vector<UserDomain>& cache)
 {
     vector<string> possibleDomains = GetPossibleDomainNames(domain);
