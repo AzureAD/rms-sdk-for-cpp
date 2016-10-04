@@ -50,6 +50,9 @@ public:
   void ClearAllEntriesFromDataBase();
 
 private:
+  static bool InitializeDb(std::fstream& stream,
+                           const std::string& fullPath,
+                           std::vector<UserDomain>& content);
 
   bool                   ReadFileContent(std::fstream           & stream,
                                          std::vector<UserDomain>& content);
