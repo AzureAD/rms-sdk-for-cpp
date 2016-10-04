@@ -178,7 +178,8 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   string extension = ReadExtension(stream, extensionOffset, extensionLength);
 
   ReadAtOffset(publishingLicense, stream, plOffset, plLength);
-  if ((majorVersion == 2) && (minorVersion == 1))
+  if (((majorVersion == 2) && (minorVersion >= 1)) ||
+       (majorVersion > 2))
   {
     ReadAtOffset(metadata, stream, metadataOffset, metadataLength);
   }
