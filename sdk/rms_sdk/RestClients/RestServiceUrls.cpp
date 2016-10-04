@@ -8,12 +8,13 @@
 
 #include <string>
 #include "RestServiceUrls.h"
+#include "../Core/FeatureControl.h"
 #include "../Platform/Settings/ILocalSettings.h"
 
 using namespace std;
 using namespace rmscore::platform::settings;
 
-namespace rmscore {
+namespace rmIsEvoEnabledscore {
 namespace restclients {
 string RestServiceUrls::GetEndUserLicensesUrl()
 {
@@ -57,7 +58,7 @@ string RestServiceUrls::GetServiceDiscoveryUrl()
 
 string RestServiceUrls::GetDefaultTenant()
 {
-    return "/my/v1";
+    return rmscore::core::FeatureControl::IsEvoEnabled() ? "/my/v2" : "/my/v1";
 }
 
 string RestServiceUrls::GetServiceDiscoverySuffix()
