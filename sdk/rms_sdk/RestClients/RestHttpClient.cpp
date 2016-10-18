@@ -23,121 +23,117 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {
-RestHttpClient::Result RestHttpClient::Get(
-  const std::string                & sUrl,
-  IAuthenticationCallbackImpl      & authenticationCallback,
-  std::shared_ptr<std::atomic<bool> >cancelState)
+RestHttpClient::Result RestHttpClient::Get(const std::string& sUrl,
+    const std::shared_ptr<AuthenticationHandler::AuthenticationHandlerParameters>&  stParams,
+    IAuthenticationCallbackImpl& authenticationCallback,
+    std::shared_ptr<std::atomic<bool>> cancelState)
 {
-  // Performance latency should exclude the time it takes in Authentication and
-  // consent operations
-  auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-                                                                 authenticationCallback,
-                                                                 cancelState);
-  auto parameters = HttpRequestParameters {
-    HTTP_GET,            // type
-    string(sUrl),        // url
-    common::ByteArray(), // requestBody
-    accessToken,         // accessToken
-    cancelState
-  };
+    // Performance latency should exclude the time it takes in Authentication and
+    // consent operations
+    auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
+        stParams,
+        authenticationCallback,
+        cancelState);
 
-  // call the DoHttpRequest() and abandon the call when the cancel event is
-  // signalled (for Office scenarios)
-  return RestHttpClient::DoHttpRequest(move(parameters));
+    auto parameters = HttpRequestParameters {
+        HTTP_GET,            // type
+        string(sUrl),        // Url
+        common::ByteArray(), // requestBody
+        accessToken,         // accessToken
+        cancelState };
+
+    // call the DoHttpRequest() and abandon the call when the cancel event is
+    // signalled (for Office scenarios)
+    return RestHttpClient::DoHttpRequest(move(parameters));
 }
 
-RestHttpClient::Result RestHttpClient::Post(
-  const string                     & sUrl,
-  ByteArray                       && requestBody,
-  IAuthenticationCallbackImpl      & authenticationCallback,
-  std::shared_ptr<std::atomic<bool> >cancelState)
+RestHttpClient::Result RestHttpClient::Post(const string& sUrl,
+    ByteArray&& requestBody,
+    IAuthenticationCallbackImpl& authenticationCallback,
+    std::shared_ptr<std::atomic<bool>> cancelState)
 {
-  // Performance latency should exclude the time it takes in Authentication and
-  // consent operations
-  auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-                                                                 authenticationCallback,
-                                                                 cancelState);
-  auto parameters = HttpRequestParameters {
-    HTTP_POST,         // type
-    string(sUrl),      // url
-    move(requestBody), // requestBody
-    accessToken,       // accessToken
-    cancelState
-  };
+    // Performance latency should exclude the time it takes in Authentication and
+    // consent operations
 
-  // call the DoHttpRequest() and abandon the call when the cancel event is
-  // signalled (for Office scenarios)
-  return RestHttpClient::DoHttpRequest(move(parameters));
+    // empty not needed at the moment for post.
+
+    std::shared_ptr<AuthenticationHandler::AuthenticationHandlerParameters> pParams;
+    auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
+                                                             pParams,
+                                                             authenticationCallback,
+                                                             cancelState);
+    auto parameters = HttpRequestParameters {
+        HTTP_POST,         // type
+        string(sUrl),      // Url
+        move(requestBody), // requestBody
+        accessToken,       // accessToken
+        cancelState };
+
+    // call the DoHttpRequest() and abandon the call when the cancel event is
+    // signalled (for Office scenarios)
+    return RestHttpClient::DoHttpRequest(move(parameters));
 }
 
-RestHttpClient::Result RestHttpClient::DoHttpRequest(
-  const HttpRequestParameters& parameters)
+RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters& parameters)
 {
-  shared_ptr<IHttpClient> pHttpClient = IHttpClient::Create();
+    shared_ptr<IHttpClient> pHttpClient = IHttpClient::Create();
 
-  // generate a request id (i.e., a new ScenarioId and a new CorrelationId)
-  string requestId = GenerateRequestId();
+    // generate a request id (i.e., a new ScenarioId and a new CorrelationId)
+    string requestId = GenerateRequestId();
 
-  // Add headers
-  pHttpClient->AddAcceptMediaTypeHeader("application/json");
-  pHttpClient->AddHeader("content-type", "application/json");
-  pHttpClient->AddAcceptLanguageHeader(ConstructLanguageHeader());
-  pHttpClient->AddAuthorizationHeader(ConstructAuthTokenHeader(parameters.
-                                                               accessToken));
-  pHttpClient->AddHeader("x-ms-rms-request-id", requestId);
+    // Add headers
+    pHttpClient->AddAcceptMediaTypeHeader("application/json");
+    pHttpClient->AddHeader("content-type", "application/json");
+    pHttpClient->AddAcceptLanguageHeader(ConstructLanguageHeader());
+    pHttpClient->AddAuthorizationHeader(ConstructAuthTokenHeader(parameters.accessToken));
+    pHttpClient->AddHeader("x-ms-rms-request-id", requestId);
 
-  // x-ms-rms-platform-id header consists of AppName, AppVersion, SDKVersion,
-  // AppPublisherId, AppPublisherName, UniqueClientID
-  if (platformIdHeaderCache.size() == 0)
-  {
-    platformIdHeaderCache = GetPlatformIdHeader();
-  }
 
-  pHttpClient->AddHeader("x-ms-rms-platform-id", platformIdHeaderCache);
+    // x-ms-rms-platform-id header consists of AppName, AppVersion, SDKVersion,
+    // AppPublisherId, AppPublisherName, UniqueClientID
+    if (m_sPlatformIdHeaderCache.size() == 0)
+    {
+        m_sPlatformIdHeaderCache = GetPlatformIdHeader();
+    }
 
-  Result result;
+    pHttpClient->AddHeader("x-ms-rms-platform-id", m_sPlatformIdHeaderCache);
 
-  switch (parameters.type)
-  {
-  case HTTP_POST:
+    Result result;
 
-    Logger::Hidden(
-      "RestHttpClient::DoHttpRequest doing http POST to %s, Request-ID: %s",
-      parameters.requestUrl.c_str(),
-      requestId.c_str());
+    switch (parameters.type)
+    {
+        case HTTP_POST:
+        {
+            Logger::Hidden("RestHttpClient::DoHttpRequest doing http POST to %s, Request-ID: %s",
+                parameters.requestUrl.c_str(),
+                requestId.c_str());
 
-    result.status = pHttpClient->Post(
-      parameters.requestUrl,
-      parameters.requestBody, std::string("application/json"),
-      result.responseBody,
-      parameters.cancelState);
+            result.status = pHttpClient->Post(parameters.requestUrl,
+                parameters.requestBody, std::string("application/json"),
+                result.responseBody,
+                parameters.cancelState);
+        }
+        break;
+        case HTTP_GET:
+        {
+            Logger::Hidden("RestHttpClient::DoHttpRequest doing http GET to %s, Request-ID: %s",
+                parameters.requestUrl.c_str(),
+                requestId.c_str());
 
-    break;
+            result.status = pHttpClient->Get(parameters.requestUrl, result.responseBody, parameters.cancelState);
+        }
+        break;
+    }
 
-  case HTTP_GET:
+    Logger::Hidden("RestHttpClient::DoHttpRequest returned status code: %d", (int)result.status);
 
-    Logger::Hidden(
-      "RestHttpClient::DoHttpRequest doing http GET to %s, Request-ID: %s",
-      parameters.requestUrl.c_str(),
-      requestId.c_str());
-
-    result.status = pHttpClient->Get(
-      parameters.requestUrl, result.responseBody,
-      parameters.cancelState);
-
-    break;
-  }
-
-  Logger::Hidden("RestHttpClient::DoHttpRequest returned status code: %d",
-                 (int)result.status);
-
-  return result;
+    return result;
 }
 
 string RestHttpClient::ConstructAuthTokenHeader(const string& accessToken)
 {
-  // prefix with "Bearer "
-  return "Bearer " + accessToken;
+    // prefix with "Bearer "
+    return "Bearer " + accessToken;
 }
 
 string RestHttpClient::ConstructLanguageHeader()
@@ -169,6 +165,6 @@ string RestHttpClient::GetPlatformIdHeader()
   return platformId;
 }
 
-string RestHttpClient::platformIdHeaderCache = GetPlatformIdHeader();
+string RestHttpClient::m_sPlatformIdHeaderCache = GetPlatformIdHeader();
 } // namespace restclients
 } // namespace rmscore

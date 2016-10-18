@@ -7,7 +7,7 @@ namespace core {
 class FeatureControl
 {
 public:
-    static const bool IsEvoEnabled() {return IS_EVO_ENABLED;}
+    static bool IsEvoEnabled() {return IS_EVO_ENABLED;}
 
 private:
     static const bool IS_EVO_ENABLED = true;

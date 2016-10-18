@@ -14,7 +14,7 @@
 using namespace std;
 using namespace rmscore::platform::settings;
 
-namespace rmIsEvoEnabledscore {
+namespace rmscore {
 namespace restclients {
 string RestServiceUrls::GetEndUserLicensesUrl()
 {
@@ -58,7 +58,17 @@ string RestServiceUrls::GetServiceDiscoveryUrl()
 
 string RestServiceUrls::GetDefaultTenant()
 {
-    return rmscore::core::FeatureControl::IsEvoEnabled() ? "/my/v2" : "/my/v1";
+    return rmscore::core::FeatureControl::IsEvoEnabled() ? GetTenantV2(): GetTenantV1();
+}
+
+string RestServiceUrls::GetTenantV1()
+{
+    return "/my/v1";
+}
+
+string RestServiceUrls::GetTenantV2()
+{
+    return "/my/v2";
 }
 
 string RestServiceUrls::GetServiceDiscoverySuffix()

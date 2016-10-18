@@ -13,10 +13,12 @@
 #include "IDnsLookupClient.h"
 #include "LicenseParser.h"
 #include "ServiceDiscoveryClient.h"
+#include "../Common/tools.h"
+#include "../Core/FeatureControl.h"
+#include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Settings/ILocalSettings.h"
 #include "../Platform/Logger/Logger.h"
-#include "../ModernAPI/RMSExceptions.h"
-#include "../Common/tools.h"
+
 using namespace std;
 using namespace rmscore::modernapi;
 using namespace rmscore::common;
@@ -231,13 +233,17 @@ GetServiceDiscoveryDetails(
   }
 
   // Figure out the domain(s).
-  vector<shared_ptr<Domain> > domains;
-
+  vector<shared_ptr<Domain>> domains;
+  shared_ptr<string> pServerPublicCertificate;
   if (pbPublishLicense != nullptr)
   {
     Logger::Hidden("Using publishLicense to create domain");
-    domains = LicenseParser::ExtractDomainsFromPublishingLicense(pbPublishLicense,
-                                                                 cbPublishLicense);
+    auto pLicenseParserResult = LicenseParser::ParsePublishingLicense(pbPublishLicense, cbPublishLicense);
+    domains = pLicenseParserResult->GetDomains();
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
+    {
+        pServerPublicCertificate = pLicenseParserResult->GetServerPublicCertificate();
+    }
   }
   else
   {
@@ -361,8 +367,11 @@ GetServiceDiscoveryDetails(
   shared_ptr<IServiceDiscoveryClient> serviceDiscoveryClient =
     IServiceDiscoveryClient::Create();
   auto serviceDiscoveryResponse =
-    serviceDiscoveryClient->GetServiceDiscoveryDetails(
-      *selectedDomain, authenticationCallback, discoveryUrl, cancelState);
+    serviceDiscoveryClient->GetServiceDiscoveryDetails(*selectedDomain,
+      pServerPublicCertificate,
+      authenticationCallback,
+      discoveryUrl,
+      cancelState);
 
   auto serviceDiscoveryDetails = make_shared<ServiceDiscoveryDetails>();
   serviceDiscoveryDetails->Ttl = static_cast<uint32_t>(-1); // TODO : Currently

@@ -6,13 +6,17 @@
  * ======================================================================
 */
 
-#include "../ModernAPI/RMSExceptions.h"
 #include "../Common/FrameworkSpecificTypes.h"
 #include "../Common/CommonTypes.h"
+#include "../Core/FeatureControl.h"
+#include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Xml/IDomDocument.h"
 #include "../Platform/Xml/IDomElement.h"
-#include "LicenseParser.h"
+
 #include "CXMLUtils.h"
+#include "LicenseParser.h"
+
+
 
 using namespace std;
 
@@ -20,27 +24,31 @@ namespace rmscore
 {
 namespace restclients 
 {
+
+static const string EXTRANET_XPATH =
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
+static const string INTRANET_XPATH =
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
+static const string SLC_XPATH =
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/ISSUEDPRINCIPALS/PRINCIPAL/PUBLICKEY/PARAMETER[@name='modulus']/VALUE/text()";
+
 const uint8_t BOM_UTF8[] = {0xef, 0xbb, 0xbf};
 
-const vector<shared_ptr<Domain> >LicenseParser::
-ExtractDomainsFromPublishingLicense(const void *pbPublishLicense,
-                                    size_t      cbPublishLicense)
+const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicense(const void *pbPublishLicense,
+                                                                size_t cbPublishLicense)
 {
-    return ExtractDomainsFromPublishingLicenseInner(pbPublishLicense,
-                                                  cbPublishLicense);
+    return ParsePublishingLicenseInner(pbPublishLicense, cbPublishLicense);
 }
 
-const vector<shared_ptr<Domain> >LicenseParser::
-ExtractDomainsFromPublishingLicenseInner(const void *pbPublishLicense,
-                                         size_t      cbPublishLicense)
+const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner(const void *pbPublishLicense,
+                                                                     size_t cbPublishLicense)
 {
     string publishLicense;
-    if ((cbPublishLicense > sizeof(BOM_UTF8)) &&
-        (memcmp(pbPublishLicense, BOM_UTF8, sizeof(BOM_UTF8)) == 0))
+    if ((cbPublishLicense > sizeof(BOM_UTF8)) && (memcmp(pbPublishLicense, BOM_UTF8, sizeof(BOM_UTF8)) == 0))
     {
         string utf8NoBOM(reinterpret_cast<const uint8_t *>(pbPublishLicense) + sizeof(BOM_UTF8),
-                        reinterpret_cast<const uint8_t *>(pbPublishLicense) +
-                        cbPublishLicense);
+                         reinterpret_cast<const uint8_t *>(pbPublishLicense) +
+                         cbPublishLicense);
         publishLicense = utf8NoBOM;
     }
     else if (cbPublishLicense % 2 == 0)
@@ -62,11 +70,6 @@ ExtractDomainsFromPublishingLicenseInner(const void *pbPublishLicense,
     string publishLicenseWithRoot;
     CXMLUtils::WrapWithRoot(publishLicense.c_str(), finalSize, publishLicenseWithRoot);
 
-    string extranetXpath =
-        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
-    string intranetXpath =
-        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
-
     auto document = IDomDocument::create();
     std::string errMsg;
     int errLine   = 0;
@@ -83,15 +86,11 @@ ExtractDomainsFromPublishingLicenseInner(const void *pbPublishLicense,
                                           exceptions::RMSNetworkException::InvalidPL);
     }
 
-    auto extranetDomainNode = document->SelectSingleNode(extranetXpath);
-    auto intranetDomainNode = document->SelectSingleNode(intranetXpath);
+    auto extranetDomainNode = document->SelectSingleNode(EXTRANET_XPATH);
+    auto intranetDomainNode = document->SelectSingleNode(INTRANET_XPATH);
 
-    string extranetDomain = (nullptr != extranetDomainNode.get())
-                          ? extranetDomainNode->text()
-                          : string();
-    string intranetDomain = (nullptr != intranetDomainNode.get())
-                          ? intranetDomainNode->text()
-                          : string();
+    string extranetDomain = (nullptr != extranetDomainNode.get()) ? extranetDomainNode->text() : string();
+    string intranetDomain = (nullptr != intranetDomainNode.get()) ? intranetDomainNode->text() : string();
 
     vector<shared_ptr<Domain> > domains;
 
@@ -114,7 +113,23 @@ ExtractDomainsFromPublishingLicenseInner(const void *pbPublishLicense,
         throw exceptions::RMSNetworkException("Invalid domains publishing license",
                                           exceptions::RMSNetworkException::InvalidPL);
     }
-    return domains;
+
+    shared_ptr<LicenseParserResult> result;
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
+    {
+        auto slcNode = document->SelectSingleNode(SLC_XPATH);
+        if (nullptr == slcNode.get())
+        {
+            throw exceptions::RMSNetworkException("Server public certificate",
+                                              exceptions::RMSNetworkException::InvalidPL);
+        }
+        result = make_shared<LicenseParserResult>(LicenseParserResult(domains, make_shared<string>(slcNode->text())));
+    }
+    else
+    {
+        result = make_shared<LicenseParserResult>(domains);
+    }
+    return result;
 }
 } // namespace restclients
 } // namespace rmscore

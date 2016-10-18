@@ -7,13 +7,17 @@
  */
 
 #include <memory>
-#include "../ModernAPI/RMSExceptions.h"
+
 #include "../Json/jsonserializer.h"
-#include "../RestClients/RestServiceUrlClient.h"
-#include "../RestClients/RestHttpClient.h"
-#include "../RestClients/IRestClientCache.h"
+#include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Logger/Logger.h"
+#include "../RestClients/IRestClientCache.h"
+#include "../RestClients/RestServiceUrlClient.h"
+#include "../RestClients/RestHttpClient.h"
+
+#include "AuthenticationHandler.h"
+#include "LicenseParser.h"
 #include "RestClientErrorHandling.h"
 #include "UsageRestrictionsClient.h"
 
