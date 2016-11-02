@@ -14,6 +14,7 @@
 #include <string>
 
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
+#include "../Common/CommonTypes.h"
 
 namespace rmscore {
 namespace restclients {
@@ -29,17 +30,25 @@ public:
         std::string m_ServiceDiscoverUrl; // Relevant When doing service discovery. For EVO STS.
     };
     static std::string GetAccessTokenForUrl(const std::string& sUrl,
-                                            const std::shared_ptr<AuthenticationHandlerParameters>& stParams,
+                                            const AuthenticationHandlerParameters &authParams,
                                             modernapi::IAuthenticationCallbackImpl& callback,
                                             std::shared_ptr<std::atomic<bool>> cancelState);
 
-    static const std::string SLC_HEADER_KEY;
-    static const std::string SERVICE_URL_HEADER_KEY;
+    static std::string GetAccessTokenForUrl(const std::string& sUrl,
+                                            common::ByteArray&& requestBody,
+                                            modernapi::IAuthenticationCallbackImpl& callback,
+                                            std::shared_ptr<std::atomic<bool>> cancelState);
+
+
 
 private:
 
     static modernapi::AuthenticationChallenge GetChallengeForUrl(const std::string& sUrl,
-        const std::shared_ptr<AuthenticationHandlerParameters>& stParams,
+        const AuthenticationHandlerParameters& authParams,
+        std::shared_ptr<std::atomic<bool>> cancelState);
+
+    static modernapi::AuthenticationChallenge GetChallengeForUrl(const std::string& sUrl,
+        common::ByteArray&& requestBody,
         std::shared_ptr<std::atomic<bool>> cancelState);
 
     static modernapi::AuthenticationChallenge ParseChallengeHeader(const std::string& header,

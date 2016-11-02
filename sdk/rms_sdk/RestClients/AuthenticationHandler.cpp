@@ -28,13 +28,14 @@ using namespace std;
 namespace rmscore {
 namespace restclients {
 
-const std::string AuthenticationHandler::SLC_HEADER_KEY = "x-ms-rms-slc-key";
-const std::string AuthenticationHandler::SERVICE_URL_HEADER_KEY = "x-ms-rms-service-url";
-
+namespace {
+    const std::string SLC_HEADER_KEY = "x-ms-rms-slc-key";
+    const std::string SERVICE_URL_HEADER_KEY = "x-ms-rms-service-url";
+}
 
 
 string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
-      const std::shared_ptr<AuthenticationHandlerParameters>& stParams,
+      const AuthenticationHandlerParameters& authParams,
       IAuthenticationCallbackImpl& callback,
       std::shared_ptr<std::atomic<bool>> cancelState)
 {
@@ -44,7 +45,25 @@ string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
     // for now)
     if (callback.NeedsChallenge())
     {
-        challenge = GetChallengeForUrl(sUrl, stParams, cancelState);
+        challenge = GetChallengeForUrl(sUrl, authParams, cancelState);
+    }
+
+    return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
+                                   challenge));
+}
+
+string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
+                                                   common::ByteArray&& requestBody,
+                                                   IAuthenticationCallbackImpl& callback,
+                                                   std::shared_ptr<std::atomic<bool>> cancelState)
+{
+    AuthenticationChallenge challenge;
+
+    // get the challenge only if needed (e.g., it's not needed in Office case
+    // for now)
+    if (callback.NeedsChallenge())
+    {
+        challenge = GetChallengeForUrl(sUrl, move(requestBody), cancelState);
     }
 
     return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
@@ -52,18 +71,58 @@ string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
 }
 
 AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& sUrl,
-    const std::shared_ptr<AuthenticationHandlerParameters>& stParams,
+    common::ByteArray&& requestBody,
+    std::shared_ptr<std::atomic<bool>> cancelState)
+{
+    // do a dummy get to the url to get the auth challenge
+
+    auto pHttpClient = IHttpClient::Create();
+    common::ByteArray response;
+
+    pHttpClient->AddHeader("content-type", "application/json");
+    StatusCode nStatusCode = pHttpClient->Post(sUrl,
+                                               requestBody,
+                                               std::string("application/json"),
+                                               response,
+                                               cancelState);
+
+    // this must be an authenticated endpoint and we must get a 401
+    // (unauthorized).
+    // Otherwise, there is something wrong with the server
+    if (StatusCode::UNAUTHORIZED != nStatusCode)
+    {
+        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+    }
+
+    try
+    {
+        // the challenge must be in WWW-Authenticate header
+        auto header = pHttpClient->GetResponseHeader("WWW-Authenticate");
+        return ParseChallengeHeader(header, sUrl);
+    }
+    catch (exceptions::RMSException)
+    {
+        // if couldn't find the header or couldn't parse it, that means the server
+        // returned an invalid response.
+        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+    }
+}
+
+AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& sUrl,
+    const AuthenticationHandlerParameters& authParams,
     std::shared_ptr<std::atomic<bool> >cancelState)
 {
     // do a dummy get to the url to get the auth challenge
 
     auto pHttpClient = IHttpClient::Create();
-
     common::ByteArray response;
-    if (rmscore::core::FeatureControl::IsEvoEnabled() && (stParams.get() != nullptr))
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
     {
-        pHttpClient->AddHeader(SLC_HEADER_KEY, stParams->m_ServerPublicCertificate);
-        pHttpClient->AddHeader(SERVICE_URL_HEADER_KEY, stParams->m_ServiceDiscoverUrl);
+        if (!authParams.m_ServerPublicCertificate.empty() && !authParams.m_ServiceDiscoverUrl.empty())
+        {
+            pHttpClient->AddHeader(SLC_HEADER_KEY, authParams.m_ServerPublicCertificate);
+            pHttpClient->AddHeader(SERVICE_URL_HEADER_KEY, authParams.m_ServiceDiscoverUrl);
+        }
     }
 
     StatusCode nStatusCode = pHttpClient->Get(sUrl, response, cancelState);
@@ -89,6 +148,7 @@ AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& 
         throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
     }
 }
+
 
 // trims the specified characters
 static string TrimString(const string& str, const char *sCharacters)

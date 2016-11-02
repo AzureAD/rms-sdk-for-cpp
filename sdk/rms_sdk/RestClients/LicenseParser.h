@@ -33,6 +33,8 @@ private:
 
   static const shared_ptr<LicenseParserResult> ParsePublishingLicenseInner(const void* pbPublishLicense,
                                                                            size_t cbPublishLicense);
+
+  static void RemoveTrailingNewLine(string& str);
 };
 
 } // namespace restclients

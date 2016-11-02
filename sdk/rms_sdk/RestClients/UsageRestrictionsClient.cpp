@@ -18,6 +18,7 @@
 
 #include "AuthenticationHandler.h"
 #include "LicenseParser.h"
+#include "LicenseParserResult.h"
 #include "RestClientErrorHandling.h"
 #include "UsageRestrictionsClient.h"
 
@@ -63,9 +64,12 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
     request);
 
   auto pRestServiceUrlClient = IRestServiceUrlClient::Create();
-  auto endUserLicenseUrl     = pRestServiceUrlClient->GetEndUserLicensesUrl(
-    request.pbPublishLicense,
-    request.cbPublishLicense,
+  auto licenseParserResult = LicenseParser::ParsePublishingLicense(request.pbPublishLicense,
+    request.cbPublishLicense);
+
+
+  auto endUserLicenseUrl = pRestServiceUrlClient->GetEndUserLicensesUrl(
+    licenseParserResult,
     email,
     authCallback,
     consentCallback,

@@ -24,14 +24,14 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace restclients {
 RestHttpClient::Result RestHttpClient::Get(const std::string& sUrl,
-    const std::shared_ptr<AuthenticationHandler::AuthenticationHandlerParameters>&  stParams,
+    const AuthenticationHandler::AuthenticationHandlerParameters&  authParams,
     IAuthenticationCallbackImpl& authenticationCallback,
     std::shared_ptr<std::atomic<bool>> cancelState)
 {
     // Performance latency should exclude the time it takes in Authentication and
     // consent operations
     auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-        stParams,
+        authParams,
         authenticationCallback,
         cancelState);
 
@@ -57,11 +57,11 @@ RestHttpClient::Result RestHttpClient::Post(const string& sUrl,
 
     // empty not needed at the moment for post.
 
-    std::shared_ptr<AuthenticationHandler::AuthenticationHandlerParameters> pParams;
     auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-                                                             pParams,
-                                                             authenticationCallback,
-                                                             cancelState);
+        move(requestBody), // requestBody
+        authenticationCallback,
+        cancelState);
+
     auto parameters = HttpRequestParameters {
         HTTP_POST,         // type
         string(sUrl),      // Url

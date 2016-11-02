@@ -33,9 +33,10 @@ TemplateListResponse TemplatesClient::GetTemplates(modernapi::IAuthenticationCal
                                                                       authenticationCallback,
                                                                       cancelState);
 
+    AuthenticationHandler::AuthenticationHandlerParameters authParams;
     auto result =
     RestHttpClient::Get(templatesUrl,
-      make_shared<AuthenticationHandler::AuthenticationHandlerParameters>(),
+      authParams,
       authenticationCallback,
       cancelState);
 

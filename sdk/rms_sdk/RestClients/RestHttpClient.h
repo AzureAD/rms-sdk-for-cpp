@@ -30,7 +30,7 @@ public:
     };
 
     static Result Get(const std::string& sUrl,
-        const std::shared_ptr<AuthenticationHandler::AuthenticationHandlerParameters> &stParams,
+        const AuthenticationHandler::AuthenticationHandlerParameters &authParams,
         modernapi::IAuthenticationCallbackImpl& authenticationCallback,
         std::shared_ptr<std::atomic<bool> >     cancelState);
 

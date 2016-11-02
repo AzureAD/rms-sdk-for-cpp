@@ -43,12 +43,16 @@ ServiceDiscoveryListResponse ServiceDiscoveryClient::GetServiceDiscoveryDetails(
     auto url = this->CreateGetRequest(discoveryUrl, domain);
     // Make sure stParams is filled, and get the original domain input used to generate the domain
 
-    std::shared_ptr<AuthenticationHandler::AuthenticationHandlerParameters> pAuthParams(
-                new AuthenticationHandler::AuthenticationHandlerParameters({
-                    std::string(*pServerPublicCertificate),
-                    std::string(domain.GetOriginalInput())}));
+    std::string publicCertificate(pServerPublicCertificate.get() == nullptr ? "" : *pServerPublicCertificate);
+    std::string originalInput(domain.GetOriginalInput());
 
-    auto result = RestHttpClient::Get(url, pAuthParams, authenticationCallback, cancelState);
+    auto authParams = AuthenticationHandler::AuthenticationHandlerParameters
+    {
+        publicCertificate,
+        originalInput
+    };
+
+    auto result = RestHttpClient::Get(url, authParams, authenticationCallback, cancelState);
 
     if (result.status != http::StatusCode::OK)
     {

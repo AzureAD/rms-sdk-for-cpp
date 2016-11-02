@@ -25,12 +25,14 @@ namespace rmscore
 namespace restclients 
 {
 
-static const string EXTRANET_XPATH =
+namespace {
+    const string EXTRANET_XPATH =
         "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
-static const string INTRANET_XPATH =
+    const string INTRANET_XPATH =
         "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
-static const string SLC_XPATH =
+    const string SLC_XPATH =
         "/Root/XrML/BODY[@type='Microsoft Rights Label']/ISSUEDPRINCIPALS/PRINCIPAL/PUBLICKEY/PARAMETER[@name='modulus']/VALUE/text()";
+}
 
 const uint8_t BOM_UTF8[] = {0xef, 0xbb, 0xbf};
 
@@ -89,9 +91,10 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
     auto extranetDomainNode = document->SelectSingleNode(EXTRANET_XPATH);
     auto intranetDomainNode = document->SelectSingleNode(INTRANET_XPATH);
 
-    string extranetDomain = (nullptr != extranetDomainNode.get()) ? extranetDomainNode->text() : string();
-    string intranetDomain = (nullptr != intranetDomainNode.get()) ? intranetDomainNode->text() : string();
-
+    auto extranetDomain = (nullptr != extranetDomainNode.get()) ? extranetDomainNode->text() : string();
+    RemoveTrailingNewLine(extranetDomain);
+    auto intranetDomain = (nullptr != intranetDomainNode.get()) ? intranetDomainNode->text() : string();
+    RemoveTrailingNewLine(intranetDomain);
     vector<shared_ptr<Domain> > domains;
 
     if (!extranetDomain.empty())
@@ -123,7 +126,11 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
             throw exceptions::RMSNetworkException("Server public certificate",
                                               exceptions::RMSNetworkException::InvalidPL);
         }
-        result = make_shared<LicenseParserResult>(LicenseParserResult(domains, make_shared<string>(slcNode->text())));
+        auto publicCertificate = slcNode->text();
+        RemoveTrailingNewLine(publicCertificate);
+
+        result = make_shared<LicenseParserResult>(LicenseParserResult(domains,
+                                                                      make_shared<string>(publicCertificate)));
     }
     else
     {
@@ -131,5 +138,28 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
     }
     return result;
 }
+
+void LicenseParser::RemoveTrailingNewLine(string& str)
+{
+    if (str.empty())
+    {
+        return;
+    }
+    if (str.length() > 1)
+    {
+        // Support linux style newline.
+        if ((str[str.length() - 2] == '\r') && (str[str.length() - 1] == '\n'))
+        {
+            str.erase(str.length() - 2);
+            return;
+        }
+    }
+    if (str[str.length() - 1] == '\n')
+    {
+        str.erase(str.length() - 1);
+    }
+
+}
+
 } // namespace restclients
 } // namespace rmscore
