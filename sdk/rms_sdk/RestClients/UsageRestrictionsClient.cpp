@@ -7,13 +7,18 @@
  */
 
 #include <memory>
-#include "../ModernAPI/RMSExceptions.h"
+
 #include "../Json/jsonserializer.h"
-#include "../RestClients/RestServiceUrlClient.h"
-#include "../RestClients/RestHttpClient.h"
-#include "../RestClients/IRestClientCache.h"
+#include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Logger/Logger.h"
+#include "../RestClients/IRestClientCache.h"
+#include "../RestClients/RestServiceUrlClient.h"
+#include "../RestClients/RestHttpClient.h"
+
+#include "AuthenticationHandler.h"
+#include "LicenseParser.h"
+#include "LicenseParserResult.h"
 #include "RestClientErrorHandling.h"
 #include "UsageRestrictionsClient.h"
 
@@ -59,9 +64,12 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
     request);
 
   auto pRestServiceUrlClient = IRestServiceUrlClient::Create();
-  auto endUserLicenseUrl     = pRestServiceUrlClient->GetEndUserLicensesUrl(
-    request.pbPublishLicense,
-    request.cbPublishLicense,
+  auto licenseParserResult = LicenseParser::ParsePublishingLicense(request.pbPublishLicense,
+    request.cbPublishLicense);
+
+
+  auto endUserLicenseUrl = pRestServiceUrlClient->GetEndUserLicensesUrl(
+    licenseParserResult,
     email,
     authCallback,
     consentCallback,

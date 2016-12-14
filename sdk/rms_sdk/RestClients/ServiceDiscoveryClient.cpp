@@ -6,16 +6,20 @@
  * ======================================================================
  */
 
-#include "ServiceDiscoveryClient.h"
+#include <locale>
+#include <sstream>
+#include <string>
+
+#include "../Core/FeatureControl.h"
+#include "../Json/IJsonSerializer.h"
+#include "../Platform/Logger/Logger.h"
+#include "../ModernAPI/RMSExceptions.h"
+
 #include "RestHttpClient.h"
 #include "RestServiceUrls.h"
 #include "RestClientErrorHandling.h"
-#include "../Json/IJsonSerializer.h"
-#include "../Platform/Logger/Logger.h"
-#include <string>
-#include <locale>
-#include <sstream>
-#include "../ModernAPI/RMSExceptions.h"
+#include "ServiceDiscoveryClient.h"
+
 
 using namespace rmscore::platform;
 using namespace rmscore::platform::logger;
@@ -30,27 +34,34 @@ std::shared_ptr<IServiceDiscoveryClient>IServiceDiscoveryClient::Create()
   return std::make_shared<ServiceDiscoveryClient>();
 }
 
-ServiceDiscoveryListResponse ServiceDiscoveryClient::GetServiceDiscoveryDetails(
-  const Domain                          & domain,
-  modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                     & discoveryUrl,
-  std::shared_ptr<std::atomic<bool> >     cancelState)
+ServiceDiscoveryListResponse ServiceDiscoveryClient::GetServiceDiscoveryDetails(const Domain & domain,
+    const std::shared_ptr<std::string>& pServerPublicCertificate,
+    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+    const std::string& discoveryUrl,
+    std::shared_ptr<std::atomic<bool>> cancelState)
 {
-  auto url = this->CreateGetRequest(discoveryUrl, domain);
+    auto url = this->CreateGetRequest(discoveryUrl, domain);
+    // Make sure stParams is filled, and get the original domain input used to generate the domain
 
-  auto result = RestHttpClient::Get(
-    url,
-    authenticationCallback,
-    cancelState);
+    std::string publicCertificate(pServerPublicCertificate.get() == nullptr ? "" : *pServerPublicCertificate);
+    std::string originalInput(domain.GetOriginalInput());
 
-  if (result.status != http::StatusCode::OK)
-  {
-    HandleRestClientError(result.status, result.responseBody);
-  }
+    auto authParams = AuthenticationHandler::AuthenticationHandlerParameters
+    {
+        publicCertificate,
+        originalInput
+    };
 
-  auto pJsonSerializer = json::IJsonSerializer::Create();
+    auto result = RestHttpClient::Get(url, authParams, authenticationCallback, cancelState);
 
-  return pJsonSerializer->DeserializeServiceDiscoveryResponse(result.responseBody);
+    if (result.status != http::StatusCode::OK)
+    {
+        HandleRestClientError(result.status, result.responseBody);
+    }
+
+    auto pJsonSerializer = json::IJsonSerializer::Create();
+
+    return pJsonSerializer->DeserializeServiceDiscoveryResponse(result.responseBody);
 }
 
 static std::locale s_loc;
@@ -85,20 +96,48 @@ std::string ServiceDiscoveryClient::CreateGetRequest(
     ss << HTTPS_PROTOCOL;
   }
 
-  ss << discoveryUrl;
-
-  // discovery service URL is received in two forms
-  // e.g. 1 - https://<domain>
-  // e.g. 2 - https://<domain>/my/v1/servicediscovery
+  // discovery service URL is received in several possible forms. due to dns entries being set differently.
+  // For all of these the scheme was added in the previous step (http vs https check).
+  // e.g. 1 - https://<domain>/my/v1/servicediscovery -> if is IsEvoEnabledChange it to v2.
+  // e.g. 2 - https://<domain>/my/v2/servicediscovery -> if is IsEvoEnabledChange false it to v1.
+  // e.g. 3 - https://<domain> ->
   // So fix it
-  auto suffix = RestServiceUrls::GetDefaultTenant() +
-                RestServiceUrls::GetServiceDiscoverySuffix();
-  bool endsWithSuffix = equal(suffix.rbegin(), suffix.rend(),
-                              discoveryUrl.rbegin(), CharEqual);
+  auto suffixV1 = RestServiceUrls::GetTenantV1() +
+                  RestServiceUrls::GetServiceDiscoverySuffix();
+  auto suffixV2 = RestServiceUrls::GetTenantV2() +
+                  RestServiceUrls::GetServiceDiscoverySuffix();
 
-  if (!endsWithSuffix)
+  auto positionSuffixV1 = discoveryUrl.rfind(suffixV1);
+  auto positionSuffixV2 = discoveryUrl.rfind(suffixV2);
+
+  if (positionSuffixV1 != std::string::npos)
   {
-    ss << suffix;
+    // e.g. 1 keep the end.
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
+    {
+        ss << discoveryUrl.substr(0, positionSuffixV1) << suffixV2;
+    }
+    else
+    {
+        ss << discoveryUrl;
+    }
+  }
+  else if (positionSuffixV2 != std::string::npos)
+  {
+    // e.g. 2 keep the end.
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
+    {
+        ss << discoveryUrl;
+    }
+    else
+    {
+        ss << discoveryUrl.substr(0, positionSuffixV2) << suffixV1;
+    }
+  }
+  else
+  {
+    // e.g. 3
+    ss << discoveryUrl << RestServiceUrls::GetDefaultTenant() << RestServiceUrls::GetServiceDiscoverySuffix();
   }
 
   switch (domain.GetType())

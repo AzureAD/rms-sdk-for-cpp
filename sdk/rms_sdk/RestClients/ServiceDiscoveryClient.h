@@ -18,20 +18,23 @@
 
 namespace rmscore {
 namespace restclients {
-class ServiceDiscoveryClient : public IServiceDiscoveryClient {
+
+class ServiceDiscoveryClient : public IServiceDiscoveryClient
+{
 public:
 
-  virtual ServiceDiscoveryListResponse GetServiceDiscoveryDetails(
-    const Domain                          & domain,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & discoveryUrl,
-    std::shared_ptr<std::atomic<bool> >     cancelState) override;
+    virtual ServiceDiscoveryListResponse GetServiceDiscoveryDetails(const Domain& domain,
+        const std::shared_ptr<std::string>& pServerPublicCertificate,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        const std::string&  discoveryUrl,
+        std::shared_ptr<std::atomic<bool> >     cancelState) override;
 
 private:
 
   std::string CreateGetRequest(const std::string& discoveryUrl,
-                               const Domain     & domain);
+                               const Domain& domain);
 };
+
 } // namespace restclients
 } // namespace rmscore
 #endif // _RMS_LIB_SERVICEDISCOVERYCLIENT_H_

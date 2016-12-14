@@ -23,15 +23,15 @@ namespace restclients {
 class IServiceDiscoveryClient {
 public:
 
-  virtual ServiceDiscoveryListResponse GetServiceDiscoveryDetails(
-    const Domain                          & domain,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                     & discoveryUrl,
-    std::shared_ptr<std::atomic<bool> >     cancelState) = 0;
+    virtual ServiceDiscoveryListResponse GetServiceDiscoveryDetails(const Domain& domain,
+        const std::shared_ptr<std::string>& pServerPublicCertificate,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        const std::string& discoveryUrl,
+        std::shared_ptr<std::atomic<bool>> cancelState) = 0;
 
 public:
 
-  static std::shared_ptr<IServiceDiscoveryClient>Create();
+    static std::shared_ptr<IServiceDiscoveryClient> Create();
 };
 } // namespace restclients
 } // namespace rmscore

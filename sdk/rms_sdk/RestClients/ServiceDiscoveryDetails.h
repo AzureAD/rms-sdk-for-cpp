@@ -21,6 +21,7 @@ struct ServiceDiscoveryDetails
   std::string CloudDiagnosticsServerUrl;
   std::string PerformanceServerUrl;
   std::string Domain;
+  std::string OriginalInput;
   uint32_t    Ttl;
 };
 } // namespace restclients
