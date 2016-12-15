@@ -1,6 +1,6 @@
-$logFile = "..\rms-sdk-for-cpp\bin\tests\rmsUnitTestResults.txt"
+$logFile = "..\bin\tests\rmsUnitTestResults.txt"
 
-$xmlOutputFile = "..\rms-sdk-for-cpp\bin\tests\rmsUnitTestResults.xml"
+$xmlOutputFile = "..\bin\tests\rmsUnitTestResults.xml"
 $result = ""
 
 
