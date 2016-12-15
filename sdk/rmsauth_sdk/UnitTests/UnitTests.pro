@@ -8,6 +8,7 @@ CONFIG   -= app_bundle
 CONFIG   += console c++11 debug_and_release warn_on
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+DEFINES += Q_COMPILER_INITIALIZER_LISTS
 
 unix:!mac:LIBS  += -lssl -lcrypto -lsecret-1 -lglib-2.0
 
