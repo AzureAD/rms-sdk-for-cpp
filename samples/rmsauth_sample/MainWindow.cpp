@@ -76,15 +76,15 @@ void MainWindow::GetTokenUsingUI(const std::string& authority,
     // acquire token using ui
     auto result = authContext.acquireToken(resource, clientId, redirectUri, pb);
 
-    AddLog("Access token: ", result->accessToken().c_str());
+    AddLog("Access token: ", result->accessToken().c_str(), AUTHORIZATION_CODE);
   }
   catch (const Exception& ex)
   {
-    AddLog("Exception: ", ex.error().c_str());
+    AddLog("Exception: ", ex.error().c_str(), AUTHORIZATION_CODE);
   }
   catch (...)
   {
-    AddLog("Exception: ", "Unknown");
+    AddLog("Exception: ", "Unknown", AUTHORIZATION_CODE);
   }
 }
 
@@ -105,15 +105,15 @@ void MainWindow::GetTokenUsingSecret(const std::string& authority,
 
     // acquire token using secret
     auto result = authContext.acquireToken(resource, clientCredential);
-    AddLog("Access token: ", result->accessToken().c_str());
+    AddLog("Access token: ", result->accessToken().c_str(), CLIENT_CREDENTIALS);
   }
   catch (const Exception& ex)
   {
-    AddLog("Exception: ", ex.error().c_str());
+    AddLog("Exception: ", ex.error().c_str(), CLIENT_CREDENTIALS);
   }
   catch (...)
   {
-    AddLog("Exception: ", "Unknown");
+    AddLog("Exception: ", "Unknown", CLIENT_CREDENTIALS);
   }
 }
 
@@ -137,24 +137,41 @@ void MainWindow::GetTokenUsingUserPassword(const std::string& authority,
     auto result = authContext.acquireToken(resource,
                                            clientId,
                                            userCredential);
-    AddLog("Access token: ", result->accessToken().c_str());
+    AddLog("Access token: ", result->accessToken().c_str(), PASSWORD);
   }
   catch (const Exception& ex)
   {
-    AddLog("Exception: ", ex.error().c_str());
+    AddLog("Exception: ", ex.error().c_str(), PASSWORD);
   }
   catch (...)
   {
-    AddLog("Exception: ", "Unknown");
+    AddLog("Exception: ", "Unknown", PASSWORD);
   }
 }
 
 void MainWindow::AddLog(const std::string& tag,
-                        const char        *message) {
-  AddLog(QString::fromStdString(tag), QString::fromLatin1(message));
+                        const char* message,
+                        const uint browserChoice) {
+  AddLog(QString::fromStdString(tag), QString::fromLatin1(message), browserChoice);
 }
 
 void MainWindow::AddLog(const QString& tag,
-                        const QString& message) {
-  ui->textBrowser_cc->append(tag + message);
+                        const QString& message,
+                        const uint browserChoice) {
+    switch(browserChoice)
+    {
+    case AUTHORIZATION_CODE:
+        ui->textBrowser_ac->append(tag + message);
+        break;
+    case CLIENT_CREDENTIALS:
+        ui->textBrowser_cc->append(tag + message);
+        break;
+    case PASSWORD:
+        ui->textBrowser_pwd->append(tag + message);
+        break;
+    default:
+        //TODO: add proper exception here
+        throw;
+        break;
+    }
 }

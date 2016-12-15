@@ -9,6 +9,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#define AUTHORIZATION_CODE  0
+#define CLIENT_CREDENTIALS  1
+#define PASSWORD            2
+
 #include <QMainWindow>
 #include <rmsauth/AuthenticationContext.h>
 
@@ -51,9 +55,12 @@ private:
 
 
   void AddLog(const std::string& tag,
-              const char        *message);
+              const char* message,
+              const uint browserChoice);
+
   void AddLog(const QString& tag,
-              const QString& message);
+              const QString& message,
+              const uint browserChoice);
 
   Ui::MainWindow *ui;
 };
