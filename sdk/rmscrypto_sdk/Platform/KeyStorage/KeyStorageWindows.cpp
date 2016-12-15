@@ -7,31 +7,28 @@
  */
 
 #include "KeyStorageWindows.h"
-#include "../../CryptoAPI/RMSCryptoExceptions.h"
+#include "CryptoAPI/RMSCryptoExceptions.h"
+#include "StorageAccessWindows.h"
 
 using namespace std;
 namespace rmscrypto {
 namespace platform {
 namespace keystorage {
-void KeyStorageWindows::RemoveKey(const string& /*csKeyWrapper*/) {
-  throw exceptions::RMSCryptoNotImplementedException(
-          "Key storage for Windows is not implemented");
+void KeyStorageWindows::RemoveKey(const string& csKeyWrapper) {
+    StorageAccessWindows::Instance().RemoveKey(csKeyWrapper);
 }
 
-void KeyStorageWindows::StoreKey(const string& /*csKeyWrapper*/,
-                                 const string& /*csKey*/) {
-  throw exceptions::RMSCryptoNotImplementedException(
-          "Key storage for Windows is not implemented");
+void KeyStorageWindows::StoreKey(const string& csKeyWrapper,
+                                 const string& csKey) {
+    StorageAccessWindows::Instance().StoreKey(csKeyWrapper, csKey);
 }
 
-shared_ptr<string>KeyStorageWindows::LookupKey(const string& /*csKeyWrapper*/) {
-  throw exceptions::RMSCryptoNotImplementedException(
-          "Key storage for Windows is not implemented");
+shared_ptr<string>KeyStorageWindows::LookupKey(const string& csKeyWrapper) {
+    return StorageAccessWindows::Instance().LookupKey(csKeyWrapper);
 }
 
 std::shared_ptr<IKeyStorage>IKeyStorage::Create() {
-  throw exceptions::RMSCryptoNotImplementedException(
-          "KeyStorage is not implemented on this platform");
+    return std::shared_ptr<KeyStorageWindows>(new KeyStorageWindows);
 }
 
 } // namespace keystorage

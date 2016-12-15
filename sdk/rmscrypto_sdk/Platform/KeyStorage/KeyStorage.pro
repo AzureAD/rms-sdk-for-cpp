@@ -9,7 +9,7 @@ CONFIG   += staticlib warn_on c++11 debug_and_release
 QT       += core
 
 unix:!mac:INCLUDEPATH  += /usr/include/glib-2.0/ /usr/include/libsecret-1/ /usr/lib/x86_64-linux-gnu/glib-2.0/include/
-# win32:INCLUDEPATH += //TODO: Add DPAPI
+win32:INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/
 # mac:INCLUDEPATH   += //TODO: Add osxkeychain
 
 LIBS +=  -L$$DESTDIR
@@ -24,15 +24,19 @@ unix {
 
 HEADERS += \
     base64.h \
-    IKeyStorage.h
+    IKeyStorage.h \
+    sqlite3.h \
+    StorageAccessWindows.h
 
 SOURCES += \
-    base64.cpp
+    base64.cpp \
+    StorageAccessWindows.cpp \
+    sqlite3.c
 
 #include different versions of keystorage
 win32 {
-    HEADERS += KeyStorageWindows.h
-    SOURCES += KeyStorageWindows.cpp
+    HEADERS += KeyStorageWindows.h sqlite3.h StorageAccessWindows.h
+    SOURCES += KeyStorageWindows.cpp sqlite3.c StorageAccessWindows.cpp
 } unix:!mac {
     CONFIG += link_pkgconfig
     PKGCONFIG += glib-2.0
