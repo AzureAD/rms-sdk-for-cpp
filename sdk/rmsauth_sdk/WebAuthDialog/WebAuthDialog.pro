@@ -2,7 +2,7 @@ REPO_ROOT = $$PWD/../../..
 DESTDIR   = $$REPO_ROOT/bin
 TARGET    = rmsauthWebAuthDialog
 
-QT       += core widgets webkitwidgets network
+QT       += core widgets webenginewidgets network
 
 TEMPLATE  = lib
 
@@ -19,11 +19,13 @@ CONFIG(debug, debug|release) {
 SOURCES +=\
     Dialog.cpp \
     Autosaver.cpp \
-    CookieJar.cpp
+    CookieJar.cpp \
+    RequestInterceptor.cpp
 
 HEADERS  += Dialog.h \
     Autosaver.h \
-    CookieJar.h
+    CookieJar.h \
+    RequestInterceptor.h
 
 FORMS    += Dialog.ui
 
