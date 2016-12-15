@@ -173,6 +173,9 @@ string StorageAccessWindows::RemoveQuery(const string& keyWrapper, const string&
 
 void StorageAccessWindows::ErrorHandler(int returnCode, const string& errorOp)
 {
-    Logger::Error("StorageAccessWindows failure in " + errorOp + ", sqlite3 failure " + sqlite3_errmsg(mDb.get()));
-    throw RMSCryptoIOKeyException("StorageAccessWindows failure in operation " + errorOp);
+    if (returnCode)
+    {
+        Logger::Error("StorageAccessWindows failure in " + errorOp + ", sqlite3 failure " + sqlite3_errmsg(mDb.get()));
+        throw RMSCryptoIOKeyException("StorageAccessWindows failure in operation " + errorOp);
+    }
 }
