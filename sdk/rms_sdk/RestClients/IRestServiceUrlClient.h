@@ -12,57 +12,54 @@
 #include <memory>
 #include <string>
 #include <atomic>
+
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../ModernAPI/IConsentCallbackImpl.h"
+
+#include "LicenseParser.h"
 #include "ServiceDiscoveryDetails.h"
 
 namespace rmscore {
 namespace restclients {
-class IRestServiceUrlClient {
+
+class IRestServiceUrlClient
+{
 public:
 
-  virtual ~IRestServiceUrlClient() {}
+    virtual ~IRestServiceUrlClient() {}
 
-  virtual std::string GetEndUserLicensesUrl(
-    const void                             *pbPublishLicense,
-    const size_t                            cbPublishLicense,
-    const std::string                     & sEmail,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    modernapi::IConsentCallbackImpl       & consentCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-    = 0;
-  virtual std::string GetTemplatesUrl(
-    const std::string                     & sEmail,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-    = 0;
-  virtual std::string GetPublishUrl(
-    const std::string                     & sEmail,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-    = 0;
-  virtual std::string GetCloudDiagnosticsServerUrl(
-    const std::string                     & sEmail,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-    = 0;
-  virtual std::string GetPerformanceServerUrl(
-    const std::string                     & sEmail,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState)
-    = 0;
-  virtual std::shared_ptr<ServiceDiscoveryDetails>GetServiceDiscoveryDetails(
-    const void                             *pbPublishLicense,
-    const size_t                            cbPublishLicense,
-    const std::string                     & sEmail,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    modernapi::IConsentCallbackImpl        *consentCallback,
-    std::shared_ptr<std::atomic<bool> >     cancelState
-    ) = 0;
+    virtual std::string GetEndUserLicensesUrl(const std::shared_ptr<LicenseParserResult>& licenseParserResults,
+        const std::string& sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        modernapi::IConsentCallbackImpl& consentCallback,
+        std::shared_ptr<std::atomic<bool>> cancelState) = 0;
+
+    virtual std::string GetTemplatesUrl(const std::string& sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        std::shared_ptr<std::atomic<bool>>cancelState) = 0;
+
+    virtual std::string GetPublishUrl(const std::string& sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        std::shared_ptr<std::atomic<bool>> cancelState) = 0;
+
+    virtual std::string GetCloudDiagnosticsServerUrl(const std::string& sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        std::shared_ptr<std::atomic<bool>> cancelState) = 0;
+
+    virtual std::string GetPerformanceServerUrl(const std::string& sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        std::shared_ptr<std::atomic<bool>> cancelState) = 0;
+
+    virtual std::shared_ptr<ServiceDiscoveryDetails>GetServiceDiscoveryDetails(
+        const std::shared_ptr<LicenseParserResult>& licenseParserResults,
+        const std::string& sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        modernapi::IConsentCallbackImpl* consentCallback,
+        std::shared_ptr<std::atomic<bool>> cancelState) = 0;
 
 public:
 
-  static std::shared_ptr<IRestServiceUrlClient>Create();
+    static std::shared_ptr<IRestServiceUrlClient> Create();
 };
 } // namespace restclients
 } // namespace rmscore
