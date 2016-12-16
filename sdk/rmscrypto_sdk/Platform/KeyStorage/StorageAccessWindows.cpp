@@ -58,7 +58,7 @@ StorageAccessWindows::StorageAccessWindows()
 
     sqlite3* mDbTemp;
     int rc = sqlite3_open16(dbName.c_str(), &mDbTemp);
-    mDb.reset(mDbTemp);
+    mDb.reset(mDbTemp, sqlite3_close);
     ErrorHandler(rc, "CreateTable");
 
     string sqlCreateTable = CreateTableQuery(TableName);
