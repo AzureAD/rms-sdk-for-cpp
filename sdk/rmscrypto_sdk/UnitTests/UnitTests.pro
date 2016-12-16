@@ -25,7 +25,7 @@ CONFIG(debug, debug|release) {
     LIBS +=  -lmodcrypto -lplatformkeystorage -lplatformcrypto -lplatformlogger -lplatformsettings -lrmscrypto
 }
 
-win32:LIBS            += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
+win32:LIBS            += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
 unix:!mac:LIBS        += -lssl -lcrypto -lsecret-1 -lglib-2.0
 mac:LIBS              += -lssl -lcrypto
 
