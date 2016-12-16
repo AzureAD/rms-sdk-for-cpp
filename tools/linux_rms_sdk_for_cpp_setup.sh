@@ -3,7 +3,7 @@
 #!/bin/sh
 apt-get update
 echo $1 | sudo -S sudo apt-get install qt5-default
-echo $1 | sudo -S sudo apt-get install libqt5webkit5-dev
+echo $1 | sudo -S sudo apt-get install libncurses5-dev
 echo $1 | sudo -S sudo apt-get install libqt5xmlpatterns5-dev
 echo $1 | sudo -S sudo apt-get install libssl-dev
 echo $1 | sudo -S sudo apt-get install libsecret-1-dev
