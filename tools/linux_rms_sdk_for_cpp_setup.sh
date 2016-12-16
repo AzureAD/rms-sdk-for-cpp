@@ -10,5 +10,5 @@ cd tests
 ./rmscryptoUnitTests -xunitxml > rmsUnitTestResults.txt
 ./rmsauthUnitTests -xunitxml >> rmsUnitTestResults.txt
 ./rmsplatformUnitTests -xunitxml >> rmsUnitTestResults.txt
-cd ../tools
+cd ../../tools
 powershell ./Rms_Sdk_For_Cpp_UTResults_Parser.ps1
