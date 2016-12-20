@@ -1,5 +1,4 @@
 TEMPLATE = subdirs
-DEFINES += QTFRAMEWORK
 
 SUBDIRS += \
     Common \
