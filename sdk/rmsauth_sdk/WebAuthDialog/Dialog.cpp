@@ -29,8 +29,8 @@ Dialog::Dialog(const QString& requestUrl, const QString& redirectUrl, bool useCo
     qDebug() << ": RedirectUrl:" << mRedirectUrl;
 
     std::unique_ptr<QWebEngineProfile> profile (new QWebEngineProfile(mUi->webEngineView));
-    std::unique_ptr<RequestInterceptor> interceptor (new RequestInterceptor(mUi->webEngineView));
 
+    std::unique_ptr<RequestInterceptor> interceptor (new RequestInterceptor(mUi->webEngineView));
     QObject::connect(interceptor.get(), SIGNAL(redirectUrlCapture(QUrl)), this, SLOT(processAuthReply(QUrl)));
     profile->setRequestInterceptor(interceptor.release());
 
@@ -41,8 +41,9 @@ Dialog::Dialog(const QString& requestUrl, const QString& redirectUrl, bool useCo
     QUrl redirectUrlFromString(mRedirectUrl);
     if (redirectUrlFromString.scheme() != "https")
     {
-        profile->installUrlSchemeHandler(redirectUrlFromString.scheme().toStdString().c_str(),
-                                     redirectUrlSchemeInterceptor.release());
+        profile->installUrlSchemeHandler(
+                    redirectUrlFromString.scheme().toStdString().c_str(),
+                    redirectUrlSchemeInterceptor.release());
     }
 
     std::unique_ptr<QWebEnginePage> page (new QWebEnginePage(profile.release(), mUi->webEngineView));
@@ -63,9 +64,6 @@ void Dialog::processAuthReply(QUrl locationUri)
     const QString redirectUri = locationUri.scheme() + "://" + locationUri.host();
     if(redirectUri.compare(mRedirectUrl, Qt::CaseInsensitive) == 0)
     {
-//      Logger::info(Tag().toStdString(), "==> pReply->url: %", pReply->url().toString().toStdString());
-//      Logger::info(Tag().toStdString(), "==> locationUri: %", location.toStdString());
-
         mRespondUrl = locationUri.toString();
         this->accept();
     }

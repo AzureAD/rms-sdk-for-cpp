@@ -18,9 +18,8 @@
  */
 void RedirectUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob* request){
     request->fail(QWebEngineUrlRequestJob::RequestAborted);
+
     QUrl url = request->requestUrl();
-
     qDebug() << "Request URL in RedirectUrlSchemeHandler: " << url;
-
     emit urlCapture(url);
 }
