@@ -8,6 +8,7 @@
 
 #include "dialog.h"
 #include "RequestInterceptor.h"
+#include "RedirectUrlSchemeHandler.h"
 #include "ui_dialog.h"
 #include <QWebEngineProfile>
 
@@ -32,6 +33,17 @@ Dialog::Dialog(const QString& requestUrl, const QString& redirectUrl, bool useCo
 
     QObject::connect(interceptor.get(), SIGNAL(redirectUrlCapture(QUrl)), this, SLOT(processAuthReply(QUrl)));
     profile->setRequestInterceptor(interceptor.release());
+
+    std::unique_ptr<RedirectUrlSchemeHandler> redirectUrlSchemeInterceptor
+            (new RedirectUrlSchemeHandler(mUi->webEngineView));
+    QObject::connect(redirectUrlSchemeInterceptor.get(), SIGNAL(urlCapture(QUrl)), this, SLOT(processAuthReply(QUrl)));
+
+    QUrl redirectUrlFromString(mRedirectUrl);
+    if (redirectUrlFromString.scheme() != "https")
+    {
+        profile->installUrlSchemeHandler(redirectUrlFromString.scheme().toStdString().c_str(),
+                                     redirectUrlSchemeInterceptor.release());
+    }
 
     std::unique_ptr<QWebEnginePage> page (new QWebEnginePage(profile.release(), mUi->webEngineView));
     mUi->webEngineView->setPage(page.release());
