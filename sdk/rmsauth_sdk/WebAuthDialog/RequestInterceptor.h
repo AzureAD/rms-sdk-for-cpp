@@ -9,8 +9,8 @@
 #ifndef REQUESTINTERCEPTOR_H
 #define REQUESTINTERCEPTOR_H
 
-#include <QWebEngineUrlRequestInterceptor>
 #include <QDebug>
+#include <QWebEngineUrlRequestInterceptor>
 
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor
 {

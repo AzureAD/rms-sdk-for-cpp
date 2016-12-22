@@ -7,8 +7,8 @@
 */
 
 #include "dialog.h"
-#include "RequestInterceptor.h"
 #include "RedirectUrlSchemeHandler.h"
+#include "RequestInterceptor.h"
 #include "ui_dialog.h"
 #include <QWebEngineProfile>
 

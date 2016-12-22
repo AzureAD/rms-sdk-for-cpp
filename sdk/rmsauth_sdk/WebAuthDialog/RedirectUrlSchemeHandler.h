@@ -9,8 +9,8 @@
 #ifndef REDIRECTURLSCHEMEHANDLER_H
 #define REDIRECTURLSCHEMEHANDLER_H
 
-#include <QWebEngineUrlSchemeHandler>
 #include <QUrl>
+#include <QWebEngineUrlSchemeHandler>
 
 class RedirectUrlSchemeHandler : public QWebEngineUrlSchemeHandler
 {
