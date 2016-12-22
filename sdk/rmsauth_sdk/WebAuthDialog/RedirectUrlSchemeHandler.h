@@ -1,3 +1,11 @@
+/*
+ * ======================================================================
+ * Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
+ * Licensed under the MIT License.
+ * See LICENSE.md in the project root for license information.
+ * ======================================================================
+ */
+
 #ifndef REDIRECTURLSCHEMEHANDLER_H
 #define REDIRECTURLSCHEMEHANDLER_H
 
