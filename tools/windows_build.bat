@@ -15,4 +15,5 @@ xcopy C:\Qt\5.7\msvc2015\bin\*.dll .
 rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
 ::rmsauthUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 rmsplatformUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
+RestClientsUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 cd ..
