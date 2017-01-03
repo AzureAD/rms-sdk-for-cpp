@@ -18,6 +18,12 @@ class RequestInterceptor : public QWebEngineUrlRequestInterceptor
 
 public:
     explicit RequestInterceptor(QObject* parent = Q_NULLPTR) : QWebEngineUrlRequestInterceptor(parent) {}
+    /**
+     * @brief RequestInterceptor::interceptRequest
+     * This is used to handle the RedirectUrl which has a http/https scheme. We do not fail the
+     * request as this captures other internet traffic as well.
+     * @param info
+     */
     virtual void interceptRequest(QWebEngineUrlRequestInfo& info) Q_DECL_OVERRIDE;
 
 signals:

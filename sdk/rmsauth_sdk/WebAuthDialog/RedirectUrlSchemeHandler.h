@@ -17,8 +17,14 @@ class RedirectUrlSchemeHandler : public QWebEngineUrlSchemeHandler
     Q_OBJECT
 
 public:
-    explicit RedirectUrlSchemeHandler(QObject *parent = 0) : QWebEngineUrlSchemeHandler(parent) {}
-    void requestStarted(QWebEngineUrlRequestJob *request);
+    explicit RedirectUrlSchemeHandler(QObject* parent = 0) : QWebEngineUrlSchemeHandler(parent) {}
+    /**
+     * @brief RedirectUrlSchemeHandler::requestStarted
+     * This is used to handle the RedirectUrl which has a custom scheme. We capture the url
+     * and fail the request.
+     * @param request
+     */
+    void requestStarted(QWebEngineUrlRequestJob* request);
 
 signals:
     void urlCapture(QUrl);
