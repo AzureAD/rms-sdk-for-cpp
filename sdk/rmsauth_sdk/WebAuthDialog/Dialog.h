@@ -49,10 +49,10 @@ private:
      * mRedirectUrl: represents the Redirect Url passed to the Dialog
      * mRespondUrl: used to capture the token returned from the ADAL auth flow
      */
+    std::unique_ptr<Ui::Dialog> mUi;
     QString mRequestUrl;
     QString mRedirectUrl;
     QString mRespondUrl;
-    std::unique_ptr<Ui::Dialog> mUi;
 
 private slots:
     void processAuthReply(QUrl);
