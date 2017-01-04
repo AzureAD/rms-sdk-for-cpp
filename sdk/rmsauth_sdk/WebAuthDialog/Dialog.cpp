@@ -6,7 +6,7 @@
  * ======================================================================
 */
 
-#include "dialog.h"
+#include "Dialog.h"
 #include "RedirectUrlSchemeHandler.h"
 #include "RequestInterceptor.h"
 #include "ui_Dialog.h"
