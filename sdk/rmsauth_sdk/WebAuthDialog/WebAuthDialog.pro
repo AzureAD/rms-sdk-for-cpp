@@ -20,12 +20,14 @@ SOURCES +=\
     Dialog.cpp \
     Autosaver.cpp \
     CookieJar.cpp \
-    RequestInterceptor.cpp
+    RedirectUrlSchemeHandler.cpp \
+    RequestInterceptor.cpp \
 
 HEADERS  += Dialog.h \
     Autosaver.h \
     CookieJar.h \
-    RequestInterceptor.h
+    RedirectUrlSchemeHandler.h \
+    RequestInterceptor.h \
 
 FORMS    += Dialog.ui
 

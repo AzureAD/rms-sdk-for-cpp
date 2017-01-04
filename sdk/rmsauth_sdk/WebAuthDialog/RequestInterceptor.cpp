@@ -11,10 +11,8 @@
 
 void RequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
 {
-    // Intercepting the requested URL
     QUrl url = info.requestUrl();
     qDebug() << "Request URL in interceptRequest: " << url;
-
     emit redirectUrlCapture(url);
 }
 
