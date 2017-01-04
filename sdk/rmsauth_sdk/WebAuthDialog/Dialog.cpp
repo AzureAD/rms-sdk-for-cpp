@@ -9,7 +9,7 @@
 #include "dialog.h"
 #include "RedirectUrlSchemeHandler.h"
 #include "RequestInterceptor.h"
-#include "ui_dialog.h"
+#include "ui_Dialog.h"
 #include <QWebEngineProfile>
 
 Dialog::Dialog(const QString& requestUrl, const QString& redirectUrl, bool useCookie, QWidget *parent)
