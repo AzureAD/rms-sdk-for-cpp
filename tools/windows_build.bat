@@ -1,6 +1,10 @@
 call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\VsDevCmd.bat"
 set third_party_path=%1
 set qmake_path=%2
+set platform=%3
+if %platform%==amd64 (
+	call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+)
 mkdir ..\third_party
 xcopy %third_party_path% ..\third_party /e
 cd ..\sdk
