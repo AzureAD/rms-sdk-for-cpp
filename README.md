@@ -42,7 +42,7 @@ Information about requests is logged to `rms_log_*`, `rmsauth_log_*`, and `rmscr
 > RMS_HIDDEN_LOG=ON ./rms_sample
 ```
 ### Windows
-1. If you wish to run the executable from the command prompt instead of Qt Creator, first set the PATH variable to include the MSVC 2015 32 bit libraries and then set the environment variable `RMS_HIDDEN_LOG` to `ON`.
+If you wish to run the executable from the command prompt instead of Qt Creator, first set the PATH variable to include the MSVC 2015 32 bit libraries and then set the environment variable `RMS_HIDDEN_LOG` to `ON`.
 ```
 > set PATH=C:\Qt\5.7\msvc2015\bin;%PATH%
 > set RMS_HIDDEN_LOG=ON
