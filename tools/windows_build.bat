@@ -17,7 +17,8 @@ call C:\Qt\Tools\QtCreator\bin\jom.exe clean
 call C:\Qt\Tools\QtCreator\bin\jom.exe
 cd ..\bin
 copy tests\*UnitTest* .
-xcopy %qmake_path%\*.dll .
+set PATH=%qmake_path%;%PATH%
+set PATH=..\third_party\lib\eay;%PATH%
 rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
 ::rmsauthUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 rmsplatformUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
