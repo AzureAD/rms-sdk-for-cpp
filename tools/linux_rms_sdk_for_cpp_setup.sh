@@ -1,8 +1,11 @@
+
 cd ../sdk
 qmake
+make clean
 make
 cd ../samples
 qmake
+make clean
 make
 cd ../bin
 export LD_LIBRARY_PATH=`pwd`
