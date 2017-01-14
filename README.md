@@ -37,9 +37,18 @@ Documentation of the source is ongoing.
 
 Information about requests is logged to `rms_log_*`, `rmsauth_log_*`, and `rmscrypto_log_*` in the folder where the executable using these libraries is called from. Request and response headers and some other info is not logged by default to avoid leaking sensitive information. To enable these hidden logs, set an environment variable `RMS_HIDDEN_LOG` to `ON`. For example:
 
+### Linux
 ```
 > RMS_HIDDEN_LOG=ON ./rms_sample
 ```
+### Windows
+If you wish to run the executable from the command prompt instead of Qt Creator, first set the PATH variable to include the MSVC 2015 32 bit libraries and then set the environment variable `RMS_HIDDEN_LOG` to `ON`.
+```
+> set PATH=C:\Qt\5.7\msvc2015\bin;%PATH%
+> set RMS_HIDDEN_LOG=ON
+> rms_sampled.exe
+```
+
 ## Security Reporting
 
 If you find a security issue with our libraries or services please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
