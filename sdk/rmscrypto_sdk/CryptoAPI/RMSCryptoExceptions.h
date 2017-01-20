@@ -128,6 +128,9 @@ public:
   RMSCryptoIOKeyException(const char *const& message, int code) _NOEXCEPT
     : RMSCryptoIOException(SecretKeyException, message), code_(code) {}
 
+  RMSCryptoIOKeyException(const std::string& message) _NOEXCEPT
+     : RMSCryptoIOException(SecretKeyException, message) {}
+
   virtual ~RMSCryptoIOKeyException() _NOEXCEPT {}
 
   virtual int code() const _NOEXCEPT {

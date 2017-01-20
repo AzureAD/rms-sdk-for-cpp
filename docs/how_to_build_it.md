@@ -16,46 +16,41 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
 
 ### Windows
 
-1. Install Visual Studio 2012/2013
-2. Install Qt Creator
+1. Install Visual Studio 2015
+2. Install Qt Creator. Select the msvc2015 component (32 bit) in the installer prompt under Qt 5.7.
   ```
   open https://www.qt.io/download-open-source/
   download the last version of Qt Creator and install it
   ```
 
-3. Install openssl for windows
-  ```
-  open https://slproweb.com/products/Win32OpenSSL.html
-  download the last version of openssl and install it
-  ```
-
-4. Install git
+3. Install git
   ```
   open https://git-scm.com/download/win. The latest version will be downloaded automatically
   install downloaded version
   ```
 
-5. Clone this repo:
+4. Clone this repo:
   ```
   open git-bash
   enter the directory you want to clone project in
-  execute command: git clone https://github.com/AzureAD/rms-sdk-for-cpp
+  execute command: git clone https://github.com/aragun/rms-sdk-for-cpp.git
   ```
 
-6. Copy openssl environment
-  ```
-  in cloned folder 'rms-sdk-for-cpp' create subfolder 'third_party'
-  copy 'include' folder from OpenSSL installed directory to 'third_party'
-  copy libraries from OpenSSL\lib\vc\static to third_party\lib\eay
-  ```
-
+5. Switch to the 'winport_evo_15' branch.
+   ```
+   cd rms-sdk-for-cpp
+   git checkout winport_evo_15
+   ```
+   
+6. Unzip and copy the 'third_party' folder provided to the cloned folder 'rms-sdk-for-cpp'
+  
 7. Build projects
   ```
-  Open sdk\sdk.pro project in Qt and build it
-  Open samples\samples.pro project in Qt and build it
+  Use the Desktop Qt5.7.0 MSVC2015 32 bit kit for both sdk\sdk.pro and samples\samples.pro.
+  Run qmake every time you change the .pro file before building.
   ```
 
-8. Run sample applications:
+8. Run sample applications (suffixed with 'd' for debug builds):
   ```
   cd ../bin
   rms_sample.exe	# RMS sample
