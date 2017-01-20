@@ -17,7 +17,7 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
 ### Windows
 
 1. Install Visual Studio 2015
-2. Install Qt Creator. Select the msvc2015 component (32 bit) in the installer prompt under Qt 5.7.
+2. Install Qt Creator. Select the msvc2015 component (32-bit) in the installer prompt under Qt 5.7. Also select the 64-bit kit if you want to build 64-bit binaries. 
   ```
   open https://www.qt.io/download-open-source/
   download the last version of Qt Creator and install it
@@ -33,24 +33,24 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
   ```
   open git-bash
   enter the directory you want to clone project in
-  execute command: git clone https://github.com/aragun/rms-sdk-for-cpp.git
+  execute command: git clone https://github.com/AzureAD/rms-sdk-for-cpp.git
   ```
 
-5. Switch to the 'winport_evo_15' branch.
+5. Switch to the 'feature/winport-evo' branch.
    ```
    cd rms-sdk-for-cpp
-   git checkout winport_evo_15
+   git checkout feature/winport-evo
    ```
    
 6. Unzip and copy the 'third_party' folder provided to the cloned folder 'rms-sdk-for-cpp'
   
-7. Build projects
+7. Build projects using Qt Creator
   ```
-  Use the Desktop Qt5.7.0 MSVC2015 32 bit kit for both sdk\sdk.pro and samples\samples.pro.
+  Use the Desktop Qt5.7.0 MSVC2015 32-bit or 64-bit kit for both sdk\sdk.pro and samples\samples.pro.
   Run qmake every time you change the .pro file before building.
   ```
 
-8. Run sample applications (suffixed with 'd' for debug builds):
+8. Run sample applications (suffixed with 'd' for debug builds). Make sure to add the path to qmake.exe for the kit you used to build the sample apps to the PATH variable. Check the tools/windows_build.bat file for reference.
   ```
   cd ../bin
   rms_sample.exe	# RMS sample
