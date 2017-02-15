@@ -6,13 +6,10 @@ For detailed guidance of the code samples, see [Linux code examples](https://msd
 
 ---
 ## Supported targets
+- [Windows](#windows)
 - [Ubuntu 14.04](#ubuntu-1404)
 - [OpenSUSE 13.2](#opensuse-132)
 - [CentOS 7.1](#centos-7)
- 
-Note: When the libs are compiled you will have created four libs; librms.so, librmsauth.so, librmscrypto.so, and libwebAuthDialog.so. All four are necessary if you use our ADAL for OAuth authentication.
-
-Libs and samples have been successfully compiled on Windows and OSX as well, but these are not fully supported at this time.
 
 ### Windows
 
@@ -42,20 +39,28 @@ Libs and samples have been successfully compiled on Windows and OSX as well, but
    git checkout feature/winport-evo
    ```
    
-6. Unzip and copy the 'third_party' folder provided to the cloned folder 'rms-sdk-for-cpp'
+6. You will need to create a third_party folder that has SDK dependencies. Internal users can do so as follows.
+   ```
+   cd rms-sdk-for-cpp
+   mkdir third_party
+   For 32-bit build, do:
+   cp //rmsfs/users/anuprat/third_party_msvc15win32/* third_party -r
+   For 64-bit build, do:
+   cp //rmsfs/users/anuprat/third_party_msvc15win64/* third_party -r
+   ```
   
-7. Build projects using Qt Creator
+7. Build projects using Qt Creator. The project for the SDK is sdk\sdk.pro. The project for the samples is in samples\samples.pro. Build sdk.pro before samples.pro. Use the following steps to build each project.
   ```
-  Use the Desktop Qt5.7.0 MSVC2015 32-bit or 64-bit kit for both sdk\sdk.pro and samples\samples.pro.
-  Run qmake every time you change the .pro file before building.
+  Select the Desktop Qt5.7.0 MSVC2015 32-bit or 64-bit kit while opening the .pro file.
+  Right click the project in the Projects explorer and click Rebuild.
+  Run qmake every time you change the .pro file before building (qmake generates the makefiles which nmake builds).
   ```
 
-8. Run sample applications (suffixed with 'd' for debug builds). Make sure to add the path to qmake.exe for the kit you used to build the sample apps to the PATH variable. Check the tools/windows_build.bat file for reference.
-  ```
-  cd ../bin
-  rms_sample.exe	# RMS sample
-  rmsauth_sample.exe	# auth sample
-  ```
+8. To run sample apps from Qt Creator, add the path to the OpenSSL libs in the Qt environment.
+ * Press Ctrl+5
+ * Go to PATH in Build Environment
+ * Add ..third_party\lib\eay to the PATH environment variable.
+ * Right click on rms_sample or rmsauth_sample to run it.
 
 ### Ubuntu 14.04
 
