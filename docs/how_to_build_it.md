@@ -39,7 +39,7 @@ For detailed guidance of the code samples, see [Linux code examples](https://msd
    git checkout feature/winport-evo
    ```
    
-6. You will need to create a third_party folder that has SDK dependencies. Internal users can do so as follows.
+6. You will need to create a third_party folder that has SDK dependencies. Create this folder as the child of the sdk root folder (rms-sdk-for-cpp in this case). If you are a developer outside Microsoft, use the third_party folder provided by us (rename whichever you are using between third_party_msvc15win32 and third_party_msvc15win64 to third_party). Microsoft Redmond users can do so as follows.
    ```
    cd rms-sdk-for-cpp
    mkdir third_party
