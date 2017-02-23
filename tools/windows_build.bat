@@ -8,11 +8,11 @@ if %platform%==amd64 (
 mkdir ..\third_party
 xcopy %third_party_path% ..\third_party /e
 cd ..\sdk
-call %qmake_path%\qmake.exe sdk.pro -spec win32-msvc2015 "CONFIG+=debug_and_release" 
+call %qmake_path%\qmake.exe sdk.pro -spec win32-msvc2015 "CONFIG+=release" 
 call C:\Qt\Tools\QtCreator\bin\jom.exe clean
 call C:\Qt\Tools\QtCreator\bin\jom.exe
 cd ..\samples
-call %qmake_path%\qmake.exe samples.pro -spec win32-msvc2015 "CONFIG+=debug_and_release" 
+call %qmake_path%\qmake.exe samples.pro -spec win32-msvc2015 "CONFIG+=release" 
 call C:\Qt\Tools\QtCreator\bin\jom.exe clean
 call C:\Qt\Tools\QtCreator\bin\jom.exe
 cd ..\bin
