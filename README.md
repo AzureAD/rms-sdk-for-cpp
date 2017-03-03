@@ -24,6 +24,7 @@ See the [API reference](http://azuread.github.io/rms-sdk-for-cpp/index.html), cr
 Documentation of the source is ongoing.
 
 ## Platform support
+* Windows 7 or above
 * Ubuntu 14.04 or above
 * Red Hat 7.1 or above
 * CentOS 7.1 or above
