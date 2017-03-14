@@ -1,5 +1,14 @@
 @echo off
 
+set buildtarget=%1
+
+IF /I "%buildtarget%"=="amd64" (
+	set windeployqtpath=msvc2015_64
+)
+IF /I "%buildtarget%"=="x86" (
+	set windeployqtpath=msvc2015
+)
+
 ::Inside rms-sdk-for-cpp directory
 if exist rmsAuthDeploy\ rd /q /s rmsAuthDeploy\
 call mkdir rmsAuthDeploy
@@ -15,6 +24,6 @@ call copy third_party\lib\eay\ssleay32.dll rmsAuthDeploy\.
 call copy third_party\lib\eay\libeay32.dll rmsAuthDeploy\.
 
 call cd rmsAuthDeploy
-call windeployqt rmsauth.dll rmsauthWEbAuthDialog.dll
+call C:\Qt\5.7\%windeployqtpath%\bin\windeployqt.exe rmsauth.dll rmsauthWEbAuthDialog.dll
 
 call cd ..
