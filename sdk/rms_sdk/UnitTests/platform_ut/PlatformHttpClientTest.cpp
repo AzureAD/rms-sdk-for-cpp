@@ -8,16 +8,19 @@
 
 #include "PlatformHttpClientTest.h"
 #include "../../Platform/Logger/Logger.h"
+#include "../../Platform/Log4cplus/staticlogger.h"
 #include "../../Platform/Http/IHttpClient.h"
 #include "../../Common/FrameworkSpecificTypes.h"
 
 using namespace rmscore::platform;
+using namespace rmscore::platform::staticlogger;
 
 PlatformHttpClientTest::PlatformHttpClientTest()
 {}
 
 void PlatformHttpClientTest::testHttpClient(bool enabled)
 {
+    StaticLogger::Trace("+PlatformHttpClientTest::testHttpClient");
   if (!enabled) return;
 
   auto pclient = http::IHttpClient::Create();
