@@ -10,9 +10,9 @@
 #include "JsonParserQt.h"
 #include "JsonObjectQt.h"
 #include "JsonArrayQt.h"
-#include "../Logger/Logger.h"
+#include "../Log4cplus/StaticLogger.h"
 
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace platform {
@@ -33,14 +33,14 @@ std::shared_ptr<IJsonObject>JsonParserQt::Parse(
 
   if (error.error != QJsonParseError::NoError)
   {
-    Logger::Error("JsonParserQt::Parse: %s",
+    StaticLogger::Error("JsonParserQt::Parse: %s",
                   error.errorString().toStdString().data());
     return nullptr;
   }
 
   if (!qdoc.isObject())
   {
-    Logger::Error("JsonParserQt::Parse: %s", "given json is not a json object");
+    StaticLogger::Error("JsonParserQt::Parse: %s", "given json is not a json object");
     return nullptr;
   }
   return std::make_shared<JsonObjectQt>(QJsonValue(qdoc.object()));
@@ -57,14 +57,14 @@ std::shared_ptr<IJsonArray>JsonParserQt::ParseArray(
 
   if (error.error != QJsonParseError::NoError)
   {
-    Logger::Error("JsonParserQt::Parse: %s",
+    StaticLogger::Error("JsonParserQt::Parse: %s",
                   error.errorString().toStdString().data());
     return nullptr;
   }
 
   if (!qdoc.isArray())
   {
-    Logger::Error("JsonParserQt::Parse: %s", "given json is not a json array");
+    StaticLogger::Error("JsonParserQt::Parse: %s", "given json is not a json array");
     return nullptr;
   }
   return std::make_shared<JsonArrayQt>(qdoc.array());

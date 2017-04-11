@@ -14,13 +14,13 @@
 #include <QEventLoop>
 #include <QTimer>
 
-#include "../Logger/Logger.h"
+#include "../Log4cplus/StaticLogger.h"
 #include "../../ModernAPI/RMSExceptions.h"
 #include "mscertificates.h"
 #include "HttpClientQt.h"
 
 using namespace std;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace platform {
@@ -91,19 +91,19 @@ StatusCode HttpClientQt::Post(const string                     & url,
                               common::ByteArray                & response,
                               std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Info("==> HttpClientQt::POST %s", url.data());
+  StaticLogger::Info("==> HttpClientQt::POST %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
   this->AddAcceptMediaTypeHeader(mediaType);
 
-  Logger::Hidden("==> Request Headers:");
+  StaticLogger::Debug("==> Request Headers:");
   foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
     QByteArray hdrValue = this->request_.rawHeader(hdrName);
-    Logger::Hidden("%s : %s", hdrName.data(), hdrValue.data());
+    StaticLogger::Debug("%s : %s", hdrName.data(), hdrValue.data());
   }
 
   std::string req(request.begin(), request.end());
-  Logger::Hidden("==> Request Body: %s", req.c_str());
+  StaticLogger::Debug("==> Request Body: %s", req.c_str());
 
   // first abort previous
 
@@ -119,7 +119,7 @@ StatusCode HttpClientQt::Post(const string                     & url,
   QObject::connect(lastReply_, &QNetworkReply::sslErrors,
                    [ = ](QList<QSslError>errorList) {
           for (auto& error : errorList) {
-            Logger::Error("QSslError: %s",
+            StaticLogger::Error("QSslError: %s",
                           error.errorString().toStdString().c_str());
             throw exceptions::RMSNetworkException(
               error.errorString().toStdString(),
@@ -141,22 +141,22 @@ StatusCode HttpClientQt::Post(const string                     & url,
 
   QVariant statusCode = lastReply_->attribute(
     QNetworkRequest::HttpStatusCodeAttribute);
-  Logger::Info("Response StatusCode: %i", statusCode.toInt());
+  StaticLogger::Info("Response StatusCode: %i", statusCode.toInt());
 
-  Logger::Hidden("--> Response Headers:");
+  StaticLogger::Debug("--> Response Headers:");
   foreach(const QNetworkReply::RawHeaderPair & pair,
           lastReply_->rawHeaderPairs()) {
-    Logger::Hidden("%s : %s", pair.first.data(), pair.second.data());
+    StaticLogger::Debug("%s : %s", pair.first.data(), pair.second.data());
   }
 
   response = ReadAllBytes(lastReply_);
-  Logger::Hidden("--> Response Body:");
-  Logger::Hidden(string(response.begin(), response.end()));
+  StaticLogger::Debug("--> Response Body:");
+  StaticLogger::Debug(string(response.begin(), response.end()));
 
   QNetworkReply::NetworkError error_type = lastReply_->error();
 
   if (error_type != QNetworkReply::NoError) {
-    Logger::Error(QString("error: %1").arg(
+    StaticLogger::Error(QString("error: %1").arg(
                     lastReply_->errorString()).toStdString());
   }
 
@@ -167,14 +167,14 @@ StatusCode HttpClientQt::Get(const string                     & url,
                              common::ByteArray                & response,
                              std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Info("==> HttpClientQt::GET %s", url.data());
+  StaticLogger::Info("==> HttpClientQt::GET %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
 
-  Logger::Hidden("==> Request headers:");
+  StaticLogger::Debug("==> Request headers:");
   foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
     QByteArray hdrValue = this->request_.rawHeader(hdrName);
-    Logger::Hidden("%s : %s", hdrName.data(), hdrValue.data());
+    StaticLogger::Debug("%s : %s", hdrName.data(), hdrValue.data());
   }
 
   lastReply_ = this->manager_.get(this->request_);
@@ -185,7 +185,7 @@ StatusCode HttpClientQt::Get(const string                     & url,
   QObject::connect(lastReply_, &QNetworkReply::sslErrors,
                    [ = ](QList<QSslError>errorList) {
           for (auto& error : errorList) {
-            Logger::Error("QSslError: %s",
+            StaticLogger::Error("QSslError: %s",
                           error.errorString().toStdString().c_str());
             throw exceptions::RMSNetworkException(
               error.errorString().toStdString(),
@@ -207,22 +207,22 @@ StatusCode HttpClientQt::Get(const string                     & url,
 
   QVariant statusCode = lastReply_->attribute(
     QNetworkRequest::HttpStatusCodeAttribute);
-  Logger::Info("Response StatusCode: %i", statusCode.toInt());
+  StaticLogger::Info("Response StatusCode: %i", statusCode.toInt());
 
-  Logger::Hidden("--> Response Headers:");
+  StaticLogger::Debug("--> Response Headers:");
   foreach(const QNetworkReply::RawHeaderPair & pair,
           lastReply_->rawHeaderPairs()) {
-    Logger::Hidden("%s : %s", pair.first.data(), pair.second.data());
+    StaticLogger::Debug("%s : %s", pair.first.data(), pair.second.data());
   }
 
   response = ReadAllBytes(lastReply_);
-  Logger::Hidden("--> Response Body:");
-  Logger::Hidden(string(response.begin(), response.end()));
+  StaticLogger::Debug("--> Response Body:");
+  StaticLogger::Debug(string(response.begin(), response.end()));
 
   QNetworkReply::NetworkError error_type = lastReply_->error();
 
   if (error_type != QNetworkReply::NoError) {
-    Logger::Error(QString("error: %1").arg(
+    StaticLogger::Error(QString("error: %1").arg(
                     lastReply_->errorString()).toStdString());
   }
 

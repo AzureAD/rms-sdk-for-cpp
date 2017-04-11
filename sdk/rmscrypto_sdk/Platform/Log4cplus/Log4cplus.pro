@@ -1,5 +1,5 @@
 REPO_ROOT = $$PWD/../../../..
-DESTDIR   = $$REPO_ROOT/bin/rms/platform
+DESTDIR   = $$REPO_ROOT/bin/crypto/platform
 TARGET    = log4cpluslogger
 
 QT += core
@@ -27,6 +27,7 @@ SOURCES += \
 HEADERS += \
     Log4cplusImpl.h \
     StaticLogger.h
+
 
 
 

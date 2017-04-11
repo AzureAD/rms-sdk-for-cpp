@@ -12,7 +12,7 @@
 
 #include "../Core/FeatureControl.h"
 #include "../Json/IJsonSerializer.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include "../ModernAPI/RMSExceptions.h"
 
 #include "RestHttpClient.h"
@@ -22,7 +22,7 @@
 
 
 using namespace rmscore::platform;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -86,7 +86,7 @@ std::string ServiceDiscoveryClient::CreateGetRequest(
 
     if (!beginsWithHttps)
     {
-      Logger::Hidden("The following discovery service is unsecured: %s",
+      StaticLogger::Debug("The following discovery service is unsecured: %s",
                      discoveryUrl.c_str());
       throw exceptions::RMSInvalidArgumentException("invalid servise name");
     }

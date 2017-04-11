@@ -11,7 +11,7 @@
 #include "../Json/jsonserializer.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IHttpClient.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include "../RestClients/IRestClientCache.h"
 #include "../RestClients/RestServiceUrlClient.h"
 #include "../RestClients/RestHttpClient.h"
@@ -27,7 +27,7 @@ using namespace rmscore::modernapi;
 using namespace rmscore::platform::http;
 using namespace rmscore::restclients;
 using namespace rmscore::json;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -156,7 +156,7 @@ void UsageRestrictionsClient::StoreToCache(
   }
   catch (exceptions::RMSException)
   {
-    Logger::Hidden(
+    StaticLogger::Debug(
       "UsageRestrictionsClient::TryGetFromCache: Exception while parsing the cached response.");
   }
 }
@@ -213,7 +213,7 @@ bool UsageRestrictionsClient::TryGetFromCache(
       }
       catch (exceptions::RMSException)
       {
-        Logger::Hidden(
+        StaticLogger::Debug(
           "UsageRestrictionsClient::TryGetFromCache: Exception while parsing the cached response.");
 
         // exception is not fatal, we just continue with the next response
@@ -224,7 +224,7 @@ bool UsageRestrictionsClient::TryGetFromCache(
   }
   catch (exceptions::RMSException)
   {
-    Logger::Hidden(
+    StaticLogger::Debug(
       "UsageRestrictionsClient::TryGetFromCache: Exception while looking up the cache.");
 
     // exception is not fatal, we just return that we didn't find anything

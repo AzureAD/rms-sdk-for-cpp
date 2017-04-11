@@ -8,7 +8,7 @@
 
 #include <AuthenticationResult.h>
 #include <Exceptions.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include "JsonUtilsQt.h"
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -17,7 +17,7 @@ namespace rmsauth {
 
 AuthenticationResultPtr AuthenticationResult::deserialize(const String& jsonString)
 {
-    Logger::info(Tag(), "deserialize");
+    StaticLogger::Info(Tag(),"deserialize");
     AuthenticationResultPtr result = nullptr;
 
     QJsonParseError error;
@@ -46,7 +46,7 @@ AuthenticationResultPtr AuthenticationResult::deserialize(const String& jsonStri
 }
 String AuthenticationResult::serialize()
 {
-    Logger::info(Tag(), "serialize");
+    StaticLogger::Info(Tag(),"serialize");
     QJsonObject qobj;
     JsonUtilsQt::insertString(qobj, AuthenticationResult::JsonNames.accessTokenType, accessTokenType_);
     JsonUtilsQt::insertString(qobj, AuthenticationResult::JsonNames.accessToken, accessToken_);

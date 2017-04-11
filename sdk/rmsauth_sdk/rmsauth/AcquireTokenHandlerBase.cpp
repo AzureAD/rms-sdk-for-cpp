@@ -7,7 +7,7 @@
 */
 
 #include <AcquireTokenHandlerBase.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <OAuth2Response.h>
 
 namespace rmsauth {
@@ -22,7 +22,7 @@ AcquireTokenHandlerBase::AcquireTokenHandlerBase(AuthenticatorPtr authenticator,
     , storeToCache_(tokenCache != nullptr)
     , supportADFS_(false)
 {
-    Logger::info(Tag(), "AcquireTokenHandlerBase");
+    StaticLogger::Info(Tag(),"AcquireTokenHandlerBase");
 
     callState_ = createCallState(authenticator->correlationId(), callSync);
 
@@ -31,19 +31,19 @@ AcquireTokenHandlerBase::AcquireTokenHandlerBase(AuthenticatorPtr authenticator,
         ? chacheInfo << tokenCache->getCacheName() << " (" << tokenCache->count() << " items)"
         : chacheInfo << "nullptr";
 
-    Logger::info(Tag(), "=== Token Acquisition started:\n\tAuthority: %\n\tResource: %\n\tClientId: %\n\tCacheType: %\n\tAuthentication Target: %\n\t",
-        authenticator->authority(), resource, clientKey->clientId(), chacheInfo.str(), static_cast<int>(subjectType));
+    StaticLogger::Info(Tag(), "=== Token Acquisition started:\n\tAuthority: %\n\tResource: %\n\tClientId: %\n\tCacheType: %\n\tAuthentication Target: %\n\t",
+                        authenticator->authority(), resource, clientKey->clientId(), chacheInfo.str(), static_cast<int>(subjectType));
 
     if (resource.empty())
     {
-        Logger::error(Tag(), "AcquireTokenHandlerBase: resource is empty");
+        StaticLogger::Error(Tag(),"AcquireTokenHandlerBase: resource is empty");
         throw IllegalArgumentException("resource");
     }
 }
 
 AuthenticationResultPtr AcquireTokenHandlerBase::runAsync()
 {
-    Logger::info(Tag(), "runAsync");
+    StaticLogger::Info(Tag(),"runAsync");
     bool notifiedBeforeAccessCache = false;
 
     try
@@ -101,14 +101,14 @@ AuthenticationResultPtr AcquireTokenHandlerBase::runAsync()
         {
             this->notifyAfterAccessCache();
         }
-        Logger::error(Tag(), "runAsync(): exception: %", ex.error());
+        StaticLogger::Error(Tag(), "runAsync(): exception: %", ex.error());
         throw;
     }
 }
 
 CallStatePtr AcquireTokenHandlerBase::createCallState(const Guid& correlationId, bool callSync)
 {
-    Logger::info(Tag(), "createCallState");
+    StaticLogger::Info(Tag(),"createCallState");
     auto id = (!correlationId.empty()) ? correlationId : Guid::newGuid();
 
     return std::make_shared<CallState>(id, callSync);
@@ -116,31 +116,31 @@ CallStatePtr AcquireTokenHandlerBase::createCallState(const Guid& correlationId,
 
 void AcquireTokenHandlerBase::preRunAsync()
 {
-    Logger::info(Tag(), "preRunAsync");
+    StaticLogger::Info(Tag(),"preRunAsync");
     authenticator_-> updateFromTemplateAsync(callState_);
     validateAuthorityType();
 }
 
 void AcquireTokenHandlerBase::postRunAsync(AuthenticationResultPtr result)
 {
-    Logger::info(Tag(), "postRunAsync");
+    StaticLogger::Info(Tag(),"postRunAsync");
     logReturnedToken(result);
 }
 
 void AcquireTokenHandlerBase::preTokenRequest()
 {
-    Logger::info(Tag(), "preTokenRequest");
+    StaticLogger::Info(Tag(),"preTokenRequest");
 }
 
 void AcquireTokenHandlerBase::postTokenRequest(AuthenticationResultPtr result)
 {
-    Logger::info(Tag(), "postTokenRequest");
+    StaticLogger::Info(Tag(),"postTokenRequest");
     authenticator_->updateTenantId(result->tenantId());
 }
 
 AuthenticationResultPtr AcquireTokenHandlerBase::sendTokenRequestAsync()
 {
-    Logger::info(Tag(), "sendTokenRequestAsync");
+    StaticLogger::Info(Tag(),"sendTokenRequestAsync");
     RequestParameters requestParameters(resource_, clientKey_);
     addAditionalRequestParameters(requestParameters);
 
@@ -149,7 +149,7 @@ AuthenticationResultPtr AcquireTokenHandlerBase::sendTokenRequestAsync()
 
 AuthenticationResultPtr AcquireTokenHandlerBase::sendTokenRequestByRefreshTokenAsync(const String& refreshToken)
 {
-    Logger::info(Tag(), "sendTokenRequestByRefreshTokenAsync");
+    StaticLogger::Info(Tag(),"sendTokenRequestByRefreshTokenAsync");
     RequestParameters requestParameters(resource_, clientKey_);
     requestParameters.addParam(OAuthConstants::oAuthParameter().GrantType, OAuthConstants::oAuthGrantType().RefreshToken);
     requestParameters.addParam(OAuthConstants::oAuthParameter().RefreshToken, refreshToken);
@@ -165,7 +165,7 @@ AuthenticationResultPtr AcquireTokenHandlerBase::sendTokenRequestByRefreshTokenA
 
 AuthenticationResultPtr AcquireTokenHandlerBase::refreshAccessTokenAsync(AuthenticationResultPtr result)
 {
-    Logger::info(Tag(), "refreshAccessTokenAsync");
+    StaticLogger::Info(Tag(),"refreshAccessTokenAsync");
     AuthenticationResultPtr newResult = nullptr;
     if (!resource_.empty())
     {
@@ -200,7 +200,7 @@ AuthenticationResultPtr AcquireTokenHandlerBase::refreshAccessTokenAsync(Authent
 
 AuthenticationResultPtr AcquireTokenHandlerBase::sendHttpMessageAsync(const RequestParameters& requestParameters)
 {
-    Logger::info(Tag(), "sendHttpMessageAsync");
+    StaticLogger::Info(Tag(),"sendHttpMessageAsync");
 
 //    String uri = HttpHelper::CheckForExtraQueryParameter(authenticator_->tokenUri());
     auto uri = authenticator_->tokenUri();
@@ -212,7 +212,7 @@ AuthenticationResultPtr AcquireTokenHandlerBase::sendHttpMessageAsync(const Requ
 
 void AcquireTokenHandlerBase::notifyBeforeAccessCache()
 {
-    Logger::info(Tag(), "notifyBeforeAccessCache");
+    StaticLogger::Info(Tag(),"notifyBeforeAccessCache");
     TokenCacheNotificationArgs args(
         tokenCache_.get(),
         resource_,
@@ -225,7 +225,7 @@ void AcquireTokenHandlerBase::notifyBeforeAccessCache()
 
 void AcquireTokenHandlerBase::notifyAfterAccessCache()
 {
-    Logger::info(Tag(), "notifyAfterAccessCache");
+    StaticLogger::Info(Tag(),"notifyAfterAccessCache");
     TokenCacheNotificationArgs args(
         tokenCache_.get(),
         resource_,
@@ -251,15 +251,15 @@ void AcquireTokenHandlerBase::logReturnedToken(AuthenticationResultPtr result)
             refreshTokenHash = "[No Refresh Token]";
         }
 
-        Logger::info(Tag(), "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: %\n\tRefresh Token Hash: %\n\tExpiration Time: % (%)\n\tUser Hash: %\n\t",
-            accessTokenHash, refreshTokenHash, DateTime(result->expiresOn()).toString("HH:mm:ss MM.dd.yy"), result->expiresOn(),
-            result->userInfo() != nullptr ?  HashUtils::createSha256Hash(result->userInfo()->uniqueId()) : "nullptr");
+        StaticLogger::Info(Tag(), "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: %\n\tRefresh Token Hash: %\n\tExpiration Time: % (%)\n\tUser Hash: %\n\t",
+                           accessTokenHash, refreshTokenHash, DateTime(result->expiresOn()).toString("HH:mm:ss MM.dd.yy"), result->expiresOn(),
+                           result->userInfo() != nullptr ?  HashUtils::createSha256Hash(result->userInfo()->uniqueId()) : "nullptr");
     }
 }
 
 void AcquireTokenHandlerBase::validateAuthorityType()
 {
-    Logger::info(Tag(), "validateAuthorityType");
+    StaticLogger::Info(Tag(),"validateAuthorityType");
     if (!supportADFS_ && authenticator_->authorityType() == AuthorityType::ADFS)
     {
         StringStream ds;

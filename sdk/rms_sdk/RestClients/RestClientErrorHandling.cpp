@@ -7,14 +7,14 @@
  */
 
 #include "../Platform/Http/IHttpClient.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include "../Json/IJsonSerializer.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "RestClientErrorHandling.h"
 using namespace std;
 using namespace rmscore::platform::http;
 using namespace rmscore::json;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -27,7 +27,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     return;
   }
 
-  Logger::Hidden("Http request failed with response: %s", sResponse.data());
+  StaticLogger::Debug("Http request failed with response: %s", sResponse.data());
 
   switch (httpStatusCode)
   {
@@ -58,7 +58,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
       throw exceptions::RMSNetworkException("RMS service error.",
                                             exceptions::RMSNetworkException::ServerError);
     }
-    Logger::Hidden("Service error response: code='%s', message='%s'",
+    StaticLogger::Debug("Service error response: code='%s', message='%s'",
                    response.code.c_str(),
                    response.message.c_str());
 

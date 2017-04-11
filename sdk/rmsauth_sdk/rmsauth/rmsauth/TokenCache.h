@@ -16,7 +16,7 @@
 #include "TokenCacheNotificationArgs.h"
 #include "TokenCacheKey.h"
 #include "TokenCacheItem.h"
-#include "Logger.h"
+#include "StaticLogger.h"
 #include "rmsauthExport.h"
 
 namespace rmsauth {

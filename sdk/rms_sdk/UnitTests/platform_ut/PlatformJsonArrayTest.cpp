@@ -7,13 +7,13 @@
 */
 
 #include "PlatformJsonArrayTest.h"
-#include "../../Platform/Logger/Logger.h"
+#include "../../Platform/Log4cplus/StaticLogger.h"
 #include "../../Platform/Json/IJsonParser.h"
 #include "../../Platform/Json/IJsonObject.h"
 #include "../../Platform/Json/IJsonArray.h"
 
 using namespace rmscore::platform::json;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 void PlatformJsonArrayTest::testGetStringAt_data()
 {
@@ -59,7 +59,7 @@ void PlatformJsonArrayTest::testGetStringAt()
   }
   catch (std::invalid_argument& e)
   {
-    Logger::Error("Exception: %s", e.what());
+    StaticLogger::Error("Exception: %s", e.what());
   }
 }
 

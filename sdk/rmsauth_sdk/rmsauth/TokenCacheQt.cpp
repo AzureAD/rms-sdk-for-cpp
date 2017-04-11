@@ -14,13 +14,13 @@ namespace rmsauth {
 
 ByteArray TokenCache::serialize()
 {
-    Logger::info(Tag(), "serialize");
+    StaticLogger::Info(Tag(),"serialize");
 
     QByteArray qba;
 
     QDataStream qds(&qba, QIODevice::WriteOnly);
 
-    Logger::info(Tag(), "Serializing token cache with % items.", tokenCacheDictionary_.size());
+    StaticLogger::Info(Tag(), ": Serializing token cache with % items.", tokenCacheDictionary_.size());
 
     qds << SchemaVersion_;
     qds << count();
@@ -43,7 +43,7 @@ ByteArray TokenCache::serialize()
 
 void TokenCache::deserialize(const ByteArray& state)
 {
-    Logger::info(Tag(), "deserialize");
+    StaticLogger::Info(Tag(),"deserialize");
 
     if (state.empty())
     {
@@ -58,7 +58,7 @@ void TokenCache::deserialize(const ByteArray& state)
     qds >> schemaVersion;
     if (schemaVersion != SchemaVersion_)
     {
-        Logger::warning(Tag(), "The version of the persistent state of the cache does not match the current schema, so skipping deserialization.");
+        StaticLogger::Warning(Tag(),"The version of the persistent state of the cache does not match the current schema, so skipping deserialization.");
         return;
     }
 
@@ -97,7 +97,7 @@ void TokenCache::deserialize(const ByteArray& state)
         tokenCacheDictionary_.insert(std::make_pair(std::move(tokenCacheKey), result));
     }
 
-    Logger::info(Tag(), "Deserialized % items to token cache.", this->count());
+    StaticLogger::Info(Tag(),"Deserialized % items to token cache.", this->count());
 }
 
 } // namespace rmsauth {

@@ -11,11 +11,11 @@
 #include "Domain.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IDnsServerResolver.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 
 using namespace std;
 using namespace rmscore::platform::http;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -38,18 +38,18 @@ shared_ptr<DnsClientResult>DnsLookupClient::LookupDiscoveryService(
   for (auto possibleDomainIt = begin(possibleDomains);
        possibleDomainIt != end(possibleDomains); ++possibleDomainIt)
   {
-    Logger::Hidden("possibleDomain: %s", possibleDomainIt->c_str());
+    StaticLogger::Debug("possibleDomain: %s", possibleDomainIt->c_str());
     string dnsRequest(RMS_QUERY_PREFIX + *possibleDomainIt);
     auto   dnsResponse = pResolver->lookup(dnsRequest);
 
     if (dnsResponse.empty())
     {
-      Logger::Hidden("Failed DNS lookup with domain: %s",
+      StaticLogger::Debug("Failed DNS lookup with domain: %s",
                      possibleDomainIt->c_str());
       continue;
     }
 
-    Logger::Hidden("Successfully queried results with domain: %s",
+    StaticLogger::Debug("Successfully queried results with domain: %s",
                    possibleDomainIt->c_str());
     return DnsClientResult::Create(dnsResponse);
   }

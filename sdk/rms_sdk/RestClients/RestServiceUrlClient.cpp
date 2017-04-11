@@ -17,13 +17,13 @@
 #include "../Core/FeatureControl.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Settings/ILocalSettings.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 
 using namespace std;
 using namespace rmscore::modernapi;
 using namespace rmscore::common;
 using namespace rmscore::platform::settings;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -226,7 +226,7 @@ GetServiceDiscoveryDetails(
   shared_ptr<string> pServerPublicCertificate;
   if (licenseParserResults.get() != nullptr)
   {
-    Logger::Hidden("Using publishLicense to create domain");
+    StaticLogger::Debug("Using publishLicense to create domain");
     domains = licenseParserResults->GetDomains();
     if (rmscore::core::FeatureControl::IsEvoEnabled())
     {
@@ -235,7 +235,7 @@ GetServiceDiscoveryDetails(
   }
   else
   {
-    Logger::Hidden("Using email to create domain");
+    StaticLogger::Debug("Using email to create domain");
     shared_ptr<Domain> domain = Domain::CreateFromEmail(sEmail);
     domains.push_back(domain);
   }
@@ -250,7 +250,7 @@ GetServiceDiscoveryDetails(
 
     if (serviceDiscoveryDetails.get() != nullptr)
     {
-      Logger::Hidden("Service discovery is cached");
+      StaticLogger::Debug("Service discovery is cached");
 
       if (consentCallback)
       {
@@ -271,7 +271,7 @@ GetServiceDiscoveryDetails(
 
     if (!vDnsClientResult.empty())
     {
-      Logger::Hidden("Found cached DNS client result");
+      StaticLogger::Debug("Found cached DNS client result");
       selectedDomain  = domain;
       dnsClientResult = DnsClientResult::Create(vDnsClientResult[0]);
       break;
@@ -280,12 +280,12 @@ GetServiceDiscoveryDetails(
 
   if (dnsClientResult.get() == nullptr)
   {
-    Logger::Hidden("No cached DNS client result");
+    StaticLogger::Debug("No cached DNS client result");
 
     // selectedDomain must also be null if dnsClientResult is null
     if (selectedDomain.get() != nullptr)
     {
-      Logger::Hidden("selectedDomain must be nul");
+      StaticLogger::Debug("selectedDomain must be nul");
     }
 
     // DNS lookup to find discovery service URL.
@@ -298,7 +298,7 @@ GetServiceDiscoveryDetails(
 
       if (dnsClientResult.get() != nullptr)
       {
-        Logger::Hidden("DNS lookup successful dns client result.");
+        StaticLogger::Debug("DNS lookup successful dns client result.");
         auto domainsChecked = dnsClientResult->GetDomainsChecked();
         for_each(
           begin(domainsChecked),
@@ -318,7 +318,7 @@ GetServiceDiscoveryDetails(
 
     if (dnsClientResult.get() == nullptr)
     {
-      Logger::Hidden("Failed DNS lookup, reverting to cloud discovery service");
+      StaticLogger::Debug("Failed DNS lookup, reverting to cloud discovery service");
 
       if (domains.empty()) {
         throw exceptions::RMSInvalidArgumentException("DNS is empty");
@@ -335,12 +335,12 @@ GetServiceDiscoveryDetails(
     throw exceptions::RMSInvalidArgumentException("Domain is empty");
   }
 
-  Logger::Hidden("selectedDomain = %s",
+  StaticLogger::Debug("selectedDomain = %s",
                  selectedDomain->GetOriginalInput().c_str());
 
   // get the discovery url
   string discoveryUrl = dnsClientResult->GetDiscoveryUrl();
-  Logger::Hidden("discoveryUrl = %s", discoveryUrl.c_str());
+  StaticLogger::Debug("discoveryUrl = %s", discoveryUrl.c_str());
 
   if (consentCallback)
   {
@@ -412,7 +412,7 @@ GetServiceDiscoveryDetails(
     throw exceptions::RMSInvalidArgumentException("PerformanceServerUrl is empty");
   }
 
-  Logger::Hidden(
+  StaticLogger::Debug(
     "serviceDiscoveryDetails: EndUserLicensesUrl = '%s', PublishingLicensesUrl = '%s'," \
     " TemplatesUrl = '%s', CloudDiagnosticsServerUrl = '%s', PerformanceServerUrl = '%s'",
     serviceDiscoveryDetails->EndUserLicensesUrl.c_str(),

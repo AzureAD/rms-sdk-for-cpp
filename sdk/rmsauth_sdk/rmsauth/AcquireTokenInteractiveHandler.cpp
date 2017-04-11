@@ -14,7 +14,7 @@ namespace rmsauth {
 AcquireTokenInteractiveHandler::AcquireTokenInteractiveHandler(AuthenticatorPtr authenticator, TokenCachePtr tokenCache, const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, UserIdentifierPtr userId, const String& extraQueryParameters, IWebUIPtr webUI, bool callSync)
     : AcquireTokenHandlerBase(authenticator, tokenCache, resource, std::make_shared<ClientKey>(clientId), TokenSubjectType::User, callSync)
 {
-    Logger::info(Tag(), "AcquireTokenInteractiveHandler");
+    StaticLogger::Info(Tag(),"AcquireTokenInteractiveHandler");
 
     if (redirectUri.empty())
     {
@@ -66,7 +66,7 @@ void AcquireTokenInteractiveHandler::addAditionalRequestParameters(RequestParame
 
 void AcquireTokenInteractiveHandler::postTokenRequest(AuthenticationResultPtr result)
 {
-    Logger::info(Tag(), "postTokenRequest");
+    StaticLogger::Info(Tag(),"postTokenRequest");
 
     AcquireTokenHandlerBase::postTokenRequest(result);
     if ((displayableId_.empty() && uniqueId_.empty()) || userIdentifierType_ == UserIdentifierType::OptionalDisplayableId)
@@ -90,7 +90,7 @@ void AcquireTokenInteractiveHandler::postTokenRequest(AuthenticationResultPtr re
 
 String AcquireTokenInteractiveHandler::createAuthorizationUri(bool includeFormsAuthParam)
 {
-    Logger::info(Tag(), "createAuthorizationUri");
+    StaticLogger::Info(Tag(),"createAuthorizationUri");
 
     String loginHint;
 
@@ -112,7 +112,7 @@ String AcquireTokenInteractiveHandler::createAuthorizationUri(bool includeFormsA
 
 RequestParameters AcquireTokenInteractiveHandler::createAuthorizationRequest(const String& loginHint, bool includeFormsAuthParam)
 {
-    Logger::info(Tag(), "createAuthorizationRequest");
+    StaticLogger::Info(Tag(),"createAuthorizationRequest");
 
     RequestParameters authorizationRequestParameters(resource_, clientKey_);
     authorizationRequestParameters.addParam(OAuthConstants::oAuthParameter().ResponseType, OAuthConstants::oAuthResponseType().Code);
@@ -170,7 +170,7 @@ void AcquireTokenInteractiveHandler::addHeadersToRequestParameters(RequestParame
 
 void AcquireTokenInteractiveHandler::verifyAuthorizationResult()
 {
-    Logger::info(Tag(), "verifyAuthorizationResult");
+    StaticLogger::Info(Tag(),"verifyAuthorizationResult");
 
     if (promptBehavior_ == PromptBehavior::Never && authorizationResult_->error() == OAuthConstants::oAuthError().LoginRequired)
     {
@@ -185,7 +185,7 @@ void AcquireTokenInteractiveHandler::verifyAuthorizationResult()
 
 void AcquireTokenInteractiveHandler::preTokenRequest()
 {
-    Logger::info(Tag(), "preTokenRequest");
+    StaticLogger::Info(Tag(),"preTokenRequest");
 
     AcquireTokenHandlerBase::preTokenRequest();
 
@@ -195,13 +195,13 @@ void AcquireTokenInteractiveHandler::preTokenRequest()
 
 void AcquireTokenInteractiveHandler::acquireAuthorization()
 {
-    Logger::info(Tag(), "acquireAuthorization");
+    StaticLogger::Info(Tag(),"acquireAuthorization");
     sendAuthorizeRequest();
 }
 
 void AcquireTokenInteractiveHandler::sendAuthorizeRequest()
 {
-    Logger::info(Tag(), "sendAuthorizeRequest");
+    StaticLogger::Info(Tag(),"sendAuthorizeRequest");
     String authorizationUri = createAuthorizationUri(includeFormsAuthParams());
     String resultUri = webUi_->authenticate(authorizationUri, redirectUri_);
     authorizationResult_ = OAuth2Response::parseAuthorizeResponse(resultUri, callState_);
@@ -209,13 +209,13 @@ void AcquireTokenInteractiveHandler::sendAuthorizeRequest()
 
 bool AcquireTokenInteractiveHandler::includeFormsAuthParams()
 {
-    Logger::info(Tag(), "includeFormsAuthParams");
+    StaticLogger::Info(Tag(),"includeFormsAuthParams");
     return isUserLocal() && isDomainJoined();
 }
 
 String AcquireTokenInteractiveHandler::createAuthorizationUriAsync(const Guid& correlationId)
 {
-    Logger::info(Tag(), "createAuthorizationUriAsync");
+    StaticLogger::Info(Tag(),"createAuthorizationUriAsync");
     callState_->correlationId(correlationId);
     authenticator_->updateFromTemplateAsync(callState_);
     return createAuthorizationUri(false);

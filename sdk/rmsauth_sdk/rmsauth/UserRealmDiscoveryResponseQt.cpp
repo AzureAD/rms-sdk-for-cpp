@@ -7,7 +7,7 @@
 */
 
 #include <UserRealmDiscoveryResponse.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <RmsauthIdHelper.h>
 #include <QNetworkRequest>
 #include <QCoreApplication>
@@ -20,7 +20,7 @@ namespace rmsauth {
 
 static UserRealmDiscoveryResponse deserializeUserRealmDiscoveryResponse(const QByteArray& body)
 {
-    Logger::info("deserializeUserRealmDiscoveryResponse", "jsonObject: %", String(body.begin(), body.end()));
+    StaticLogger::Info("deserializeUserRealmDiscoveryResponse", "jsonObject: %", String(body.begin(), body.end()));
 
     QJsonParseError error;
     auto qdoc = QJsonDocument::fromJson(body, &error);
@@ -48,7 +48,7 @@ UserRealmDiscoveryResponse UserRealmDiscoveryResponse::createByDiscoveryAsync(co
     String userRealmEndpoint = userRealmUri + userName + "?api-version=1.0";
 
 //  userRealmEndpoint = HttpHelper.CheckForExtraQueryParameter(userRealmEndpoint);
-    Logger::info(Tag(), "Sending user realm discovery request to '%'", userRealmEndpoint);
+    StaticLogger::Info(Tag(),"Sending user realm discovery request to '%'", userRealmEndpoint);
 
     QNetworkRequest request = HttpHelperQt::createRequest();
     request.setUrl(QUrl(userRealmEndpoint.data()));

@@ -13,14 +13,14 @@
 #include "../Platform/Filesystem/IFileSystem.h"
 #include "../Platform/Settings/ILocalSettings.h"
 #include "../Common/tools.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include <sstream>
 #include <fstream>
 #include <future>
 #include <QStandardPaths>
 
 using namespace std;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -44,7 +44,7 @@ common::StringArray RestClientCache::Lookup(
   const string& tag,
   const uint8_t *pbKey, size_t cbKey, bool useHash)
 {
-  Logger::Info("+RestClientCache::Lookup: cacheName=\"%s\", tag=\"%s\"",
+  StaticLogger::Info("+RestClientCache::Lookup: cacheName=\"%s\", tag=\"%s\"",
                cacheName.data(),
                !tag.empty() ? tag.data() : "NULL");
 
@@ -107,7 +107,7 @@ common::StringArray RestClientCache::Lookup(
       }
       catch (exceptions::RMSException)
       {
-        Logger::Warning(
+        StaticLogger::Warning(
           "RestClientCache::Lookup: exception while reading a cached file \"%s\"",
           (*iFileName).data());
 
@@ -118,7 +118,7 @@ common::StringArray RestClientCache::Lookup(
       }
       catch (rmscrypto::exceptions::RMSCryptoException& e)
       {
-        Logger::Warning(
+        StaticLogger::Warning(
           "RestClientCache::Lookup: exception while work with crypto: \"%s\"",
           e.what());
 
@@ -127,7 +127,7 @@ common::StringArray RestClientCache::Lookup(
       }
     }
 
-    Logger::Info(
+    StaticLogger::Info(
       "-RestClientCache::Lookup: cacheName=\"%s\", tag=\"%s\" returning %d result(s)",
       cacheName.data(),
       !tag.empty() ? tag.data() : "NULL",
@@ -138,7 +138,7 @@ common::StringArray RestClientCache::Lookup(
   }
   catch (exceptions::RMSException)
   {
-    Logger::Warning(
+    StaticLogger::Warning(
       "RestClientCache::Lookup: exception while enumerating cached files.");
 
     //        LogException(LOG_MESSAGE_WARNING);
@@ -156,7 +156,7 @@ void RestClientCache::Store(
   const common::ByteArray& strResponse,
   bool useHash)
 {
-  Logger::Info(
+  StaticLogger::Info(
     "RestClientCache::Store: cacheName=\"%s\", tag=\"%s\", expires=\"%s\"",
     cacheName.data(),
     !tag.empty() ? tag.data() : "NULL",
@@ -207,12 +207,12 @@ void RestClientCache::Store(
   }
   catch (exceptions::RMSException)
   {
-    Logger::Warning(
+    StaticLogger::Warning(
       "RestClientCache::Store: exception while caching the response.");
   }
   catch (rmscrypto::exceptions::RMSCryptoException& e)
   {
-    Logger::Warning(
+    StaticLogger::Warning(
       "RestClientCache::Store: exception while work with crypto: \"%s\"",
       e.what());
 
@@ -384,7 +384,7 @@ bool RestClientCache::IsCacheLookupDisableTestHookOn()
     SELF::cacheSettingsCacheLookupDisableTestHook,
     false);
 
-  Logger::Info("RestClientCache::IsCacheLookupDisableTestHookOn: %s state",
+  StaticLogger::Info("RestClientCache::IsCacheLookupDisableTestHookOn: %s state",
                res ? "TRUE" : "FALSE");
 
   return res;
@@ -531,7 +531,7 @@ void RestClientCache::DeleteCacheFile(const string& fileName)
   }
   catch (exceptions::RMSException)
   {
-    Logger::Warning(
+    StaticLogger::Warning(
       "RestClientCache::DeleteCacheFile: exception while deleting a file \"%s\".",
       fileName.data());
 
@@ -571,7 +571,7 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
         lock_guard<mutex>locker(SELF::cacheMutex);
         try
         {
-          Logger::Info("RestClientCache::LaunchCleanup: cleanup started.");
+          StaticLogger::Info("RestClientCache::LaunchCleanup: cleanup started.");
 
 
           auto pFileSystem = platform::filesystem::IFileSystem::Create();
@@ -603,7 +603,7 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
             {
               if (SELF::DeleteIfExpired(cacheName, allFileNames[iFileName]))
               {
-                Logger::Info(
+                StaticLogger::Info(
                   "RestClientCache::LaunchCleanup: deleted expired cache file \"%s\".",
                   allFileNames[iFileName].c_str());
 
@@ -617,7 +617,7 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
               //
               //
               //
-              Logger::Warning(
+              StaticLogger::Warning(
                 "RestClientCache::DeleteCacheFile: exception while checking if the file was expired \"%s\".",
                 allFileNames[iFileName].c_str());
 
@@ -636,7 +636,7 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
               SELF::DeleteCacheFile(allFileNames[iFileName].c_str());
 
               //
-              Logger::Info(
+              StaticLogger::Info(
                 "RestClientCache::LaunchCleanup: deleted old cache file \"%s\".",
                 allFileNames[iFileName].c_str());
             }
@@ -645,7 +645,7 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
               //
               //
               //
-              Logger::Warning(
+              StaticLogger::Warning(
                 "RestClientCache::DeleteCacheFile: exception while deleting a file \"%s\".",
                 allFileNames[iFileName].c_str());
 
@@ -657,10 +657,10 @@ void RestClientCache::LaunchCleanup(const string& cacheName)
         }
         catch (exceptions::RMSException)
         {
-          Logger::Warning(
+          StaticLogger::Warning(
             "RestClientCache::DeleteCacheFile: exception while cache cleanup.");
         }
-        Logger::Info("RestClientCache::LaunchCleanup: cleanup finished.");
+        StaticLogger::Info("RestClientCache::LaunchCleanup: cleanup finished.");
       });
 
   result.get();
@@ -684,7 +684,7 @@ void RestClientCache::CleanupIfNeeded(const string& cacheName)
       SELF::SetCacheCleanupCounter(cacheName,
                                    SELF::GetCacheCleanupFrequency(cacheName));
 
-      Logger::Info("RestClientCache::CleanupIfNeeded: cleanup needed.");
+      StaticLogger::Info("RestClientCache::CleanupIfNeeded: cleanup needed.");
 
       // now start the cleanup
       SELF::LaunchCleanup(cacheName);
@@ -697,7 +697,7 @@ void RestClientCache::CleanupIfNeeded(const string& cacheName)
   }
   catch (exceptions::RMSException)
   {
-    Logger::Warning(
+    StaticLogger::Warning(
       "RestClientCache::DeleteCacheFile: exception while checking if cleanup is needed.");
 
     //        LogException(LOG_MESSAGE_WARNING);

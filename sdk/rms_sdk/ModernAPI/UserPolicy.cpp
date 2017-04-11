@@ -9,7 +9,7 @@
 #include "../Common/tools.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../ModernAPI/RMSExceptions.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 
 #include "UserPolicy.h"
 
@@ -21,7 +21,7 @@ using namespace rmscore::core;
 using namespace rmscrypto::api;
 using namespace rmscore::modernapi;
 using namespace std;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace modernapi {
@@ -48,7 +48,7 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
   ResponseCacheFlags                 cacheMask,
   std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Hidden("+UserPolicy::Acquire");
+  StaticLogger::Debug("+UserPolicy::Acquire");
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
@@ -97,7 +97,7 @@ shared_ptr<GetUserPolicyResult>UserPolicy::Acquire(
     throw exceptions::RMSInvalidArgumentException("Invalid Access Status");
   } // switch
 
-  Logger::Hidden("-UserPolicy::Acquire");
+  StaticLogger::Debug("-UserPolicy::Acquire");
   return result;
 } // UserPolicy::Acquire
 
@@ -109,7 +109,7 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
   const AppDataHashMap               & signedAppData,
   std::shared_ptr<std::atomic<bool> >  cancelState)
 {
-  Logger::Hidden("+UserPolicy::CreateFromTemplateDescriptor");
+  StaticLogger::Debug("+UserPolicy::CreateFromTemplateDescriptor");
 
   AuthenticationCallbackImpl authenticationCallbackImpl(authenticationCallback,
                                                         userId);
@@ -136,7 +136,7 @@ std::shared_ptr<UserPolicy>UserPolicy::CreateFromTemplateDescriptor(
     cancelState);
   auto result = std::shared_ptr<UserPolicy>(new UserPolicy(pImpl));
 
-  Logger::Hidden("-UserPolicy::CreateFromTemplateDescriptor");
+  StaticLogger::Debug("-UserPolicy::CreateFromTemplateDescriptor");
   return result;
 } // UserPolicy::CreateFromTemplateDescriptor
 
@@ -147,7 +147,7 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
   UserPolicyCreationOptions          options,
   std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Hidden("+UserPolicy::Create");
+  StaticLogger::Debug("+UserPolicy::Create");
 
   auto authenticationCallbackImpl = AuthenticationCallbackImpl {
     authenticationCallback, userId
@@ -261,7 +261,7 @@ std::shared_ptr<UserPolicy>UserPolicy::Create(
       policyDescriptor.ContentValidUntil());
   }
 
-  Logger::Hidden("-UserPolicy::Create");
+  StaticLogger::Debug("-UserPolicy::Create");
   return result;
 } // UserPolicy::Create
 

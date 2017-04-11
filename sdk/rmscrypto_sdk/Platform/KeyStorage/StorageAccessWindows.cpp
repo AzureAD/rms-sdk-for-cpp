@@ -9,10 +9,10 @@
 #include "StorageAccessWindows.h"
 #include <strsafe.h>
 #include <CryptoAPI/RMSCryptoExceptions.h>
-#include <Platform/Logger/Logger.h>
+#include <Platform/Log4cplus/StaticLogger.h>
 
 using namespace rmscrypto::exceptions;
-using namespace rmscrypto::platform::logger;
+using namespace rmscrypto::platform::staticlogger;
 using namespace std;
 
 static const string TableName = "MSIPCKeyStorage";
@@ -111,7 +111,7 @@ wstring StorageAccessWindows::CreateLocalStorage()
     {
         if (!EncryptFile(directory.c_str()))
         {
-            Logger::Warning("EncryptFile failed with " + GetLastWin32ErrorAsString());
+            StaticLogger::Warning("EncryptFile failed with " + GetLastWin32ErrorAsString());
         }
     }
     return directory;
@@ -175,7 +175,7 @@ void StorageAccessWindows::ErrorHandler(int returnCode, const string& errorOp)
 {
     if (returnCode)
     {
-        Logger::Error("StorageAccessWindows failure in " + errorOp + ", sqlite3 failure " + sqlite3_errmsg(mDb.get()));
+        StaticLogger::Error("StorageAccessWindows failure in " + errorOp + ", sqlite3 failure " + sqlite3_errmsg(mDb.get()));
         throw RMSCryptoIOKeyException("StorageAccessWindows failure in operation " + errorOp);
     }
 }

@@ -9,11 +9,11 @@
 #include <future>
 #include "PfileHeaderWriter.h"
 #include "PfileHeader.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 
 using namespace std;
 using namespace rmscore::common;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace pfile {
@@ -23,10 +23,10 @@ PfileHeaderWriter::~PfileHeaderWriter()
 size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream      stream,
                                 const std::shared_ptr<PfileHeader>header)
 {
-  Logger::Hidden("PfileHeaderWriter::Write");
+  StaticLogger::Debug("PfileHeaderWriter::Write");
 
   auto extension = header->GetFileExtension();
-  Logger::Hidden("Writing pfile header. Major version: %d, minor version: %d," \
+  StaticLogger::Debug("Writing pfile header. Major version: %d, minor version: %d," \
                  " file extension: %s, content start position: %d, original file size: %I64d",
                  header->GetMajorVersion(),
                  header->GetMinorVersion(),
@@ -49,7 +49,7 @@ size_t PfileHeaderWriter::Write(rmscrypto::api::SharedStream      stream,
 
 uint32_t PfileHeaderWriter::WritePreamble(rmscrypto::api::SharedStream writer)
 {
-  Logger::Hidden("PfileHeaderWriter::WritePreamble");
+  StaticLogger::Debug("PfileHeaderWriter::WritePreamble");
   common::ByteArray preamble = { 0x2E, 0x70, 0x66, 0x69, 0x6C, 0x65 }; // byte
 
   // representation
@@ -65,7 +65,7 @@ uint32_t PfileHeaderWriter::WriteVersionNumber(
   rmscrypto::api::SharedStream      writer,
   const std::shared_ptr<PfileHeader>header)
 {
-  Logger::Hidden("PfileHeaderWriter::WriteVersionNumber");
+  StaticLogger::Debug("PfileHeaderWriter::WriteVersionNumber");
   uint32_t mjv = header->GetMajorVersion();
   uint32_t mnv = header->GetMinorVersion();
 
@@ -79,7 +79,7 @@ uint32_t PfileHeaderWriter::WriteCleartextRedirection(
   rmscrypto::api::SharedStream      writer,
   const std::shared_ptr<PfileHeader>header)
 {
-  Logger::Hidden("PfileHeaderWriter::WriteCleartextRedirection");
+  StaticLogger::Debug("PfileHeaderWriter::WriteCleartextRedirection");
   auto cleartextRedirectionHeader = header->GetCleartextRedirectionHeader();
   uint32_t cts                    =
     static_cast<uint32_t>(cleartextRedirectionHeader.size());
@@ -97,7 +97,7 @@ void PfileHeaderWriter::WriteHeader(rmscrypto::api::SharedStream      writer,
                                     const std::shared_ptr<PfileHeader>header,
                                     size_t                            headerOffset)
 {
-  Logger::Hidden("PfileHeaderWriter::WriteHeader");
+  StaticLogger::Debug("PfileHeaderWriter::WriteHeader");
   uint32_t headerSize      = 8 * sizeof(uint32_t) + sizeof(uint64_t);
   uint32_t extensionOffset = static_cast<uint32_t>(headerOffset) +
                              headerSize;
@@ -125,7 +125,7 @@ void PfileHeaderWriter::WriteHeader(rmscrypto::api::SharedStream      writer,
 void PfileHeaderWriter::WriteExtension(rmscrypto::api::SharedStream      writer,
                                        const std::shared_ptr<PfileHeader>header)
 {
-  Logger::Hidden("PfileHeaderWriter::WriteExtension");
+  StaticLogger::Debug("PfileHeaderWriter::WriteExtension");
   auto extension = header->GetFileExtension();
 
   if (extension.empty()) return;
@@ -138,7 +138,7 @@ void PfileHeaderWriter::WritePublishingLicense(
   rmscrypto::api::SharedStream      writer,
   const std::shared_ptr<PfileHeader>header)
 {
-  Logger::Hidden("PfileHeaderWriter::WritePublishingLicense");
+  StaticLogger::Debug("PfileHeaderWriter::WritePublishingLicense");
   auto publishingLicense = header->GetPublishingLicense();
 
   writer->Write(reinterpret_cast<const uint8_t *>(publishingLicense.data()),
@@ -148,7 +148,7 @@ void PfileHeaderWriter::WritePublishingLicense(
 void PfileHeaderWriter::WriteMetadata(rmscrypto::api::SharedStream      writer,
                                       const std::shared_ptr<PfileHeader>header)
 {
-  Logger::Hidden("PfileHeaderWriter::WriteMetadata");
+  StaticLogger::Debug("PfileHeaderWriter::WriteMetadata");
   auto metadata = header->GetMetadata();
 
   writer->Write(reinterpret_cast<const uint8_t *>(metadata.data()),
@@ -157,7 +157,7 @@ void PfileHeaderWriter::WriteMetadata(rmscrypto::api::SharedStream      writer,
 
 shared_ptr<IPfileHeaderWriter>IPfileHeaderWriter::Create()
 {
-  Logger::Hidden("PfileHeaderWriter::Create");
+  StaticLogger::Debug("PfileHeaderWriter::Create");
 
   return make_shared<PfileHeaderWriter>();
 }

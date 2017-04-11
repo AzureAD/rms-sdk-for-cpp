@@ -14,14 +14,14 @@
 #include "../PFile/PfileHeaderWriter.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Core/ProtectionPolicy.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include "ProtectedFileStream.h"
 
 using namespace rmscore::common;
 using namespace rmscrypto::api;
 using namespace rmscore::pfile;
 using namespace std;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace modernapi {
@@ -53,7 +53,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   ResponseCacheFlags                 cacheMask,
   std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Hidden("+ProtectedFileStream::Get");
+  StaticLogger::Debug("+ProtectedFileStream::Get");
 
   // Read PfileHeader from the stream
   shared_ptr<IPfileHeaderReader> headerReader = IPfileHeaderReader::Create();
@@ -70,7 +70,7 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   {
     header  = headerReader->Read(stream);
     pHeader = header.get();
-    Logger::Hidden(
+    StaticLogger::Debug(
       "ProtectedFileStream: Read pfile header. Major version: %d, minor version: %d, file extension: '%s', content start position: %d, original file size: %I64d",
       pHeader->GetMajorVersion(),
       pHeader->GetMinorVersion(),
@@ -125,7 +125,7 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
   SharedStream          stream,
   const string        & originalFileExtension)
 {
-  Logger::Hidden("+ProtectedFileStream::Create");
+  StaticLogger::Debug("+ProtectedFileStream::Create");
 
   string ext = originalFileExtension.empty() ? ".pfile" : originalFileExtension;
 
@@ -160,7 +160,7 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
 
   auto result = CreateProtectedFileStream(policy, stream, pHeader);
 
-  Logger::Hidden("-ProtectedFileStream::Create");
+  StaticLogger::Debug("-ProtectedFileStream::Create");
   return shared_ptr<ProtectedFileStream>(result);
 }
 

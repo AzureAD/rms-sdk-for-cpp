@@ -50,7 +50,7 @@ List<TokenCacheItemPtr> TokenCache::readItems()
 
 void TokenCache::deleteItem(TokenCacheItemPtr item)
 {
-    Logger::info(Tag(), "deleteItem");
+    StaticLogger::Info(Tag(),"deleteItem");
 
     TokenCacheNotificationArgs args(this, item->resource(), item->clientId(), item->uniqueId()/*, item->displayableId()*/);
 
@@ -65,7 +65,7 @@ void TokenCache::deleteItem(TokenCacheItemPtr item)
 
 void TokenCache::clear()
 {
-    Logger::info(Tag(), "clear");
+    StaticLogger::Info(Tag(),"clear");
 
     TokenCacheNotificationArgs args{ this };
     onBeforeAccess(args);
@@ -77,7 +77,7 @@ void TokenCache::clear()
 
 AuthenticationResultPtr TokenCache::loadFromCache(const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, const String& uniqueId, /*const String& displayableId, */CallStatePtr callState)
 {
-    Logger::info(Tag(), "loadFromCache");
+    StaticLogger::Info(Tag(),"loadFromCache");
 
     AuthenticationResultPtr result = nullptr;
 
@@ -91,7 +91,7 @@ AuthenticationResultPtr TokenCache::loadFromCache(const String& authority, const
         DateTime nowUtc;
         nowUtc.addSecs(expirationMarginInSeconds_);
 
-        Logger::info(Tag(), "Local time UTC: '%', token expiresOn: % (%)", DateTime().toString("HH:mm:ss MM.dd.yy"), DateTime(result->expiresOn()).toString("HH:mm:ss MM.dd.yy"), result->expiresOn() );
+        StaticLogger::Info(Tag(), ": Local time UTC: '%', token expiresOn: % (%)", DateTime().toString("HH:mm:ss MM.dd.yy"), DateTime(result->expiresOn()).toString("HH:mm:ss MM.dd.yy"), result->expiresOn() );
 
         bool tokenNearExpiry = (result->expiresOn() <= nowUtc.toTime());
 
@@ -100,26 +100,26 @@ AuthenticationResultPtr TokenCache::loadFromCache(const String& authority, const
             result->accessToken("");
             if (tokenNearExpiry)
             {
-                Logger::info(Tag(), "An expired or near expiry token was found in the cache");
+                StaticLogger::Info(Tag(),"An expired or near expiry token was found in the cache");
             }
         }
 
         if (result->accessToken().empty() && result->refreshToken().empty())
         {
             tokenCacheDictionary_.erase(cacheKey);
-            Logger::info(Tag(), "An old item was removed from the cache");
+            StaticLogger::Info(Tag(),"An old item was removed from the cache");
             hasStateChanged_ = true;
             result = nullptr;
         }
 
         if (result != nullptr)
         {
-            Logger::info(Tag(), "A matching token was found in the cache");
+            StaticLogger::Info(Tag(),"A matching token was found in the cache");
         }
     }
     else
     {
-         Logger::info(Tag(), "No matching token was found in the cache");
+         StaticLogger::Info(Tag(),"No matching token was found in the cache");
     }
 
     return result;
@@ -127,7 +127,7 @@ AuthenticationResultPtr TokenCache::loadFromCache(const String& authority, const
 
 void TokenCache::storeToCache(AuthenticationResultPtr result, const String& authority, const String& resource, const String& clientId, TokenSubjectType subjectType, CallStatePtr/* callState*/)
 {
-    Logger::info(Tag(), "storeToCache");
+    StaticLogger::Info(Tag(),"storeToCache");
 
     String uniqueId = (result->userInfo() != nullptr) ? result->userInfo()->uniqueId() : "";
     String displayableId = (result->userInfo() != nullptr) ? result->userInfo()->displayableId() : "";
@@ -140,11 +140,11 @@ void TokenCache::storeToCache(AuthenticationResultPtr result, const String& auth
     if(it != tokenCacheDictionary_.end())
     {
         it->second = result;
-        Logger::info(Tag(), "An item was updated in the cache");
+        StaticLogger::Info(Tag(),"An item was updated in the cache");
     }
     else
     {
-        Logger::info(Tag(), "An item was added to the cache");
+        StaticLogger::Info(Tag(),"An item was added to the cache");
         tokenCacheDictionary_.insert(KeyValuePair<TokenCacheKey, AuthenticationResultPtr>(std::move(tokenCacheKey), result));
     }
 
@@ -185,7 +185,7 @@ TokenCacheItemPtr TokenCache::loadSingleItemFromCache(const String& authority, c
 
     if(qnty == 1)
     {
-        Logger::info(Tag(), "An item matching the requested resource was found in the cache");
+        StaticLogger::Info(Tag(),"An item matching the requested resource was found in the cache");
         return list.front();
     }
 

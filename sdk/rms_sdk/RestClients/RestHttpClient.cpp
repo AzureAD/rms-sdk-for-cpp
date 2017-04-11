@@ -12,14 +12,14 @@
 #include "../Common/tools.h"
 #include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Settings/ILanguageSettings.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 
 using namespace std;
 using namespace rmscore::common;
 using namespace rmscore::modernapi;
 using namespace rmscore::platform::http;
 using namespace rmscore::platform::settings;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace restclients {
@@ -104,7 +104,7 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters
     {
         case HTTP_POST:
         {
-            Logger::Hidden("RestHttpClient::DoHttpRequest doing http POST to %s, Request-ID: %s",
+            StaticLogger::Debug("RestHttpClient::DoHttpRequest doing http POST to %s, Request-ID: %s",
                 parameters.requestUrl.c_str(),
                 requestId.c_str());
 
@@ -116,7 +116,7 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters
         break;
         case HTTP_GET:
         {
-            Logger::Hidden("RestHttpClient::DoHttpRequest doing http GET to %s, Request-ID: %s",
+            StaticLogger::Debug("RestHttpClient::DoHttpRequest doing http GET to %s, Request-ID: %s",
                 parameters.requestUrl.c_str(),
                 requestId.c_str());
 
@@ -125,7 +125,7 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters
         break;
     }
 
-    Logger::Hidden("RestHttpClient::DoHttpRequest returned status code: %d", (int)result.status);
+    StaticLogger::Debug("RestHttpClient::DoHttpRequest returned status code: %d", (int)result.status);
 
     return result;
 }

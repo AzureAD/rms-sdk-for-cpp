@@ -7,9 +7,9 @@
  */
 
 #include "QTStreamImpl.h"
-#include "../../Platform/Logger/Logger.h"
+#include "../../Platform/Log4cplus/StaticLogger.h"
 using namespace rmscrypto::api;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 using namespace std;
 
 
@@ -60,8 +60,7 @@ shared_future<int64_t>QTStreamImpl::WriteAsync(const uint8_t *cpbBuffer,
                       int64_t offset) -> int64_t {
     // first lock object
     unique_lock<mutex>lock(self->locker_);
-
-    Logger::Hidden("Write %I64d bytes at offset = %I64d from buffer = %x", size,
+    StaticLogger::Debug("Write %I64d bytes at offset = %I64d from buffer = %x", size,
                    offset, buffer);
 
     // seek to position and write

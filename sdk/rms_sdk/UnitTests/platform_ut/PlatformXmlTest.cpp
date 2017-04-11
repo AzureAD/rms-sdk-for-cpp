@@ -7,12 +7,12 @@
 */
 
 #include "PlatformXmlTest.h"
-#include "../../Platform/Logger/Logger.h"
+#include "../../Platform/Log4cplus/StaticLogger.h"
 #include "../../Platform/Xml/IDomDocument.h"
 #include "../../Platform/Xml/IDomNode.h"
 #include "../../Platform/Xml/IDomElement.h"
 
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 
 PlatformXmlTest::PlatformXmlTest()
@@ -59,7 +59,7 @@ void PlatformXmlTest::testSelectSingleNode(bool enabled)
 
     auto pnode = doc->SelectSingleNode(xPathRequest.toStdString());
     auto realResult = pnode->toElement()->text();
-    Logger::Hidden("expc: %s", expectedResult.toStdString().data());
-    Logger::Hidden("real: %s", realResult.data());
+    StaticLogger::Debug("expc: %s", expectedResult.toStdString().data());
+    StaticLogger::Debug("real: %s", realResult.data());
     QVERIFY(realResult == expectedResult.toStdString());
 }

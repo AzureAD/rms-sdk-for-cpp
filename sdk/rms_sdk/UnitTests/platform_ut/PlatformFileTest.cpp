@@ -7,7 +7,7 @@
 */
 
 #include "PlatformFileTest.h"
-#include "../../Platform/Logger/Logger.h"
+#include "../../Platform/Log4cplus/StaticLogger.h"
 #include "../../Platform/Filesystem/IFile.h"
 #include "../../Common/CommonTypes.h"
 #include <QFile>

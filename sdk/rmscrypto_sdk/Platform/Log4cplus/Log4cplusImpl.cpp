@@ -2,7 +2,7 @@
 #include <Log4cplusImpl.h>
 #include <iostream>
 
-namespace rmscore {
+namespace rmscrypto {
 namespace platform {
 namespace staticlogger{
 
@@ -14,8 +14,8 @@ StaticLogger& StaticLogger::getInstance(){
 Log4cplusImpl::Log4cplusImpl() {
     try{
         helpers::LogLog::getLogLog()->setInternalDebugging(true);
-        PropertyConfigurator::doConfigure(L"Log4cplus_rms.properties");
-        this->logger_ = Logger::getInstance(LOG4CPLUS_TEXT("rms_sdk_log"));
+        PropertyConfigurator::doConfigure(L"Log4cplus_crypto.properties");
+        this->logger_ = Logger::getInstance(LOG4CPLUS_TEXT("rmscrypto_sdk_log"));
     }
     catch(...){
         std::cout << LOG4CPLUS_TEXT("Exception...") << endl;

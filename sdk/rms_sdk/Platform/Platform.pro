@@ -9,4 +9,5 @@ SUBDIRS += \
     Json \
     Settings \
     Xml \
-    Logger
+    Logger \
+    Log4cplus

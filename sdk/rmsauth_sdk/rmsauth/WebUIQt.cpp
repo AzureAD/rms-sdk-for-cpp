@@ -7,7 +7,7 @@
 */
 
 #include <IWebUI.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <Exceptions.h>
 #include "../WebAuthDialog/Dialog.h"
 #include <QDialog>
@@ -39,7 +39,7 @@ static void messageInterceptor(QtMsgType type, const QMessageLogContext &context
         fprintf(stderr, "%s\n", localMsg.constData());
         break;
     case QtWarningMsg:
-        Logger::warning("WebUIQT", "Warning: %", localMsg.constData());
+       StaticLogger::Warning("WebUIQT", "Warning: %", localMsg.constData());
         break;
     case QtCriticalMsg:
         fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
@@ -52,7 +52,7 @@ static void messageInterceptor(QtMsgType type, const QMessageLogContext &context
 
 static String jobRunnerAuthenticate(const String& requestUri, const String& callbackUri, bool useCookie)
 {
-    Logger::info("WebUIQT", "jobRunnerAuthenticate");
+    StaticLogger::Info("WebUIQT", "jobRunnerAuthenticate");
     int argc = 1;
     char name[] = "jobRunnerAuthenticate";
     char ** argv = new char*[argc];
@@ -60,7 +60,7 @@ static String jobRunnerAuthenticate(const String& requestUri, const String& call
 
     // To suppress "WARNING: QApplication was not created in the main() thread" on the console
     // we redirect it to the Logger.
-    Logger::info("WebUIQT", "Redirecting all the warnings to the Logger");
+    StaticLogger::Info("WebUIQT", "Redirecting all the warnings to the Logger");
     auto oldMH = qInstallMessageHandler(messageInterceptor);
 
     QApplication a(argc, argv);
@@ -69,7 +69,7 @@ static String jobRunnerAuthenticate(const String& requestUri, const String& call
     QTimer::singleShot(0, &a, SLOT(quit()));
     a.exec();
 
-    Logger::info("WebUIQT", "Warnings redirection stoped");
+    StaticLogger::Info("WebUIQT", "Warnings redirection stoped");
     qInstallMessageHandler(oldMH);
 
     return std::move(result);

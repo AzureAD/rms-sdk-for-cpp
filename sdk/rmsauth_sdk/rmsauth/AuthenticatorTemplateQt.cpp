@@ -11,7 +11,7 @@
 #include <Constants.h>
 #include <utils.h>
 #include <RmsauthIdHelper.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include "HttpHelperQt.h"
 #include <QNetworkRequest>
 #include <QEventLoop>
@@ -22,7 +22,7 @@ namespace rmsauth {
 
 void AuthenticatorTemplate::verifyAnotherHostByInstanceDiscoveryAsync(const String& host, const String& tenant, CallStatePtr callState)
 {
-    Logger::info(Tag(), "verifyAnotherHostByInstanceDiscoveryAsync");
+    StaticLogger::Info(Tag(),"verifyAnotherHostByInstanceDiscoveryAsync");
 
     String instanceDiscoveryEndpoint = instanceDiscoveryEndpoint_;
     instanceDiscoveryEndpoint += ("?api-version=1.0&authorization_endpoint=" + AuthenticatorTemplate::authorizeEndpointTemplate());

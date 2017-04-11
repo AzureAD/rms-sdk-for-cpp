@@ -12,9 +12,9 @@
 #include <iostream>
 #include <cstdio>
 #include "FileQt.h"
-#include "../Logger/Logger.h"
+#include "../Log4cplus/StaticLogger.h"
 using namespace std;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace platform {
@@ -56,7 +56,7 @@ bool FileQt::open(FileOpenModes mode)
 
   if (!ok)
   {
-    Logger::Error("Cant't open file '%s'",
+    StaticLogger::Error("Cant't open file '%s'",
                   this->impl_.fileName().toStdString().data());
   }
   return ok;

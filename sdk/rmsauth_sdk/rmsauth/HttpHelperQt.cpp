@@ -13,7 +13,7 @@
 #include <Exceptions.h>
 #include <RmsauthIdHelper.h>
 #include <CallState.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include "JsonUtilsQt.h"
 #include "HttpHelperQt.h"
 #include <QNetworkAccessManager>
@@ -30,7 +30,7 @@ namespace rmsauth {
 
 QByteArray HttpHelperQt::jobGet(QNetworkRequest& request, CallStatePtr callState)
 {
-    Logger::info(Tag(), "jobGet");
+    StaticLogger::Info(Tag(),"jobGet");
 
     HttpHelperQt::addCorrelationIdHeadersToRequest(request, callState);
     HttpHelperQt::logRequestHeaders(request);
@@ -77,7 +77,7 @@ QByteArray HttpHelperQt::jobGet(QNetworkRequest& request, CallStatePtr callState
 
 QByteArray HttpHelperQt::jobGetRunner(QNetworkRequest& request, CallStatePtr callState)
 {
-    Logger::info(Tag(), "jobGetRunner");
+    StaticLogger::Info(Tag(),"jobGetRunner");
 
     int argc = 1;
     char name[] = "jobGetRunner";
@@ -95,15 +95,15 @@ QByteArray HttpHelperQt::jobGetRunner(QNetworkRequest& request, CallStatePtr cal
 
 QByteArray HttpHelperQt::jobPost(QNetworkRequest& request, const RequestParameters& requestParameters, CallStatePtr callState)
 {
-    Logger::info(Tag(), "jobPost");
+    StaticLogger::Info(Tag(),"jobPost");
 
     if ((callState != nullptr) && !callState->correlationId().empty())
     {
         HttpHelperQt::addCorrelationIdHeadersToRequest(request, callState);
     }
     HttpHelperQt::logRequestHeaders(request);
-    Logger::info(Tag(), "request url:  %", request.url().toString().toStdString());
-    Logger::info(Tag(), "request body: %", requestParameters.toString());
+    StaticLogger::Info(Tag(),"request url:  %", request.url().toString().toStdString());
+    StaticLogger::Info(Tag(),"request body: %", requestParameters.toString());
 
     QNetworkAccessManager nam;
     QNetworkReply *pReply = nam.post(request, requestParameters.toString().data());
@@ -118,7 +118,7 @@ QByteArray HttpHelperQt::jobPost(QNetworkRequest& request, const RequestParamete
     if (error_type != QNetworkReply::NoError)
     {
         String errString = QString("error: %1").arg(pReply->errorString()).toStdString();
-        Logger::error(Tag(), errString);
+        StaticLogger::Error(Tag(), errString);
         throw RmsauthServiceException(errString);
     }
 
@@ -131,7 +131,7 @@ QByteArray HttpHelperQt::jobPost(QNetworkRequest& request, const RequestParamete
 
 QByteArray HttpHelperQt::jobPostRunner(QNetworkRequest& request, const RequestParameters& requestParameters, CallStatePtr callState)
 {
-    Logger::info(Tag(), "jobPostRunner");
+    StaticLogger::Info(Tag(),"jobPostRunner");
 
     int argc      = 1;
     char   name[] = "jobPostRunner";
@@ -151,7 +151,7 @@ QByteArray HttpHelperQt::jobPostRunner(QNetworkRequest& request, const RequestPa
 
 TokenResponsePtr HttpHelper::sendPostRequestAndDeserializeJsonResponseAsync(const String& url, const RequestParameters& requestParameters, CallStatePtr callState)
 {
-    Logger::info(Tag(), "sendPostRequestAndDeserializeJsonResponseAsync");
+    StaticLogger::Info(Tag(),"sendPostRequestAndDeserializeJsonResponseAsync");
 
     QNetworkRequest request = HttpHelperQt::createRequest();
 
@@ -173,7 +173,7 @@ TokenResponsePtr HttpHelper::sendPostRequestAndDeserializeJsonResponseAsync(cons
 
 static bool addCACertificate(const std::vector<uint8_t>& certificate, QSsl::EncodingFormat format)
 {
-    Logger::info("local", "addCACertificate");
+    StaticLogger::Info("local", "addCACertificate");
 
     QSslConfiguration SslConfiguration(QSslConfiguration::defaultConfiguration());
 
@@ -194,19 +194,19 @@ static bool addCACertificate(const std::vector<uint8_t>& certificate, QSsl::Enco
 
 bool HttpHelper::addCACertificateBase64(const std::vector<uint8_t>& certificate)
 {
-    Logger::info(Tag(), "addCACertificateBase64");
+    StaticLogger::Info(Tag(),"addCACertificateBase64");
     return addCACertificate(certificate, QSsl::Pem);
 }
 
 bool HttpHelper::addCACertificateDer(const std::vector<uint8_t>& certificate)
 {
-    Logger::info(Tag(), "addCACertificateDer");
+    StaticLogger::Info(Tag(),"addCACertificateDer");
     return addCACertificate(certificate, QSsl::Der);
 }
 
 QNetworkRequest HttpHelperQt::createRequest()
 {
-    Logger::info(Tag(), "createRequest");
+    StaticLogger::Info(Tag(),"createRequest");
 
     QNetworkRequest request;
 
@@ -217,7 +217,7 @@ QNetworkRequest HttpHelperQt::createRequest()
 
 void HttpHelperQt::addCorrelationIdHeadersToRequest(QNetworkRequest& request, CallStatePtr callState)
 {
-    Logger::info(Tag(), "deserializeTokenResponse");
+    StaticLogger::Info(Tag(),"deserializeTokenResponse");
 
     request.setRawHeader(OAuthConstants::oAuthHeader().CorrelationId.data(), callState->correlationId().toString().data());
     request.setRawHeader(OAuthConstants::oAuthHeader().RequestCorrelationIdInResponse.data(), "true");
@@ -225,7 +225,7 @@ void HttpHelperQt::addCorrelationIdHeadersToRequest(QNetworkRequest& request, Ca
 
 void HttpHelperQt::verifyCorrelationIdHeaderInReponse(QNetworkReply* pReply, CallStatePtr callState)
 {
-    Logger::info(Tag(), "verifyCorrelationIdHeaderInReponse");
+    StaticLogger::Info(Tag(),"verifyCorrelationIdHeaderInReponse");
 
     if ((callState == nullptr) || callState->correlationId().empty())
     {
@@ -246,11 +246,11 @@ void HttpHelperQt::verifyCorrelationIdHeaderInReponse(QNetworkReply* pReply, Cal
 
             if (correlationIdInResponse.isNull())
             {
-                Logger::warning(Tag(), "Returned correlation id '%' is not in GUID format.", correlationIdStr.toStdString());
+                StaticLogger::Warning(Tag(),"Returned correlation id '%' is not in GUID format.", correlationIdStr.toStdString());
             }
             else if (correlationIdInResponse != correlationIdInRequest)
             {
-                Logger::warning(Tag(), "Returned correlation id '%' does not match the sent correlation id '%'",
+                StaticLogger::Warning(Tag(),"Returned correlation id '%' does not match the sent correlation id '%'",
                     correlationIdInResponse.toString().toStdString(),
                     correlationIdInRequest.toString().toStdString());
             }
@@ -262,11 +262,11 @@ void HttpHelperQt::verifyCorrelationIdHeaderInReponse(QNetworkReply* pReply, Cal
 
 TokenResponsePtr HttpHelperQt::deserializeTokenResponse(const QByteArray& body)
 {
-    Logger::info(Tag(), "deserializeTokenResponse");
+    StaticLogger::Info(Tag(),"deserializeTokenResponse");
     auto pTokenResponse = std::make_shared<TokenResponse>();
 
     StringStream ss; ss << "jsonObject: " << String(body.begin(), body.end());
-    Logger::hidden(Tag(), ss.str());
+    StaticLogger::Debug(Tag(), ss.str());
 
     QJsonParseError error;
     auto qdoc = QJsonDocument::fromJson(body, &error);
@@ -297,12 +297,12 @@ TokenResponsePtr HttpHelperQt::deserializeTokenResponse(const QByteArray& body)
 
 InstanceDiscoveryResponsePtr HttpHelperQt::deserializeInstanceDiscoveryResponse(const QByteArray& body)
 {
-    Logger::info(Tag(), "deserializeInstanceDiscoveryResponse");
+    StaticLogger::Info(Tag(),"deserializeInstanceDiscoveryResponse");
 
     auto pInstanceDiscoveryResponse = std::make_shared<InstanceDiscoveryResponse>();
 
     StringStream ss; ss << "jsonObject: " << String(body.begin(), body.end());
-    Logger::hidden(Tag(), ss.str());
+    StaticLogger::Debug(Tag(), ss.str());
 
     QJsonParseError parseError;
     auto qdoc = QJsonDocument::fromJson(body, &parseError);
@@ -321,13 +321,13 @@ InstanceDiscoveryResponsePtr HttpHelperQt::deserializeInstanceDiscoveryResponse(
 
 ErrorResponsePtr HttpHelperQt::parseResponseError(QNetworkReply* pReply)
 {
-    Logger::info(Tag(), "parseResponseError");
+    StaticLogger::Info(Tag(),"parseResponseError");
 
     auto pErrorResponse = std::make_shared<ErrorResponse>();
 
     auto jsonObject = pReply->readAll();
 
-    Logger::info(Tag(), "jsonObject: %", String(jsonObject.begin(), jsonObject.end()));
+    StaticLogger::Info(Tag(),"jsonObject: %", String(jsonObject.begin(), jsonObject.end()));
 
     if (jsonObject.isEmpty())
     {
@@ -362,40 +362,40 @@ void HttpHelperQt::addHeadersToRequest(QNetworkRequest& request, const Headers& 
 }
 void  HttpHelperQt::logRequestHeaders(const QNetworkRequest& req)
 {
-    Logger::info(Tag(), "logRequestHeaders");
+    StaticLogger::Info(Tag(),"logRequestHeaders");
     QList<QByteArray> headerList = req.rawHeaderList();
     if(headerList.length() > 0)
     {
-        Logger::info(Tag(), "--> Headers:");
+        StaticLogger::Info(Tag(),"--> Headers:");
         for(auto& header : headerList)
         {
             const QByteArray& headerVal = req.rawHeader(header);
             StringStream ss; ss << String(header.data(), header.size()) << ": " << String(headerVal.data(), headerVal.size());
-            Logger::info(Tag(), ss.str());
+            StaticLogger::Info(Tag(), ss.str());
         }
     }
 }
 
 void HttpHelperQt::logResponseHeaders(QNetworkReply *pReply)
 {
-    Logger::hidden(Tag(), "logResponseHeaders");
+    StaticLogger::Debug(Tag(),"logResponseHeaders");
     if (pReply->rawHeaderPairs().length() > 0)
     {
-        Logger::hidden(Tag(), "--> Headers:");
+        StaticLogger::Debug(Tag(),"--> Headers:");
         foreach (const QNetworkReply::RawHeaderPair& pair, pReply->rawHeaderPairs())
         {
              StringStream ss; ss << String(pair.first.data(), pair.first.size()) << ": " <<  String(pair.second.data(), pair.second.size());
-             Logger::hidden(Tag(), ss.str());
+             StaticLogger::Debug(Tag(), ss.str());
         }
     }
 }
 void HttpHelperQt::logResponseBody(const QByteArray& body)
 {
-    Logger::hidden(Tag(), "logResponseBody");
+    StaticLogger::Debug(Tag(),"logResponseBody");
     if (body.length() > 0)
     {
-        Logger::hidden(Tag(), "==> Body:");
-        Logger::hidden(Tag(), String(body.begin(), body.end()));
+        StaticLogger::Debug(Tag(),"==> Body:");
+        StaticLogger::Debug(Tag(), String(body.begin(), body.end()));
     }
 }
 

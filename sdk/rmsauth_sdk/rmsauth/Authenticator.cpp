@@ -8,7 +8,7 @@
 
 #include <Authenticator.h>
 #include <Exceptions.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <utils.h>
 
 namespace rmsauth {
@@ -29,14 +29,14 @@ Authenticator::Authenticator(const String& authority, bool validateAuthority)
     authorityType_ = detectAuthorityType(authority_);
     if (authorityType_ != AuthorityType::AAD && validateAuthority)
     {
-        Logger::error(Tag(), Constants::rmsauthErrorMessage().UnsupportedAuthorityValidation);
+        StaticLogger::Error(Tag(), Constants::rmsauthErrorMessage().UnsupportedAuthorityValidation);
         throw IllegalArgumentException(Constants::rmsauthErrorMessage().UnsupportedAuthorityValidation, "validateAuthority");
     }
 }
 
 void Authenticator::updateFromTemplateAsync(CallStatePtr callState)
 {
-    Logger::info(Tag(), "updateFromTemplateAsync");
+    StaticLogger::Info(Tag(),"updateFromTemplateAsync");
 
     if (!updatedFromTemplate_)
     {
@@ -56,7 +56,7 @@ void Authenticator::updateFromTemplateAsync(CallStatePtr callState)
 }
 void Authenticator::updateTenantId(const String& tenantId)
 {
-    Logger::info(Tag(), "updateTenantId");
+    StaticLogger::Info(Tag(),"updateTenantId");
 
     if (isTenantless_ && !tenantId.empty())
     {
@@ -67,7 +67,7 @@ void Authenticator::updateTenantId(const String& tenantId)
 
 AuthorityType Authenticator::detectAuthorityType(const String& authority)
 {
-    Logger::info(Tag(), "detectAuthorityType");
+    StaticLogger::Info(Tag(),"detectAuthorityType");
 
     if (authority.empty())
     {
@@ -76,21 +76,21 @@ AuthorityType Authenticator::detectAuthorityType(const String& authority)
 
     if (!Url(authority).isValid())
     {
-        Logger::error(Tag(), Constants::rmsauthErrorMessage().AuthorityInvalidUriFormat);
+        StaticLogger::Error(Tag(), Constants::rmsauthErrorMessage().AuthorityInvalidUriFormat);
         throw IllegalArgumentException(Constants::rmsauthErrorMessage().AuthorityInvalidUriFormat, authority);
     }
 
     Url authorityUri(authority);
     if (authorityUri.scheme() != "https")
     {
-        Logger::error(Tag(), Constants::rmsauthErrorMessage().AuthorityUriInsecure);
+        StaticLogger::Error(Tag(), Constants::rmsauthErrorMessage().AuthorityUriInsecure);
         throw IllegalArgumentException(Constants::rmsauthErrorMessage().AuthorityUriInsecure, authority);
     }
 
     String path = authorityUri.path().substr(1);
     if (path.empty())
     {
-        Logger::error(Tag(), Constants::rmsauthErrorMessage().AuthorityUriInvalidPath);
+        StaticLogger::Error(Tag(), Constants::rmsauthErrorMessage().AuthorityUriInvalidPath);
         throw IllegalArgumentException(Constants::rmsauthErrorMessage().AuthorityUriInvalidPath, authority);
     }
 
@@ -112,7 +112,7 @@ String Authenticator::canonicalizeUri(const String& uri)
 
 String Authenticator::replaceTenantlessTenant(const String& authority, const String& tenantId)
 {
-    Logger::info(Tag(), "replaceTenantlessTenant");
+    StaticLogger::Info(Tag(),"replaceTenantlessTenant");
 
     // TODO.shch: porting
 //        auto regex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase);
@@ -123,7 +123,7 @@ String Authenticator::replaceTenantlessTenant(const String& authority, const Str
 bool Authenticator::isAdfsAuthority(const String& firstPath)
 {
     bool res = StringUtils::compareIC(firstPath, "adfs") == 0;
-    Logger::info(Tag(), "isAdfsAuthority: '%'", res);
+    StaticLogger::Info(Tag(), "isAdfsAuthority: '%'", res);
     return res;
 }
 

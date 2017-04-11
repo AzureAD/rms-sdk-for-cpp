@@ -8,7 +8,7 @@
 
 #include <AcquireTokenNonInteractiveHandler.h>
 #include <UserRealmDiscoveryResponse.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <utils.h>
 
 namespace rmsauth {
@@ -43,7 +43,7 @@ void AcquireTokenNonInteractiveHandler::preRunAsync()
     {
         if (userCredential_->userName().empty())
         {
-            Logger::info(Tag(), "User name is empty");
+            StaticLogger::Info(Tag(),"User name is empty");
             throw RmsauthException("userCredential_->userName()", "the value is empty");
         }
 
@@ -62,8 +62,7 @@ void AcquireTokenNonInteractiveHandler::preTokenRequest()
     if (userAssertion_ == nullptr)
     {
         auto userRealmResponse = UserRealmDiscoveryResponse::createByDiscoveryAsync(authenticator_->userRealmUri(), userCredential_->userName(), callState_);
-        Logger::info(Tag(), "User '%' detected as '{%}'", userCredential_->userName(), userRealmResponse.accountType());
-
+        StaticLogger::Info(Tag(), "User '%' detected as '{%}'", userCredential_->userName(), userRealmResponse.accountType());
         if (StringUtils::compareIC(userRealmResponse.accountType(), "federated") == 0)
         {
             if (userRealmResponse.federationMetadataUrl().empty())
@@ -74,10 +73,10 @@ void AcquireTokenNonInteractiveHandler::preTokenRequest()
             throw RmsauthException("Not implemented");
 
 //            Url wsTrustUrl = MexParser::fetchWsTrustAddressFromMexAsync(userRealmResponse.federationMetadataUrl(), userCredential_->userAuthType(), callState_);
-//            Logger::info(Tag(), "WS-Trust endpoint '{%}' fetched from MEX at '{%}'", wsTrustUrl.toString(), userRealmResponse.federationMetadataUrl());
+//            StaticLogger::Info(Tag(),"WS-Trust endpoint '{%}' fetched from MEX at '{%}'", wsTrustUrl.toString(), userRealmResponse.federationMetadataUrl());
 
 //            WsTrustResponse wsTrustResponse = WsTrustRequest::sendRequestAsync(wsTrustUrl, userCredential_, callState_);
-//            Logger::info(Tag(), "Token of type '{%}' acquired from WS-Trust endpoint", wsTrustResponse.tokenType());
+//            StaticLogger::Info(Tag(),"Token of type '{%}' acquired from WS-Trust endpoint", wsTrustResponse.tokenType());
 
 //            // We assume that if the response token type is not SAML 1.1, it is SAML 2
 //            userAssertion_ = new UserAssertion(wsTrustResponse.token(), (wsTrustResponse.tokenType() == WsTrustResponse::Saml1Assertion) ? OAuthConstants::oAuthGrantType().Saml11Bearer : OAuthConstants::oAuthGrantType().Saml20Bearer);

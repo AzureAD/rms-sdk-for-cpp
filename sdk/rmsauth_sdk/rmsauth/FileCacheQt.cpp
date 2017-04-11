@@ -6,7 +6,7 @@
  * ======================================================================
  */
 
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <FileCache.h>
 #include <Constants.h>
 #include <QFile>
@@ -46,18 +46,17 @@ FileCache::FileCache(const String& filePath)
     }
     cacheFilePath_ = fi.absoluteFilePath().toStdString();
   }
-
-  Logger::info(Tag(), "path: %", cacheFilePath_);
+  StaticLogger::Info(Tag(),"path: %", cacheFilePath_);
 }
 
 void FileCache::readCache()
 {
-  Logger::info(Tag(), "readCache");
+  StaticLogger::Info(Tag(),"readCache");
   ifstream ifs(cacheFilePath_, ios::binary | ios::ate);
 
   if (!ifs.is_open())
   {
-    Logger::info(Tag(), "Cache file doesn't exist! '%'", cacheFilePath_);
+    StaticLogger::Info(Tag(),"Cache file doesn't exist! '%'", cacheFilePath_);
     return;
   }
   ifstream::pos_type pos = ifs.tellg();
@@ -72,12 +71,12 @@ void FileCache::readCache()
 
 void FileCache::writeCache()
 {
-  Logger::info(Tag(), "writeCache");
+  StaticLogger::Info(Tag(),"writeCache");
   ofstream ofs(cacheFilePath_, ios::binary | ios::trunc);
 
   if (!ofs.is_open())
   {
-    Logger::info(Tag(), "Can't open cache file for writing! '%'", cacheFilePath_);
+    StaticLogger::Info(Tag(),"Can't open cache file for writing! '%'", cacheFilePath_);
     return;
   }
 
@@ -88,20 +87,20 @@ void FileCache::writeCache()
 
 void FileCache::clear()
 {
-  Logger::info(Tag(), "clear");
+  StaticLogger::Info(Tag(),"clear");
   TokenCache::clear();
   Lock l(fileLock_);
   bool ok = QFile::remove(cacheFilePath_.c_str());
 
   if (!ok)
   {
-    Logger::error(Tag(), "clear: Failed to delete a file: ");
+    StaticLogger::Error(Tag(),"clear: Failed to delete a file: ");
   }
 }
 
 void FileCache::onBeforeAccess(const TokenCacheNotificationArgs& /* args*/)
 {
-  Logger::info(Tag(), "onBeforeAccess");
+  StaticLogger::Info(Tag(),"onBeforeAccess");
   Lock l(fileLock_);
 
   readCache();
@@ -109,7 +108,7 @@ void FileCache::onBeforeAccess(const TokenCacheNotificationArgs& /* args*/)
 
 void FileCache::onAfterAccess(const TokenCacheNotificationArgs& /* args*/)
 {
-  Logger::info(Tag(), "onAfterAccess");
+  StaticLogger::Info(Tag(),"onAfterAccess");
   Lock l(fileLock_);
 
   // if the access operation resulted in a cache update

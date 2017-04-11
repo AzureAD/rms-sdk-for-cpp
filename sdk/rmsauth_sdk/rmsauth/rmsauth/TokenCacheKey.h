@@ -14,7 +14,8 @@
 #include "TokenSubjectType.h"
 #include "utils.h"
 #include "UserInfo.h"
-#include "Logger.h"
+#include "StaticLogger.h"
+#include "StaticLogger.h"
 
 namespace rmsauth {
 

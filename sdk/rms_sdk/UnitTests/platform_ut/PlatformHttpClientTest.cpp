@@ -7,8 +7,7 @@
  */
 
 #include "PlatformHttpClientTest.h"
-#include "../../Platform/Logger/Logger.h"
-#include "../../Platform/Log4cplus/staticlogger.h"
+#include "../../Platform/Log4cplus/StaticLogger.h"
 #include "../../Platform/Http/IHttpClient.h"
 #include "../../Common/FrameworkSpecificTypes.h"
 
@@ -20,7 +19,6 @@ PlatformHttpClientTest::PlatformHttpClientTest()
 
 void PlatformHttpClientTest::testHttpClient(bool enabled)
 {
-    StaticLogger::Trace("+PlatformHttpClientTest::testHttpClient");
   if (!enabled) return;
 
   auto pclient = http::IHttpClient::Create();

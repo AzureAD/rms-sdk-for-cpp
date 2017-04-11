@@ -1,14 +1,14 @@
-#ifndef _RMS_LIB_STATICLOGGER_H_
-#define _RMS_LIB_STATICLOGGER_H_
+#ifndef _RMS_CRYPTO_STATICLOGGER_H_
+#define _RMS_CRYPTO_STATICLOGGER_H_
 
 #include <string>
 #include <cstdio>
 #include <mutex>
 #include <memory>
 #include <QProcessEnvironment>
-#include "../Settings/IRMSEnvironmentImpl.h"
+#include "../Settings/IRMSCryptoEnvironmentImpl.h"
 
-namespace rmscore {
+namespace rmscrypto {
 namespace platform {
 namespace staticlogger {
 class StaticLogger{
@@ -36,8 +36,8 @@ public:
                 Arguments ...      arguments) {
         auto cArgs =  sizeof ... (Arguments);
 
-        auto env   = settings::IRMSEnvironmentImpl::Environment();
-        if (!env || (env->LogOption() == modernapi::IRMSEnvironment::LoggerOption::Never)) {
+        auto env   = settings::IRMSCryptoEnvironmentImpl::Environment();
+        if (!env || (env->LogOption() == api::IRMSCryptoEnvironment::LoggerOption::Never)) {
           return;
         }
 
@@ -109,4 +109,4 @@ public:
 } // namespace platform
 } // namespace rmscore
 
-#endif // STATICLOGGER_H
+#endif // _RMS_CRYPTO_STATICLOGGER_H_

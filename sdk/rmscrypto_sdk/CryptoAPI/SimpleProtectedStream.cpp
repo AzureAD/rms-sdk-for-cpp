@@ -7,12 +7,12 @@
  */
 
 #include <stdint.h>
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include "SimpleProtectedStream.h"
 #include "RMSCryptoExceptions.h"
 
 using namespace std;
-using namespace rmscrypto::platform::logger;
+using namespace rmscrypto::platform::staticlogger;
 namespace rmscrypto {
 namespace api {
 SimpleProtectedStream::SimpleProtectedStream(
@@ -169,7 +169,7 @@ shared_future<int64_t>SimpleProtectedStream::WriteInternalAsync(
 
           cipherText.resize(encryptedSize);
 
-          Logger::Hidden("writing block #%d", startingBlockNumber);
+          StaticLogger::Debug("writing block #%d", startingBlockNumber);
 
           // encrypt the supplied buffer into cipherText
           self->m_pCryptoProvider->Encrypt(buffer, static_cast<uint32_t>(bSize),

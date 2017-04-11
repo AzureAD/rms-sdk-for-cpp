@@ -7,7 +7,7 @@
 */
 
 #include <AuthenticationResult.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 
 namespace rmsauth {
 
@@ -28,7 +28,7 @@ String AuthenticationResult::createAuthorizationHeader()
 
 void AuthenticationResult::updateTenantAndUserInfo(const String& tenantId, const String& idToken, UserInfoPtr userInfo)
 {
-    Logger::info(Tag(), "updateTenantAndUserInfo");
+    StaticLogger::Info(Tag(),"updateTenantAndUserInfo");
     tenantId_ = tenantId;
     idToken_ = idToken;
     if (userInfo != nullptr)

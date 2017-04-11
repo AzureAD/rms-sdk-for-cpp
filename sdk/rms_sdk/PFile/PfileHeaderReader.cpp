@@ -8,12 +8,12 @@
 
 #include <future>
 #include "../ModernAPI/RMSExceptions.h"
-#include "../Platform/Logger/Logger.h"
+#include "../Platform/Log4cplus/StaticLogger.h"
 #include "PfileHeaderReader.h"
 
 using namespace std;
 using namespace rmscore::common;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace pfile {
@@ -27,7 +27,7 @@ PfileHeaderReader::~PfileHeaderReader()
 
 shared_ptr<PfileHeader>PfileHeaderReader::Read(rmscrypto::api::SharedStream stream)
 {
-  Logger::Hidden("PfileHeaderReader: Reading pfile header.");
+  StaticLogger::Debug("PfileHeaderReader: Reading pfile header.");
 
   CheckPreamble(stream);
   auto version                    = ReadVersionNumber(stream);
@@ -41,7 +41,7 @@ void PfileHeaderReader::CheckPreamble(rmscrypto::api::SharedStream stream)
 {
   ByteArray pr;
 
-  Logger::Hidden("PfileHeaderReader: Checking preamble");
+  StaticLogger::Debug("PfileHeaderReader: Checking preamble");
 
   auto expectedLength = static_cast<uint32_t>(ExpectedPreamble.size());
   ReadBytes(pr, stream, expectedLength);
@@ -70,7 +70,7 @@ tuple<uint32_t, uint32_t>PfileHeaderReader::ReadVersionNumber(
   stream->Read(reinterpret_cast<uint8_t *>(&majorVersion), sizeof(uint32_t));
   stream->Read(reinterpret_cast<uint8_t *>(&minorVersion), sizeof(uint32_t));
 
-  Logger::Hidden("PfileHeaderReader: Major version: %d, Minor version: %d", majorVersion, minorVersion);
+  StaticLogger::Debug("PfileHeaderReader: Major version: %d, Minor version: %d", majorVersion, minorVersion);
 
   if ((majorVersion >= MaxValidVersionNumber) ||
       (minorVersion >= MaxValidVersionNumber))
@@ -105,7 +105,7 @@ string PfileHeaderReader::ReadCleartextRedirectionHeader(
   }
 
   string redirectHeaderStr(redirectHeader.begin(), redirectHeader.end());
-  Logger::Hidden("PfileHeaderReader: Cleartext redirect header: %s", redirectHeaderStr.c_str());
+  StaticLogger::Debug("PfileHeaderReader: Cleartext redirect header: %s", redirectHeaderStr.c_str());
 
   return redirectHeaderStr;
 }
@@ -124,7 +124,7 @@ string PfileHeaderReader::ReadExtension(rmscrypto::api::SharedStream stream,
   ReadAtOffset(ext, stream, offset, length);
   string extStr(ext.begin(), ext.end());
 
-  Logger::Hidden("PfileHeaderReader: Extension: %s", extStr.c_str());
+  StaticLogger::Debug("PfileHeaderReader: Extension: %s", extStr.c_str());
 
   return extStr;
 }

@@ -8,7 +8,7 @@
 
 #include "JsonUtilsQt.h"
 #include <Exceptions.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -23,7 +23,7 @@ String JsonUtilsQt::getStringOrDefault(const QJsonObject& qobj, const String& ke
         auto res = qobj.value(key.data());
         if(!res.isString())
         {
-            Logger::error(Tag(), "getStringOrDefault: The value for the key '%' is not a string", key);
+            StaticLogger::Error(Tag(),"getStringOrDefault: The value for the key '%' is not a string", key);
             throw RmsauthJsonParsingException("JsonUtilsQt::getStringOrDefault", "value is not a string");
         }
 
@@ -39,7 +39,7 @@ int JsonUtilsQt::getIntOrDefault(const QJsonObject& qobj, const String& key, int
         auto res = qobj.value(key.data());
         if(!res.isDouble())
         {
-            Logger::error(Tag(), "getIntOrDefault: The value for the key '%' is not int", key);
+            StaticLogger::Error(Tag(),"getIntOrDefault: The value for the key '%' is not int", key);
             throw RmsauthJsonParsingException("JsonUtilsQt::getIntOrDefault", "value is not int");
         }
 
@@ -61,7 +61,7 @@ int JsonUtilsQt::getStringAsIntOrDefault(const QJsonObject& qobj, const String& 
 
         if(!res.isString())
         {
-            Logger::error(Tag(), "getStringAsIntOrDefault: The value for the key '%' is not a string", key);
+            StaticLogger::Error(Tag(),"getStringAsIntOrDefault: The value for the key '%' is not a string", key);
             throw RmsauthJsonParsingException("JsonUtilsQt::getStringAsIntOrDefault", "value is not a string");
         }
 
@@ -71,7 +71,7 @@ int JsonUtilsQt::getStringAsIntOrDefault(const QJsonObject& qobj, const String& 
 
         if(!ok)
         {
-            Logger::error(Tag(), "The value '%' for the key '%' can't be converted to int", strRes.toStdString(), key);
+            StaticLogger::Error(Tag(),"The value '%' for the key '%' can't be converted to int", strRes.toStdString(), key);
             throw RmsauthJsonParsingException("JsonUtilsQt::getStringAsIntOrZero", "value can't be converted to int");
         }
 
@@ -87,7 +87,7 @@ bool JsonUtilsQt::getBoolOrDefault(const QJsonObject& qobj, const String& key, b
         auto res = qobj.value(key.data());
         if(!res.isBool())
         {
-            Logger::error(Tag(), "getBoolOrDefault: The value for the key '%' is not bool", key);
+            StaticLogger::Error(Tag(),"getBoolOrDefault: The value for the key '%' is not bool", key);
             throw RmsauthJsonParsingException("JsonUtilsQt::getBoolOrDefault", "value is not bool");
         }
 

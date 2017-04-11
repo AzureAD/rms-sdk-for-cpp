@@ -13,7 +13,7 @@
 #include <Constants.h>
 #include <OAuthConstants.h>
 #include <utils.h>
-#include <Logger.h>
+#include <StaticLogger.h>
 #include "JsonUtilsQt.h"
 #include <QDateTime>
 #include <QByteArray>
@@ -26,18 +26,18 @@ namespace rmsauth {
 
 AuthenticationResultPtr OAuth2Response::parseTokenResponse(TokenResponsePtr tokenResponse, CallStatePtr/* callState*/)
 {
-    Logger::info(Tag(), "parseTokenResponse");
+    StaticLogger::Info(Tag(),"parseTokenResponse");
     AuthenticationResultPtr result = nullptr;
 
     if (!tokenResponse->accessToken.empty())
     {
         auto curTimeUts = QDateTime::currentDateTimeUtc();
-        Logger::info(Tag(), "curTimeUTC: %; expiresIn: %", curTimeUts.toString("HH:mm:ss MM.dd.yy").toStdString(), tokenResponse->expiresIn);
+        StaticLogger::Info(Tag(),"curTimeUTC: %; expiresIn: %", curTimeUts.toString("HH:mm:ss MM.dd.yy").toStdString(), tokenResponse->expiresIn);
 
         auto expiresUtc = curTimeUts.addSecs(tokenResponse->expiresIn);
         DateTimeOffset expiresOn = expiresUtc.toTime_t();
 
-        Logger::info(Tag(), "tonken expiresOn: % (%)", expiresUtc.toString("HH:mm:ss MM.dd.yy").toStdString(), expiresOn);
+        StaticLogger::Info(Tag(),"tonken expiresOn: % (%)", expiresUtc.toString("HH:mm:ss MM.dd.yy").toStdString(), expiresOn);
 
         result = std::make_shared<AuthenticationResult>(tokenResponse->tokenType, tokenResponse->accessToken, tokenResponse->refreshToken, expiresOn);
         // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
@@ -99,7 +99,7 @@ AuthenticationResultPtr OAuth2Response::parseTokenResponse(TokenResponsePtr toke
     }
     else if (!tokenResponse->error.empty())
     {
-        Logger::error(Tag(), "error: %, description: %", tokenResponse->error, tokenResponse->errorDescription);
+        StaticLogger::Error(Tag(),"error: %, description: %", tokenResponse->error, tokenResponse->errorDescription);
         throw RmsauthException(tokenResponse->error, tokenResponse->errorDescription);
     }
     else
@@ -112,8 +112,8 @@ AuthenticationResultPtr OAuth2Response::parseTokenResponse(TokenResponsePtr toke
 
 IdTokenPtr OAuth2Response::parseIdToken(const String& idToken)
 {
-    Logger::info(Tag(), "parseIdToken");
-    Logger::hidden(Tag(), "idToken: " + idToken);
+    StaticLogger::Info(Tag(),"parseIdToken");
+    StaticLogger::Debug(Tag(),"idToken: " + idToken);
     IdTokenPtr parseResult = nullptr;
     if (!idToken.empty())
     {
@@ -157,8 +157,8 @@ IdTokenPtr OAuth2Response::parseIdToken(const String& idToken)
 
 AuthorizationResultPtr OAuth2Response::parseAuthorizeResponse(const String& webAuthenticationResult, CallStatePtr/* callState*/)
 {
-    Logger::info(Tag(), "parseAuthorizeResponse");
-    Logger::hidden(Tag(), "webAuthenticationResult: " + webAuthenticationResult);
+    StaticLogger::Info(Tag(),"parseAuthorizeResponse");
+    StaticLogger::Debug(Tag(),"webAuthenticationResult: " + webAuthenticationResult);
 
     AuthorizationResultPtr parseResult = nullptr;
 

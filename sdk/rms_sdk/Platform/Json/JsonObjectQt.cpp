@@ -17,9 +17,9 @@
 #include "JsonParserQt.h"
 
 #include "../../ModernAPI/RMSExceptions.h"
-#include "../Logger/Logger.h"
+#include "../Log4cplus/StaticLogger.h"
 
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace platform {
@@ -228,7 +228,7 @@ StringArray JsonObjectQt::GetNamedStringArray(const std::string& name)
 
   if (!jo.contains(name.c_str()))
   {
-    Logger::Warning(
+    StaticLogger::Warning(
       "JsonObjectQt::GetNamedStringArray: Can't find the key named '%s'",
       name.c_str());
     return std::vector<std::string>();

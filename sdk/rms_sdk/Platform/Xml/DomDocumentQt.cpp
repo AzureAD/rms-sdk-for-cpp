@@ -14,9 +14,9 @@
 #include <QDomNodeList>
 #include <QXmlQuery>
 #include <QBuffer>
-#include "../Logger/Logger.h"
+#include "../Log4cplus/StaticLogger.h"
 
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 sp<IDomDocument> IDomDocument::create()
 {
@@ -74,22 +74,22 @@ sp<IDomElement> DomDocumentQt::SelectSingleNode(const std::string &xPath)
     query.bindVariable("inputDocument", &device);
 
     auto defaultNs = this->impl_.documentElement().toElement().attribute("xmlns");
-    Logger::Hidden("DomDocumentQt::SelectSingleNode: defaultNs: %s", defaultNs.toStdString().data());
+    StaticLogger::Debug("DomDocumentQt::SelectSingleNode: defaultNs: %s", defaultNs.toStdString().data());
 
     QString  xpathReq = xpathReqPattern.arg(defaultNsPattern.arg(defaultNs)).arg("doc($inputDocument)").arg(xPath.data());
     query.setQuery(xpathReq);
-    Logger::Hidden("DomDocumentQt::SelectSingleNode: xpathReq: %s", xpathReq.toStdString().data());
+    StaticLogger::Debug("DomDocumentQt::SelectSingleNode: xpathReq: %s", xpathReq.toStdString().data());
 
     if ( !query.isValid())
     {
-        Logger::Error("Error: DomDocumentQt::SelectSingleNode: invalid query.");
+        StaticLogger::Error("Error: DomDocumentQt::SelectSingleNode: invalid query.");
         return nullptr;
     }
     QString res;
     query.evaluateTo(&res);
     if(res.isEmpty())
     {
-        Logger::Warning("DomDocumentQt::SelectSingleNode: result is empty.");
+        StaticLogger::Warning("DomDocumentQt::SelectSingleNode: result is empty.");
         return nullptr;
     }
     QDomDocument resDoc;
@@ -97,7 +97,7 @@ sp<IDomElement> DomDocumentQt::SelectSingleNode(const std::string &xPath)
 
     auto root = resDoc.documentElement();
 
-    Logger::Hidden("DomDocumentQt::SelectSingleNode: resDoc: %s", res.toStdString().data());
+    StaticLogger::Debug("DomDocumentQt::SelectSingleNode: resDoc: %s", res.toStdString().data());
     return std::make_shared<DomElementQt>(resDoc.documentElement());
 }
 

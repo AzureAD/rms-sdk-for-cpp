@@ -52,9 +52,10 @@ size_t TokenCacheKey::getHashCode() const
         << static_cast<int>(tokenSubjectType_);
 
     auto hashcode = std::hash<String>()(ss.str());
-    Logger::info(Tag(),
-        "TokenCacheKey::getHashCode(): authority: %; resource: %; clientId: % uniqueId: %; tokenSubjectType_: %; hashcode: %;",
-        authority_, resource_, clientId_, uniqueId_, /*displayableId_, */(int)tokenSubjectType_, hashcode);
+     StaticLogger::Info(Tag(),
+          "TokenCacheKey::getHashCode(): authority: %; resource: %; clientId: % uniqueId: %; tokenSubjectType_: %; hashcode: %;",
+          authority_, resource_, clientId_, uniqueId_, /*displayableId_, */(int)tokenSubjectType_, hashcode);
+
 
     return hashcode;
 }

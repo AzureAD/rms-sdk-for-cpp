@@ -12,11 +12,11 @@
 #include "DnsServerResolverQt.h"
 #include <QUdpSocket>
 #include <QThread>
-#include "../../Platform/Logger/Logger.h"
+#include "../../Platform/Log4cplus/StaticLogger.h"
 
 using namespace std;
 using namespace rmscore::common;
-using namespace rmscore::platform::logger;
+using namespace rmscore::platform::staticlogger;
 
 namespace rmscore {
 namespace platform {
@@ -31,7 +31,7 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
   QDnsLookup dns;
 
   dns.setType(QDnsLookup::SRV);
-  Logger::Hidden("dnsRequest: %s", dnsRequest.c_str());
+  StaticLogger::Debug("dnsRequest: %s", dnsRequest.c_str());
   dns.setName(dnsRequest.c_str());
   dns.lookup();
   QEventLoop loop;
@@ -44,7 +44,7 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
   }
   foreach(const QDnsServiceRecord &record, dns.serviceRecords())
   {
-    Logger::Hidden("QDnsServiceRecord record: %s --> %s",
+    StaticLogger::Debug("QDnsServiceRecord record: %s --> %s",
                    record.name().toStdString().c_str(),
                    record.target().toStdString().c_str());
 

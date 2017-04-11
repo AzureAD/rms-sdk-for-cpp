@@ -21,11 +21,14 @@ CONFIG += plugin c++11 debug_and_release warn_on
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS +=  -L$$DESTDIR -lrmsauthWebAuthDialogd -lrmscryptod
+    win32:LIBS +=  -L$$REPO_ROOT/log4cplus/lib/Debug/ -llog4cplusUD -llog4cplus-Qt5DebugAppender
 } else {
     LIBS +=  -L$$DESTDIR -lrmsauthWebAuthDialog -lrmscrypto
+    win32:LIBS +=  -L$$REPO_ROOT/log4cplus/lib/Release/ -llog4cplusU -llog4cplus-Qt5DebugAppender
 }
 
 INCLUDEPATH = ./rmsauth
+win32:INCLUDEPATH += $$REPO_ROOT/log4cplus/include
 
 SOURCES += \
     AuthenticationContext.cpp \
@@ -59,7 +62,8 @@ SOURCES += \
     AcquireTokenForClientHandler.cpp \
     FileCacheEncrypted.cpp \
     IRMSAuthEnvironment.cpp \
-    IRMSAuthEnvironmentImpl.cpp
+    IRMSAuthEnvironmentImpl.cpp \
+    Log4cplusImpl.cpp
 
 HEADERS += \
     rmsauth/AuthenticationContext.h \
@@ -107,7 +111,9 @@ HEADERS += \
     rmsauth/AcquireTokenForClientHandler.h \
     rmsauth/FileCacheEncrypted.h \
     rmsauth/IRMSAuthEnvironment.h \
-    rmsauth/IRMSAuthEnvironmentImpl.h
+    rmsauth/IRMSAuthEnvironmentImpl.h \
+    rmsauth/Log4cplusImpl.h \
+    rmsauth/StaticLogger.h
 
 # Framework specific (qt based)
 
