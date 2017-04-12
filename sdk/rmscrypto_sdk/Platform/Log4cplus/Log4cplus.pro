@@ -12,6 +12,7 @@ CONFIG += staticlib warn_on c++11 debug_and_release
 TEMPLATE = lib
 
 win32:INCLUDEPATH += $$REPO_ROOT/log4cplus/include
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
@@ -19,6 +20,8 @@ CONFIG(debug, debug|release) {
 }else {
     win32:LIBS += -L$$REPO_ROOT/log4cplus/lib/Release/ -llog4cplusU -llog4cplus-Qt5DebugAppender
 }
+
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 
 SOURCES += \
     Log4cplusImpl.cpp

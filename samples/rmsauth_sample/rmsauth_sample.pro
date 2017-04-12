@@ -9,6 +9,8 @@ CONFIG  -= app_bundle
 
 INCLUDEPATH = $$REPO_ROOT/sdk/rmsauth_sdk/rmsauth
 win32:INCLUDEPATH += $$REPO_ROOT/log4cplus/include
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 
 SOURCES += main.cpp\
         MainWindow.cpp

@@ -1,16 +1,16 @@
 #ifndef LOG4CPLUS_H
 #define LOG4CPLUS_H
 
-#include "staticlogger.h"
-#include <log4cplus/logger.h>
-#include <log4cplus/configurator.h>
-#include <log4cplus/consoleappender.h>
-#include <log4cplus/fileappender.h>
-#include <log4cplus/helpers/loglog.h>
-#include <log4cplus/helpers/stringhelper.h>
-#include <log4cplus/helpers/fileinfo.h>
-#include <log4cplus/loggingmacros.h>
-#include <log4cplus/initializer.h>
+#include "StaticLogger.h"
+#include <logger.h>
+#include <configurator.h>
+#include <consoleappender.h>
+#include <fileappender.h>
+#include <helpers/loglog.h>
+#include <helpers/stringhelper.h>
+#include <helpers/fileinfo.h>
+#include <loggingmacros.h>
+#include <initializer.h>
 
 using namespace std;
 using namespace log4cplus;
