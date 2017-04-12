@@ -12,6 +12,7 @@ DEFINES += RMS_CRYPTO_LIBRARY
 
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include $$REPO_ROOT/log4cplus/include
 unix:!mac:INCLUDEPATH += /usr/include/glib-2.0/ /usr/include/libsecret-1/ /usr/lib/x86_64-linux-gnu/glib-2.0/include/
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
 
 LIBS    += -L$$REPO_ROOT/bin/crypto -L$$REPO_ROOT/bin/crypto/platform
 
@@ -27,6 +28,7 @@ CONFIG(debug, debug|release) {
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
 win32:LIBS += -llegacy_stdio_definitions
 unix:!mac:LIBS  += -lssl -lcrypto -lsecret-1 -lglib-2.0
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 mac:LIBS += -lssl -lcrypto
 
 unix {

@@ -12,8 +12,10 @@ CONFIG   -= app_bundle
 
 INCLUDEPATH       += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include $$REPO_ROOT/log4cplus/include
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
 
 LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/platform
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 
 CONFIG(debug, debug|release) {
    TARGET = $$join(TARGET,,,d)

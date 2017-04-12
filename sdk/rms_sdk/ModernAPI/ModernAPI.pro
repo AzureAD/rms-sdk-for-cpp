@@ -4,7 +4,7 @@ TARGET    = rms
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 win32:INCLUDEPATH += $$REPO_ROOT/log4cplus/include
-
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
 DEFINES     += RMS_LIBRARY
 
 TEMPLATE  = lib
@@ -32,6 +32,8 @@ CONFIG(debug, debug|release) {
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
 else:LIBS  += -lssl -lcrypto
+
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 
 SOURCES += \
     UserPolicy.cpp \

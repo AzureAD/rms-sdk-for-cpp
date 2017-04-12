@@ -15,6 +15,8 @@ INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 win32:INCLUDEPATH += $$REPO_ROOT/log4cplus/include
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)

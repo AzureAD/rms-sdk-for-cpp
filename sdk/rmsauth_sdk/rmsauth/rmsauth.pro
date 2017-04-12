@@ -29,6 +29,9 @@ CONFIG(debug, debug|release) {
 
 INCLUDEPATH = ./rmsauth
 win32:INCLUDEPATH += $$REPO_ROOT/log4cplus/include
+unix:!mac:INCLUDEPATH += /usr/local/include/log4cplus
+
+unix:!mac:LIBS += -L/usr/local/lib/log4cplus -llog4cplus
 
 SOURCES += \
     AuthenticationContext.cpp \

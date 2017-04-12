@@ -1,7 +1,7 @@
 #ifndef _CRYPTO_STREAMS_LIB_LOG4CPLUS_H
 #define _CRYPTO_STREAMS_LIB_LOG4CPLUS_H
 
-#include "staticlogger.h"
+#include "StaticLogger.h"
 #include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>

@@ -14,7 +14,7 @@ StaticLogger& StaticLogger::getInstance(){
 Log4cplusImpl::Log4cplusImpl() {
     try{
         helpers::LogLog::getLogLog()->setInternalDebugging(true);
-        PropertyConfigurator::doConfigure(L"Log4cplus_rms.properties");
+        PropertyConfigurator::doConfigure("Log4cplus_rms.properties");
         this->logger_ = Logger::getInstance(LOG4CPLUS_TEXT("rms_sdk_log"));
     }
     catch(...){
