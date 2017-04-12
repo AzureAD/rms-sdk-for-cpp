@@ -32,7 +32,7 @@ void StaticLogger::printf(StringStream& ss, const char *s)
 Log4cplusImpl::Log4cplusImpl() {
     try{
         helpers::LogLog::getLogLog()->setInternalDebugging(true);
-        PropertyConfigurator::doConfigure("Log4cplus_auth.properties");
+        PropertyConfigurator::doConfigure(LOG4CPLUS_TEXT("Log4cplus_auth.properties"));
         this->logger_ = Logger::getInstance(LOG4CPLUS_TEXT("rmsauth_sdk_log"));
     }
     catch(...){
