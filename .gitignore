@@ -26,4 +26,6 @@ docs/html/
 .DS_Store
 *.dat
 third_party**
+log4cplus/lib/*
+log4cplus/include/*
 
