@@ -9,7 +9,8 @@ SUBDIRS += \
     PFile \
     Platform \
     RestClients \
-    UnitTests
+    UnitTests \
+    Pole
 
 UnitTests.depends   = ModernAPI
 RestClients.depends = PFile
