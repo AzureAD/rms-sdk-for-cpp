@@ -79,7 +79,7 @@ typedef unsigned int uint32;
 typedef unsigned long long uint64;
 #endif
 
-typedef uint32 t_offset;
+typedef uint64 t_offset;
 
 #ifdef POLE_USE_UTF16_FILENAMES
 std::string UTF16toUTF8(const std::wstring &utf16);
@@ -157,9 +157,9 @@ public:
    * should be defragmented.
    */
 
-  void GetStats(uint32 *pEntries, uint32 *pUnusedEntries,
-      uint32 *pBigBlocks, uint32 *pUnusedBigBlocks,
-      uint32 *pSmallBlocks, uint32 *pUnusedSmallBlocks);
+  void GetStats(uint64 *pEntries, uint64 *pUnusedEntries,
+      uint64 *pBigBlocks, uint64 *pUnusedBigBlocks,
+      uint64 *pSmallBlocks, uint64 *pUnusedSmallBlocks);
 
   std::list<std::string> GetAllStreams( const std::string& storageName );
 
@@ -183,7 +183,7 @@ public:
    * Creates a new stream.
    */
   // name must be absolute, e.g "/Workbook"
-  Stream( Storage* storage, const std::string& name, bool bCreate = false, int32 streamSize = 0);
+  Stream( Storage* storage, const std::string& name, bool bCreate = false, int64 streamSize = 0);
 
   /**
    * Destroys the stream.
@@ -198,39 +198,39 @@ public:
   /**
    * Returns the stream size.
    **/
-  uint32 size();
+  uint64 size();
 
   /**
    * Changes the stream size (note this is done automatically if you write beyond the old size.
    * Use this primarily as a preamble to rewriting a stream that is already open. Of course, you
    * could simply delete the stream first).
    **/
-  void setSize(int32 newSize);
+  void setSize(int64 newSize);
 
   /**
    * Returns the current read/write position.
    **/
-  uint32 tell();
+  uint64 tell();
 
   /**
    * Sets the read/write position.
    **/
-  void seek( uint32 pos );
+  void seek( uint64 pos );
 
   /**
    * Reads a byte.
    **/
-  int32 getch();
+  int64 getch();
 
   /**
    * Reads a block of data.
    **/
-  uint32 read( unsigned char* data, uint32 maxlen );
+  uint64 read( unsigned char* data, uint64 maxlen );
 
   /**
    * Writes a block of data.
    **/
-  uint32 write( unsigned char* data, uint32 len );
+  uint64 write( unsigned char* data, uint64 len );
 
   /**
    * Makes sure that any changes for the stream (and the structured storage) have been written to disk.
