@@ -39,7 +39,8 @@ SOURCES += \
     CustomProtectedStream.cpp \
     ext/QTStreamImpl.cpp \
     HttpHelper.cpp \
-    IRMSEnvironment.cpp
+    IRMSEnvironment.cpp \
+    roles.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -53,7 +54,6 @@ HEADERS += \
     IAuthenticationCallbackImpl.h \
     ConsentResult.h \
     IConsent.h \
-    Roles.h \
     PolicyDescriptor.h \
     UserRights.h \
     UserRoles.h \
@@ -66,7 +66,8 @@ HEADERS += \
     ModernAPIExport.h \
     CacheControl.h \
     RMSExceptions.h \
-    IRMSEnvironment.h
+    IRMSEnvironment.h \
+    roles.h
 
 
 unix {
