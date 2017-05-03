@@ -61,6 +61,7 @@ wide string into utf8 char*:
 #include <cstdio>
 #include <string>
 #include <list>
+#include <memory>
 
 namespace POLE
 {
@@ -104,6 +105,12 @@ public:
    * Constructs a storage with name filename.
    **/
   Storage( const char* filename );
+
+  /**
+    * Constructs a storage with an istream
+   **/
+
+   Storage(std::shared_ptr<std::fstream> filestream);
 
   /**
    * Destroys the storage.

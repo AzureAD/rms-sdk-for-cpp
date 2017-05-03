@@ -178,7 +178,7 @@ class StorageIO
   public:
     Storage* storage;         // owner
     std::string filename;     // filename
-    std::fstream file;        // associated with above name
+    std::shared_ptr<std::fstream> file;        // associated with above name
     int64 result;               // result of operation
     bool opened;              // true if file is opened
     uint64 filesize;   // size of the file
@@ -197,6 +197,7 @@ class StorageIO
     std::list<Stream*> streams;
 
     StorageIO( Storage* storage, const char* filename );
+    StorageIO( Storage* storage, std::shared_ptr<std::fstream> filestream );
     ~StorageIO();
 
     bool open(bool bWriteAccess = false, bool bCreate = false);
@@ -303,17 +304,17 @@ std::wstring POLE::UTF8toUTF16(const std::string &utf8) {
 
 #endif //POLE_USE_UTF16_FILENAMES
 
-static void fileCheck(std::fstream &file)
+static void fileCheck(std::shared_ptr<std::fstream> file)
 {
     bool bGood, bFail, bEof, bBad;
     bool bNOTOK;
-    bGood = file.good();
-    bFail = file.fail();
-    bEof = file.eof();
-    bBad = file.bad();
+    bGood = file->good();
+    bFail = file->fail();
+    bEof = file->eof();
+    bBad = file->bad();
     if (bFail || bEof || bBad)
         bNOTOK = true; //this doesn't really do anything, but it is a good place to set a breakpoint!
-    file.clear();
+    file->clear();
 }
 
 
@@ -1244,6 +1245,28 @@ StorageIO::StorageIO( Storage* st, const char* fname )
   sbat->blockSize = (uint64) 1 << header->s_shift;
 }
 
+StorageIO::StorageIO( Storage* st, std::shared_ptr<std::fstream> filestream )
+: storage(st),
+  filename(),
+  file(filestream),
+  result(Storage::Ok),
+  opened(false),
+  filesize(0),
+  writeable(false),
+  header(new Header()),
+  dirtree(new DirTree(1 << header->b_shift)),
+  bbat(new AllocTable()),
+  sbat(new AllocTable()),
+  sb_blocks(),
+  mbat_blocks(),
+  mbat_data(),
+  mbatDirty(),
+  streams()
+{
+  bbat->blockSize = (uint64) 1 << header->b_shift;
+  sbat->blockSize = (uint64) 1 << header->s_shift;
+}
+
 StorageIO::~StorageIO()
 {
   if( opened ) close();
@@ -1282,31 +1305,36 @@ void StorageIO::load(bool bWriteAccess)
   // open the file, check for error
   result = Storage::OpenFailed;
 
-#if defined(POLE_USE_UTF16_FILENAMES)
-  if (bWriteAccess)
-      file.open(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out);
-  else
-      file.open(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in);
-#else
-  if (bWriteAccess)
-      file.open(filename.c_str(), std::ios::binary | std::ios::in | std::ios::out);
-  else
-      file.open(filename.c_str(), std::ios::binary | std::ios::in);
-#endif //defined(POLE_USE_UTF16_FILENAMES) && defined(POLE_WIN)
+  if(!filename.empty())
+    {
+        #if defined(POLE_USE_UTF16_FILENAMES)
+          if (bWriteAccess)
+              file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out);
+          else
+              file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in);
+        #else
+          if (bWriteAccess)
+              file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in | std::ios::out);
+          else
+              file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in);
+        #endif //defined(POLE_USE_UTF16_FILENAMES) && defined(POLE_WIN)
+    }
 
-  if( !file.good() ) return;
 
-  // find size of input file
-  file.seekg(0, std::ios::end );
-  filesize = static_cast<uint64>(file.tellg());
 
-  // load header
-  buffer = new unsigned char[512];
-  file.seekg( 0 );
-  file.read( (char*)buffer, 512 );
-  fileCheck(file);
-  header->load( buffer );
-  delete[] buffer;
+    if( !file->good() ) return;
+
+    // find size of input file
+    file->seekg(0, std::ios::end );
+    filesize = static_cast<uint64>(file->tellg());
+
+    // load header
+    buffer = new unsigned char[512];
+    file->seekg( 0 );
+    file->read( (char*)buffer, 512 );
+    fileCheck(file);
+    header->load( buffer );
+    delete[] buffer;
 
   // check OLE magic id
   result = Storage::NotOLE;
@@ -1376,12 +1404,16 @@ void StorageIO::load(bool bWriteAccess)
 void StorageIO::create() {
   // std::cout << "Creating " << filename << std::endl;
 
-#if defined(POLE_USE_UTF16_FILENAMES)
-  file.open(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
-#else
-  file.open( filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
-#endif
-  if( !file.good() )
+  if(!file)
+  {
+    #if defined(POLE_USE_UTF16_FILENAMES)
+      file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
+    #else
+      file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
+      #endif
+  }
+
+  if( !file->good() )
   {
     std::cerr << "Can't create " << filename << std::endl;
     result = Storage::OpenFailed;
@@ -1420,8 +1452,8 @@ void StorageIO::flush()
     {
         unsigned char *buffer = new unsigned char[512];
         header->save( buffer );
-        file.seekp( 0 );
-        file.write( (char*)buffer, 512 );
+        file->seekp( 0 );
+        file->write( (char*)buffer, 512 );
         fileCheck(file);
         delete[] buffer;
     }
@@ -1466,7 +1498,7 @@ void StorageIO::flush()
         delete[] buffer;
         mbatDirty = false;
     }
-    file.flush();
+    file->flush();
     fileCheck(file);
 
   /* Note on Microsoft implementation:
@@ -1480,7 +1512,7 @@ void StorageIO::close()
 {
   if( !opened ) return;
 
-  file.close();
+  file->close();
   opened = false;
 
   std::list<Stream*>::iterator it;
@@ -1578,7 +1610,7 @@ uint64 StorageIO::loadBigBlocks( std::vector<uint64> blocks,
   // sentinel
   if( !data ) return 0;
   fileCheck(file);
-  if( !file.good() ) return 0;
+  if( !file->good() ) return 0;
   if( blocks.size() < 1 ) return 0;
   if( maxlen == 0 ) return 0;
 
@@ -1591,8 +1623,8 @@ uint64 StorageIO::loadBigBlocks( std::vector<uint64> blocks,
     uint64 p = (bbat->blockSize < maxlen-bytes) ? bbat->blockSize : maxlen-bytes;
     if( pos + p > filesize )
         p = filesize - pos;
-    file.seekg( pos );
-    file.read( (char*)data + bytes, p );
+    file->seekg( pos );
+    file->read( (char*)data + bytes, p );
     fileCheck(file);
     // should use gcount to see how many bytes were really returned - eof check...
     bytes += p;
@@ -1607,7 +1639,7 @@ uint64 StorageIO::loadBigBlock( uint64 block,
   // sentinel
   if( !data ) return 0;
   fileCheck(file);
-  if( !file.good() ) return 0;
+  if( !file->good() ) return 0;
 
   // wraps call for loadBigBlocks
   std::vector<uint64> blocks;
@@ -1622,7 +1654,7 @@ uint64 StorageIO::saveBigBlocks( std::vector<uint64> blocks, uint64 offset, unsi
   // sentinel
   if( !data ) return 0;
   fileCheck(file);
-  if( !file.good() ) return 0;
+  if( !file->good() ) return 0;
   if( blocks.size() < 1 ) return 0;
   if( len == 0 ) return 0;
 
@@ -1636,8 +1668,8 @@ uint64 StorageIO::saveBigBlocks( std::vector<uint64> blocks, uint64 offset, unsi
     uint64 tobeWritten = len - bytes;
     if (tobeWritten > maxWrite)
         tobeWritten = maxWrite;
-    file.seekp( pos );
-    file.write( (char*)data + bytes, tobeWritten );
+    file->seekp( pos );
+    file->write( (char*)data + bytes, tobeWritten );
     fileCheck(file);
 
     bytes += tobeWritten;
@@ -1654,7 +1686,7 @@ uint64 StorageIO::saveBigBlock( uint64 block, uint64 offset, unsigned char* data
 {
     if ( !data ) return 0;
     fileCheck(file);
-    if ( !file.good() ) return 0;
+    if ( !file->good() ) return 0;
     //wrap call for saveBigBlocks
     std::vector<uint64> blocks;
     blocks.resize( 1 );
@@ -1669,7 +1701,7 @@ uint64 StorageIO::loadSmallBlocks( std::vector<uint64> blocks,
   // sentinel
   if( !data ) return 0;
   fileCheck(file);
-  if( !file.good() ) return 0;
+  if( !file->good() ) return 0;
   if( blocks.size() < 1 ) return 0;
   if( maxlen == 0 ) return 0;
 
@@ -1708,7 +1740,7 @@ uint64 StorageIO::loadSmallBlock( uint64 block,
   // sentinel
   if( !data ) return 0;
   fileCheck(file);
-  if( !file.good() ) return 0;
+  if( !file->good() ) return 0;
 
   // wraps call for loadSmallBlocks
   std::vector<uint64> blocks;
@@ -1725,7 +1757,7 @@ uint64 StorageIO::saveSmallBlocks( std::vector<uint64> blocks, uint64 offset,
   // sentinel
   if( !data ) return 0;
   fileCheck(file);
-  if( !file.good() ) return 0;
+  if( !file->good() ) return 0;
   if( blocks.size() < 1 ) return 0;
   if( len == 0 ) return 0;
 
@@ -1756,7 +1788,7 @@ uint64 StorageIO::saveSmallBlock( uint64 block, uint64 offset, unsigned char* da
 {
     if ( !data ) return 0;
     fileCheck(file);
-    if ( !file.good() ) return 0;
+    if ( !file->good() ) return 0;
     //wrap call for saveSmallBlocks
     std::vector<uint64> blocks;
     blocks.resize( 1 );
@@ -2190,6 +2222,11 @@ void StreamIO::updateCache()
 Storage::Storage( const char* filename )
 {
   io = new StorageIO( this, filename );
+}
+
+Storage::Storage( std::shared_ptr<std::fstream> filestream )
+{
+  io = new StorageIO( this, filestream );
 }
 
 Storage::~Storage()
