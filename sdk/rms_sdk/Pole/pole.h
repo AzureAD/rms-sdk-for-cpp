@@ -63,8 +63,8 @@ wide string into utf8 char*:
 #include <list>
 #include <memory>
 
-namespace POLE
-{
+namespace rmscore {
+namespace pole {
 
 #if defined WIN32 || defined WIN64 || defined _WIN32 || defined _WIN64 || defined _MSVC
 #define POLE_USE_UTF16_FILENAMES
@@ -262,6 +262,7 @@ private:
   Stream& operator=( const Stream& );
 };
 
-}
+} // namespace pole
+} // namespace rmscore
 
 #endif // POLE_H

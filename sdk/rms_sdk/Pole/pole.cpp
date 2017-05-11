@@ -63,8 +63,8 @@
 // #define POLE_DEBUG
 #define CACHEBUFSIZE 4096 //a presumably reasonable size for the read cache
 
-namespace POLE
-{
+namespace rmscore {
+namespace pole {
 
 class Header
 {
@@ -286,18 +286,19 @@ class StreamIO
     void updateCache();
 };
 
-}; // namespace POLE
+} // namespace pole
+} // namespace rmscore
 
-using namespace POLE;
+using namespace rmscore::pole;
 
 #ifdef POLE_USE_UTF16_FILENAMES
 
-std::string POLE::UTF16toUTF8(const std::wstring &utf16) {
+std::string rmscore::pole::UTF16toUTF8(const std::wstring &utf16) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
     return converter.to_bytes(utf16);
 }
 
-std::wstring POLE::UTF8toUTF16(const std::string &utf8) {
+std::wstring rmscore::pole::UTF8toUTF16(const std::string &utf8) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> converter;
     return converter.from_bytes(utf8);
 }
