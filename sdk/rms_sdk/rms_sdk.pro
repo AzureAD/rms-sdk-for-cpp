@@ -10,7 +10,8 @@ SUBDIRS += \
     Platform \
     RestClients \
     UnitTests \
-    Pole
+    Pole \
+    OfficeProtector
 
 UnitTests.depends   = ModernAPI
 RestClients.depends = PFile
