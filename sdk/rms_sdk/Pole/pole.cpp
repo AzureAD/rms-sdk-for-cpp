@@ -946,12 +946,15 @@ void DirTree::load( unsigned char* buffer, uint64 size )
     for( int j=0; ( buffer[j+p]) && (j<name_len); j+= 2 )
       name.append( 1, buffer[j+p] );
 
+    //vmittal: We have unprintable characters so removing this block.
+    /*
     // first char isn't printable ? remove it...
     if( buffer[p] < 32 )
     {
       prefix = buffer[0];
       name.erase( 0,1 );
     }
+    */
 
     // 2 = file (aka stream), 1 = directory (aka storage), 5 = root
     unsigned type = buffer[ 0x42 + p];
