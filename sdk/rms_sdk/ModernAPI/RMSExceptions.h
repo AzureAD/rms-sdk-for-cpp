@@ -36,7 +36,8 @@ public:
     CryptoError,
     StreamError,
     PFileError,
-    RightsError
+    RightsError,
+    MetroOfficeFileError
   };
 
   RMSException(const ExceptionTypes type,
@@ -232,6 +233,34 @@ public:
     : RMSLogicException(PFileError, message) {}
 
   virtual ~RMSRightsException() _NOEXCEPT {}
+};
+
+class RMSMetroOfficeFileException : public RMSLogicException {
+public:
+
+  enum Reason {
+    NotMetroOfficeFile = 0,
+    BadArguments,
+    CorruptFile,
+    NonRMSProtected,
+    Unknown
+  };
+
+  RMSMetroOfficeFileException(const std::string& message, Reason reason) _NOEXCEPT
+    : RMSLogicException(MetroOfficeFileError, message), reason_(reason) {}
+
+  RMSMetroOfficeFileException(const char *const& message, Reason reason) _NOEXCEPT
+    : RMSLogicException(MetroOfficeFileError, message), reason_(reason) {}
+
+  virtual ~RMSMetroOfficeFileException() _NOEXCEPT {}
+
+  virtual Reason reason() const _NOEXCEPT {
+    return reason_;
+  }
+
+private:
+
+  Reason reason_; // additional reason for this error
 };
 } // namespace exceptions
 } // namespace rmscore
