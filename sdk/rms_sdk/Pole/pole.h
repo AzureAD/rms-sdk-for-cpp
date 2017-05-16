@@ -107,9 +107,8 @@ public:
   Storage( const char* filename );
 
   /**
-    * Constructs a storage with an istream
+    * Constructs a storage with an fstream
    **/
-
    Storage(std::shared_ptr<std::fstream> filestream);
 
   /**

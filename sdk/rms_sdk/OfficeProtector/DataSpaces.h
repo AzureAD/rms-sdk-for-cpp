@@ -33,12 +33,16 @@ private:
     void ReadAndVerifyVersion(std::shared_ptr<Stream> stm, const std::string& contentExpected);
     void WriteDataSpaceMap(std::shared_ptr<Stream> stm);
     void WriteDRMDataSpace(std::shared_ptr<Stream> stm);
-    void WriteTxInfo(std::shared_ptr<Stream> stm, const std::string& txClassName, const std::string& featureName);
-    void ReadTxInfo(std::shared_ptr<Stream> stm, const std::string& txClassName, const std::string& featureName);
+    void WriteTxInfo(std::shared_ptr<Stream> stm,
+                     const std::string& txClassName,
+                     const std::string& featureName);
+    void ReadTxInfo(std::shared_ptr<Stream> stm,
+                    const std::string& txClassName,
+                    const std::string& featureName);
     void WritePrimary(std::shared_ptr<Stream> stm,  ByteArray publishingLicense);
     void ReadPrimary(std::shared_ptr<Stream> stm, ByteArray& publishingLicense);
 
-    bool isMetro = true;    
+    bool m_isMetro = true;
 };
 
 } // namespace officeprotector

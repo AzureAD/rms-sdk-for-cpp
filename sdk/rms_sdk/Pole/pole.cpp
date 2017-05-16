@@ -946,7 +946,7 @@ void DirTree::load( unsigned char* buffer, uint64 size )
     for( int j=0; ( buffer[j+p]) && (j<name_len); j+= 2 )
       name.append( 1, buffer[j+p] );
 
-    // vmittal: We have unprintable chars in CFB stream names and this block removes
+    // We have unprintable chars in CFB stream names and this block removes
     // unprintable chars so searching for a stream by name fails. Hence disabling this check.
     /*
     // first char isn't printable ? remove it...
@@ -1311,19 +1311,19 @@ void StorageIO::load(bool bWriteAccess)
   result = Storage::OpenFailed;
 
   if(!filename.empty())
-    {
-        #if defined(POLE_USE_UTF16_FILENAMES)
-          if (bWriteAccess)
-              file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out);
-          else
-              file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in);
-        #else
-          if (bWriteAccess)
-              file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in | std::ios::out);
-          else
-              file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in);
-        #endif //defined(POLE_USE_UTF16_FILENAMES) && defined(POLE_WIN)
-    }
+  {
+      #if defined(POLE_USE_UTF16_FILENAMES)
+        if (bWriteAccess)
+            file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out);
+        else
+            file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in);
+      #else
+        if (bWriteAccess)
+            file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in | std::ios::out);
+        else
+            file = std::make_shared<std::fstream>(filename.c_str(), std::ios::binary | std::ios::in);
+      #endif //defined(POLE_USE_UTF16_FILENAMES) && defined(POLE_WIN)
+  }
 
 
 
