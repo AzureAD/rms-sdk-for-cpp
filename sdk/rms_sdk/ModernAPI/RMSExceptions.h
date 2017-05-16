@@ -37,7 +37,7 @@ public:
     StreamError,
     PFileError,
     RightsError,
-    MetroOfficeFileError
+    MetroOfficeFileError,
   };
 
   RMSException(const ExceptionTypes type,
@@ -259,7 +259,6 @@ public:
   }
 
 private:
-
   Reason reason_; // additional reason for this error
 };
 } // namespace exceptions
