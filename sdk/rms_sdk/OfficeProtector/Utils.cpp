@@ -6,46 +6,51 @@
  * ======================================================================
 */
 
-#include <Utils.h>
+#include "Utils.h"
 #include "../Platform/Logger/Logger.h"
 #include "../ModernAPI/RMSExceptions.h"
+
 using namespace rmscore::pole;
 using namespace rmscore::platform::logger;
+
 namespace rmscore {
 namespace officeprotector {
 
-//doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
-std::string ConvertCharStrToWideStr(std::string input)
+/* Adds a '\0' after every char to make for MSIPC wstring compatibility.
+ * "RMS" becomes "R\0M\0S\0"  */
+std::string ConvertCharStrToWideStr(const std::string& input)
 {
     size_t inputLen = input.length();
-    std::string wideStr;
+    std::string wideStr(2*inputLen, '\0');
     for(size_t i=0; i < inputLen; i++)
     {
-        wideStr.push_back(input[i]);
-        wideStr.push_back('\0');
+        wideStr[2*i] = input[i];
     }
     return wideStr;
 }
 
-std::string ConvertWideStrToCharStr(std::string input)
+/* Removes a '\0' present after every char to make for MSIPC wstring compatibility.
+ * "R\0M\0S\0" becomes "RMS"  */
+std::string ConvertWideStrToCharStr(const std::string& input)
 {
     size_t inputLen = input.length();
-    std::string CharStr;
+    std::string charStr(inputLen/2, '\0');
     for(size_t i=0; i < inputLen; i+=2)
     {
-        CharStr.push_back(input[i]);
+        charStr[i/2] = input[i];
     }
-    return CharStr;
+    return charStr;
 }
 
-
-uint32_t FourByteAlign(Stream *stm, uint32_t contentLength, bool write)
+/* Aligns the stream at four bytes. Adds null chars while writing
+ * and seeks to the aligned position while reading. */
+uint32_t AlignAtFourBytes(std::shared_ptr<Stream> stm, uint32_t contentLength, bool write)
 {
     if(stm == nullptr || contentLength < 1)
     {
         Logger::Error("Invalid arguments provided for byte alignment");
         throw exceptions::RMSMetroOfficeFileException("Error in aligning stream",
-                                                      exceptions::RMSMetroOfficeFileException::Unknown);
+                                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     uint32_t alignCount = contentLength % 4;
@@ -56,7 +61,8 @@ uint32_t FourByteAlign(Stream *stm, uint32_t contentLength, bool write)
         for(uint32_t i=0; i < alignCount; i++)
             alignBytes.push_back('\0');
 
-        stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(alignBytes.data())), alignCount);
+        stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(alignBytes.data())),
+                   alignCount);
     }
     else
     {
@@ -66,7 +72,8 @@ uint32_t FourByteAlign(Stream *stm, uint32_t contentLength, bool write)
     return alignCount;
 }
 
-uint32_t WriteWideStringEntry(Stream *stm, std::string entry)
+// Writes a string to a stream after converting it to a wide string.
+uint32_t WriteWideStringEntry(std::shared_ptr<Stream> stm, const std::string& entry)
 {
     if(stm == nullptr || entry.empty())
     {
@@ -76,16 +83,20 @@ uint32_t WriteWideStringEntry(Stream *stm, std::string entry)
     }
 
     uint32_t bytesWritten = 0;
+    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
     std::string wideEntry = ConvertCharStrToWideStr(entry);
     uint32_t wideEntryLen = wideEntry.length();
-    bytesWritten += stm->write(reinterpret_cast<unsigned char*>(&wideEntryLen), sizeof(uint32_t));
-    bytesWritten += stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(wideEntry.data())), wideEntryLen);
-    bytesWritten += FourByteAlign(stm, wideEntryLen, true);
+    bytesWritten += stm->write(reinterpret_cast<unsigned char*>(&wideEntryLen),
+                               sizeof(uint32_t));
+    bytesWritten += stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(wideEntry.data())),
+                               wideEntryLen);
+    bytesWritten += AlignAtFourBytes(stm, wideEntryLen, true);
 
     return bytesWritten;
 }
 
-uint32_t ReadWideStringEntry(Stream *stm, std::string &entry)
+// Reads a wide string and converts it to a string.
+uint32_t ReadWideStringEntry(std::shared_ptr<Stream> stm, std::string& entry)
 {
     if(stm == nullptr || entry.empty())
     {
@@ -93,6 +104,7 @@ uint32_t ReadWideStringEntry(Stream *stm, std::string &entry)
         throw exceptions::RMSMetroOfficeFileException("Error in reading from stream",
                                                       exceptions::RMSMetroOfficeFileException::Unknown);
     }
+
     uint32_t bytesRead = 0;
     uint32_t wideEntryLen = 0;
     bytesRead += stm->read(reinterpret_cast<unsigned char*>(&wideEntryLen), sizeof(uint32_t));
@@ -103,21 +115,24 @@ uint32_t ReadWideStringEntry(Stream *stm, std::string &entry)
         throw exceptions::RMSMetroOfficeFileException("Corrupt doc file",
                                                       exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
-    unsigned char *wideEntry = new unsigned char[wideEntryLen];
-    bytesRead += stm->read(wideEntry, wideEntryLen);
-    std::string wideStr(reinterpret_cast<const char*>(wideEntry), wideEntryLen);
+    auto wideEntry = std::make_unique<unsigned char[]>(wideEntryLen);
+    bytesRead += stm->read(wideEntry.get(), wideEntryLen);
+    std::string wideStr((const char*)wideEntry.get(), wideEntryLen);
+    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
     entry = ConvertWideStrToCharStr(wideStr);
-    bytesRead += FourByteAlign(stm, wideEntryLen, false);
-    delete wideEntry;
+    bytesRead += AlignAtFourBytes(stm, wideEntryLen, false);
 
     return bytesRead;
 }
 
-uint32_t WideStringEntryLength(std::string entry)
+/* calculates length of bytes written/read in WriteWideStringEntry()/ReadWideStringEntry()
+ * The bitmask is used to round up to the nearest multiple of 4.
+ */
+uint32_t FourByteAlignedWideStringLength(const std::string& entry)
 {
-    size_t len = sizeof(uint32_t) + (entry.length()*2);
+    size_t len = sizeof(uint32_t) + (entry.length() << 1);
     return ((len + 3) & ~3);
 }
 
 } // namespace officeprotector
-} //namespace rmscore
+} // namespace rmscore

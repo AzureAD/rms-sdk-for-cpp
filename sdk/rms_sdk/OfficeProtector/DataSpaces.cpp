@@ -6,15 +6,67 @@
  * ======================================================================
 */
 
-#include <DataSpaces.h>
-#include "../Platform/Logger/Logger.h"
+#include "DataSpaces.h"
 #include "../ModernAPI/RMSExceptions.h"
+#include "../Platform/Logger/Logger.h"
 #include "Utils.h"
 
+using namespace rmscore::common;
 using namespace rmscore::officeprotector;
 using namespace rmscore::pole;
 using namespace rmscore::platform::logger;
-using namespace rmscore::common;
+
+namespace {
+
+const std::string drmContent          = "\11DRMContent";
+const std::string metroContent        = "EncryptedPackage";
+const std::string dataSpace           = "\006DataSpaces";
+const std::string version             = "Version";
+const std::string dataSpaceMap        = "DataSpaceMap";
+const std::string dataSpaceInfo       = "DataSpaceInfo";
+const std::string drmDataSpace        = "\11DRMDataSpace";
+const std::string metroDataSpace      = "DRMEncryptedDataSpace";
+const std::string transformInfo       = "TransformInfo";
+const std::string drmTransform        = "\11DRMTransform";
+const std::string metroTransform      = "DRMEncryptedTransform";
+const std::string passwordTransform   = "StrongEncryptionTransform";
+const std::string passwordDataSpace   = "StrongEncryptionDataSpace";
+const std::string primary             = "\006Primary";
+const std::string versionFeature      = "Microsoft.Container.DataSpaces";
+const std::string drmTransformFeature = "Microsoft.Metadata.DRMTransform";
+const std::string drmTransformClass   = "{C73DFACD-061F-43B0-8B64-0C620D2A8B50}";
+const std::string rootEntry = "/";
+const std::string separator = "/";
+
+// DataSpaceMap Header
+struct DataSpaceMapHeader
+{
+    uint32_t headerLen;
+    uint32_t entryCount;
+};
+
+// DataSpaceMap Entry Header
+struct DataSpaceMapEntryHeader
+{
+    uint32_t entryLen;
+    uint32_t componentCount;
+};
+
+// DRM Transform Header
+struct DRMTransformHeader
+{
+    uint32_t headerLen;
+    uint32_t txCount;
+};
+
+// DRM Transform Info
+struct DRMTransformInfo
+{
+    uint32_t headerLen;
+    uint32_t txClassType;
+};
+
+}   // namespace
 
 namespace rmscore {
 namespace officeprotector {
@@ -28,8 +80,7 @@ DataSpaces::~DataSpaces()
 {
 }
 
-//todo add logging here
-void DataSpaces::WriteDataspaces(Storage *stg, ByteArray publishingLicense)
+void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, ByteArray publishingLicense)
 {
     if(stg == nullptr)
     {
@@ -37,50 +88,47 @@ void DataSpaces::WriteDataspaces(Storage *stg, ByteArray publishingLicense)
         throw exceptions::RMSMetroOfficeFileException("Error in writing to storage",
                                                       exceptions::RMSMetroOfficeFileException::Unknown);
     }
-
+    Logger::Hidden("Writing DataSpaces");
     Logger::Hidden("Deleting DataSpaces if exists");
-    std::string rootEntry = "/";
     std::string dataSpaceStgName = rootEntry + dataSpace;
     stg->deleteByName(dataSpaceStgName);
 
-    std::string versionStmName = dataSpaceStgName + "/" + version;
+    std::string versionStmName = dataSpaceStgName + separator + version;
     Logger::Hidden("Writing Version in " + versionStmName);
-    Stream* versionStm = new Stream(stg, versionStmName, true);
+    std::shared_ptr<Stream> versionStm = std::make_shared<Stream>(stg.get(), versionStmName, true);
     versionStm->seek(0);
     WriteVersion(versionStm, versionFeature);
     versionStm->flush();
 
-    std::string dataSpaceMapStmName = dataSpaceStgName + "/" + dataSpaceMap;
+    std::string dataSpaceMapStmName = dataSpaceStgName + separator + dataSpaceMap;
     Logger::Hidden("Writing DataSpaceMap in " + dataSpaceMapStmName);
-    Stream* dataSpaceMapStm = new Stream(stg, dataSpaceMapStmName, true);
+    std::shared_ptr<Stream> dataSpaceMapStm = std::make_shared<Stream>(stg.get(), dataSpaceMapStmName, true);
     dataSpaceMapStm->seek(0);
     WriteDataSpaceMap(dataSpaceMapStm);
     dataSpaceMapStm->flush();
 
-    std::string dataSpaceInfoStgName = dataSpaceStgName + "/" + dataSpaceInfo;
-    std::string drmDataSpaceStmName = dataSpaceInfoStgName + "/" + (isMetro? metroDataSpace : drmDataSpace);
+    std::string dataSpaceInfoStgName = dataSpaceStgName + separator + dataSpaceInfo;
+    std::string drmDataSpaceStmName = dataSpaceInfoStgName + separator +
+            (isMetro ? metroDataSpace : drmDataSpace);
     Logger::Hidden("Writing DRMDataSpace in " + drmDataSpaceStmName);
-    Stream* drmDataSpaceStm = new Stream(stg, drmDataSpaceStmName, true);
+    std::shared_ptr<Stream> drmDataSpaceStm = std::make_shared<Stream>(stg.get(), drmDataSpaceStmName, true);
     drmDataSpaceStm->seek(0);
     WriteDRMDataSpace(drmDataSpaceStm);
     drmDataSpaceStm->flush();
 
-    std::string transformInfoStgName = dataSpaceStgName + "/" + transformInfo;
-    std::string drmTransformStgName = transformInfoStgName + "/" + (isMetro? metroTransform : drmTransform);
-    std::string primaryStmName = drmTransformStgName + "/" + primary;
+    std::string transformInfoStgName = dataSpaceStgName + separator + transformInfo;
+    std::string drmTransformStgName = transformInfoStgName + separator +
+            (isMetro ? metroTransform : drmTransform);
+    std::string primaryStmName = drmTransformStgName + separator + primary;
     Logger::Hidden("Writing Primary in " + primaryStmName);
-    Stream* primaryStm = new Stream(stg, primaryStmName, true);
+    std::shared_ptr<Stream> primaryStm = std::make_shared<Stream>(stg.get(), primaryStmName, true);
     primaryStm->seek(0);
     WritePrimary(primaryStm, publishingLicense);
     primaryStm->flush();
-
-    delete versionStm;
-    delete dataSpaceMapStm;
-    delete drmDataSpaceStm;
-    delete primaryStm;
 }
 
-void DataSpaces::ReadDataspaces(Storage *stg, ByteArray &publishingLicense)
+//todo add logging here
+void DataSpaces::ReadDataspaces(std::shared_ptr<Storage> stg, ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
@@ -88,10 +136,10 @@ void DataSpaces::ReadDataspaces(Storage *stg, ByteArray &publishingLicense)
         throw exceptions::RMSMetroOfficeFileException("Error in reading from storage",
                                                       exceptions::RMSMetroOfficeFileException::Unknown);
     }
-    std::string rootEntry = "/";
+    Logger::Hidden("Reading DataSpaces");
     std::string dataSpaceStgName = rootEntry + dataSpace;
-    std::string transformInfoStgName = dataSpaceStgName + "/" + transformInfo;
-    std::string passwordTransformStgName = transformInfoStgName + "/" + passwordTransform;
+    std::string transformInfoStgName = dataSpaceStgName + separator + transformInfo;
+    std::string passwordTransformStgName = transformInfoStgName + separator + passwordTransform;
 
     if(stg->exists(passwordTransformStgName))
     {
@@ -100,8 +148,8 @@ void DataSpaces::ReadDataspaces(Storage *stg, ByteArray &publishingLicense)
                                                 exceptions::RMSMetroOfficeFileException::NonRMSProtected);
     }
 
-    std::string primaryStmName = transformInfoStgName + "/" + (isMetro? metroTransform : drmTransform)
-            + "/" + primary;
+    std::string primaryStmName = transformInfoStgName + separator + (isMetro ? metroTransform : drmTransform)
+            + separator + primary;
 
     if(!stg->exists(primaryStmName))
     {
@@ -110,12 +158,13 @@ void DataSpaces::ReadDataspaces(Storage *stg, ByteArray &publishingLicense)
                                                 exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
-    Stream *stm = new Stream(stg, primaryStmName, false);
+    Logger::Hidden("Reading Primary from " + primaryStmName);
+    std::shared_ptr<Stream> stm = std::make_shared<Stream>(stg.get(), primaryStmName, false);
     stm->seek(0);
     ReadPrimary(stm, publishingLicense);
 }
 
-void DataSpaces::WriteVersion(Stream *stm, std::string content)
+void DataSpaces::WriteVersion(std::shared_ptr<Stream> stm, const std::string& content)
 {
     if( stm == nullptr || content.empty())
     {
@@ -139,7 +188,7 @@ void DataSpaces::WriteVersion(Stream *stm, std::string content)
     stm->write(reinterpret_cast<unsigned char*>(&writerMinor), sizeof(uint16_t));
 }
 
-void DataSpaces::ReadVersion(Stream *stm, std::string contentExpected)
+void DataSpaces::ReadAndVerifyVersion(std::shared_ptr<Stream> stm, const std::string& contentExpected)
 {
     if( stm == nullptr || contentExpected.empty())
     {
@@ -149,11 +198,8 @@ void DataSpaces::ReadVersion(Stream *stm, std::string contentExpected)
     }
 
     uint16_t readerMajorExpected  = 1;
-    uint16_t readerMinorExpected  = 0;
     uint16_t updaterMajorExpected = 1;
-    uint16_t updaterMinorExpected = 0;
     uint16_t writerMajorExpected  = 1;
-    uint16_t writerMinorExpected  = 0;
 
     std::string contentRead;
     uint16_t readerMajorRead  = 0;
@@ -171,18 +217,17 @@ void DataSpaces::ReadVersion(Stream *stm, std::string contentExpected)
     stm->read(reinterpret_cast<unsigned char*>(&writerMajorRead), sizeof(uint16_t));
     stm->read(reinterpret_cast<unsigned char*>(&writerMinorRead), sizeof(uint16_t));
 
-    if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected || readerMinorRead != readerMinorExpected
-            || updaterMajorRead != updaterMajorExpected || updaterMinorRead != updaterMinorExpected
-            || writerMajorRead != writerMajorExpected || writerMinorRead != writerMinorExpected)
+    if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
+            updaterMajorRead != updaterMajorExpected || writerMajorRead != writerMajorExpected)
     {
-        Logger::Error("Version mismatch", contentRead, readerMajorRead, readerMinorRead, updaterMajorRead,
-                      updaterMinorRead, writerMajorRead, writerMinorRead);
+        Logger::Error("Major Version mismatch", contentRead, readerMajorRead,
+                      updaterMajorRead, writerMajorRead);
         throw exceptions::RMSMetroOfficeFileException("The file has been corrupted",
                                                       exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 }
 
-void DataSpaces::WriteDataSpaceMap(Stream *stm)
+void DataSpaces::WriteDataSpaceMap(std::shared_ptr<Stream> stm)
 {
     DataSpaceMapHeader dsmh;
     DataSpaceMapEntryHeader dsmeh;
@@ -200,10 +245,10 @@ void DataSpaces::WriteDataSpaceMap(Stream *stm)
     stm->write(reinterpret_cast<unsigned char*>(&dsmh.headerLen), sizeof(uint32_t));
     stm->write(reinterpret_cast<unsigned char*>(&dsmh.entryCount), sizeof(uint32_t));
 
-    dsmeh.entryLen = sizeof(dsmeh) + sizeof(uint32_t) + (isMetro ? WideStringEntryLength(metroContent)
-                                                                   + WideStringEntryLength(metroDataSpace) :
-                                                                   WideStringEntryLength(drmContent)
-                                                                   + WideStringEntryLength(drmDataSpace));
+    dsmeh.entryLen = sizeof(dsmeh) + sizeof(uint32_t) + (isMetro ? FourByteAlignedWideStringLength(metroContent)
+                                                                   + FourByteAlignedWideStringLength(metroDataSpace) :
+                                                                   FourByteAlignedWideStringLength(drmContent)
+                                                                   + FourByteAlignedWideStringLength(drmDataSpace));
     dsmeh.componentCount = 1;
 
     stm->write(reinterpret_cast<unsigned char*>(&dsmeh.entryLen), sizeof(uint32_t));
@@ -213,7 +258,7 @@ void DataSpaces::WriteDataSpaceMap(Stream *stm)
     WriteWideStringEntry(stm, isMetro ? metroDataSpace : drmDataSpace);
 }
 
-void DataSpaces::WriteDRMDataSpace(Stream *stm)
+void DataSpaces::WriteDRMDataSpace(std::shared_ptr<Stream> stm)
 {
     if( stm == nullptr)
     {
@@ -228,10 +273,10 @@ void DataSpaces::WriteDRMDataSpace(Stream *stm)
 
     stm->write(reinterpret_cast<unsigned char*>(&dth.headerLen), sizeof(uint32_t));
     stm->write(reinterpret_cast<unsigned char*>(&dth.txCount), sizeof(uint32_t));
-    WriteWideStringEntry(stm, isMetro? metroTransform : drmTransform);
+    WriteWideStringEntry(stm, isMetro ? metroTransform : drmTransform);
 }
 
-void DataSpaces::WriteTxInfo(Stream *stm, std::string txClassName, std::string featureName)
+void DataSpaces::WriteTxInfo(std::shared_ptr<Stream> stm, const std::string& txClassName, const std::string& featureName)
 {
     if( stm == nullptr || txClassName.empty() || featureName.empty())
     {
@@ -241,7 +286,7 @@ void DataSpaces::WriteTxInfo(Stream *stm, std::string txClassName, std::string f
     }
 
     DRMTransformInfo dti;
-    dti.headerLen = sizeof(dti) + WideStringEntryLength(txClassName);
+    dti.headerLen = sizeof(dti) + FourByteAlignedWideStringLength(txClassName);
     dti.txClassType = 1;
 
     stm->write(reinterpret_cast<unsigned char*>(&dti.headerLen), sizeof(uint32_t));
@@ -251,7 +296,7 @@ void DataSpaces::WriteTxInfo(Stream *stm, std::string txClassName, std::string f
 
 }
 
-void DataSpaces::ReadTxInfo(Stream *stm, std::string txClassNameExpected, std::string featureNameExpected)
+void DataSpaces::ReadTxInfo(std::shared_ptr<Stream> stm, const std::string& txClassNameExpected, const std::string& featureNameExpected)
 {
     if( stm == nullptr || txClassNameExpected.empty() || featureNameExpected.empty())
     {
@@ -261,7 +306,7 @@ void DataSpaces::ReadTxInfo(Stream *stm, std::string txClassNameExpected, std::s
     }
 
     DRMTransformInfo dtiExpected;
-    dtiExpected.headerLen = sizeof(dtiExpected) + WideStringEntryLength(txClassNameExpected);
+    dtiExpected.headerLen = sizeof(dtiExpected) + FourByteAlignedWideStringLength(txClassNameExpected);
     dtiExpected.txClassType = 1;
 
     DRMTransformInfo dtiRead;
@@ -285,11 +330,11 @@ void DataSpaces::ReadTxInfo(Stream *stm, std::string txClassNameExpected, std::s
                                                       exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
-    ReadVersion(stm, featureNameExpected);
+    ReadAndVerifyVersion(stm, featureNameExpected);
 
 }
 
-void DataSpaces::WritePrimary(Stream *stm, ByteArray publishingLicense)
+void DataSpaces::WritePrimary(std::shared_ptr<Stream> stm, ByteArray publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
@@ -304,10 +349,10 @@ void DataSpaces::WritePrimary(Stream *stm, ByteArray publishingLicense)
     uint32_t publishingLicenseLen = publishingLicense.size();
     stm->write(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
     stm->write(reinterpret_cast<unsigned char*>(publishingLicense.data()), publishingLicenseLen);
-    FourByteAlign(stm, publishingLicenseLen, true);
+    AlignAtFourBytes(stm, publishingLicenseLen, true);
 }
 
-void DataSpaces::ReadPrimary(Stream *stm, ByteArray &publishingLicense)
+void DataSpaces::ReadPrimary(std::shared_ptr<Stream> stm, ByteArray &publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
@@ -331,7 +376,7 @@ void DataSpaces::ReadPrimary(Stream *stm, ByteArray &publishingLicense)
     publishingLicense.clear();
     publishingLicense.resize(publishingLicenseLen);
     stm->read((unsigned char*)&publishingLicense[0], publishingLicenseLen);
-    FourByteAlign(stm, publishingLicenseLen, false);
+    AlignAtFourBytes(stm, publishingLicenseLen, false);
 }
 
 std::shared_ptr<IDataSpaces>IDataSpaces::Create(bool isMetro)
@@ -342,4 +387,4 @@ std::shared_ptr<IDataSpaces>IDataSpaces::Create(bool isMetro)
 }
 
 } // namespace officeprotector
-} //namespace rmscore
+} // namespace rmscore

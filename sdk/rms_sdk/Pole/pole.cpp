@@ -946,7 +946,8 @@ void DirTree::load( unsigned char* buffer, uint64 size )
     for( int j=0; ( buffer[j+p]) && (j<name_len); j+= 2 )
       name.append( 1, buffer[j+p] );
 
-    //vmittal: We have unprintable characters so removing this block.
+    // vmittal: We have unprintable chars in CFB stream names and this block removes
+    // unprintable chars so searching for a stream by name fails. Hence disabling this check.
     /*
     // first char isn't printable ? remove it...
     if( buffer[p] < 32 )

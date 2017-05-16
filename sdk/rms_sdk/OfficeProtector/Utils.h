@@ -6,23 +6,25 @@
  * ======================================================================
  */
 
-#ifndef _RMS_LIB_IRMUTILS_H
-#define _RMS_LIB_IRMUTILS_H
+#ifndef RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
+#define RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
 
 #include <string>
-#include <pole.h>
+#include "pole.h"
+
 using namespace rmscore::pole;
+
 namespace rmscore {
 namespace officeprotector {
 
-uint32_t WriteWideStringEntry(Stream *stm, std::string entry);
-uint32_t ReadWideStringEntry(Stream *stm, std::string &entry);
-uint32_t WideStringEntryLength(std::string entry);
-uint32_t FourByteAlign(Stream *stm, uint32_t contentLength, bool write);
-std::string ConvertCharStrToWideStr(std::string input);
-std::string ConvertWideStrToCharStr(std::string input);
-
+uint32_t WriteWideStringEntry(std::shared_ptr<Stream> stm, const std::string& entry);
+uint32_t ReadWideStringEntry(std::shared_ptr<Stream> stm, std::string& entry);
+uint32_t FourByteAlignedWideStringLength(const std::string& entry);
+uint32_t AlignAtFourBytes(std::shared_ptr<Stream> stm, uint32_t contentLength, bool write);
+std::string ConvertCharStrToWideStr(const std::string& input);
+std::string ConvertWideStrToCharStr(const std::string& input);
 
 } // namespace officeprotector
-} //namespace rmscore
-#endif // _RMS_LIB_IRMUTILS_H
+} // namespace rmscore
+
+#endif // RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
