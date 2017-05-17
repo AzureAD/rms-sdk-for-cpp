@@ -24,8 +24,10 @@ class DataSpaces : public IDataSpaces
 public:
     DataSpaces(bool);
     virtual ~DataSpaces();
-    virtual void WriteDataspaces(std::shared_ptr<Storage> stg, ByteArray publishingLicense) override;
-    virtual void ReadDataspaces(std::shared_ptr<Storage> stg, ByteArray &publishingLicense) override;
+    virtual void WriteDataspaces(std::shared_ptr<Storage> stg,
+                                 const ByteArray& publishingLicense) override;
+    virtual void ReadDataspaces(std::shared_ptr<Storage> stg,
+                                ByteArray& publishingLicense) override;
 
 private:
 
@@ -39,7 +41,7 @@ private:
     void ReadTxInfo(std::shared_ptr<Stream> stm,
                     const std::string& txClassName,
                     const std::string& featureName);
-    void WritePrimary(std::shared_ptr<Stream> stm,  ByteArray publishingLicense);
+    void WritePrimary(std::shared_ptr<Stream> stm,  const ByteArray& publishingLicense);
     void ReadPrimary(std::shared_ptr<Stream> stm, ByteArray& publishingLicense);
 
     bool m_isMetro = true;

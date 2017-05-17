@@ -81,7 +81,7 @@ DataSpaces::~DataSpaces()
 {
 }
 
-void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, ByteArray publishingLicense)
+void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, const ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
@@ -343,7 +343,7 @@ void DataSpaces::ReadTxInfo(std::shared_ptr<Stream> stm,
     ReadAndVerifyVersion(stm, featureNameExpected);
 }
 
-void DataSpaces::WritePrimary(std::shared_ptr<Stream> stm, ByteArray publishingLicense)
+void DataSpaces::WritePrimary(std::shared_ptr<Stream> stm, const ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
@@ -357,11 +357,11 @@ void DataSpaces::WritePrimary(std::shared_ptr<Stream> stm, ByteArray publishingL
     stm->write(reinterpret_cast<unsigned char*>(&headerLen), sizeof(uint32_t));
     uint32_t publishingLicenseLen = publishingLicense.size();
     stm->write(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(publishingLicense.data()), publishingLicenseLen);
+    stm->write(const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(publishingLicense.data())), publishingLicenseLen);
     AlignAtFourBytes(stm, publishingLicenseLen, true);
 }
 
-void DataSpaces::ReadPrimary(std::shared_ptr<Stream> stm, ByteArray &publishingLicense)
+void DataSpaces::ReadPrimary(std::shared_ptr<Stream> stm, ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
