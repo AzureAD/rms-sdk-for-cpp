@@ -1,6 +1,8 @@
 # RMS SDK for portable C++
 
-[![Build Status](https://travis-ci.org/AzureAD/rms-sdk-for-cpp.svg?branch=master)](https://travis-ci.org/AzureAD/rms-sdk-for-cpp)
+| **`Win32`** | **`Win64`** | **`Linux`** | 
+|-----------------|-------------------|---------------|
+| [![Win32 Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/1218.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=1218&_a=completed) | [![Win64 Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/3062.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=3062&_a=completed) | [![Linux Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/625.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=625&_a=completed) |
 
 - [How to Build](./docs/how_to_build_it.md)
 - [How to Use](./docs/how_to_use_it.md)
@@ -22,6 +24,7 @@ See the [API reference](http://azuread.github.io/rms-sdk-for-cpp/index.html), cr
 Documentation of the source is ongoing.
 
 ## Platform support
+* Windows 7 or above
 * Ubuntu 14.04 or above
 * Red Hat 7.1 or above
 * CentOS 7.1 or above
@@ -37,12 +40,17 @@ Documentation of the source is ongoing.
 
 Information about requests is logged to `rms_log_*`, `rmsauth_log_*`, and `rmscrypto_log_*` in the folder where the executable using these libraries is called from. Request and response headers and some other info is not logged by default to avoid leaking sensitive information. To enable these hidden logs, set an environment variable `RMS_HIDDEN_LOG` to `ON`. For example:
 
+### Linux
 ```
 > RMS_HIDDEN_LOG=ON ./rms_sample
 ```
-## Security Reporting
-
-If you find a security issue with our libraries or services please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
+### Windows
+If you wish to run the executable from the command prompt instead of Qt Creator, first set the PATH variable to include the MSVC 2015 32 bit libraries and then set the environment variable `RMS_HIDDEN_LOG` to `ON`.
+```
+> set PATH=C:\Qt\5.7\msvc2015\bin;%PATH%
+> set RMS_HIDDEN_LOG=ON
+> rms_sampled.exe
+```
 
 ## Security Reporting
 

@@ -49,7 +49,7 @@
 #include <QtCore/QSortFilterProxyModel>
 #include <QtNetwork/QNetworkCookie>
 
-#include <QWebSettings>
+#include <QWebEngineSettings>
 
 #include <QtCore/QDebug>
 #include <QCoreApplication>
@@ -217,11 +217,11 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl &url) const
     if (!m_loaded)
         that->load();
 
-    QWebSettings *globalSettings = QWebSettings::globalSettings();
-    if (globalSettings->testAttribute(QWebSettings::PrivateBrowsingEnabled)) {
+    /*QWebEngineSettings *globalSettings = QWebEngineSettings::globalSettings();
+    if (globalSettings->testAttribute(QWebEngineSettings::PrivateBrowsing)) {
         QList<QNetworkCookie> noCookies;
         return noCookies;
-    }
+    }*/
 
     return QNetworkCookieJar::cookiesForUrl(url);
 }
@@ -231,10 +231,10 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const
     if (!m_loaded)
         load();
 
-    QWebSettings *globalSettings = QWebSettings::globalSettings();
-    if (globalSettings->testAttribute(QWebSettings::PrivateBrowsingEnabled))
+    /*QWebEngineSettings *globalSettings = QWebEngineSettings::globalSettings();
+    if (globalSettings->testAttribute(QWebEngineSettings::PrivateBrowsingEnabled))
         return false;
-
+*/
     QString host = url.host();
     bool eBlock = qBinaryFind(m_exceptions_block.begin(), m_exceptions_block.end(), host) != m_exceptions_block.end();
     bool eAllow = qBinaryFind(m_exceptions_allow.begin(), m_exceptions_allow.end(), host) != m_exceptions_allow.end();

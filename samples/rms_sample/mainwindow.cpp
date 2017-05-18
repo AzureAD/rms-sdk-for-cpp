@@ -544,7 +544,18 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
   auto pos = fileIn.find_last_of('.');
 
   if (pos != string::npos) {
-    fileOut = fileIn.substr(0, pos);
+      string ext = fileIn.substr(pos);
+      if(ext.compare(".pfile") == 0){
+          fileOut = fileIn.substr(0, pos);
+      } else {
+          auto ppos = ext.find_first_of('p');
+          if (ppos != string::npos) {
+            fileOut = fileIn.substr(0, pos) + "." + ext.substr(ppos + 1);
+          }
+          else{
+              fileOut = fileIn;
+          }
+      }
   }
 
   // create streams

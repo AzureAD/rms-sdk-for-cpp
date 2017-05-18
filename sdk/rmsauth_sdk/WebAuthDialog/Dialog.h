@@ -6,12 +6,12 @@
  * ======================================================================
 */
 
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef WEBAUTHDIALOG_DIALOG_H
+#define WEBAUTHDIALOG_DIALOG_H
 
+#include <memory>
 #include <QDialog>
-#include <QtGlobal>
-#include <QLabel>
+#include <QUrl>
 
 #if defined(RMSAUTH_WEB_AUTH_DIALOG_LIBRARY)
 #  define MYSHAREDLIB_EXPORT Q_DECL_EXPORT
@@ -23,36 +23,40 @@ namespace Ui {
 class Dialog;
 }
 
-class QNetworkReply;
-
 class MYSHAREDLIB_EXPORT Dialog : public QDialog
 {
     Q_OBJECT
-    static const QString& Tag() {static const QString tag="Dialog"; return tag;}
+
 public:
-    explicit Dialog(const QString& requestUrl, const QString& redirectUrl, bool useCookie = false, QWidget *parent = 0);
+    const QString& requestUrl() const {return mRequestUrl;}
+    const QString& redirectUrl() const {return mRedirectUrl;}
+    const QString& respondUrl() const {return mRespondUrl;}
+
+    explicit Dialog(
+            const QString& requestUrl,
+            const QString& redirectUrl,
+            bool useCookie = false,
+            QWidget* parent = 0);
+
     ~Dialog();
 
-    const QString& respondUrl() const {return respondUrl_;}
-    void clearCookie();
-
 protected:
-    void showEvent(QShowEvent * event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
-    Ui::Dialog *ui;
-    QString requestUrl_;
-    QString redirectUrl_;
-    QString respondUrl_;
-    bool useCookie_;
+    /**
+     * mRequestUrl: represents the Url requested for this Dialog
+     * mRedirectUrl: represents the Redirect Url passed to the Dialog
+     * mRespondUrl: used to capture the token returned from the ADAL auth flow
+     */
+    std::unique_ptr<Ui::Dialog> mUi;
+    QString mRequestUrl;
+    QString mRedirectUrl;
+    QString mRespondUrl;
 
 private slots:
-    void slot_webView_loadFinished(bool);
-    void slot_authManager_finished(QNetworkReply *);
-
-private:
-    void processAuthReply(QNetworkReply *reply);
+    void processAuthReply(QUrl);
 
 };
 
-#endif // DIALOG_H
+#endif // WEBAUTHDIALOG_DIALOG_H
