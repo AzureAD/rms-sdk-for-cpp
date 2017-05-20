@@ -31,23 +31,22 @@ enum UnProtectStatus {
 class DLL_PUBLIC_RMS IProtector
 {
 public:
+    virtual void ProtectWithTemplate(std::fstream inputStream,
+                                     const TemplateDescriptor& templateDescriptor,
+                                     const std::string& userId,
+                                     IAuthenticationCallback& authenticationCallback,
+                                     const UserPolicyCreationOptions& options,
+                                     const AppDataHashMap& signedAppData,
+                                     std::fstream outputStream,
+                                     std::shared_ptr<std::atomic<bool>>cancelState = nullptr) = 0;
 
-    virtual void ProtectUsingTemplates(std::fstream inputStream,
-                                       const TemplateDescriptor& templateDescriptor,
-                                       const std::string& userId,
-                                       IAuthenticationCallback& authenticationCallback,
-                                       UserPolicyCreationOptions options,
-                                       const AppDataHashMap& signedAppData,
-                                       std::fstream outputStream,
-                                       std::shared_ptr<std::atomic<bool>>cancelState = nullptr) = 0;
-
-    virtual void ProtectUsingRights(std::fstream inputStream,
-                                    const PolicyDescriptor& templateDescriptor,
-                                    const std::string& userId,
-                                    IAuthenticationCallback& authenticationCallback,
-                                    UserPolicyCreationOptions options,
-                                    std::fstream outputStream,
-                                    std::shared_ptr<std::atomic<bool>>cancelState = nullptr) = 0;
+    virtual void ProtectWithCustomRights(std::fstream inputStream,
+                                         const PolicyDescriptor& templateDescriptor,
+                                         const std::string& userId,
+                                         IAuthenticationCallback& authenticationCallback,
+                                         const UserPolicyCreationOptions& options,
+                                         std::fstream outputStream,
+                                         std::shared_ptr<std::atomic<bool>>cancelState = nullptr) = 0;
 
     virtual UnProtectStatus UnProtect(std::fstream inputStream,
                                       const std::string& userId,
@@ -61,9 +60,9 @@ public:
 
     virtual bool IsProtected(std::fstream inputStream) = 0;
 
-    virtual std::string GetOriginalFileExtension() = 0;
+    virtual std::string GetInputFileExtension() = 0;
 
-    virtual std::string GetNewFileExtension() = 0;
+    virtual std::string GetOutputFileExtension() = 0;
 };
 
 } // namespace officeprotector

@@ -16,51 +16,48 @@ using namespace rmscore::modernapi;
 namespace rmscore {
 namespace fileapi {
 
-class DLL_PUBLIC_RMS PFileProtector: public IProtector
+class PFileProtector: public IProtector
 {
 public:
-
     PFileProtector(const std::string& originalFileExtension,
-               const std::string& newFileExtension);
+                   const std::string& newFileExtension);
 
     ~PFileProtector();
 
-    void ProtectUsingTemplates(std::fstream inputStream,
-                                       const TemplateDescriptor& templateDescriptor,
-                                       const std::string& userId,
-                                       IAuthenticationCallback& authenticationCallback,
-                                       UserPolicyCreationOptions options,
-                                       const AppDataHashMap& signedAppData,
-                                       std::fstream outputStream,
-                                       std::shared_ptr<std::atomic<bool> >cancelState) override;
+    void ProtectWithTemplate(std::fstream inputStream,
+                             const TemplateDescriptor& templateDescriptor,
+                             const std::string& userId,
+                             IAuthenticationCallback& authenticationCallback,
+                             const UserPolicyCreationOptions& options,
+                             const AppDataHashMap& signedAppData,
+                             std::fstream outputStream,
+                             std::shared_ptr<std::atomic<bool> >cancelState) override;
 
-    void ProtectUsingRights(std::fstream inputStream,
-                                    const PolicyDescriptor& templateDescriptor,
-                                    const std::string& userId,
-                                    IAuthenticationCallback& authenticationCallback,
-                                    UserPolicyCreationOptions options,
-                                    std::fstream outputStream,
-                                    std::shared_ptr<std::atomic<bool> >cancelState) override;
+    void ProtectWithCustomRights(std::fstream inputStream,
+                                 const PolicyDescriptor& templateDescriptor,
+                                 const std::string& userId,
+                                 IAuthenticationCallback& authenticationCallback,
+                                 const UserPolicyCreationOptions& options,
+                                 std::fstream outputStream,
+                                 std::shared_ptr<std::atomic<bool> >cancelState) override;
 
     UnProtectStatus UnProtect(std::fstream inputStream,
-                                      const std::string& userId,
-                                      IAuthenticationCallback& authenticationCallBack,
-                                      IConsentCallback* consentCallBack,
-                                      PolicyAcquisitionOptions options,
-                                      std::fstream outputStream,
-                                      ResponseCacheFlags cacheMask = static_cast<ResponseCacheFlags>
-            (RESPONSE_CACHE_INMEMORY | RESPONSE_CACHE_ONDISK | RESPONSE_CACHE_CRYPTED),
-                                      std::shared_ptr<std::atomic<bool>> cancelState = nullptr) override;
+                              const std::string& userId,
+                              IAuthenticationCallback& authenticationCallBack,
+                              IConsentCallback* consentCallBack,
+                              PolicyAcquisitionOptions options,
+                              std::fstream outputStream,
+                              ResponseCacheFlags cacheMask = static_cast<ResponseCacheFlags>
+    (RESPONSE_CACHE_INMEMORY | RESPONSE_CACHE_ONDISK | RESPONSE_CACHE_CRYPTED),
+                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr) override;
 
     bool IsProtected(std::fstream inputStream) override;
 
-    std::string GetOriginalFileExtension() override;
+    std::string GetInputFileExtension() override;
 
-    std::string GetNewFileExtension() override;
-
+    std::string GetOutputFileExtension() override;
 
 private:
-
     uint32_t Read(unsigned char* buffer, uint32_t bufferLen);
 
     uint32_t Write(const unsigned char* buffer, uint32_t bufferLen);
@@ -69,7 +66,6 @@ private:
     std::string newFileExtension;
     uint32_t m_blockSize;
     std::shared_ptr<UserPolicy> m_userPolicy;
-
 };
 
 } // namespace officeprotector

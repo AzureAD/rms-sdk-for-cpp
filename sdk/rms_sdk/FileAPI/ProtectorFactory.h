@@ -21,26 +21,20 @@ namespace fileapi {
 enum ProtectorType {
 
     Pfile = 0,
-
     Opc = 1,
-
     Mso = 2,
-
     Pdf = 3,
-
     PStar = 4,
 };
 
-class ProtectorFactory
+class DLL_PUBLIC_RMS ProtectorFactory
 {
 public:
-
     static std::shared_ptr<IProtector> CreateProtector(const std::string& filename,
                                                        bool isProtect);
 
 private:
-
-    static Init();
+    static void Init();
 
     static ProtectorType ComputeProtectorType(const std::string& filename,
                                               bool isProtect);
