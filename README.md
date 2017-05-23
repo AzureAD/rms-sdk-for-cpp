@@ -1,40 +1,30 @@
 # RMS SDK for portable C++
 
-| **`Win32`** | **`Win64`** | **`Linux`** | 
+| **`Win32`** | **`Win64`** | **`Ubuntu`** | 
 |-----------------|-------------------|---------------|
 | [![Win32 Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/1218.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=1218&_a=completed) | [![Win64 Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/3062.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=3062&_a=completed) | [![Linux Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/625.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=625&_a=completed) |
 
 - [How to Build](./docs/how_to_build_it.md)
 - [How to Use](./docs/how_to_use_it.md)
 
-Alternatively, run the script in `./scripts/build_and_test.sh`.
-
 ## Documentation
 
-The complete [RMS SDK 4.1](https://msdn.microsoft.com/en-us/Library/dn758244%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396), for Linux as well as iOS/OS X, Android, Windows Phone and Windows R/T operating systems is available on MSDN.
+The complete [RMS SDK 4.2](https://msdn.microsoft.com/en-us/Library/dn758244%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396), for Linux as well as iOS/OS X, Android, Windows Phone and Windows R/T operating systems is available on MSDN.
 
-See the [API reference](http://azuread.github.io/rms-sdk-for-cpp/index.html), created with Doxygen, here. Or, you can create your own build of the API reference by following these steps: 
-
-1. Install [Doxygen], for example with `sudo brew install doxygen` (OSX) or `sudo apt-get install doxygen` (Ubuntu).
-2. Run `doxygen` from the root of the repo.
-3. Open `./docs/html/index.html` in your browser.
-
-[Doxygen]: http://www.doxygen.org
+See the [API reference](http://azuread.github.io/rms-sdk-for-cpp/index.html), created with Doxygen, here. 
 
 Documentation of the source is ongoing.
 
 ## Platform support
 * Windows 7 or above
 * Ubuntu 14.04 or above
-* Red Hat 7.1 or above
-* CentOS 7.1 or above
-* OpenSuSe 13.2 or above
 
 ## Requirements
+* Visual C++ 2013 or above
 * gcc-c++ 4.8 or above
 * openssl 1.0 or above
 * libsecret 1.0 or above
-* Qt 5.2.1 or above 
+* Qt 5.7 or above 
 
 ## Troubleshooting
 
