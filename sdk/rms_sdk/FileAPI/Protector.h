@@ -77,55 +77,51 @@ enum UnProtectionOptions {
   Offline = 0x1
 };
 
-
 class DLL_PUBLIC_RMS Protector
 {
 public:
-
     Protector();
 
     static void ProtectWithTemplate(const std::string& fileName,
-                             std::fstream inputStream,
-                             const TemplateDescriptor& templateDescriptor,
-                             const std::string& userId,
-                             IAuthenticationCallback& authenticationCallback,
-                             const ProtectionOptions& options,
-                             const AppDataHashMap& signedAppData,
-                             std::fstream outputStream,
-                             std::shared_ptr<std::atomic<bool>>cancelState = nullptr);
+                                    std::fstream inputStream,
+                                    const TemplateDescriptor& templateDescriptor,
+                                    const std::string& userId,
+                                    IAuthenticationCallback& authenticationCallback,
+                                    const ProtectionOptions& options,
+                                    const AppDataHashMap& signedAppData,
+                                    std::fstream outputStream,
+                                    std::shared_ptr<std::atomic<bool>>cancelState = nullptr);
 
     static void ProtectWithCustomRights(const std::string& fileName,
-                                 std::fstream inputStream,
-                                 const PolicyDescriptor& templateDescriptor,
-                                 const std::string& userId,
-                                 IAuthenticationCallback& authenticationCallback,
-                                 const ProtectionOptions& options,
-                                 std::fstream outputStream,
-                                 std::shared_ptr<std::atomic<bool>>cancelState = nullptr);
+                                        std::fstream inputStream,
+                                        const PolicyDescriptor& templateDescriptor,
+                                        const std::string& userId,
+                                        IAuthenticationCallback& authenticationCallback,
+                                        const ProtectionOptions& options,
+                                        std::fstream outputStream,
+                                        std::shared_ptr<std::atomic<bool>>cancelState = nullptr);
 
     static UnProtectStatus UnProtect(const std::string& fileName,
-                              std::fstream inputStream,
-                              const std::string& userId,
-                              IAuthenticationCallback* authenticationCallBack,
-                              IConsentCallback* consentCallBack,
-                              UnProtectionOptions options,
-                              std::fstream outputStream,
-                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+                                     std::fstream inputStream,
+                                     const std::string& userId,
+                                     IAuthenticationCallback* authenticationCallBack,
+                                     IConsentCallback* consentCallBack,
+                                     UnProtectionOptions options,
+                                     std::fstream outputStream,
+                                     std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     static bool IsProtected(const std::string& fileName, std::fstream inputStream);
 
-    static std::string GetProtectedFileName();
+    static std::string GetProtectedFileName(const std::string&fileName);
 
-    static std::string GetUnProtectedFileName();
+    static std::string GetUnProtectedFileName(const std::string&fileName);
 
 private:
-
     static ProtectorType ComputeProtectorType(const std::string& fileExtension, bool isProtect);
 
     static std::string ComputeNewFileName(const std::string&fileName, bool isProtect);
 
     static std::string GetFileExtension(const std::string& fileName);
-
 };
 
 } // namespace officeprotector
