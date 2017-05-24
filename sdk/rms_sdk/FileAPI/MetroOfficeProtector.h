@@ -26,43 +26,42 @@ public:
 
     ~MetroOfficeProtector();
 
-    void ProtectWithTemplate(std::fstream inputStream,
+    void ProtectWithTemplate(std::shared_ptr<std::fstream> inputStream,
                              const TemplateDescriptor& templateDescriptor,
                              const std::string& userId,
                              IAuthenticationCallback& authenticationCallback,
                              const ProtectionOptions& options,
                              const AppDataHashMap& signedAppData,
-                             std::fstream outputStream,
+                             std::shared_ptr<std::fstream> outputStream,
                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    void ProtectWithCustomRights(std::fstream inputStream,
-                                 const PolicyDescriptor& templateDescriptor,
+    void ProtectWithCustomRights(std::shared_ptr<std::fstream> inputStream,
+                                 PolicyDescriptor& policyDescriptor,
                                  const std::string& userId,
                                  IAuthenticationCallback& authenticationCallback,
                                  const ProtectionOptions& options,
-                                 std::fstream outputStream,
+                                 std::shared_ptr<std::fstream> outputStream,
                                  std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    UnProtectStatus UnProtect(std::fstream inputStream,
+    UnProtectStatus UnProtect(std::shared_ptr<std::fstream> inputStream,
                               const std::string& userId,
                               IAuthenticationCallback& authenticationCallBack,
                               IConsentCallback& consentCallBack,
                               const UnProtectionOptions& options,
-                              std::fstream outputStream,
+                              std::shared_ptr<std::fstream> outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    bool IsProtected(std::fstream inputStream);
+    bool IsProtected(std::shared_ptr<std::fstream> inputStream);
 
 private:
+    void Protect(std::shared_ptr<std::fstream> inputStream,
+                 std::shared_ptr<std::fstream> outputStream);
+
     uint32_t ReadStreamHeader(uint64_t& contentLength);
 
     uint32_t WriteStreamHeader(const uint64_t& contentLength);
 
-    uint32_t Read(std::shared_ptr<Stream> stm, unsigned char* buffer, uint32_t bufferLen);
-
-    uint32_t Write(std::shared_ptr<Stream> stm, const unsigned char* buffer, uint32_t bufferLen);
-
-    uint32_t m_blockSize = 0;
+    uint32_t m_blockSize;
     std::shared_ptr<UserPolicy> m_userPolicy;
     std::shared_ptr<Storage> m_storage;
 };

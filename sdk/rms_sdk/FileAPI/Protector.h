@@ -83,34 +83,34 @@ public:
     Protector();
 
     static void ProtectWithTemplate(const std::string& fileName,
-                                    std::fstream inputStream,
+                                    std::shared_ptr<std::fstream> inputStream,
                                     const TemplateDescriptor& templateDescriptor,
                                     const std::string& userId,
                                     IAuthenticationCallback& authenticationCallback,
                                     const ProtectionOptions& options,
                                     const AppDataHashMap& signedAppData,
-                                    std::fstream outputStream,
+                                    std::shared_ptr<std::fstream> outputStream,
                                     std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     static void ProtectWithCustomRights(const std::string& fileName,
-                                        std::fstream inputStream,
-                                        const PolicyDescriptor& templateDescriptor,
+                                        std::shared_ptr<std::fstream> inputStream,
+                                        PolicyDescriptor& policyDescriptor,
                                         const std::string& userId,
                                         IAuthenticationCallback& authenticationCallback,
                                         const ProtectionOptions& options,
-                                        std::fstream outputStream,
+                                        std::shared_ptr<std::fstream> outputStream,
                                         std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     static UnProtectStatus UnProtect(const std::string& fileName,
-                                     std::fstream inputStream,
+                                     std::shared_ptr<std::fstream> inputStream,
                                      const std::string& userId,
                                      IAuthenticationCallback& authenticationCallBack,
                                      IConsentCallback& consentCallBack,
                                      const UnProtectionOptions& options,
-                                     std::fstream outputStream,
+                                     std::shared_ptr<std::fstream> outputStream,
                                      std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    static bool IsProtected(const std::string& fileName, std::fstream inputStream);
+    static bool IsProtected(const std::string& fileName, std::shared_ptr<std::fstream> inputStream);
 
     static std::string GetProtectedFileName(const std::string& fileName);
 
