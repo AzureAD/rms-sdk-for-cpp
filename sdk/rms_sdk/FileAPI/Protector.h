@@ -90,7 +90,7 @@ public:
                                     const ProtectionOptions& options,
                                     const AppDataHashMap& signedAppData,
                                     std::fstream outputStream,
-                                    std::shared_ptr<std::atomic<bool>>cancelState = nullptr);
+                                    std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     static void ProtectWithCustomRights(const std::string& fileName,
                                         std::fstream inputStream,
@@ -99,27 +99,27 @@ public:
                                         IAuthenticationCallback& authenticationCallback,
                                         const ProtectionOptions& options,
                                         std::fstream outputStream,
-                                        std::shared_ptr<std::atomic<bool>>cancelState = nullptr);
+                                        std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     static UnProtectStatus UnProtect(const std::string& fileName,
                                      std::fstream inputStream,
                                      const std::string& userId,
-                                     IAuthenticationCallback* authenticationCallBack,
-                                     IConsentCallback* consentCallBack,
-                                     UnProtectionOptions options,
+                                     IAuthenticationCallback& authenticationCallBack,
+                                     IConsentCallback& consentCallBack,
+                                     const UnProtectionOptions& options,
                                      std::fstream outputStream,
                                      std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     static bool IsProtected(const std::string& fileName, std::fstream inputStream);
 
-    static std::string GetProtectedFileName(const std::string&fileName);
+    static std::string GetProtectedFileName(const std::string& fileName);
 
-    static std::string GetUnProtectedFileName(const std::string&fileName);
+    static std::string GetUnProtectedFileName(const std::string& fileName);
 
 private:
     static ProtectorType ComputeProtectorType(const std::string& fileExtension, bool isProtect);
 
-    static std::string ComputeNewFileName(const std::string&fileName, bool isProtect);
+    static std::string ComputeNewFileName(const std::string& fileName, bool isProtect);
 
     static std::string GetFileExtension(const std::string& fileName);
 };

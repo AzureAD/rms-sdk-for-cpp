@@ -33,7 +33,7 @@ public:
                              const ProtectionOptions& options,
                              const AppDataHashMap& signedAppData,
                              std::fstream outputStream,
-                             std::shared_ptr<std::atomic<bool>>cancelState);
+                             std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     void ProtectWithCustomRights(std::fstream inputStream,
                                  const PolicyDescriptor& templateDescriptor,
@@ -41,13 +41,13 @@ public:
                                  IAuthenticationCallback& authenticationCallback,
                                  const ProtectionOptions& options,
                                  std::fstream outputStream,
-                                 std::shared_ptr<std::atomic<bool>>cancelState);
+                                 std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     UnProtectStatus UnProtect(std::fstream inputStream,
                               const std::string& userId,
-                              IAuthenticationCallback* authenticationCallBack,
-                              IConsentCallback* consentCallBack,
-                              UnProtectionOptions options,
+                              IAuthenticationCallback& authenticationCallBack,
+                              IConsentCallback& consentCallBack,
+                              const UnProtectionOptions& options,
                               std::fstream outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
