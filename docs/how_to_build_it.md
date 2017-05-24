@@ -56,38 +56,62 @@ For detailed guidance of the code samples, see [Linux code examples](https://msd
 
 ### Ubuntu 14.04
 
-1. Install dev dependencies:
+1. Install Qt Creator. In the installer prompt under Qt 5.7 select Desktop gcc 64-bit, Qt WebEngine, and Sources.
   ```
-  sudo apt-get install qt5-default
-  sudo apt-get install libqt5webkit5-dev
-  sudo apt-get install libqt5xmlpatterns5-dev
+  Open https://www.qt.io/download-open-source/
+  Download version 5.7 of Qt Creator and install it
+  ```
+
+  make sure that ```qmake --version``` returns version 5.7. 
+
+  In our case  ```qmake --version``` returns this:
+  ```
+  QMake version 3.0
+  using Qt version 5.7.1 in /home/<user>/Qt/5.7/gcc_64/lib
+  ```
+  
+  if not, change PATH to include the location of qmake ```PATH=/home/<user>/Qt/5.7/gcc_64/bin```
+
+2. Install dev dependencies:
+  ```
   sudo apt-get install libssl-dev
   sudo apt-get install libsecret-1-dev
   sudo apt-get install freeglut3-dev
   ```
 
-2. Clone this repo:
+3. Install git:
   ```
   sudo apt-get install git
-  git clone https://github.com/AzureAD/rms-sdk-for-cpp
-  cd rms-sdk-for-cpp
   ```
 
-3. Build libraries:
+4. Install g++
   ```
-  cd sdk
+  sudo apt-get install build-essential g++
+  ```
+
+5. Clone this repo:
+  ```
+  enter the directory you want to clone the project in
+  execute command: git clone https://github.com/AzureAD/rms-sdk-for-cpp
+  ```
+
+6. Build libraries:
+  ```
+  cd rms-sdk-for-cpp/sdk
   qmake
   make
   ```
 
-4. Build sample applications:
+7. Build sample applications:
   ```
   cd ../samples
   qmake
   make
   ```
 
-5. Run sample applications:
+  Alternatively, you can open Qt Creator and build rms-sdk-for-cpp/sdk/sdk.pro and rms-sdk-for-cpp/samples/samples.pro.  
+
+8. Run sample applications:
   ```
   cd ../bin
   export LD_LIBRARY_PATH=`pwd`
@@ -95,7 +119,9 @@ For detailed guidance of the code samples, see [Linux code examples](https://msd
   ./rmsauth_sample	# auth sample
   ```
 
-6. Create a tarball (to deploy apps):
+  Alternatively, you can run the sample application from Qt Creator.
+
+9. Create a tarball (to deploy apps):
   ```
   tar czf sample_apps.tar.gz ./rms_sample ./rmsauth_sample ./librmsauth.so ./librmsauthWebAuthDialog.so ./librms.so ./librmscrypto.so
   ```
