@@ -6,6 +6,7 @@
  * ======================================================================
  */
 
+#include <cmath>
 #include <algorithm>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Common/tools.h"

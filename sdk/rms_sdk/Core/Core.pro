@@ -15,4 +15,5 @@ CONFIG(debug, debug|release) {
 
 SOURCES += ProtectionPolicy.cpp
 
-HEADERS += ProtectionPolicy.h
+HEADERS += ProtectionPolicy.h \
+    FeatureControl.h

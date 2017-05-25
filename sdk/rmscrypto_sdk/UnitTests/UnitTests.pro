@@ -20,12 +20,12 @@ LIBS                  +=  -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/crypto -L$$REPO_RO
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -lmodcryptod -lplatformkeystoraged -lplatformcryptod -lrmscryptod
+    LIBS +=  -lmodcryptod -lplatformkeystoraged -lplatformcryptod -lplatformloggerd -lplatformsettingsd -lrmscryptod
 } else {
-    LIBS +=  -lmodcrypto -lplatformkeystorage -lplatformcrypto -lrmscrypto
+    LIBS +=  -lmodcrypto -lplatformkeystorage -lplatformcrypto -lplatformlogger -lplatformsettings -lrmscrypto
 }
 
-win32:LIBS            += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
+win32:LIBS            += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
 unix:!mac:LIBS        += -lssl -lcrypto -lsecret-1 -lglib-2.0
 mac:LIBS              += -lssl -lcrypto
 

@@ -15,6 +15,15 @@
 
 namespace rmscore {
 namespace pfile {
+
+static const uint32_t MIN_SUPPORTED_MJVERSION_FOR_READING = 2;
+static const uint32_t MAX_SUPPORTED_MJVERSION_FOR_READING = 3;
+static const uint32_t MJVERSION_FOR_WRITING = 3;
+static const uint32_t MNVERSION_FOR_WRITING = 0;
+// PFiles from this version and below were forced to be written with CBC4K encryption, regardless
+// of the published license information.
+static const uint32_t MaxMajorVerionsCBC4KIsForced = 2;
+
 class PfileHeader {
 public:
 
