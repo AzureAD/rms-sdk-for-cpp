@@ -937,7 +937,7 @@ void DirTree::load( unsigned char* buffer, uint64 size )
     uint64 p = i * 128;
 
     // would be < 32 if first char in the name isn't printable
-    unsigned prefix = 32;
+    //unsigned prefix = 32;
 
     // parse name of this entry, which stored as Unicode 16-bit
     std::string name;
@@ -1409,7 +1409,7 @@ void StorageIO::load(bool bWriteAccess)
 void StorageIO::create() {
   // std::cout << "Creating " << filename << std::endl;
 
-  if(!file)
+  if(!file && !filename.empty())
   {
     #if defined(POLE_USE_UTF16_FILENAMES)
       file = std::make_shared<std::fstream>(UTF8toUTF16(filename).c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
