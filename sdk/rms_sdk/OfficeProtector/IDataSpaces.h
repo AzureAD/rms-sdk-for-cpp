@@ -10,10 +10,9 @@
 #define RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 
 #include "../Common/CommonTypes.h"
-#include "../Pole/pole.h"
+#include "pole.h"
 
 using namespace rmscore::common;
-using namespace rmscore::pole;
 
 namespace rmscore {
 namespace officeprotector {
@@ -23,9 +22,9 @@ class IDataSpaces
 public:
     virtual ~IDataSpaces() {}
 
-    virtual void WriteDataspaces(std::shared_ptr<Storage> stg,
+    virtual void WriteDataspaces(std::shared_ptr<pole::Storage> stg,
                                  const ByteArray& publishingLicense) = 0;
-    virtual void ReadDataspaces(std::shared_ptr<Storage> stg,
+    virtual void ReadDataspaces(std::shared_ptr<pole::Storage> stg,
                                 ByteArray& publishingLicense) = 0;
 
     static std::shared_ptr<IDataSpaces> Create(bool isMetro);

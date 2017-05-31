@@ -10,8 +10,6 @@
 #include "../Platform/Logger/Logger.h"
 #include "../ModernAPI/RMSExceptions.h"
 
-using namespace rmscore::exceptions;
-using namespace rmscore::pole;
 using namespace rmscore::platform::logger;
 
 namespace rmscore {
@@ -45,16 +43,16 @@ std::string ConvertWideStrToCharStr(const std::string& input)
 
 // Aligns the stream at four bytes. Adds null chars while writing
 // and seeks to the aligned position while reading.
-uint32_t AlignAtFourBytes(std::shared_ptr<Stream> stm, uint32_t contentLength, bool write)
+uint32_t AlignAtFourBytes(std::shared_ptr<pole::Stream> stm, uint32_t contentLength, bool write)
 {
     if(stm == nullptr || contentLength < 1)
     {
         Logger::Error("Invalid arguments provided for byte alignment");
-        throw RMSMetroOfficeFileException(
-                    "Error in aligning stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in aligning stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
-    uint32_t alignCount = contentLength % 4;
+    uint32_t alignCount = ((contentLength + 3) & ~3) - contentLength;
     std::string alignBytes;
 
     if(write)
@@ -74,13 +72,13 @@ uint32_t AlignAtFourBytes(std::shared_ptr<Stream> stm, uint32_t contentLength, b
 }
 
 // Writes a string to a stream after converting it to a wide string.
-uint32_t WriteWideStringEntry(std::shared_ptr<Stream> stm, const std::string& entry)
+uint32_t WriteWideStringEntry(std::shared_ptr<pole::Stream> stm, const std::string& entry)
 {
     if(stm == nullptr || entry.empty())
     {
         Logger::Error("Invalid arguments provided for writing string entry");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     uint32_t bytesWritten = 0;
@@ -97,13 +95,13 @@ uint32_t WriteWideStringEntry(std::shared_ptr<Stream> stm, const std::string& en
 }
 
 // Reads a wide string and converts it to a string.
-uint32_t ReadWideStringEntry(std::shared_ptr<Stream> stm, std::string& entry)
+uint32_t ReadWideStringEntry(std::shared_ptr<pole::Stream> stm, std::string& entry)
 {
     if(stm == nullptr || entry.empty())
     {
         Logger::Error("Invalid arguments provided for reading string entry");
-        throw RMSMetroOfficeFileException(
-                    "Error in reading from stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in reading from stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     uint32_t bytesRead = 0;
@@ -113,8 +111,8 @@ uint32_t ReadWideStringEntry(std::shared_ptr<Stream> stm, std::string& entry)
     if(wideEntryLen % 2 != 0)
     {
         Logger::Error("Corrupt doc file.");
-        throw RMSMetroOfficeFileException(
-                    "Corrupt doc file", RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
     auto wideEntry = std::make_unique<unsigned char[]>(wideEntryLen);
     bytesRead += stm->read(wideEntry.get(), wideEntryLen);

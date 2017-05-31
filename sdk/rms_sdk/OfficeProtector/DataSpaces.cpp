@@ -12,13 +12,9 @@
 #include "Utils.h"
 
 using namespace rmscore::common;
-using namespace rmscore::exceptions;
-using namespace rmscore::officeprotector;
-using namespace rmscore::pole;
 using namespace rmscore::platform::logger;
 
 namespace {
-
 const char drmContent[]          = "\11DRMContent";
 const char metroContent[]        = "EncryptedPackage";
 const char dataSpace[]           = "\006DataSpaces";
@@ -72,22 +68,24 @@ struct DRMTransformInfo
 namespace rmscore {
 namespace officeprotector {
 
-DataSpaces::DataSpaces(bool isMetro)
+DataSpaces::DataSpaces(bool isMetro, bool doesUseDeprecatedAlgorithm)
 {
     m_isMetro = isMetro;
+    m_doesUseDeprecatedAlgorithm = doesUseDeprecatedAlgorithm;
 }
 
 DataSpaces::~DataSpaces()
 {
 }
 
-void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, const ByteArray& publishingLicense)
+void DataSpaces::WriteDataspaces(std::shared_ptr<pole::Storage> stg,
+                                 const ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing dataspaces.");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to storage", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to storage", exceptions::RMSMetroOfficeFileException::Unknown);
     }
     Logger::Hidden("Writing DataSpaces");
     Logger::Hidden("Deleting DataSpaces if exists");
@@ -97,15 +95,16 @@ void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, const ByteArray& 
 
     std::string versionStmName = dataSpaceStgName + separator + version;
     Logger::Hidden("Writing Version in " + versionStmName);
-    std::shared_ptr<Stream> versionStm = std::make_shared<Stream>(stg.get(), versionStmName, true);
+    std::shared_ptr<pole::Stream> versionStm = std::make_shared<pole::Stream>(stg.get(),
+                                                                              versionStmName, true);
     versionStm->seek(0);
     WriteVersion(versionStm, versionFeature);
     versionStm->flush();
 
     std::string dataSpaceMapStmName = dataSpaceStgName + separator + dataSpaceMap;
     Logger::Hidden("Writing DataSpaceMap in " + dataSpaceMapStmName);
-    std::shared_ptr<Stream> dataSpaceMapStm = std::make_shared<Stream>(stg.get(),
-                                                                       dataSpaceMapStmName, true);
+    std::shared_ptr<pole::Stream> dataSpaceMapStm = std::make_shared<pole::Stream>(
+                stg.get(), dataSpaceMapStmName, true);
     dataSpaceMapStm->seek(0);
     WriteDataSpaceMap(dataSpaceMapStm);
     dataSpaceMapStm->flush();
@@ -114,8 +113,8 @@ void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, const ByteArray& 
     std::string drmDataSpaceStmName = dataSpaceInfoStgName + separator +
             (m_isMetro ? metroDataSpace : drmDataSpace);
     Logger::Hidden("Writing DRMDataSpace in " + drmDataSpaceStmName);
-    std::shared_ptr<Stream> drmDataSpaceStm = std::make_shared<Stream>(stg.get(),
-                                                                       drmDataSpaceStmName, true);
+    std::shared_ptr<pole::Stream> drmDataSpaceStm = std::make_shared<pole::Stream>(
+                stg.get(), drmDataSpaceStmName, true);
     drmDataSpaceStm->seek(0);
     WriteDRMDataSpace(drmDataSpaceStm);
     drmDataSpaceStm->flush();
@@ -125,20 +124,22 @@ void DataSpaces::WriteDataspaces(std::shared_ptr<Storage> stg, const ByteArray& 
             (m_isMetro ? metroTransform : drmTransform);
     std::string primaryStmName = drmTransformStgName + separator + primary;
     Logger::Hidden("Writing Primary in " + primaryStmName);
-    std::shared_ptr<Stream> primaryStm = std::make_shared<Stream>(stg.get(), primaryStmName, true);
+    std::shared_ptr<pole::Stream> primaryStm = std::make_shared<pole::Stream>(
+                stg.get(), primaryStmName, true);
     primaryStm->seek(0);
     WritePrimary(primaryStm, publishingLicense);
     primaryStm->flush();
 }
 
 //todo add logging here
-void DataSpaces::ReadDataspaces(std::shared_ptr<Storage> stg, ByteArray& publishingLicense)
+void DataSpaces::ReadDataspaces(std::shared_ptr<pole::Storage> stg, ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading dataspaces.");
-        throw RMSMetroOfficeFileException(
-                    "Error in reading from storage", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in reading from storage",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
     Logger::Hidden("Reading DataSpaces");
     std::string dataSpaceStgName("");
@@ -149,9 +150,9 @@ void DataSpaces::ReadDataspaces(std::shared_ptr<Storage> stg, ByteArray& publish
     if(stg->exists(passwordTransformStgName))
     {
         Logger::Error("The file has been protected using non RMS technologies");
-        throw RMSMetroOfficeFileException(
+        throw exceptions::RMSMetroOfficeFileException(
                     "The file has been protected using non RMS technologies",
-                    RMSMetroOfficeFileException::NonRMSProtected);
+                    exceptions::RMSMetroOfficeFileException::NonRMSProtected);
     }
 
     std::string primaryStmName = transformInfoStgName + separator +
@@ -160,23 +161,26 @@ void DataSpaces::ReadDataspaces(std::shared_ptr<Storage> stg, ByteArray& publish
     if(!stg->exists(primaryStmName))
     {
         Logger::Error("The primary stream doesn't exist.");
-        throw RMSMetroOfficeFileException(
-                    "The file has been corrupted", RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
     Logger::Hidden("Reading Primary from " + primaryStmName);
-    std::shared_ptr<Stream> stm = std::make_shared<Stream>(stg.get(), primaryStmName, false);
+    std::shared_ptr<pole::Stream> stm = std::make_shared<pole::Stream>(stg.get(), primaryStmName,
+                                                                       false);
     stm->seek(0);
     ReadPrimary(stm, publishingLicense);
 }
 
-void DataSpaces::WriteVersion(std::shared_ptr<Stream> stm, const std::string& content)
+void DataSpaces::WriteVersion(std::shared_ptr<pole::Stream> stm, const std::string& content)
 {
     if( stm == nullptr || content.empty())
     {
         Logger::Error("Invalid arguments provided for writing version");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
     uint16_t readerMajor  = 1;
     uint16_t readerMinor  = 0;
@@ -194,13 +198,15 @@ void DataSpaces::WriteVersion(std::shared_ptr<Stream> stm, const std::string& co
     stm->write(reinterpret_cast<unsigned char*>(&writerMinor), sizeof(uint16_t));
 }
 
-void DataSpaces::ReadAndVerifyVersion(std::shared_ptr<Stream> stm, const std::string& contentExpected)
+void DataSpaces::ReadAndVerifyVersion(std::shared_ptr<pole::Stream> stm,
+                                      const std::string& contentExpected)
 {
     if( stm == nullptr || contentExpected.empty())
     {
         Logger::Error("Invalid arguments provided for reading version");
-        throw RMSMetroOfficeFileException(
-                    "Error in reading from stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in reading from stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     uint16_t readerMajorExpected  = 1;
@@ -228,12 +234,13 @@ void DataSpaces::ReadAndVerifyVersion(std::shared_ptr<Stream> stm, const std::st
     {
         Logger::Error("Major Version mismatch", contentRead, readerMajorRead,
                       updaterMajorRead, writerMajorRead);
-        throw RMSMetroOfficeFileException(
-                    "The file has been corrupted", RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 }
 
-void DataSpaces::WriteDataSpaceMap(std::shared_ptr<Stream> stm)
+void DataSpaces::WriteDataSpaceMap(std::shared_ptr<pole::Stream> stm)
 {
     DataSpaceMapHeader dsmh;
     DataSpaceMapEntryHeader dsmeh;
@@ -242,8 +249,9 @@ void DataSpaces::WriteDataSpaceMap(std::shared_ptr<Stream> stm)
     if( stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing DataSpaceMap");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     dsmh.headerLen = sizeof(dsmh);
@@ -265,13 +273,14 @@ void DataSpaces::WriteDataSpaceMap(std::shared_ptr<Stream> stm)
     WriteWideStringEntry(stm, m_isMetro ? metroDataSpace : drmDataSpace);
 }
 
-void DataSpaces::WriteDRMDataSpace(std::shared_ptr<Stream> stm)
+void DataSpaces::WriteDRMDataSpace(std::shared_ptr<pole::Stream> stm)
 {
     if( stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing DRMDataSpace");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     DRMTransformHeader dth;
@@ -283,15 +292,16 @@ void DataSpaces::WriteDRMDataSpace(std::shared_ptr<Stream> stm)
     WriteWideStringEntry(stm, m_isMetro ? metroTransform : drmTransform);
 }
 
-void DataSpaces::WriteTxInfo(std::shared_ptr<Stream> stm,
+void DataSpaces::WriteTxInfo(std::shared_ptr<pole::Stream> stm,
                              const std::string& txClassName,
                              const std::string& featureName)
 {
     if( stm == nullptr || txClassName.empty() || featureName.empty())
     {
         Logger::Error("Invalid arguments provided for writing Transform Info");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     DRMTransformInfo dti;
@@ -304,15 +314,16 @@ void DataSpaces::WriteTxInfo(std::shared_ptr<Stream> stm,
     WriteVersion(stm, featureName);
 }
 
-void DataSpaces::ReadTxInfo(std::shared_ptr<Stream> stm,
+void DataSpaces::ReadTxInfo(std::shared_ptr<pole::Stream> stm,
                             const std::string& txClassNameExpected,
                             const std::string& featureNameExpected)
 {
     if( stm == nullptr || txClassNameExpected.empty() || featureNameExpected.empty())
     {
         Logger::Error("Invalid arguments provided for reading Transform Info");
-        throw RMSMetroOfficeFileException(
-                    "Error in reading from stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in reading from stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     DRMTransformInfo dtiExpected;
@@ -327,8 +338,9 @@ void DataSpaces::ReadTxInfo(std::shared_ptr<Stream> stm,
     {
         Logger::Error("DRMTransformInfo mismatch",
                       std::to_string(dtiRead.headerLen), std::to_string(dtiRead.txClassType));
-        throw RMSMetroOfficeFileException(
-                    "The file has been corrupted", RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
     std::string txClassNameRead;
@@ -336,48 +348,61 @@ void DataSpaces::ReadTxInfo(std::shared_ptr<Stream> stm,
     if(txClassNameRead.compare(txClassNameExpected) != 0)
     {
         Logger::Error("Transform Class mismatch", txClassNameRead);
-        throw RMSMetroOfficeFileException(
-                    "The file has been corrupted", RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
     ReadAndVerifyVersion(stm, featureNameExpected);
 }
 
-void DataSpaces::WritePrimary(std::shared_ptr<Stream> stm, const ByteArray& publishingLicense)
+void DataSpaces::WritePrimary(std::shared_ptr<pole::Stream> stm, const ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
         Logger::Error("Invalid arguments provided for writing Primary stream");
-        throw RMSMetroOfficeFileException(
-                    "Error in writing to stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
-    uint32_t headerLen = 0;
+    uint32_t headerLen = sizeof(headerLen);
     WriteTxInfo(stm, drmTransformClass, drmTransformFeature);
     stm->write(reinterpret_cast<unsigned char*>(&headerLen), sizeof(uint32_t));
-    uint32_t publishingLicenseLen = publishingLicense.size();
+    std::string publishingLicenseStr(reinterpret_cast<const char*>(publishingLicense.data()),
+                                     publishingLicense.size());
+
+    if(m_doesUseDeprecatedAlgorithm)
+    {
+        publishingLicenseStr = ConvertWideStrToCharStr(publishingLicenseStr);
+    }
+
+    uint32_t publishingLicenseLen = publishingLicenseStr.length();
     stm->write(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
-    stm->write(const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(publishingLicense.data())), publishingLicenseLen);
+    stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(publishingLicenseStr.data())),
+               publishingLicenseLen);
     AlignAtFourBytes(stm, publishingLicenseLen, true);
 }
 
-void DataSpaces::ReadPrimary(std::shared_ptr<Stream> stm, ByteArray& publishingLicense)
+void DataSpaces::ReadPrimary(std::shared_ptr<pole::Stream> stm, ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
         Logger::Error("Invalid arguments provided for reading Primary stream");
-        throw RMSMetroOfficeFileException(
-                    "Error in reading from stream", RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in reading from stream",
+                    exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
     uint32_t headerLenRead = 0;
     ReadTxInfo(stm, drmTransformClass, drmTransformFeature);
     stm->read(reinterpret_cast<unsigned char*>(&headerLenRead), sizeof(uint32_t));
+    headerLenRead -= sizeof(headerLenRead);
     if(headerLenRead != 0)
     {
         Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead));
-        throw RMSMetroOfficeFileException(
-                    "The file has been corrupted", RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSMetroOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
     uint32_t publishingLicenseLen = 0;
     stm->read(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));

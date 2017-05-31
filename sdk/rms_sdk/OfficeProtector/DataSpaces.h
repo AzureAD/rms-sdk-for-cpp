@@ -11,10 +11,9 @@
 
 #include "IDataSpaces.h"
 #include "../Common/CommonTypes.h"
-#include "../Pole/pole.h"
+#include "pole.h"
 
 using namespace rmscore::common;
-using namespace rmscore::pole;
 
 namespace rmscore {
 namespace officeprotector {
@@ -22,29 +21,30 @@ namespace officeprotector {
 class DataSpaces : public IDataSpaces
 {
 public:
-    DataSpaces(bool);
-    virtual ~DataSpaces();
-    virtual void WriteDataspaces(std::shared_ptr<Storage> stg,
-                                 const ByteArray& publishingLicense) override;
-    virtual void ReadDataspaces(std::shared_ptr<Storage> stg,
-                                ByteArray& publishingLicense) override;
+    DataSpaces(bool isMetro, bool doesUseDeprecatedAlgorithm = true);
+    ~DataSpaces();
+    void WriteDataspaces(std::shared_ptr<pole::Storage> stg,
+                         const ByteArray& publishingLicense) override;
+    void ReadDataspaces(std::shared_ptr<pole::Storage> stg,
+                        ByteArray& publishingLicense) override;
 
 private:
 
-    void WriteVersion(std::shared_ptr<Stream> stm, const std::string& content);
-    void ReadAndVerifyVersion(std::shared_ptr<Stream> stm, const std::string& contentExpected);
-    void WriteDataSpaceMap(std::shared_ptr<Stream> stm);
-    void WriteDRMDataSpace(std::shared_ptr<Stream> stm);
-    void WriteTxInfo(std::shared_ptr<Stream> stm,
+    void WriteVersion(std::shared_ptr<pole::Stream> stm, const std::string& content);
+    void ReadAndVerifyVersion(std::shared_ptr<pole::Stream> stm, const std::string& contentExpected);
+    void WriteDataSpaceMap(std::shared_ptr<pole::Stream> stm);
+    void WriteDRMDataSpace(std::shared_ptr<pole::Stream> stm);
+    void WriteTxInfo(std::shared_ptr<pole::Stream> stm,
                      const std::string& txClassName,
                      const std::string& featureName);
-    void ReadTxInfo(std::shared_ptr<Stream> stm,
+    void ReadTxInfo(std::shared_ptr<pole::Stream> stm,
                     const std::string& txClassName,
                     const std::string& featureName);
-    void WritePrimary(std::shared_ptr<Stream> stm,  const ByteArray& publishingLicense);
-    void ReadPrimary(std::shared_ptr<Stream> stm, ByteArray& publishingLicense);
+    void WritePrimary(std::shared_ptr<pole::Stream> stm,  const ByteArray& publishingLicense);
+    void ReadPrimary(std::shared_ptr<pole::Stream> stm, ByteArray& publishingLicense);
 
     bool m_isMetro = true;
+    bool m_doesUseDeprecatedAlgorithm;
 };
 
 } // namespace officeprotector
