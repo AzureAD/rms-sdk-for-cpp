@@ -22,9 +22,9 @@ class IDataSpaces
 public:
     virtual ~IDataSpaces() {}
 
-    virtual void WriteDataspaces(std::shared_ptr<pole::Storage> stg,
+    virtual void WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
                                  const ByteArray& publishingLicense) = 0;
-    virtual void ReadDataspaces(std::shared_ptr<pole::Storage> stg,
+    virtual void ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
                                 ByteArray& publishingLicense) = 0;
 
     static std::shared_ptr<IDataSpaces> Create(bool isMetro);

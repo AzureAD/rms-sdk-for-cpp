@@ -78,7 +78,7 @@ DataSpaces::~DataSpaces()
 {
 }
 
-void DataSpaces::WriteDataspaces(std::shared_ptr<pole::Storage> stg,
+void DataSpaces::WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
                                  const ByteArray& publishingLicense)
 {
     if(stg == nullptr)
@@ -132,7 +132,8 @@ void DataSpaces::WriteDataspaces(std::shared_ptr<pole::Storage> stg,
 }
 
 //todo add logging here
-void DataSpaces::ReadDataspaces(std::shared_ptr<pole::Storage> stg, ByteArray& publishingLicense)
+void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
+                                ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
@@ -173,7 +174,7 @@ void DataSpaces::ReadDataspaces(std::shared_ptr<pole::Storage> stg, ByteArray& p
     ReadPrimary(stm, publishingLicense);
 }
 
-void DataSpaces::WriteVersion(std::shared_ptr<pole::Stream> stm, const std::string& content)
+void DataSpaces::WriteVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& content)
 {
     if( stm == nullptr || content.empty())
     {
@@ -198,7 +199,7 @@ void DataSpaces::WriteVersion(std::shared_ptr<pole::Stream> stm, const std::stri
     stm->write(reinterpret_cast<unsigned char*>(&writerMinor), sizeof(uint16_t));
 }
 
-void DataSpaces::ReadAndVerifyVersion(std::shared_ptr<pole::Stream> stm,
+void DataSpaces::ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm,
                                       const std::string& contentExpected)
 {
     if( stm == nullptr || contentExpected.empty())
@@ -240,7 +241,7 @@ void DataSpaces::ReadAndVerifyVersion(std::shared_ptr<pole::Stream> stm,
     }
 }
 
-void DataSpaces::WriteDataSpaceMap(std::shared_ptr<pole::Stream> stm)
+void DataSpaces::WriteDataSpaceMap(const std::shared_ptr<pole::Stream>& stm)
 {
     DataSpaceMapHeader dsmh;
     DataSpaceMapEntryHeader dsmeh;
@@ -273,7 +274,7 @@ void DataSpaces::WriteDataSpaceMap(std::shared_ptr<pole::Stream> stm)
     WriteWideStringEntry(stm, m_isMetro ? metroDataSpace : drmDataSpace);
 }
 
-void DataSpaces::WriteDRMDataSpace(std::shared_ptr<pole::Stream> stm)
+void DataSpaces::WriteDRMDataSpace(const std::shared_ptr<pole::Stream>& stm)
 {
     if( stm == nullptr)
     {
@@ -292,7 +293,7 @@ void DataSpaces::WriteDRMDataSpace(std::shared_ptr<pole::Stream> stm)
     WriteWideStringEntry(stm, m_isMetro ? metroTransform : drmTransform);
 }
 
-void DataSpaces::WriteTxInfo(std::shared_ptr<pole::Stream> stm,
+void DataSpaces::WriteTxInfo(const std::shared_ptr<pole::Stream>& stm,
                              const std::string& txClassName,
                              const std::string& featureName)
 {
@@ -314,7 +315,7 @@ void DataSpaces::WriteTxInfo(std::shared_ptr<pole::Stream> stm,
     WriteVersion(stm, featureName);
 }
 
-void DataSpaces::ReadTxInfo(std::shared_ptr<pole::Stream> stm,
+void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
                             const std::string& txClassNameExpected,
                             const std::string& featureNameExpected)
 {
@@ -356,7 +357,8 @@ void DataSpaces::ReadTxInfo(std::shared_ptr<pole::Stream> stm,
     ReadAndVerifyVersion(stm, featureNameExpected);
 }
 
-void DataSpaces::WritePrimary(std::shared_ptr<pole::Stream> stm, const ByteArray& publishingLicense)
+void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
+                              const ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {
@@ -383,7 +385,7 @@ void DataSpaces::WritePrimary(std::shared_ptr<pole::Stream> stm, const ByteArray
     AlignAtFourBytes(stm, publishingLicenseLen, true);
 }
 
-void DataSpaces::ReadPrimary(std::shared_ptr<pole::Stream> stm, ByteArray& publishingLicense)
+void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
     {

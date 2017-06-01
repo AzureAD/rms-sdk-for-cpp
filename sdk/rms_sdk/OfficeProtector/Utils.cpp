@@ -43,7 +43,8 @@ std::string ConvertWideStrToCharStr(const std::string& input)
 
 // Aligns the stream at four bytes. Adds null chars while writing
 // and seeks to the aligned position while reading.
-uint32_t AlignAtFourBytes(std::shared_ptr<pole::Stream> stm, uint32_t contentLength, bool write)
+uint32_t AlignAtFourBytes(const std::shared_ptr<pole::Stream>& stm,
+                          uint32_t contentLength, bool write)
 {
     if(stm == nullptr || contentLength < 1)
     {
@@ -72,7 +73,7 @@ uint32_t AlignAtFourBytes(std::shared_ptr<pole::Stream> stm, uint32_t contentLen
 }
 
 // Writes a string to a stream after converting it to a wide string.
-uint32_t WriteWideStringEntry(std::shared_ptr<pole::Stream> stm, const std::string& entry)
+uint32_t WriteWideStringEntry(const std::shared_ptr<pole::Stream>& stm, const std::string& entry)
 {
     if(stm == nullptr || entry.empty())
     {
@@ -95,7 +96,7 @@ uint32_t WriteWideStringEntry(std::shared_ptr<pole::Stream> stm, const std::stri
 }
 
 // Reads a wide string and converts it to a string.
-uint32_t ReadWideStringEntry(std::shared_ptr<pole::Stream> stm, std::string& entry)
+uint32_t ReadWideStringEntry(const std::shared_ptr<pole::Stream>& stm, std::string& entry)
 {
     if(stm == nullptr || entry.empty())
     {

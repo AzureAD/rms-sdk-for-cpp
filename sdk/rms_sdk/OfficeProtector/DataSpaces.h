@@ -23,25 +23,25 @@ class DataSpaces : public IDataSpaces
 public:
     DataSpaces(bool isMetro, bool doesUseDeprecatedAlgorithm = true);
     ~DataSpaces();
-    void WriteDataspaces(std::shared_ptr<pole::Storage> stg,
+    void WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
                          const ByteArray& publishingLicense) override;
-    void ReadDataspaces(std::shared_ptr<pole::Storage> stg,
+    void ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
                         ByteArray& publishingLicense) override;
 
 private:
 
-    void WriteVersion(std::shared_ptr<pole::Stream> stm, const std::string& content);
-    void ReadAndVerifyVersion(std::shared_ptr<pole::Stream> stm, const std::string& contentExpected);
-    void WriteDataSpaceMap(std::shared_ptr<pole::Stream> stm);
-    void WriteDRMDataSpace(std::shared_ptr<pole::Stream> stm);
-    void WriteTxInfo(std::shared_ptr<pole::Stream> stm,
+    void WriteVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& content);
+    void ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& contentExpected);
+    void WriteDataSpaceMap(const std::shared_ptr<pole::Stream>& stm);
+    void WriteDRMDataSpace(const std::shared_ptr<pole::Stream>& stm);
+    void WriteTxInfo(const std::shared_ptr<pole::Stream>& stm,
                      const std::string& txClassName,
                      const std::string& featureName);
-    void ReadTxInfo(std::shared_ptr<pole::Stream> stm,
+    void ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
                     const std::string& txClassName,
                     const std::string& featureName);
-    void WritePrimary(std::shared_ptr<pole::Stream> stm,  const ByteArray& publishingLicense);
-    void ReadPrimary(std::shared_ptr<pole::Stream> stm, ByteArray& publishingLicense);
+    void WritePrimary(const std::shared_ptr<pole::Stream>& stm,  const ByteArray& publishingLicense);
+    void ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense);
 
     bool m_isMetro = true;
     bool m_doesUseDeprecatedAlgorithm;
