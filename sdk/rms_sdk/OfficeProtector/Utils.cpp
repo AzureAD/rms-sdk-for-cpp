@@ -98,7 +98,7 @@ uint32_t WriteWideStringEntry(const std::shared_ptr<pole::Stream>& stm, const st
 // Reads a wide string and converts it to a string.
 uint32_t ReadWideStringEntry(const std::shared_ptr<pole::Stream>& stm, std::string& entry)
 {
-    if(stm == nullptr || entry.empty())
+    if(stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading string entry");
         throw exceptions::RMSMetroOfficeFileException(

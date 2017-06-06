@@ -48,14 +48,14 @@ void PfileHeaderReader::CheckPreamble(rmscrypto::api::SharedStream stream)
 
   if (pr.size() != expectedLength)
   {
-    throw exceptions::RMSPFileException("Invalid pfile preambule",
+    throw exceptions::RMSPFileException("Invalid pfile preamble",
                                         exceptions::RMSPFileException::NotPFile);
   }
 
   for (uint32_t i = 0; i < pr.size(); ++i)
   {
     if (pr[i] != ExpectedPreamble[i]) {
-      throw exceptions::RMSPFileException("Invalid pfile preambule",
+      throw exceptions::RMSPFileException("Invalid pfile preamble",
                                           exceptions::RMSPFileException::NotPFile);
     }
   }

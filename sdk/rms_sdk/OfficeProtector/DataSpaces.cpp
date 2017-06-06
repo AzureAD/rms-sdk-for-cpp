@@ -7,6 +7,7 @@
 */
 
 #include "DataSpaces.h"
+#include <algorithm>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Logger/Logger.h"
 #include "Utils.h"
@@ -34,6 +35,7 @@ const char drmTransformFeature[] = "Microsoft.Metadata.DRMTransform";
 const char drmTransformClass[]   = "{C73DFACD-061F-43B0-8B64-0C620D2A8B50}";
 const char rootEntry[] = "/";
 const char separator[] = "/";
+const uint8_t BOM_UTF8[] = {0xef, 0xbb, 0xbf};
 
 // DataSpaceMap Header
 struct DataSpaceMapHeader
@@ -372,6 +374,13 @@ void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
     stm->write(reinterpret_cast<unsigned char*>(&headerLen), sizeof(uint32_t));
     std::string publishingLicenseStr(reinterpret_cast<const char*>(publishingLicense.data()),
                                      publishingLicense.size());
+    if ((publishingLicenseStr.length() > sizeof(BOM_UTF8)) &&
+            (memcmp(publishingLicenseStr.data(), BOM_UTF8, sizeof(BOM_UTF8)) == 0))
+    {
+        std::string utf8NoBOM(publishingLicenseStr.data() + sizeof(BOM_UTF8),
+                         publishingLicenseStr.data() + publishingLicenseStr.length());
+        publishingLicenseStr = utf8NoBOM;
+    }
 
     if(m_doesUseDeprecatedAlgorithm)
     {
@@ -387,7 +396,7 @@ void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
 
 void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense)
 {
-    if(stm == nullptr || publishingLicense.empty())
+    if(stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading Primary stream");
         throw exceptions::RMSMetroOfficeFileException(
@@ -408,10 +417,16 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
     }
     uint32_t publishingLicenseLen = 0;
     stm->read(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
+    auto pl = std::make_unique<unsigned char[]>(publishingLicenseLen);
+    stm->read(pl.get(), publishingLicenseLen);
+    std::string publishingLicenseStr((char*)pl.get(), publishingLicenseLen);
+    if(m_doesUseDeprecatedAlgorithm)
+    {
+        publishingLicenseStr = ConvertCharStrToWideStr(publishingLicenseStr);
+    }
 
     publishingLicense.clear();
-    publishingLicense.resize(publishingLicenseLen);
-    stm->read((unsigned char*)&publishingLicense[0], publishingLicenseLen);
+    std::copy(publishingLicenseStr.begin(), publishingLicenseStr.end(), std::back_inserter(publishingLicense));
     AlignAtFourBytes(stm, publishingLicenseLen, false);
 }
 

@@ -204,6 +204,8 @@ public:
     NotPFile = 0,
     NotSupportedVersion,
     BadArguments,
+    CorruptFile,
+    AlreadyProtected,
   };
 
   RMSPFileException(const std::string& message, Reason reason) _NOEXCEPT
@@ -243,6 +245,7 @@ public:
     BadArguments,
     CorruptFile,
     NonRMSProtected,
+    AlreadyProtected,
     Unknown
   };
 
