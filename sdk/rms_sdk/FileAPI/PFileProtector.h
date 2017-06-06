@@ -9,68 +9,79 @@
 #ifndef RMS_SDK_FILE_API_PFILEPROTECTOR_H
 #define RMS_SDK_FILE_API_PFILEPROTECTOR_H
 
-#include "IStream.h"
+#include "BlockBasedProtectedStream.h"
 #include "Protector.h"
 #include "UserPolicy.h"
 #include "PfileHeader.h"
 
-using namespace rmscore::modernapi;
-using namespace rmscrypto::api;
-
 namespace rmscore {
 namespace fileapi {
 
-class PFileProtector
+class DLL_PUBLIC_RMS PFileProtector
 {
 public:
-    PFileProtector(std::string originalFileExtension);
+    PFileProtector(const std::string& originalFileExtension);
 
     ~PFileProtector();
 
-    void ProtectWithTemplate(std::shared_ptr<std::fstream> inputStream,
-                             const TemplateDescriptor& templateDescriptor,
+    void ProtectWithTemplate(const std::shared_ptr<std::fstream>& inputStream,
+                             const modernapi::TemplateDescriptor& templateDescriptor,
                              const std::string& userId,
-                             IAuthenticationCallback& authenticationCallback,
-                             const ProtectionOptions& options,
-                             const AppDataHashMap& signedAppData,
-                             std::shared_ptr<std::fstream> outputStream,
+                             modernapi::IAuthenticationCallback& authenticationCallback,
+                             ProtectionOptions options,
+                             const modernapi::AppDataHashMap& signedAppData,
+                             const std::shared_ptr<std::fstream>& outputStream,
                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    void ProtectWithCustomRights(std::shared_ptr<std::fstream> inputStream,
-                                 PolicyDescriptor& policyDescriptor,
+    void ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
+                                 modernapi::PolicyDescriptor& policyDescriptor,
                                  const std::string& userId,
-                                 IAuthenticationCallback& authenticationCallback,
-                                 const ProtectionOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
+                                 modernapi::IAuthenticationCallback& authenticationCallback,
+                                 ProtectionOptions options,
+                                 const std::shared_ptr<std::fstream>& outputStream,
                                  std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    UnProtectStatus UnProtect(std::shared_ptr<std::fstream> inputStream,
+    UnprotectStatus UnProtect(const std::shared_ptr<std::fstream>& inputStream,
                               const std::string& userId,
-                              IAuthenticationCallback& authenticationCallBack,
-                              IConsentCallback& consentCallBack,
-                              const UnProtectionOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
+                              modernapi::IAuthenticationCallback& authenticationCallBack,
+                              modernapi::IConsentCallback& consentCallBack,
+                              const bool& isOffline,
+                              const std::shared_ptr<std::fstream>& outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    bool IsProtected(std::shared_ptr<std::fstream> inputStream);
+    bool IsProtected(const std::shared_ptr<std::fstream>& inputStream);
 
 private:
 
-    void Protect(std::shared_ptr<std::fstream> inputStream,
-                 std::shared_ptr<std::fstream> outputStream);
+    void Protect(const std::shared_ptr<std::fstream>& inputStream,
+                 const std::shared_ptr<std::fstream>& outputStream);
 
-    std::shared_ptr<rmscore::pfile::PfileHeader> WriteHeader(SharedStream stream,
-                                                             uint64_t originalFileSize);
+    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
+            const rmscrypto::api::SharedStream& stream,
+            const std::shared_ptr<pfile::PfileHeader>& header);
 
-    std::shared_ptr<rmscore::pfile::PfileHeader> ReadHeader(SharedStream stream);
+    void EncryptStream(const std::shared_ptr<std::fstream>& stdStream,
+                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
+                       uint64_t originalFileSize);
 
-    uint32_t m_blockSize;
-    std::shared_ptr<UserPolicy> m_userPolicy;
+    void DecryptStream(const std::shared_ptr<std::fstream>& stdStream,
+                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
+                       uint64_t originalFileSize);
+
+    std::shared_ptr<rmscore::pfile::PfileHeader> WriteHeader(
+            const rmscrypto::api::SharedStream& stream,
+            uint64_t originalFileSize);
+
+    std::shared_ptr<rmscore::pfile::PfileHeader> ReadHeader(
+            const rmscrypto::api::SharedStream& stream);
+
     std::string m_originalFileExtension;
+    uint32_t m_blockSize;
+    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 };
 
-} // namespace officeprotector
 } // namespace fileapi
+} // namespace rmscore
 
 #endif // RMS_SDK_FILE_API_PFILEPROTECTOR_H
 

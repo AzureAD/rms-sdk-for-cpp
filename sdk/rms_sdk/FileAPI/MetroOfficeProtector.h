@@ -9,65 +9,79 @@
 #ifndef RMS_SDK_FILE_API_METROOFFICEPROTECTOR_H
 #define RMS_SDK_FILE_API_METROOFFICEPROTECTOR_H
 
+#include "BlockBasedProtectedStream.h"
 #include "Protector.h"
 #include "UserPolicy.h"
-#include "pole.h"
-
-using namespace rmscore::modernapi;
-using namespace rmscore:: pole;
+#include "../Pole/pole.h"
 
 namespace rmscore {
 namespace fileapi {
 
-class MetroOfficeProtector
+class DLL_PUBLIC_RMS MetroOfficeProtector
 {
 public:
     MetroOfficeProtector();
 
     ~MetroOfficeProtector();
 
-    void ProtectWithTemplate(std::shared_ptr<std::fstream> inputStream,
-                             const TemplateDescriptor& templateDescriptor,
+    void ProtectWithTemplate(const std::shared_ptr<std::fstream>& inputStream,
+                             const modernapi::TemplateDescriptor& templateDescriptor,
                              const std::string& userId,
-                             IAuthenticationCallback& authenticationCallback,
-                             const ProtectionOptions& options,
-                             const AppDataHashMap& signedAppData,
-                             std::shared_ptr<std::fstream> outputStream,
+                             modernapi::IAuthenticationCallback& authenticationCallback,
+                             ProtectionOptions options,
+                             const modernapi::AppDataHashMap& signedAppData,
+                             const std::shared_ptr<std::fstream>& outputStream,
                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    void ProtectWithCustomRights(std::shared_ptr<std::fstream> inputStream,
-                                 PolicyDescriptor& policyDescriptor,
+    void ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
+                                 modernapi::PolicyDescriptor& policyDescriptor,
                                  const std::string& userId,
-                                 IAuthenticationCallback& authenticationCallback,
-                                 const ProtectionOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
+                                 modernapi::IAuthenticationCallback& authenticationCallback,
+                                 ProtectionOptions options,
+                                 const std::shared_ptr<std::fstream>& outputStream,
                                  std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    UnProtectStatus UnProtect(std::shared_ptr<std::fstream> inputStream,
+    UnprotectStatus UnProtect(const std::shared_ptr<std::fstream>& inputStream,
                               const std::string& userId,
-                              IAuthenticationCallback& authenticationCallBack,
-                              IConsentCallback& consentCallBack,
-                              const UnProtectionOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
+                              modernapi::IAuthenticationCallback& authenticationCallBack,
+                              modernapi::IConsentCallback& consentCallBack,
+                              const bool& isOffline,
+                              const std::shared_ptr<std::fstream>& outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    bool IsProtected(std::shared_ptr<std::fstream> inputStream);
+    bool IsProtected(const std::shared_ptr<std::fstream>& inputStream);
 
 private:
-    void Protect(std::shared_ptr<std::fstream> inputStream,
-                 std::shared_ptr<std::fstream> outputStream);
 
-    uint32_t ReadStreamHeader(uint64_t& contentLength);
+    void Protect(const std::shared_ptr<std::fstream>& inputStream,
+                 const std::shared_ptr<std::fstream>& outputStream);
 
-    uint32_t WriteStreamHeader(const uint64_t& contentLength);
+    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
+            const rmscrypto::api::SharedStream& stream,
+            uint64_t streamSize,
+            std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider);
+
+    void EncryptStream(const std::shared_ptr<std::fstream> &stdStream,
+                       const std::shared_ptr<pole::Stream>& metroStream,
+                       uint64_t originalFileSize);
+
+    void DecryptStream(const std::shared_ptr<std::iostream>& stdStream,
+                       const std::shared_ptr<pole::Stream>& metroStream,
+                       uint64_t originalFileSize);
+
+    void WriteStreamHeader(const std::shared_ptr<rmscore::pole::Stream>& stm,
+                           const uint64_t& contentLength);
+
+    void ReadStreamHeader(const std::shared_ptr<rmscore::pole::Stream>& stm,
+                          uint64_t& contentLength);
 
     uint32_t m_blockSize;
-    std::shared_ptr<UserPolicy> m_userPolicy;
-    std::shared_ptr<Storage> m_storage;
+    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+    std::shared_ptr<pole::Storage> m_storage;
 };
 
-} // namespace officeprotector
 } // namespace fileapi
+} // namespace rmscore
 
 #endif // RMS_SDK_FILE_API_METROOFFICEPROTECTOR_H
 
