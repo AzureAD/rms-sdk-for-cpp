@@ -123,6 +123,14 @@ public:
                                                        rmscrypto::api::SharedStream stream,
                                                        const std::string& originalFileExtension);
 
+    /*!
+    @brief Checks whether a stream is protectd by checking for the presence of a pfile header.
+
+    @param stream The std::iostream to be checked.
+    @return A bool value indicating whether the stream is protected or not.
+    */
+    static bool IsProtected(rmscrypto::api::SharedStream stream);
+
     std::shared_ptr<UserPolicy> Policy() { return m_policy; }
 
     std::string OriginalFileExtension() { return m_originalFileExtension; }

@@ -120,6 +120,36 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   return result;
 }
 
+bool ProtectedFileStream::IsProtected(SharedStream stream)
+{
+    Logger::Hidden("+ProtectedFileStream::IsProtected");
+
+    // Read PfileHeader from the input stream. If header is parsed successfully, the file is
+    // already protected.
+    shared_ptr<IPfileHeaderReader> headerReader = IPfileHeaderReader::Create();
+    shared_ptr<PfileHeader> header = nullptr;
+    try
+    {
+      header  = headerReader->Read(stream);
+      Logger::Hidden(
+        "ProtectedFileStream: Read pfile header. Major version: %d, minor version: %d, "
+        "file extension: '%s', content start position: %d, original file size: %I64d",
+        header->GetMajorVersion(),
+        header->GetMinorVersion(),
+        header->GetFileExtension().c_str(),
+        header->GetContentStartPosition(),
+        header->GetOriginalFileSize());
+    }
+    catch (exceptions::RMSException&)
+    {
+      Logger::Hidden("-ProtectedFileStream::IsProtected");
+      return false;
+    }
+
+    Logger::Hidden("-ProtectedFileStream::IsProtected");
+    return true;
+}
+
 shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
   shared_ptr<UserPolicy>policy,
   SharedStream          stream,
