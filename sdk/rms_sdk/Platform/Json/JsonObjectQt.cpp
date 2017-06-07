@@ -151,7 +151,13 @@ std::shared_ptr<IJsonObject>JsonObjectQt::GetNamedObject(const std::string& name
 
   if (!val.isObject())
   {
-    throw exceptions::RMSInvalidArgumentException(
+      if(val.isString()){
+          QJsonDocument qJsonDocument = QJsonDocument::fromJson(val.toString().toUtf8());
+          if(!qJsonDocument.isNull() && qJsonDocument.isObject()){
+              return std::make_shared<JsonObjectQt>(qJsonDocument.object());
+          }
+      }
+      throw exceptions::RMSInvalidArgumentException(
             "JsonObjectQt::GetNamedObject: convertion error");
   }
 

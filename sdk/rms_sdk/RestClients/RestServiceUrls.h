@@ -17,6 +17,8 @@ public:
 
   static std::string GetServiceDiscoveryUrl();
   static std::string GetServiceDiscoverySuffix();
+  static std::string GetTenantV1();
+  static std::string GetTenantV2();
   static std::string GetDefaultTenant();
   static std::string GetEndUserLicensesUrl();
   static std::string GetTemplatesUrl();

@@ -12,28 +12,21 @@
 #include "../../Common/CommonTypes.h"
 #include <QFile>
 #include <sstream>
-#include <memory>
-#include <array>
 
 using namespace std;
 using namespace rmscore::common;
 using namespace rmscore::restclients;
 
-namespace unittest {
-namespace restclientsut {
 void LicenseParserTest::test_UTF16LE_License()
 {
-    auto data = vector<uint8_t>(PL_0101right_ECB_xml_len);
-    memcpy(&data[0], PL_0101right_ECB_xml, PL_0101right_ECB_xml_len);
-    auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(&data[0], PL_0101right_ECB_xml_len);
+    shared_ptr<uint8_t> spData(new uint8_t[PL_0101right_ECB_xml_len]);
+    memcpy(spData.get(), PL_0101right_ECB_xml, PL_0101right_ECB_xml_len);
+    auto licenseParserResult = LicenseParser::ParsePublishingLicense(spData.get(), PL_0101right_ECB_xml_len);
 }
 
 void LicenseParserTest::test_UTF8_License()
 {
-    auto data = vector<uint8_t>(PL_0101right_ECB_xml_len);
-    memcpy(&data[0], PL_0101right_CBC_xml, PL_0101right_CBC_xml_len);
-    auto vect_domains = LicenseParser::ExtractDomainsFromPublishingLicense(&data[0], PL_0101right_CBC_xml_len);
+    shared_ptr<uint8_t> spData(new uint8_t[PL_0101right_CBC_xml_len]);
+    memcpy(spData.get(), PL_0101right_CBC_xml, PL_0101right_CBC_xml_len);
+    auto licenseParserResult = LicenseParser::ParsePublishingLicense(spData.get(), PL_0101right_CBC_xml_len);
 }
-
-} //UnitTests
-} //RestClientsUT

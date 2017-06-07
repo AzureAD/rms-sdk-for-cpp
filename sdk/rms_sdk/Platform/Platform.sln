@@ -1,0 +1,50 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformhttp", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/Platform/Http\platformhttp.vcxproj", "{6A067896-CF73-3255-B4F9-DB166146628D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformfilesystem", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/Platform/Filesystem\platformfilesystem.vcxproj", "{DCF47068-8FDF-3227-BC3E-FA6930156EB9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformjson", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/Platform/Json\platformjson.vcxproj", "{EB88C770-BC6B-308B-85D1-37E8BEAB83A3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformsettings", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/Platform/Settings\platformsettings.vcxproj", "{6264D059-0310-368A-893F-ABA0991F6F6B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformxml", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/Platform/Xml\platformxml.vcxproj", "{F5B246DC-97BF-3FE0-9308-5314C336EEF6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformlogger", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/Platform/Logger\platformlogger.vcxproj", "{31EED072-74E3-31D7-9623-144E9556FD04}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A067896-CF73-3255-B4F9-DB166146628D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6A067896-CF73-3255-B4F9-DB166146628D}.Debug|Win32.Build.0 = Debug|Win32
+		{6A067896-CF73-3255-B4F9-DB166146628D}.Release|Win32.ActiveCfg = Release|Win32
+		{6A067896-CF73-3255-B4F9-DB166146628D}.Release|Win32.Build.0 = Release|Win32
+		{DCF47068-8FDF-3227-BC3E-FA6930156EB9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DCF47068-8FDF-3227-BC3E-FA6930156EB9}.Debug|Win32.Build.0 = Debug|Win32
+		{DCF47068-8FDF-3227-BC3E-FA6930156EB9}.Release|Win32.ActiveCfg = Release|Win32
+		{DCF47068-8FDF-3227-BC3E-FA6930156EB9}.Release|Win32.Build.0 = Release|Win32
+		{EB88C770-BC6B-308B-85D1-37E8BEAB83A3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EB88C770-BC6B-308B-85D1-37E8BEAB83A3}.Debug|Win32.Build.0 = Debug|Win32
+		{EB88C770-BC6B-308B-85D1-37E8BEAB83A3}.Release|Win32.ActiveCfg = Release|Win32
+		{EB88C770-BC6B-308B-85D1-37E8BEAB83A3}.Release|Win32.Build.0 = Release|Win32
+		{6264D059-0310-368A-893F-ABA0991F6F6B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6264D059-0310-368A-893F-ABA0991F6F6B}.Debug|Win32.Build.0 = Debug|Win32
+		{6264D059-0310-368A-893F-ABA0991F6F6B}.Release|Win32.ActiveCfg = Release|Win32
+		{6264D059-0310-368A-893F-ABA0991F6F6B}.Release|Win32.Build.0 = Release|Win32
+		{F5B246DC-97BF-3FE0-9308-5314C336EEF6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F5B246DC-97BF-3FE0-9308-5314C336EEF6}.Debug|Win32.Build.0 = Debug|Win32
+		{F5B246DC-97BF-3FE0-9308-5314C336EEF6}.Release|Win32.ActiveCfg = Release|Win32
+		{F5B246DC-97BF-3FE0-9308-5314C336EEF6}.Release|Win32.Build.0 = Release|Win32
+		{31EED072-74E3-31D7-9623-144E9556FD04}.Debug|Win32.ActiveCfg = Debug|Win32
+		{31EED072-74E3-31D7-9623-144E9556FD04}.Debug|Win32.Build.0 = Debug|Win32
+		{31EED072-74E3-31D7-9623-144E9556FD04}.Release|Win32.ActiveCfg = Release|Win32
+		{31EED072-74E3-31D7-9623-144E9556FD04}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

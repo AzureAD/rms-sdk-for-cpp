@@ -17,23 +17,24 @@
 namespace rmscore {
 namespace json {
 
-using namespace std;
 class IJsonSerializer
 {
 public:
-    virtual vector<uint8_t> SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request, bool encode) = 0;
-    virtual vector<uint8_t> SerializePublishUsingTemplateRequest(const restclients::PublishUsingTemplateRequest& request) = 0;
-    virtual vector<uint8_t> SerializePublishCustomRequest(const restclients::PublishCustomRequest& request) = 0;
+    virtual common::ByteArray SerializeUsageRestrictionsRequest(const restclients::UsageRestrictionsRequest& request) = 0;
+    virtual common::ByteArray SerializePublishUsingTemplateRequest(const restclients::PublishUsingTemplateRequest& request) = 0;
+    virtual common::ByteArray SerializePublishCustomRequest(const restclients::PublishCustomRequest& request) = 0;
 
-    virtual restclients::UsageRestrictionsResponse DeserializeUsageRestrictionsResponse(vector<uint8_t> &sResponse) = 0;
-    virtual restclients::ServerErrorResponse DeserializeErrorResponse(vector<uint8_t> &sResponse) = 0;
-    virtual restclients::TemplateListResponse DeserializeTemplateListResponse(vector<uint8_t> &sResponse) = 0;
-    virtual restclients::PublishResponse DeserializePublishResponse(vector<uint8_t> &sResponse) = 0;
-    virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(vector<uint8_t> &sResponse) = 0;
-    virtual restclients::CertificateResponse DeserializeCertificateResponse(vector<uint8_t> &sResponse) = 0;
+    virtual restclients::UsageRestrictionsResponse DeserializeUsageRestrictionsResponse(common::ByteArray &sResponse) = 0;
+    virtual restclients::ServerErrorResponse DeserializeErrorResponse(common::ByteArray &sResponse) = 0;
+    virtual restclients::TemplateListResponse DeserializeTemplateListResponse(common::ByteArray &sResponse) = 0;
+    virtual restclients::PublishResponse DeserializePublishResponse(common::ByteArray &sResponse) = 0;
+    virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(common::ByteArray &sResponse) = 0;
+    virtual restclients::CertificateResponse DeserializeCertificateResponse(common::ByteArray &sResponse) = 0;
 
 public:
     static std::shared_ptr<IJsonSerializer> Create();
+    std::string ProcessReferrerResponse(const std::string&& referrerResponse);
+    void AddUserRightsOrRolesInCustomRequest(platform::json::IJsonObject* pPolicyJson, const restclients::PublishCustomRequest& request);
 };
 } // namespace json
 } // namespace rmscore

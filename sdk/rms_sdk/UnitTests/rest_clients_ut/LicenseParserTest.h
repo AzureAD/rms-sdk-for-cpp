@@ -10,8 +10,6 @@
 #define LICENSEPARSERTEST_H
 #include <QtTest>
 
-namespace unittest {
-namespace restclientsut {
 class LicenseParserTest : public QObject
 {
     Q_OBJECT
@@ -19,6 +17,4 @@ private Q_SLOTS:
     void test_UTF8_License();
     void test_UTF16LE_License();
 };
-} //UnitTests
-} //RestClientsUT
 #endif // LICENSEPARSERTEST_H_

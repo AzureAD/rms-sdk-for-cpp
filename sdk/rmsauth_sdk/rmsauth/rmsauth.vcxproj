@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}</ProjectGuid>
+    <RootNamespace>rmsauth</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <PlatformToolSet>v140</PlatformToolSet>
+    <OutputDirectory>..\..\..\bin\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>rmsauth</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <PlatformToolSet>v140</PlatformToolSet>
+    <OutputDirectory>..\..\..\bin\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>rmsauthd</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rmsauth</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rmsauthd</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;rmsauth;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCore;release;$(QTDIR)\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMSAUTH_LIBRARY;QT_NO_DEBUG;QT_PLUGIN;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>rmsauthWebAuthDialog.lib;rmscrypto.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkDLL>true</LinkDLL>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\rmsauth.dll</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMSAUTH_LIBRARY;QT_NO_DEBUG;QT_PLUGIN;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;rmsauth;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCore;debug;$(QTDIR)\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMSAUTH_LIBRARY;QT_PLUGIN;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rmsauthWebAuthDialogd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rmscryptod.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkDLL>true</LinkDLL>
+      <OutputFile>$(OutDir)\rmsauthd.dll</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMSAUTH_LIBRARY;QT_PLUGIN;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AcquireTokenForClientHandler.cpp" />
+    <ClCompile Include="AcquireTokenHandlerBase.cpp" />
+    <ClCompile Include="AcquireTokenInteractiveHandler.cpp" />
+    <ClCompile Include="AcquireTokenNonInteractiveHandler.cpp" />
+    <ClCompile Include="AcquireTokenNonInteractiveHandlerQt.cpp" />
+    <ClCompile Include="AuthenticationContext.cpp" />
+    <ClCompile Include="AuthenticationResult.cpp" />
+    <ClCompile Include="AuthenticationResultQt.cpp" />
+    <ClCompile Include="Authenticator.cpp" />
+    <ClCompile Include="AuthenticatorTemplate.cpp" />
+    <ClCompile Include="AuthenticatorTemplateList.cpp" />
+    <ClCompile Include="AuthenticatorTemplateQt.cpp" />
+    <ClCompile Include="CallState.cpp" />
+    <ClCompile Include="ClientAssertion.cpp" />
+    <ClCompile Include="ClientAssertionCertificate.cpp" />
+    <ClCompile Include="ClientCredential.cpp" />
+    <ClCompile Include="ClientKey.cpp" />
+    <ClCompile Include="DateTime.cpp" />
+    <ClCompile Include="DateTimeQt.cpp" />
+    <ClCompile Include="FileCacheEncrypted.cpp" />
+    <ClCompile Include="FileCacheQt.cpp" />
+    <ClCompile Include="Guid.cpp" />
+    <ClCompile Include="GuidQt.cpp" />
+    <ClCompile Include="HttpHelperQt.cpp" />
+    <ClCompile Include="IRMSAuthEnvironment.cpp" />
+    <ClCompile Include="IRMSAuthEnvironmentImpl.cpp" />
+    <ClCompile Include="IWebUI.cpp" />
+    <ClCompile Include="JsonUtilsQt.cpp" />
+    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="LoggerImplQt.cpp" />
+    <ClCompile Include="OAuth2ResponseQt.cpp" />
+    <ClCompile Include="RequestParameters.cpp" />
+    <ClCompile Include="RequestParametersQt.cpp" />
+    <ClCompile Include="RmsauthIdHelper.cpp" />
+    <ClCompile Include="RmsauthIdHelperQt.cpp" />
+    <ClCompile Include="TokenCache.cpp" />
+    <ClCompile Include="TokenCacheItem.cpp" />
+    <ClCompile Include="TokenCacheKey.cpp" />
+    <ClCompile Include="TokenCacheQt.cpp" />
+    <ClCompile Include="Url.cpp" />
+    <ClCompile Include="UrlQt.cpp" />
+    <ClCompile Include="UserAssertion.cpp" />
+    <ClCompile Include="UserCredential.cpp" />
+    <ClCompile Include="UserIdentifier.cpp" />
+    <ClCompile Include="UserInfoQt.cpp" />
+    <ClCompile Include="UserRealmDiscoveryResponseQt.cpp" />
+    <ClCompile Include="WebUIQt.cpp" />
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="utilsQt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="rmsauth\AcquireTokenForClientHandler.h" />
+    <ClInclude Include="rmsauth\AcquireTokenHandlerBase.h" />
+    <ClInclude Include="rmsauth\AcquireTokenInteractiveHandler.h" />
+    <ClInclude Include="rmsauth\AcquireTokenNonInteractiveHandler.h" />
+    <ClInclude Include="rmsauth\AuthenticationContext.h" />
+    <ClInclude Include="rmsauth\AuthenticationResult.h" />
+    <ClInclude Include="rmsauth\Authenticator.h" />
+    <ClInclude Include="rmsauth\AuthenticatorTemplate.h" />
+    <ClInclude Include="rmsauth\AuthenticatorTemplateList.h" />
+    <ClInclude Include="rmsauth\AuthorityType.h" />
+    <ClInclude Include="rmsauth\AuthorizationResult.h" />
+    <ClInclude Include="rmsauth\CallState.h" />
+    <ClInclude Include="rmsauth\ClientAssertion.h" />
+    <ClInclude Include="rmsauth\ClientAssertionCertificate.h" />
+    <ClInclude Include="rmsauth\ClientCredential.h" />
+    <ClInclude Include="rmsauth\ClientKey.h" />
+    <ClInclude Include="rmsauth\Constants.h" />
+    <ClInclude Include="rmsauth\DateTime.h" />
+    <ClInclude Include="DateTimeQt.h" />
+    <ClInclude Include="rmsauth\Entities.h" />
+    <ClInclude Include="rmsauth\Exceptions.h" />
+    <ClInclude Include="rmsauth\FileCache.h" />
+    <ClInclude Include="rmsauth\FileCacheEncrypted.h" />
+    <ClInclude Include="rmsauth\Guid.h" />
+    <ClInclude Include="GuidQt.h" />
+    <ClInclude Include="rmsauth\HttpHelper.h" />
+    <ClInclude Include="HttpHelperQt.h" />
+    <ClInclude Include="rmsauth\IRMSAuthEnvironment.h" />
+    <ClInclude Include="rmsauth\IRMSAuthEnvironmentImpl.h" />
+    <ClInclude Include="rmsauth\IWebUI.h" />
+    <ClInclude Include="JsonUtilsQt.h" />
+    <ClInclude Include="rmsauth\Logger.h" />
+    <ClInclude Include="rmsauth\OAuth2Response.h" />
+    <ClInclude Include="rmsauth\OAuthConstants.h" />
+    <ClInclude Include="rmsauth\RequestParameters.h" />
+    <ClInclude Include="rmsauth\RmsauthIdHelper.h" />
+    <ClInclude Include="rmsauth\TokenCache.h" />
+    <ClInclude Include="rmsauth\TokenCacheItem.h" />
+    <ClInclude Include="rmsauth\TokenCacheKey.h" />
+    <ClInclude Include="rmsauth\TokenCacheNotificationArgs.h" />
+    <ClInclude Include="rmsauth\TokenSubjectType.h" />
+    <ClInclude Include="rmsauth\Url.h" />
+    <ClInclude Include="UrlQt.h" />
+    <ClInclude Include="rmsauth\UserAssertion.h" />
+    <ClInclude Include="rmsauth\UserCredential.h" />
+    <ClInclude Include="rmsauth\UserIdentifier.h" />
+    <ClInclude Include="rmsauth\UserInfo.h" />
+    <ClInclude Include="rmsauth\UserRealmDiscoveryResponse.h" />
+    <ClInclude Include="rmsauth\rmsauthExport.h" />
+    <ClInclude Include="rmsauth\types.h" />
+    <ClInclude Include="rmsauth\utils.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_Win32="5.7" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

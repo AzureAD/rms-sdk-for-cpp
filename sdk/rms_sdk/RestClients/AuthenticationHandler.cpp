@@ -11,11 +11,15 @@
 #include <string>
 #include <stdlib.h>
 #include <cstdio>
+
 #include "AuthenticationHandler.h"
+
+#include "../Common/CommonTypes.h"
+#include "../Core/FeatureControl.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Http/IUri.h"
-#include "../Common/CommonTypes.h"
+
 
 using namespace rmscore::modernapi;
 using namespace rmscore::platform::http;
@@ -23,245 +27,329 @@ using namespace std;
 
 namespace rmscore {
 namespace restclients {
-string AuthenticationHandler::GetAccessTokenForUrl(
-  const string                     & sUrl,
-  IAuthenticationCallbackImpl      & callback,
-  std::shared_ptr<std::atomic<bool> >cancelState)
+
+namespace {
+    const std::string SLC_HEADER_KEY = "x-ms-rms-slc-key";
+    const std::string SERVICE_URL_HEADER_KEY = "x-ms-rms-service-url";
+}
+
+
+string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
+      const AuthenticationHandlerParameters& authParams,
+      IAuthenticationCallbackImpl& callback,
+      std::shared_ptr<std::atomic<bool>> cancelState)
 {
-  AuthenticationChallenge challenge;
+    AuthenticationChallenge challenge;
 
-  // get the challenge only if needed (e.g., it's not needed in Office case
-  // for now)
-  if (callback.NeedsChallenge())
-  {
-    challenge = GetChallengeForUrl(sUrl, cancelState);
-  }
+    // get the challenge only if needed (e.g., it's not needed in Office case
+    // for now)
+    if (callback.NeedsChallenge())
+    {
+        challenge = GetChallengeForUrl(sUrl, authParams, cancelState);
+    }
 
-  return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
+    return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
                                    challenge));
 }
 
-AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(
-  const string                     & sUrl,
-  std::shared_ptr<std::atomic<bool> >cancelState)
+string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
+                                                   common::ByteArray&& requestBody,
+                                                   IAuthenticationCallbackImpl& callback,
+                                                   std::shared_ptr<std::atomic<bool>> cancelState)
 {
-  // do a dummy get to the url to get the auth challenge
 
-  auto pHttpClient = IHttpClient::Create();
+    AuthenticationChallenge challenge;
 
-  vector<uint8_t> response;
-  StatusCode nStatusCode = pHttpClient->Get(sUrl, response, cancelState);
+    // get the challenge only if needed (e.g., it's not needed in Office case
+    // for now)
+    if (callback.NeedsChallenge())
+    {
+        challenge = GetChallengeForUrl(sUrl, move(requestBody), cancelState);
+    }
 
-  // this must be an authenticated endpoint and we must get a 401
-  // (unauthorized).
-  // Otherwise, there is something wrong with the server
-  if (StatusCode::UNAUTHORIZED != nStatusCode) {
-    throw exceptions::RMSNetworkException("Server error",
-                                          exceptions::RMSNetworkException::ServerError);
-  }
+    return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
+                                   challenge));
 
-  try
-  {
-    // the challenge must be in WWW-Authenticate header
-    auto header = pHttpClient->GetResponseHeader("WWW-Authenticate");
-    return ParseChallengeHeader(header, sUrl);
-  }
-  catch (exceptions::RMSException)
-  {
-    // if couldn't find the header or couldn't parse it, that means the server
-    // returned an invalid response.
-    throw exceptions::RMSNetworkException("Server error",
-                                          exceptions::RMSNetworkException::ServerError);
-  }
 }
+
+AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& sUrl,
+    common::ByteArray&& requestBody,
+    std::shared_ptr<std::atomic<bool>> cancelState)
+{
+    // do a dummy get to the url to get the auth challenge
+
+    auto pHttpClient = IHttpClient::Create();
+    common::ByteArray response;
+
+    pHttpClient->AddHeader("content-type", "application/json");
+    StatusCode nStatusCode = pHttpClient->Post(sUrl,
+                                               requestBody,
+                                               std::string("application/json"),
+                                               response,
+                                               cancelState);
+
+    // this must be an authenticated endpoint and we must get a 401
+    // (unauthorized).
+    // Otherwise, there is something wrong with the server
+    if (StatusCode::UNAUTHORIZED != nStatusCode)
+    {
+        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+    }
+
+    try
+    {
+        // the challenge must be in WWW-Authenticate header
+        auto header = pHttpClient->GetResponseHeader("WWW-Authenticate");
+        return ParseChallengeHeader(header, sUrl);
+    }
+    catch (exceptions::RMSException)
+    {
+        // if couldn't find the header or couldn't parse it, that means the server
+        // returned an invalid response.
+        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+    }
+}
+
+AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& sUrl,
+    const AuthenticationHandlerParameters& authParams,
+    std::shared_ptr<std::atomic<bool> >cancelState)
+{
+    // do a dummy get to the url to get the auth challenge
+
+    auto pHttpClient = IHttpClient::Create();
+    common::ByteArray response;
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
+    {
+        if (!authParams.m_ServerPublicCertificate.empty() && !authParams.m_ServiceDiscoverUrl.empty())
+        {
+            pHttpClient->AddHeader(SLC_HEADER_KEY, authParams.m_ServerPublicCertificate);
+            pHttpClient->AddHeader(SERVICE_URL_HEADER_KEY, authParams.m_ServiceDiscoverUrl);
+        }
+    }
+
+    StatusCode nStatusCode = pHttpClient->Get(sUrl, response, cancelState);
+
+    // this must be an authenticated endpoint and we must get a 401
+    // (unauthorized).
+    // Otherwise, there is something wrong with the server
+    if (StatusCode::UNAUTHORIZED != nStatusCode)
+    {
+        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+    }
+
+    try
+    {
+        // the challenge must be in WWW-Authenticate header
+        auto header = pHttpClient->GetResponseHeader("WWW-Authenticate");
+        return ParseChallengeHeader(header, sUrl);
+    }
+    catch (exceptions::RMSException)
+    {
+        // if couldn't find the header or couldn't parse it, that means the server
+        // returned an invalid response.
+        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+    }
+}
+
 
 // trims the specified characters
 static string TrimString(const string& str, const char *sCharacters)
 {
-  auto iFirst = str.find_first_not_of(sCharacters);
+    auto iFirst = str.find_first_not_of(sCharacters);
 
-  if (string::npos == iFirst)
-  {
-    return string();
-  }
+    if (string::npos == iFirst)
+    {
+        return string();
+    }
 
-  auto iLast = str.find_last_not_of(sCharacters);
+    auto iLast = str.find_last_not_of(sCharacters);
 
-  if (string::npos == iLast)
-  {
-    return string();
-  }
+    if (string::npos == iLast)
+    {
+        return string();
+    }
 
-  return str.substr(iFirst, iLast - iFirst + 1);
+    return str.substr(iFirst, iLast - iFirst + 1);
 }
 
 // trims whitespace
 static string TrimWhiteSpace(const string& str)
 {
-  const char sWhiteSpaceCharacters[] = " \t\r\n";
+    const char sWhiteSpaceCharacters[] = " \t\r\n";
 
-  return TrimString(str, sWhiteSpaceCharacters);
+    return TrimString(str, sWhiteSpaceCharacters);
 }
 
 // splits the string by the specified delimiter
 static vector<string>SplitString(const string& str, char wDelimiter)
 {
-  vector<string> result;
+    vector<string> result;
 
-  size_t nPosition = 0;
+    size_t nPosition = 0;
 
-  while (nPosition < str.size())
-  {
-    auto nDelimiterPosition = str.find(wDelimiter, nPosition);
-
-    if (string::npos == nDelimiterPosition)
+    while (nPosition < str.size())
     {
-      result.push_back(str.substr(nPosition));
-      break;
-    }
-    else
-    {
-      result.push_back(str.substr(nPosition, nDelimiterPosition - nPosition));
-      nPosition = nDelimiterPosition + 1;
-    }
-  }
+        auto nDelimiterPosition = str.find(wDelimiter, nPosition);
 
-  return result;
+        if (string::npos == nDelimiterPosition)
+        {
+            result.push_back(str.substr(nPosition));
+            break;
+        }
+        else
+        {
+            result.push_back(str.substr(nPosition, nDelimiterPosition - nPosition));
+            nPosition = nDelimiterPosition + 1;
+        }
+    }
+
+    return result;
 }
 
 // parses a name=value pair
 static pair<string, string>ParseNameValuePair(const string& str)
 {
-  auto split = SplitString(str, L'=');
+    auto split = SplitString(str, L'=');
 
-  if (2 == split.size())
-  {
-    // trim whitespace and double quotes from both name and value
-    return make_pair(
-      TrimString(TrimWhiteSpace(split[0]), "\""),
-      TrimString(TrimWhiteSpace(split[1]), "\""));
-  }
-  else
-  {
+    if (2 == split.size())
+    {
+        // trim whitespace and double quotes from both name and value
+        return make_pair(TrimString(TrimWhiteSpace(split[0]), "\""), TrimString(TrimWhiteSpace(split[1]), "\""));
+    }
+    else
+    {
     // not a valid name and value pair so return empty
-    return make_pair(string(), string());
-  }
+        return make_pair(string(), string());
+    }
 }
 
 // parses name=value pairs delimited by ','
 static vector<pair<string, string> >ParseNameValuePairList(const string& str)
 {
-  auto split = SplitString(str, L',');
+    auto split = SplitString(str, L',');
 
-  vector<pair<string, string> > pairs;
+    vector<pair<string, string> > pairs;
 
-  for_each(begin(split), end(split),
-           [&pairs](const string& str)
-      {
+    for_each(begin(split), end(split), [&pairs](const string& str)
+    {
         auto pair = ParseNameValuePair(str);
-
         if (!pair.first.empty())
         {
           pairs.push_back(move(pair));
         }
-      });
+    });
 
-  return move(pairs);
+    return move(pairs);
 }
 
 // validates that the string starts with the prefix and trims the prefix
 static string ValidateAndTrimStringPrefix(const string& str,
                                           const string& prefix)
 {
-  if (0 == _strnicmp(prefix.c_str(), str.c_str(), prefix.size()))
-  {
-    return str.substr(prefix.size());
-  }
-  else
-  {
-    return string();
-  }
+    if (0 == _strnicmp(prefix.c_str(), str.c_str(), prefix.size()))
+    {
+        return str.substr(prefix.size());
+    }
+    else
+    {
+        return string();
+    }
 }
 
-AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(
-  const string& header,
-  const string& url)
+AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string& header,
+                                                                    const string& url)
 {
-  // verify that this is a bearer challenge (i.e., starts with "Bearer ")
-  auto trimmed = ValidateAndTrimStringPrefix(header, "Bearer ");
+    // verify that this is a bearer challenge (i.e., starts with "Bearer ")
+    auto trimmed = ValidateAndTrimStringPrefix(header, "Bearer ");
 
-  if (trimmed.empty())
-  {
-    throw exceptions::RMSNetworkException("Challenge is not bearer",
-                                          exceptions::RMSNetworkException::ServerError);
-  }
+    if (trimmed.empty())
+    {
+        throw exceptions::RMSNetworkException("Challenge is not bearer", exceptions::RMSNetworkException::ServerError);
+    }
 
+    // parse name value pairs
+    auto pairs = ParseNameValuePairList(trimmed);
 
-  // parse name value pairs
-  auto pairs = ParseNameValuePairList(trimmed);
+    AuthenticationChallenge challenge;
 
-  AuthenticationChallenge challenge;
+    // find the values of authorization_uri (authorization), realm and scope and
+    // fill out the challenge struct
+    std::string sResource;
+    std::string sRealm;
+    std::string sScope;
 
-  // find the values of authorization_uri (authorization), realm and scope and
-  // fill out the challenge struct
-  for_each(begin(pairs), end(pairs),
-           [&challenge](const pair<string, string>& p)
-      {
-        if ((0 ==
-             _strcmpi("authorization_uri",
-                      p.first.c_str())) ||
+    for_each(begin(pairs), end(pairs), [&challenge, &sResource, &sRealm, &sScope](const pair<string, string>& p)
+    {
+        if ((0 ==_strcmpi("authorization_uri", p.first.c_str())) ||
             (0 == _strcmpi("authorization", p.first.c_str())))
         {
-          challenge.authority = p.second;
+            challenge.authority = p.second;
         }
         else if (0 == _strcmpi("realm", p.first.c_str()))
         {
-          challenge.resource = p.second;
+            sRealm = p.second;
+        }
+        else if (0 == _strcmpi("resource", p.first.c_str()))
+        {
+            sResource = p.second;
         }
         else if (0 == _strcmpi("scope", p.first.c_str()))
         {
-          challenge.scope = p.second;
+            sScope = p.second;
         }
-      });
+    });
 
-  if (challenge.authority.empty()) {
-    throw exceptions::RMSNetworkException(
-            "Invalid challenge returned by the server.",
-            exceptions::RMSNetworkException::ServerError);
-  }
-
-  // if the resource (realm) is not in the header, use the source url's hostname
-  // with the port
-  if (challenge.resource.empty())
-  {
-    auto uri = IUri::Create(url);
-
-    // validate the scheme (should be either http or https)
-    auto scheme = uri->GetScheme();
-
-    if ((scheme.compare("http") != 0) && (scheme.compare("https") != 0))
+    if ((core::FeatureControl::IsEvoEnabled()) &&
+        (!sResource.empty()))
     {
-      throw exceptions::RMSNetworkException("Invalid scheme",
-                                            exceptions::RMSNetworkException::ServerError);
+        // In Evo challenge Resource key is expected.
+        challenge.resource = sResource;
+        challenge.scope = sRealm;
+    }
+    else
+    {
+        // Backwards compatibility with non - evo endpoints
+        challenge.resource = sRealm;
+        challenge.scope = sScope;
     }
 
-    challenge.resource = uri->GetHost();
+    if (challenge.authority.empty())
+    {
+        throw exceptions::RMSNetworkException("Invalid challenge returned by the server.",
+            exceptions::RMSNetworkException::ServerError);
+    }
+
+    // if the resource (realm) is not in the header, use the source url's hostname
+    // with the port.
+    if (challenge.resource.empty())
+    {
+        auto uri = IUri::Create(url);
+
+        // validate the scheme (should be either http or https)
+        auto scheme = uri->GetScheme();
+
+        if ((scheme.compare("http") != 0) && (scheme.compare("https") != 0))
+        {
+            throw exceptions::RMSNetworkException("Invalid scheme", exceptions::RMSNetworkException::ServerError);
+        }
+
+        challenge.resource = uri->GetHost();
 
     // if the port number is not in the hostname add it
-    if (string::npos == challenge.resource.find(L':'))
-    {
-      char sPort[20];
- #ifdef __GNUC__
-      snprintf(sPort, sizeof(sPort), "%d", uri->GetPort());
+        if (string::npos == challenge.resource.find(L':'))
+        {
+            char sPort[20];
+#ifdef __GNUC__
+            snprintf(sPort, sizeof(sPort), "%d", uri->GetPort());
 #else // ifdef __GNUC__
-      _snprintf_s(sPort, sizeof(sPort), "%d", uri->GetPort());
+            _snprintf_s(sPort, sizeof(sPort), "%d", uri->GetPort());
 #endif // ifdef __GNUC__
-      challenge.resource += ":";
-      challenge.resource += sPort;
+            challenge.resource += ":";
+            challenge.resource += sPort;
+        }
     }
-  }
-
-  return challenge;
+    return challenge;
 }
+
 } // namespace restclients
 } // namespace rmscore

@@ -66,7 +66,8 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
 
   shared_ptr<ICryptoProvider> cp;
 
-  try {
+  try
+  {
     header  = headerReader->Read(stream);
     pHeader = header.get();
     Logger::Hidden(
@@ -76,7 +77,9 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
       pHeader->GetFileExtension().c_str(),
       pHeader->GetContentStartPosition(),
       pHeader->GetOriginalFileSize());
-  } catch (exceptions::RMSException& e) {
+  }
+  catch (exceptions::RMSException& e)
+  {
     if ((e.error() != exceptions::RMSException::PFileError) ||
         (static_cast<exceptions::RMSPFileException&>(e).reason() !=
          exceptions::RMSPFileException::NotPFile))
@@ -84,8 +87,9 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
       throw;
     }
   }
-  if (pHeader != nullptr) {
-    vector<uint8_t> publishingLicense = pHeader->GetPublishingLicense();
+  if (pHeader != nullptr)
+  {
+    ByteArray publishingLicense = pHeader->GetPublishingLicense();
     auto policyRequest          = UserPolicy::Acquire(publishingLicense,
                                                       userId,
                                                       authenticationCallback,
@@ -95,7 +99,8 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
                                                       cancelState);
 
     if ((policyRequest->Status == GetUserPolicyResultStatus::Success) &&
-        (policyRequest->Policy != nullptr)) {
+        (policyRequest->Policy != nullptr))
+    {
       // Successfully retrieved the policy
       policy = policyRequest->Policy;
     }
@@ -144,10 +149,8 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
                                        static_cast<uint64_t>(-1), // No known
                                                                   // originalFileSize
                                        move(metadata),
-                                       static_cast<uint32_t>(2),  // Major
-                                                                  // version
-                                       static_cast<uint32_t>(1),  // Minor
-                                                                  // version
+                                       static_cast<uint32_t>(rmscore::pfile::MJVERSION_FOR_WRITING),
+                                       static_cast<uint32_t>(rmscore::pfile::MNVERSION_FOR_WRITING),
                                        CleartextRedirectHeader);
 
     headerWriter->Write(stream, pHeader);
@@ -164,7 +167,8 @@ ProtectedFileStream * ProtectedFileStream::CreateProtectedFileStream(
   shared_ptr<UserPolicy>policy,
   SharedStream          stream,
   shared_ptr<rmscore::pfile::PfileHeader>
-  header) {
+  pHeader)
+{
   // create an IStreamImpl implementation of the backing stream
   auto pBackingStreamImpl            = stream->Clone();
   uint64_t nProtectedStreamBlockSize = 4096;
@@ -173,16 +177,15 @@ ProtectedFileStream * ProtectedFileStream::CreateProtectedFileStream(
   ulong  contentStartPosition                 = 0;
   string fileExtension;
 
-  // Disallow deprecated algorithms
-  // There is no value in encrypting PFILEs in ECB mode, So treat the
-  // deprecated flags for PFILEs as CBC4K mode
-  // Check if deprecated flag is set, if yes - create a new crypto provider.
-  if (policy->DoesUseDeprecatedAlgorithms()) {
-    pCryptoProvider = CreateCryptoProvider(CipherMode::CIPHER_MODE_CBC4K,
-                                           policy->GetImpl()->GetCryptoProvider()->GetKey());
-  } else {
-    pCryptoProvider = policy->GetImpl()->GetCryptoProvider();
+  auto protectionPolicy = policy->GetImpl();
+  if ((rmscrypto::api::CipherMode::CIPHER_MODE_ECB  == protectionPolicy->GetCipherMode()) &&
+      (pHeader->GetMajorVersion() <= rmscore::pfile::MaxMajorVerionsCBC4KIsForced))
+  {
+    // Older versions of the SDK ignored ECB cipher mode when encrypting pfile format.
+    protectionPolicy->ReinitilizeCryptoProvider(rmscrypto::api::CipherMode::CIPHER_MODE_CBC4K);
   }
+
+  pCryptoProvider = policy->GetImpl()->GetCryptoProvider();
 
   // We want the cache block size to be 512 for cbc512, 4096 for cbc4k
   // In case of ECB blocksize is 16, Keep cache block size to be 4k.
@@ -196,8 +199,8 @@ ProtectedFileStream * ProtectedFileStream::CreateProtectedFileStream(
       pCryptoProvider->GetBlockSize()) throw exceptions::RMSStreamException(
             "Invalid block size");
 
-  contentStartPosition = header->GetContentStartPosition();
-  fileExtension        = header->GetFileExtension();
+  contentStartPosition = pHeader->GetContentStartPosition();
+  fileExtension        = pHeader->GetFileExtension();
 
   auto pProtectedStreamImpl = BlockBasedProtectedStream::Create(pCryptoProvider,
                                                                 pBackingStreamImpl,
@@ -206,8 +209,7 @@ ProtectedFileStream * ProtectedFileStream::CreateProtectedFileStream(
                                                                 contentStartPosition,
                                                                 nProtectedStreamBlockSize);
 
-  return new ProtectedFileStream(pProtectedStreamImpl, policy,
-                                 fileExtension);
+  return new ProtectedFileStream(pProtectedStreamImpl, policy, fileExtension);
 }
 
 shared_future<int64_t>ProtectedFileStream::ReadAsync(uint8_t    *pbBuffer,

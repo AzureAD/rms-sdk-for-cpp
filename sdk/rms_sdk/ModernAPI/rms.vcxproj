@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3293B9B2-78C2-3B6D-991F-C27A9EE51DB2}</ProjectGuid>
+    <RootNamespace>rms</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <PlatformToolSet>v140</PlatformToolSet>
+    <OutputDirectory>..\..\..\bin\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>rms</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <PlatformToolSet>v140</PlatformToolSet>
+    <OutputDirectory>..\..\..\bin\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>rmsd</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rms</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rmsd</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..\..\rmscrypto_sdk\CryptoAPI;..\..\..\third_party\include;$(QTDIR)\include;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;release;$(QTDIR)\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMS_LIBRARY;QT_NO_DEBUG;QT_PLUGIN;QT_XML_LIB;QT_XMLPATTERNS_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>modprotectedfile.lib;modcore.lib;modrestclients.lib;modconsent.lib;modcommon.lib;modjson.lib;platformhttp.lib;platformlogger.lib;platformxml.lib;platformjson.lib;platformfilesystem.lib;platformsettings.lib;rmscrypto.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\third_party\lib\eay\ssleay32.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\third_party\lib\eay\libeay32.lib;Gdi32.lib;User32.lib;Advapi32.lib;$(QTDIR)\lib\Qt5Xml.lib;$(QTDIR)\lib\Qt5XmlPatterns.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\third_party\lib\eay;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkDLL>true</LinkDLL>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\rms.dll</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMS_LIBRARY;QT_NO_DEBUG;QT_PLUGIN;QT_XML_LIB;QT_XMLPATTERNS_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..\..\rmscrypto_sdk\CryptoAPI;..\..\..\third_party\include;$(QTDIR)\include;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;debug;$(QTDIR)\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMS_LIBRARY;QT_PLUGIN;QT_XML_LIB;QT_XMLPATTERNS_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\modprotectedfiled.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\modcored.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\modrestclientsd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\modconsentd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\modcommond.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\modjsond.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform\platformhttpd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform\platformloggerd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform\platformxmld.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform\platformjsond.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform\platformfilesystemd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform\platformsettingsd.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rmscryptod.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\third_party\lib\eay\ssleay32.lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\third_party\lib\eay\libeay32.lib;Gdi32.lib;User32.lib;Advapi32.lib;$(QTDIR)\lib\Qt5Xmld.lib;$(QTDIR)\lib\Qt5XmlPatternsd.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\bin\rms\platform;C:\Users\t-joanto\sdk_update\rms-sdk-for-cpp\third_party\lib\eay;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkDLL>true</LinkDLL>
+      <OutputFile>$(OutDir)\rmsd.dll</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;RMS_LIBRARY;QT_PLUGIN;QT_XML_LIB;QT_XMLPATTERNS_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ConsentCallbackImpl.cpp" />
+    <ClCompile Include="CustomProtectedStream.cpp" />
+    <ClCompile Include="HttpHelper.cpp" />
+    <ClCompile Include="IRMSEnvironment.cpp" />
+    <ClCompile Include="PolicyDescriptor.cpp" />
+    <ClCompile Include="ProtectedFileStream.cpp" />
+    <ClCompile Include="ext\QTStreamImpl.cpp" />
+    <ClCompile Include="TemplateDescriptor.cpp" />
+    <ClCompile Include="UserPolicy.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AuthenticationCallbackImpl.h" />
+    <ClInclude Include="AuthenticationParameters.h" />
+    <ClInclude Include="CacheControl.h" />
+    <ClInclude Include="ConsentCallbackImpl.h" />
+    <ClInclude Include="ConsentResult.h" />
+    <ClInclude Include="ConsentType.h" />
+    <ClInclude Include="CustomProtectedStream.h" />
+    <ClInclude Include="HttpHelper.h" />
+    <ClInclude Include="IAuthenticationCallback.h" />
+    <ClInclude Include="IAuthenticationCallbackImpl.h" />
+    <ClInclude Include="IConsent.h" />
+    <ClInclude Include="IConsentCallback.h" />
+    <ClInclude Include="IConsentCallbackImpl.h" />
+    <ClInclude Include="IRMSEnvironment.h" />
+    <ClInclude Include="ModernAPIExport.h" />
+    <ClInclude Include="PolicyDescriptor.h" />
+    <ClInclude Include="ProtectedFileStream.h" />
+    <ClInclude Include="ext\QTStreamImpl.h" />
+    <ClInclude Include="RMSExceptions.h" />
+    <ClInclude Include="Roles.h" />
+    <ClInclude Include="TemplateDescriptor.h" />
+    <ClInclude Include="UserPolicy.h" />
+    <ClInclude Include="UserRights.h" />
+    <ClInclude Include="UserRoles.h" />
+    <ClInclude Include="rights.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_Win32="5.7" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

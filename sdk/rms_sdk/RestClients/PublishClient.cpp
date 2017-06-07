@@ -5,6 +5,7 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
  */
+
 #include <openssl/rand.h>
 #include "PublishClient.h"
 #include "RestClientCache.h"
@@ -37,6 +38,7 @@ using namespace rmscrypto::api;
 
 namespace rmscore {
 namespace restclients {
+
 const static string CLCCacheName = "CLC";
 const static string CLCCacheTag = "CLIENT_LICENSOR_CERTIFICATES_UR";
 
@@ -49,21 +51,11 @@ PublishResponse PublishClient::PublishUsingTemplate(
   auto pJsonSerializer   = IJsonSerializer::Create();
   auto serializedRequest = pJsonSerializer->SerializePublishUsingTemplateRequest(
     request);
-
   return PublishCommon(move(
                          serializedRequest), authenticationCallback, sEmail,
                        cancelState);
 }
 
-PublishResponse PublishClient::LocalPublishUsingTemplate(
-  const PublishUsingTemplateRequest     & request,
-  modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                       sEmail,
-  std::shared_ptr<std::atomic<bool> >     cancelState,
-  const std::function<std::string(std::string, std::string&)>& getCLCCallback)
-{
-    return LocalPublishCommon(false, (void*)(&request), sizeof request, authenticationCallback, sEmail, cancelState, getCLCCallback);
-}
 
 PublishResponse PublishClient::PublishCustom(
   const PublishCustomRequest            & request,
@@ -80,93 +72,8 @@ PublishResponse PublishClient::PublishCustom(
                        cancelState);
 }
 
-PublishResponse PublishClient::LocalPublishCustom(
-  const PublishCustomRequest            & request,
-  modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-  const std::string                       sEmail,
-  std::shared_ptr<std::atomic<bool> >     cancelState,
-  const std::function<std::string(std::string, std::string&)>& getCLCCallback)
-{
-    return LocalPublishCommon(true, (void*)(&request), sizeof request, authenticationCallback, sEmail, cancelState, getCLCCallback);
-}
-
-PublishResponse PublishClient::LocalPublishCommon(bool isAdhoc,
-  void *_request,
-  size_t cbRequest,
-  modernapi::IAuthenticationCallbackImpl &authenticationCallback,
-  const string &sEmail,
-  std::shared_ptr<std::atomic<bool> > cancelState,
-  const std::function<string(string, string &)> &getCLCCallback)
-{
-    //determines which request to use
-    PublishCustomRequest publishCustomRequest(false, false);
-    PublishUsingTemplateRequest publishUsingTemplateRequest;
-    if (isAdhoc)
-    {
-        if (cbRequest != sizeof publishCustomRequest)
-            throw exceptions::RMSInvalidArgumentException("Request size did not match given size.");
-        publishCustomRequest = *((PublishCustomRequest*)_request);
-    }
-    else
-    {
-        if (cbRequest != sizeof publishUsingTemplateRequest)
-            throw exceptions::RMSInvalidArgumentException("Request size did not match given size.");
-        publishUsingTemplateRequest = *((PublishUsingTemplateRequest*)_request);
-    }
-    auto signedAppData = isAdhoc ? publishCustomRequest.signedApplicationData : publishUsingTemplateRequest.signedApplicationData;
-    auto preferDeprecatedAlgs = isAdhoc ? publishCustomRequest.bPreferDeprecatedAlgorithms : publishUsingTemplateRequest.bPreferDeprecatedAlgorithms;
-
-    auto pPayload = IJsonObject::Create();
-
-    string clcPubData;
-    shared_ptr<IJsonObject> pCLC;
-    try
-    {
-        //check if we entirely failed to get a CLC.
-        //this should only occur for onprem use cases.
-        //if it does occur, we will use the old online publishing flow.
-        pCLC = CreateCLC(clcPubData, getCLCCallback, sEmail, authenticationCallback, cancelState);
-    }
-    catch (exceptions::RMSEndpointNotFoundException)
-    {
-        return isAdhoc ? PublishCustom(publishCustomRequest, authenticationCallback, sEmail, cancelState) :
-                         PublishUsingTemplate(publishUsingTemplateRequest, authenticationCallback, sEmail, cancelState);
-    }
-    auto pCLCPld = pCLC->GetNamedObject(JsonConstants::PAYLOAD);
-
-    auto em = pCLCPld->GetNamedObject(JsonConstants::PUBLIC_DATA)->GetNamedObject(JsonConstants::PAYLOAD)->GetNamedObject(JsonConstants::ISSUED_TO)->GetNamedString(JsonConstants::EMAIL);
-
-    RSAInit(pCLC);
-
-    SetHeader(pPayload);
-
-    auto license = CreateLicense(pCLCPld, clcPubData);
-
-    if (signedAppData.size() > 0)
-        license->SetNamedObject(JsonConstants::SIGNED_APPLICATION_DATA, *(CreateSignedAppData(signedAppData)));
-
-    CipherMode cm = preferDeprecatedAlgs ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
-
-    vector<uint8_t> sessionkey;
-    auto contentkey = SetSessionKey(license, preferDeprecatedAlgs, sessionkey);
-
-    //encrypted policy
-    shared_ptr<IJsonObject> pEncryptedPolicy;
-    if (isAdhoc)
-        pEncryptedPolicy = CreatePolicyAdhoc(publishCustomRequest, em);
-    else
-        pEncryptedPolicy = CreatePolicyTemplate(publishUsingTemplateRequest, em);
-    license->SetNamedValue(JsonConstants::ENCRYPTED_POLICY, EncryptBytesToBase64(pEncryptedPolicy->Stringify(), sessionkey, cm));
-
-    pPayload->SetNamedObject(JsonConstants::LICENSE, *license);
-
-    auto vFinal = SignPayload(pPayload->Stringify());
-
-    return CreateResponse(vFinal, signedAppData, cm, contentkey, em);
-}
-
 PublishResponse PublishClient::PublishCommon(
-  vector<uint8_t>                    && requestBody,
+  common::ByteArray                    && requestBody,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   const std::string                     & sEmail,
   std::shared_ptr<std::atomic<bool> >     cancelState)
@@ -201,6 +108,109 @@ PublishResponse PublishClient::PublishCommon(
   }
 }
 
+PublishResponse PublishClient::LocalPublishUsingTemplate(
+  const PublishUsingTemplateRequest     & request,
+  modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+  const std::string                       sEmail,
+  std::shared_ptr<std::atomic<bool> >     cancelState,
+  const std::function<std::string(std::string, std::string&)>& getCLCCallback)
+{
+    //return PublishResponse();
+    return LocalPublishCommon(false, (void*)(&request), sizeof request, authenticationCallback, sEmail, cancelState, getCLCCallback);
+}
+
+PublishResponse PublishClient::LocalPublishCustom(
+  const PublishCustomRequest            & request,
+  modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+  const std::string                       sEmail,
+  std::shared_ptr<std::atomic<bool> >     cancelState,
+  const std::function<std::string(std::string, std::string&)>& getCLCCallback)
+{
+    return LocalPublishCommon(true, (void*)(&request), sizeof request, authenticationCallback, sEmail, cancelState, getCLCCallback);
+}
+
+
+PublishResponse PublishClient::LocalPublishCommon(bool isAdhoc,
+  void *_request,
+  size_t cbRequest,
+  modernapi::IAuthenticationCallbackImpl &authenticationCallback,
+  const string &sEmail,
+  std::shared_ptr<std::atomic<bool> > cancelState,
+  const std::function<string(string, string &)> &getCLCCallback)
+{
+
+    //determines which request to use
+    PublishUsingTemplateRequest publishUsingTemplateRequest;
+
+
+    PublishCustomRequest publishCustomRequest(false, false);
+
+    if (isAdhoc)
+    {
+        if (cbRequest != sizeof publishCustomRequest)
+            throw exceptions::RMSInvalidArgumentException("Request size did not match given size.");
+        publishCustomRequest = *((PublishCustomRequest*)_request);
+    }
+    else
+    {
+        if (cbRequest != sizeof publishUsingTemplateRequest)
+            throw exceptions::RMSInvalidArgumentException("Request size did not match given size.");
+        publishUsingTemplateRequest = *((PublishUsingTemplateRequest*)_request);
+    }
+
+    auto signedAppData = isAdhoc ? publishCustomRequest.signedApplicationData : publishUsingTemplateRequest.signedApplicationData;
+    auto preferDeprecatedAlgs = isAdhoc ? publishCustomRequest.bPreferDeprecatedAlgorithms : publishUsingTemplateRequest.bPreferDeprecatedAlgorithms;
+
+    auto pPayload = IJsonObject::Create();
+
+    string clcPubData;
+    shared_ptr<IJsonObject> pCLC;
+
+    try
+    {
+        //check if we entirely failed to get a CLC.
+        //this should only occur for onprem use cases.
+        //if it does occur, we will use the old online publishing flow.
+        pCLC = CreateCLC(clcPubData, getCLCCallback, sEmail, authenticationCallback, cancelState);
+    }
+    catch (exceptions::RMSEndpointNotFoundException)
+    {
+        return isAdhoc ? PublishCustom(publishCustomRequest, authenticationCallback, sEmail, cancelState) :
+                         PublishUsingTemplate(publishUsingTemplateRequest, authenticationCallback, sEmail, cancelState);
+    }
+    auto pCLCPld = pCLC->GetNamedObject(JsonConstants::PAYLOAD);
+
+    auto em = pCLCPld->GetNamedObject(JsonConstants::PUBLIC_DATA)->GetNamedObject(JsonConstants::PAYLOAD)->GetNamedObject(JsonConstants::ISSUED_TO)->GetNamedString(JsonConstants::EMAIL);
+
+    RSAInit(pCLC);
+
+    SetHeader(pPayload);
+
+    auto license = CreateLicense(pCLCPld, clcPubData);
+
+
+    if (signedAppData.size() > 0)
+        license->SetNamedObject(JsonConstants::SIGNED_APPLICATION_DATA, *(CreateSignedAppData(signedAppData)));
+
+    CipherMode cm = preferDeprecatedAlgs ? CIPHER_MODE_ECB : CIPHER_MODE_CBC4K;
+    vector<uint8_t> sessionkey;
+    auto contentkey = SetSessionKey(license, preferDeprecatedAlgs, sessionkey);
+
+    //encrypted policy
+    shared_ptr<IJsonObject> pEncryptedPolicy;
+    if (isAdhoc)
+        pEncryptedPolicy = CreatePolicyAdhoc(publishCustomRequest, em);
+    else
+        pEncryptedPolicy = CreatePolicyTemplate(publishUsingTemplateRequest, em);
+    license->SetNamedValue(JsonConstants::ENCRYPTED_POLICY, EncryptBytesToBase64(pEncryptedPolicy->Stringify(), sessionkey, cm));
+    pPayload->SetNamedObject(JsonConstants::LICENSE, *license);
+
+   auto vFinal = SignPayload(pPayload->Stringify());
+
+    auto result = CreateResponse(vFinal, signedAppData, cm, contentkey, em);
+    return result;
+}
+
 shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCache> cache, const std::string& email)
 {
     shared_ptr<CLCCacheResult> result;
@@ -214,12 +224,18 @@ shared_ptr<CLCCacheResult> PublishClient::GetCLCCache(shared_ptr<IRestClientCach
 shared_ptr<IJsonObject> PublishClient::CreateCLC(
   string &outClcPubData,
   const std::function<std::string(std::string, std::string&)>& getCLCCallback,
-  string sEmail,
+  const string sEmail,
   modernapi::IAuthenticationCallbackImpl& authenticationCallback,
   shared_ptr<atomic<bool>> cancelState)
 {
-    string sCLC = getCLCCallback == nullptr ? RetrieveCLC(sEmail, authenticationCallback, cancelState, outClcPubData) : sCLC = getCLCCallback(sEmail, outClcPubData);
-    return IJsonParser::Create()->Parse(vector<uint8_t>(sCLC.begin(), sCLC.end()));
+    string sCLC;
+    if(getCLCCallback == nullptr){
+        sCLC = RetrieveCLC(sEmail, authenticationCallback, cancelState, outClcPubData);
+    }else{
+        sCLC = getCLCCallback(sEmail, outClcPubData);
+    }
+    auto result = IJsonParser::Create()->Parse(vector<uint8_t>(sCLC.begin(), sCLC.end()));
+    return result;
 }
 
 PublishResponse PublishClient::CreateResponse(std::vector<uint8_t> licenseNoBOM, modernapi::AppDataHashMap signedAppData, CipherMode cm, std::vector<uint8_t> contentkey, string ownerName)
@@ -323,7 +339,7 @@ void PublishClient::RSAInit(shared_ptr<IJsonObject> pClc)
 
     auto e = pubk->GetNamedValue(JsonConstants::PUBLIC_EXPONENT);
 
-    rsaKeyBlob = ICryptoEngine::Create()->CreateRSAKeyBlob(d, e, n, true); //set to false to skip key verification check
+    rsaKeyBlob = CreateCryptoEngine()->CreateRSAKeyBlob(d, e, n, true); //set to false to skip key verification check
 }
 
 vector<uint8_t> PublishClient::SetSessionKey(shared_ptr<IJsonObject> pLicense, bool prefDeprecatedAlgs, vector<uint8_t>& outSK)
@@ -363,7 +379,6 @@ vector<uint8_t> PublishClient::SignPayload(std::vector<uint8_t> pld)
 {
     size_t size;
     auto toHash = Reformat(pld, 1);
-
     string sToHash(toHash.begin(), toHash.end());
     auto digest = common::HashString(toHash, &size, false);
     toHash = Escape(toHash);
@@ -372,8 +387,9 @@ vector<uint8_t> PublishClient::SignPayload(std::vector<uint8_t> pld)
     uint32_t retSize;
     auto _signed = rsaKeyBlob->Sign(digest, retSize);
     string errmsg;
-    if (!rsaKeyBlob->VerifySignature(_signed, digest, errmsg, retSize))
+    if (!rsaKeyBlob->VerifySignature(_signed, digest, errmsg, retSize)){
         throw exceptions::RMSCryptographyException("Could not verify payload signature: " + errmsg);
+    }
 
     auto b64 = common::ConvertBytesToBase64(_signed);
 
@@ -433,13 +449,12 @@ vector<uint8_t> PublishClient::Reformat(vector<uint8_t> source, int currentlevel
     else
     {
         ret = common::ReplaceString(ret, R"("{\"pld\":)", R"({"pld":")");
-        auto pos = ret.find(R"(\"sig\")");
-        if (pos == std::string::npos)
+        auto pos = ret.find(R"(\\\"sig\\\")");
+        if (pos == std::string::npos){
             throw exceptions::RMSInvalidArgumentException("source");
-
+        }
         string final = ret.substr(0, pos - 1);
         final += R"(",)";
-
         bool end = false;
         uint32_t it = pos;
         while (!end)

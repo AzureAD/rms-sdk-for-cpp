@@ -46,13 +46,11 @@ AuthCallback::AuthCallback(const string& clientId, const string& redirectUrl)
   FileCachePtr = make_shared<FileCache>();
 }
 
-string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
-  string redirect =
-    ap->Scope().empty() ? redirectUrl_ : ap->Scope();
-
+string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap)
+{
   try
   {
-    if (redirect.empty()) {
+    if (redirectUrl_.empty()) {
       throw rmscore::exceptions::RMSInvalidArgumentException(
               "redirect Url is empty");
     }
@@ -65,7 +63,8 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap) {
       ap->Authority(), AuthorityValidationType::False, FileCachePtr);
 
     auto result = authContext.acquireToken(ap->Resource(),
-                                           clientId_, redirect,
+                                           clientId_,
+                                           redirectUrl_,
                                            PromptBehavior::Auto,
                                            ap->UserId());
     return result->accessToken();
@@ -545,7 +544,18 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
   auto pos = fileIn.find_last_of('.');
 
   if (pos != string::npos) {
-    fileOut = fileIn.substr(0, pos);
+      string ext = fileIn.substr(pos);
+      if(ext.compare(".pfile") == 0){
+          fileOut = fileIn.substr(0, pos);
+      } else {
+          auto ppos = ext.find_first_of('p');
+          if (ppos != string::npos) {
+            fileOut = fileIn.substr(0, pos) + "." + ext.substr(ppos + 1);
+          }
+          else{
+              fileOut = fileIn;
+          }
+      }
   }
 
   // create streams
@@ -647,7 +657,7 @@ vector<UserRights>MainWindow::openRightsDlg() {
     rmscore::modernapi::RightList rights;
     QString tmpStr;
 
-    for (int col = 0; col < 6; ++col) {
+    for (int col = 0, colMax = model.columnCount(); col < colMax; ++col) {
       QStandardItem *item = model.item(row, col);
 
       if (item == nullptr) continue;
@@ -659,7 +669,9 @@ vector<UserRights>MainWindow::openRightsDlg() {
           users.push_back(tmpStr.toStdString());
         }
       } else {
-        rights.push_back(columnsNames[col].toStdString());
+        if(item->checkState() == Qt::CheckState::Checked) {
+          rights.push_back(columnsNames[col].toStdString());
+        }
       }
     }
 

@@ -8,6 +8,7 @@
 
 #ifndef _RMS_LIB_PUBLISHCLIENT_H_
 #define _RMS_LIB_PUBLISHCLIENT_H_
+
 #include "IPublishClient.h"
 #include "CLCCacheResult.h"
 #include "RestClientCache.h"
@@ -23,50 +24,60 @@ using namespace rmscore::platform::json;
 
 namespace rmscore {
 namespace restclients {
-
-class OfflinePublishTest;
-
 class PublishClient : public IPublishClient {
 public:
-  virtual PublishResponse LocalPublishUsingTemplate(
+
+  virtual PublishResponse PublishUsingTemplate(
     const PublishUsingTemplateRequest     & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState,
-   const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
+    std::shared_ptr<std::atomic<bool> >     cancelState)
   override;
-
-  virtual PublishResponse LocalPublishCustom(
+  virtual PublishResponse PublishCustom(
     const PublishCustomRequest            & request,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState,
-    const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
+    std::shared_ptr<std::atomic<bool> >     cancelState)
   override;
 
-  friend class OfflinePublishTest;
+    //Offline Publishing Stuff
+    virtual PublishResponse LocalPublishUsingTemplate(
+        const PublishUsingTemplateRequest     & request,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        const std::string                       sEmail,
+        std::shared_ptr<std::atomic<bool> >     cancelState,
+        const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr) override;
+
+      virtual PublishResponse LocalPublishCustom(
+        const PublishCustomRequest            & request,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        const std::string                       sEmail,
+        std::shared_ptr<std::atomic<bool> >     cancelState,
+        const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr) override;
+
+      std::shared_ptr<rmscrypto::api::IRSAKeyBlob> rsaKeyBlob;
+
+      vector<uint8_t> EncryptBytesToBase64(
+              std::vector<uint8_t> bytesToEncrypt,
+              std::vector<uint8_t> key,
+              rmscrypto::api::CipherMode cm);
+
 protected:
+
   const size_t AES_KEY_SIZE = 256;
   const size_t AES_BLOCK_SIZE_BYTES = 16;
 
-  //removes escaping
   std::string Unescape(std::string source, bool skipReformat = false);
 
-  //encrypts bytes with AES encryption then converts to base64
-  vector<uint8_t> EncryptBytesToBase64(
-    std::vector<uint8_t>                         bytesToEncrypt,
-    std::vector<uint8_t>                         key,
-    rmscrypto::api::CipherMode                   cm);
+  std::shared_ptr<platform::json::IJsonArray> ConvertUserRights(const PublishCustomRequest& request);
 
-  std::shared_ptr<platform::json::IJsonArray> ConvertUserRights(
-     const PublishCustomRequest& request);
-
-  std::shared_ptr<CLCCacheResult> GetCLCCache(
-    std::shared_ptr<IRestClientCache> cache,
-    const std::string               & email);
+  std::shared_ptr<CLCCacheResult> GetCLCCache(std::shared_ptr<IRestClientCache> cache, const std::string &email);
 
   //retrives CLC from server or cache, depending on if the cache exists
-  std::string RetrieveCLC(const std::string& sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState, std::string &outClcPubData);
+  std::string RetrieveCLC(const std::string& sEmail,
+                          modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+                          std::shared_ptr<std::atomic<bool>> cancelState,
+                          std::string &outClcPubData);
 
   //fixes stray quotes and braces in stringified payload
   std::vector<uint8_t> Reformat(std::vector<uint8_t> source, int currentlevel = 2);
@@ -74,10 +85,8 @@ protected:
   //adds escaping. '\' -> '\\' '"' -> '\"'
   std::vector<uint8_t> Escape(std::vector<uint8_t> source);
 
-  std::shared_ptr<rmscrypto::api::IRSAKeyBlob> rsaKeyBlob;
-
   //creates and returns CLC as JsonObject. provide getCLCCallback only for testing purposes
-  std::shared_ptr<IJsonObject> CreateCLC(std::string& outClcPubData, const std::function<std::string(std::string, std::string&)>& getCLCCallback, std::string sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState);
+  std::shared_ptr<IJsonObject> CreateCLC(std::string& outClcPubData, const std::function<std::string(const std::string, std::string&)>& getCLCCallback, const std::string sEmail, modernapi::IAuthenticationCallbackImpl& authenticationCallback, std::shared_ptr<std::atomic<bool>> cancelState);
 
   //creates and returns License as JsonObject
   std::shared_ptr<IJsonObject> CreateLicense(std::shared_ptr<IJsonObject> clcPayload, std::string clcPubData);
@@ -113,21 +122,13 @@ protected:
     std::shared_ptr<std::atomic<bool> >     cancelState,
     const std::function<std::string(std::string, std::string&)>& getCLCCallback);
 
-  //LEGACY
+
+private:
+
   PublishResponse PublishCommon(
-    vector<uint8_t>                    && requestBody,
+    common::ByteArray                    && requestBody,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string                     & sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState);
-  PublishResponse PublishCustom(
-    const PublishCustomRequest            & request,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       sEmail,
-    std::shared_ptr<std::atomic<bool> >     cancelState);
-  PublishResponse PublishUsingTemplate(
-    const PublishUsingTemplateRequest     & request,
-    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-    const std::string                       sEmail,
     std::shared_ptr<std::atomic<bool> >     cancelState);
 };
 } // namespace restclients

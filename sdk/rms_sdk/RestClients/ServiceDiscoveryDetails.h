@@ -31,6 +31,7 @@ struct ServiceDiscoveryDetails
 
   //sdk 4.3 endpoints
   std::string ClientLicensorCertificatesUrl;
+  std::string OriginalInput;
 };
 
 } // namespace restclients

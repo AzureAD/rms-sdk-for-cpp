@@ -211,12 +211,14 @@ public:
                   const modernapi::AppDataHashMap& encryptedData =
                     modernapi::AppDataHashMap());
 
-  void        InitializeValidityTime(
+  void InitializeValidityTime(
     const std::chrono::time_point<std::chrono::system_clock>& ftContentValidUntil);
-  void        InitializeIntervalTime(
+  void InitializeIntervalTime(
     const std::chrono::time_point<std::chrono::system_clock>& ftLicenseValidUntil);
 
-  void        InitializeKey(restclients::KeyDetailsResponse& response);
+  void InitializeKey(restclients::KeyDetailsResponse& response);
+
+  void ReinitilizeCryptoProvider(rmscrypto::api::CipherMode cipherMode);
 
   static void AddProtectionPolicyToCache(
     std::shared_ptr<ProtectionPolicy>pProtectionPolicy);

@@ -10,6 +10,7 @@
 #define _RMS_LIB_IPUBLISHCLIENT_H_
 
 #include <atomic>
+#include <functional>
 
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "RestObjects.h"
@@ -18,34 +19,35 @@ namespace rmscore {
 namespace restclients {
 class IPublishClient {
 public:
-    virtual PublishResponse LocalPublishUsingTemplate(
-     const PublishUsingTemplateRequest                          & request,
-     modernapi::IAuthenticationCallbackImpl                     & authenticationCallback,
-     const std::string                                            sEmail,
-     std::shared_ptr<std::atomic<bool> >                          cancelState,
-     const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
-     = 0;
-   virtual PublishResponse LocalPublishCustom(
-    const PublishCustomRequest                                 & request,
-    modernapi::IAuthenticationCallbackImpl                     & authenticationCallback,
-    const std::string                                            sEmail,
-    std::shared_ptr<std::atomic<bool> >                          cancelState,
-    const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr)
-    = 0;
 
-//LEGACY
-//  virtual PublishResponse PublishUsingTemplate(
-//    const PublishUsingTemplateRequest     & request,
-//    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-//    const std::string                       email,
-//    std::shared_ptr<std::atomic<bool> >     cancelState)
-//    = 0;
-//  virtual PublishResponse PublishCustom(
-//    const PublishCustomRequest            & request,
-//    modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-//    const std::string                       email,
-//    std::shared_ptr<std::atomic<bool> >     cancelState)
-//    = 0;
+    //Online Publishing Stuff
+    virtual PublishResponse PublishUsingTemplate(
+        const PublishUsingTemplateRequest     & request,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        const std::string                       email,
+        std::shared_ptr<std::atomic<bool> >     cancelState) = 0;
+
+    virtual PublishResponse PublishCustom(
+        const PublishCustomRequest            & request,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        const std::string                       email,
+        std::shared_ptr<std::atomic<bool> >     cancelState)
+        = 0;
+
+    //Offline Publishing Stuff
+    virtual PublishResponse LocalPublishUsingTemplate(
+        const PublishUsingTemplateRequest  &request,
+        modernapi::IAuthenticationCallbackImpl &authenticationCallback,
+        const std::string sEmail,
+        std::shared_ptr<std::atomic<bool>> cancelState,
+        const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr) = 0;
+
+   virtual PublishResponse LocalPublishCustom(
+        const PublishCustomRequest & request,
+        modernapi::IAuthenticationCallbackImpl & authenticationCallback,
+        const std::string sEmail,
+        std::shared_ptr<std::atomic<bool>> cancelState,
+        const std::function<std::string(std::string, std::string&)>& getCLCCallback = nullptr) = 0;
 
 public:
 

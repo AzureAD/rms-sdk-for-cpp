@@ -24,12 +24,14 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {
-static const string END_USER_LICENSES_TAG            = "END_USER_LICENSES_UR";
-static const string PUBLISHING_LICENSES_TAG          = "PUBLISHING_LICENSES_UR";
-static const string TEMPLATES_TAG                    = "TEMPLATES_UR";
-static const string CLOUD_DIAGNOSTICS_TAG            = "CLOUD_DIAGNOSTICS_UR";
-static const string PERFORMANCE_TAG                  = "PERFORMANCE_UR";
-static const string DNS_CLIENT_RESULT_TAG            = "DNS_CLIENT_RESULT";
+
+static const string END_USER_LICENSES_TAG   = "END_USER_LICENSES_UR";
+static const string PUBLISHING_LICENSES_TAG = "PUBLISHING_LICENSES_UR";
+static const string TEMPLATES_TAG           = "TEMPLATES_UR";
+static const string CLOUD_DIAGNOSTICS_TAG   = "CLOUD_DIAGNOSTICS_UR";
+static const string PERFORMANCE_TAG         = "PERFORMANCE_UR";
+static const string DNS_CLIENT_RESULT_TAG   = "DNS_CLIENT_RESULT";
+static const string ORIGINAL_INPUT_TAG      = "ORIGINAL_INPUT";
 static const string CLIENT_LICENSOR_CERTIFICATES_TAG = "CLIENT_LICENSOR_CERTIFICATES_UR";
 
 using SELF = RestClientCache;
@@ -249,12 +251,18 @@ _ptr<ServiceDiscoveryDetails>RestClientCache::LookupServiceDiscoveryDetails(
                                            nullptr,
                                            0,
                                            false);
+  auto originalInput = this->Lookup(domain,
+                                    ORIGINAL_INPUT_TAG,
+                                    nullptr,
+                                    0,
+                                    false);
 
   if (!endUserLicensesUrl.empty()
       && !publishingLicensesUrl.empty()
       && !templatesUrl.empty()
       && !cloudDiagnosticsServerUrl.empty()
-      && !performanceServerUrl.empty())
+      && !performanceServerUrl.empty()
+      && !originalInput.empty())
   {
     auto details = make_shared<ServiceDiscoveryDetails>();
     details->EndUserLicensesUrl        = endUserLicensesUrl[0];
@@ -262,9 +270,10 @@ _ptr<ServiceDiscoveryDetails>RestClientCache::LookupServiceDiscoveryDetails(
     details->TemplatesUrl              = templatesUrl[0];
     details->CloudDiagnosticsServerUrl = cloudDiagnosticsServerUrl[0];
     details->PerformanceServerUrl      = performanceServerUrl[0];
-
+    details->OriginalInput             = originalInput[0];
     return details;
   }
+
 
   return nullptr;
 }
@@ -317,6 +326,15 @@ void RestClientCache::Store(
               vector<uint8_t>(serviceDiscoveryDetails->PerformanceServerUrl.
                                 begin(),
                                 serviceDiscoveryDetails->PerformanceServerUrl.end()),
+              false);
+
+  this->Store(domain,
+              ORIGINAL_INPUT_TAG,
+              nullptr,
+              0,
+              expires,
+              common::ByteArray(serviceDiscoveryDetails->OriginalInput.begin(),
+                                serviceDiscoveryDetails->OriginalInput.end()),
               false);
 }
 

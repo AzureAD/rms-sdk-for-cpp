@@ -1,0 +1,26 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rmsplatformUnitTests", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/UnitTests/platform_ut\rmsplatformUnitTests.vcxproj", "{222AA649-DE28-3E5F-AB6F-D9E02B3DBAF8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RestClientsUnitTests", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rms_sdk/UnitTests/rest_clients_ut\RestClientsUnitTests.vcxproj", "{28FEC771-3123-3B60-B2A1-531B140CD991}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{222AA649-DE28-3E5F-AB6F-D9E02B3DBAF8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{222AA649-DE28-3E5F-AB6F-D9E02B3DBAF8}.Debug|Win32.Build.0 = Debug|Win32
+		{222AA649-DE28-3E5F-AB6F-D9E02B3DBAF8}.Release|Win32.ActiveCfg = Release|Win32
+		{222AA649-DE28-3E5F-AB6F-D9E02B3DBAF8}.Release|Win32.Build.0 = Release|Win32
+		{28FEC771-3123-3B60-B2A1-531B140CD991}.Debug|Win32.ActiveCfg = Debug|Win32
+		{28FEC771-3123-3B60-B2A1-531B140CD991}.Debug|Win32.Build.0 = Debug|Win32
+		{28FEC771-3123-3B60-B2A1-531B140CD991}.Release|Win32.ActiveCfg = Release|Win32
+		{28FEC771-3123-3B60-B2A1-531B140CD991}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

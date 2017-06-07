@@ -15,6 +15,8 @@ QMAKE_CFLAGS_WARN_ON += -W4
 
 LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
 
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
+
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
@@ -27,7 +29,7 @@ CONFIG(debug, debug|release) {
     LIBS += -lrmscrypto
 }
 
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32MDd -llibeay32MDd -lGdi32 -lUser32 -lAdvapi32
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
 else:LIBS  += -lssl -lcrypto
 
 SOURCES += \

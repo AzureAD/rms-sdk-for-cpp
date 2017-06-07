@@ -1,0 +1,40 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rmsauthWebAuthDialog", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmsauth_sdk/WebAuthDialog\rmsauthWebAuthDialog.vcxproj", "{D8FC781C-DBBD-3398-924F-16EA478AF0A6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rmsauth", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmsauth_sdk/rmsauth\rmsauth.vcxproj", "{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D8FC781C-DBBD-3398-924F-16EA478AF0A6} = {D8FC781C-DBBD-3398-924F-16EA478AF0A6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rmsauthUnitTests", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmsauth_sdk/UnitTests\rmsauthUnitTests.vcxproj", "{16F4005D-A4CE-3D4A-9A61-4B6C6D55C764}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5} = {6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}
+		{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5} = {6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}
+		{D8FC781C-DBBD-3398-924F-16EA478AF0A6} = {D8FC781C-DBBD-3398-924F-16EA478AF0A6}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8FC781C-DBBD-3398-924F-16EA478AF0A6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D8FC781C-DBBD-3398-924F-16EA478AF0A6}.Debug|Win32.Build.0 = Debug|Win32
+		{D8FC781C-DBBD-3398-924F-16EA478AF0A6}.Release|Win32.ActiveCfg = Release|Win32
+		{D8FC781C-DBBD-3398-924F-16EA478AF0A6}.Release|Win32.Build.0 = Release|Win32
+		{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}.Debug|Win32.Build.0 = Debug|Win32
+		{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}.Release|Win32.ActiveCfg = Release|Win32
+		{6E2C4C8C-C8BD-3234-8D1E-C05C8E8EC5C5}.Release|Win32.Build.0 = Release|Win32
+		{16F4005D-A4CE-3D4A-9A61-4B6C6D55C764}.Debug|Win32.ActiveCfg = Debug|Win32
+		{16F4005D-A4CE-3D4A-9A61-4B6C6D55C764}.Debug|Win32.Build.0 = Debug|Win32
+		{16F4005D-A4CE-3D4A-9A61-4B6C6D55C764}.Release|Win32.ActiveCfg = Release|Win32
+		{16F4005D-A4CE-3D4A-9A61-4B6C6D55C764}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

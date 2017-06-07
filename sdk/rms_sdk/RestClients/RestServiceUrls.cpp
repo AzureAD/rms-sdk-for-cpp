@@ -8,6 +8,7 @@
 
 #include <string>
 #include "RestServiceUrls.h"
+#include "../Core/FeatureControl.h"
 #include "../Platform/Settings/ILocalSettings.h"
 
 using namespace std;
@@ -77,7 +78,17 @@ string RestServiceUrls::GetServiceDiscoveryUrl()
 
 string RestServiceUrls::GetDefaultTenant()
 {
+    return rmscore::core::FeatureControl::IsEvoEnabled() ? GetTenantV2(): GetTenantV1();
+}
+
+string RestServiceUrls::GetTenantV1()
+{
     return "/my/v1";
+}
+
+string RestServiceUrls::GetTenantV2()
+{
+    return "/my/v2";
 }
 
 string RestServiceUrls::GetServiceDiscoverySuffix()

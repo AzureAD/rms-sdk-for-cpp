@@ -10,13 +10,13 @@
 #include "LicenseParserTest.h"
 #include "OfflinePublishTest.h"
 
-using namespace unittest::restclientsut;
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
     int res = 0;
     res += QTest::qExec(new LicenseParserTest(), argc, argv);
+    res += QTest::qExec(new OfflinePublishTest(), argc, argv);
 
     return res;
 }

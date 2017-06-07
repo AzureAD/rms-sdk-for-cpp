@@ -13,10 +13,12 @@
 #include "IDnsLookupClient.h"
 #include "LicenseParser.h"
 #include "ServiceDiscoveryClient.h"
+#include "../Common/tools.h"
+#include "../Core/FeatureControl.h"
+#include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Settings/ILocalSettings.h"
 #include "../Platform/Logger/Logger.h"
-#include "../ModernAPI/RMSExceptions.h"
-#include "../Common/tools.h"
+
 using namespace std;
 using namespace rmscore::modernapi;
 using namespace rmscore::common;
@@ -28,8 +30,8 @@ namespace restclients {
 const uint32_t DEFAULT_DNS_TTL = 30 * 24 * 60 * 60; // 30 days in seconds.
 
 map<string, shared_ptr<ServiceDiscoveryDetails>,
-    StringComparer> RestServiceUrlClient::serviceDiscoveryDetailsCache =
-  map<string, shared_ptr<ServiceDiscoveryDetails>, StringComparer>();
+    MyStringCompare> RestServiceUrlClient::serviceDiscoveryDetailsCache =
+  map<string, shared_ptr<ServiceDiscoveryDetails>, MyStringCompare>();
 
 RestServiceUrlClient::~RestServiceUrlClient()
 {}
@@ -69,8 +71,7 @@ void RestServiceUrlClient::GetConsent(IConsentCallbackImpl& consentCallback,
 }
 
 string RestServiceUrlClient::GetEndUserLicensesUrl(
-  const void                        *pbPublishLicense,
-  const size_t                       cbPublishLicense,
+  const std::shared_ptr<LicenseParserResult>& licenseParserResult,
   const string                     & sEmail,
   IAuthenticationCallbackImpl      & authenticationCallback,
   IConsentCallbackImpl             & consentCallback,
@@ -81,8 +82,7 @@ string RestServiceUrlClient::GetEndUserLicensesUrl(
 
   if (serviceDiscoveryDetails == nullptr)
   {
-    serviceDiscoveryDetails = GetServiceDiscoveryDetails(pbPublishLicense,
-                                                         cbPublishLicense,
+    serviceDiscoveryDetails = GetServiceDiscoveryDetails(licenseParserResult,
                                                          sEmail,
                                                          authenticationCallback,
                                                          &consentCallback,
@@ -107,8 +107,7 @@ string RestServiceUrlClient::GetTemplatesUrl(
   if (serviceDiscoveryDetails == nullptr)
   {
     serviceDiscoveryDetails = GetServiceDiscoveryDetails(
-      nullptr,
-      0,
+      shared_ptr<LicenseParserResult>(),
       sEmail,
       authenticationCallback,
       nullptr,
@@ -129,7 +128,6 @@ string RestServiceUrlClient::GetClientLicensorCertificatesUrl(
     {
       serviceDiscoveryDetails = GetServiceDiscoveryDetails(
         nullptr,
-        0,
         sEmail,
         authenticationCallback,
         nullptr,
@@ -150,8 +148,7 @@ string RestServiceUrlClient::GetPublishUrl(
   if (serviceDiscoveryDetails == nullptr)
   {
     serviceDiscoveryDetails = GetServiceDiscoveryDetails(
-      nullptr,
-      0,
+      shared_ptr<LicenseParserResult>(),
       sEmail,
       authenticationCallback,
       nullptr,
@@ -172,8 +169,7 @@ string RestServiceUrlClient::GetCloudDiagnosticsServerUrl(
   if (serviceDiscoveryDetails == nullptr)
   {
     serviceDiscoveryDetails = GetServiceDiscoveryDetails(
-      nullptr,
-      0,
+      shared_ptr<LicenseParserResult>(),
       sEmail,
       authenticationCallback,
       nullptr,
@@ -194,8 +190,7 @@ string RestServiceUrlClient::GetPerformanceServerUrl(
   if (serviceDiscoveryDetails == nullptr)
   {
     serviceDiscoveryDetails = GetServiceDiscoveryDetails(
-      nullptr,
-      0,
+      shared_ptr<LicenseParserResult>(),
       sEmail,
       authenticationCallback,
       nullptr,
@@ -207,12 +202,11 @@ string RestServiceUrlClient::GetPerformanceServerUrl(
 
 shared_ptr<ServiceDiscoveryDetails>RestServiceUrlClient::
 GetServiceDiscoveryDetails(
-  const void                        *pbPublishLicense,
-  const size_t                       cbPublishLicense,
+  const shared_ptr<LicenseParserResult>& licenseParserResults,
   const string                     & sEmail,
   IAuthenticationCallbackImpl      & authenticationCallback,
   IConsentCallbackImpl              *consentCallback,
-  std::shared_ptr<std::atomic<bool> >cancelState)
+  std::shared_ptr<std::atomic<bool>> cancelState)
 {
   // If service discovery is not enabled, return default
   // In publish if empty string is passed as userid, return default
@@ -223,26 +217,17 @@ GetServiceDiscoveryDetails(
                                                    true);
 
   if (!serviceDiscoveryEnabled ||
-      ((pbPublishLicense == nullptr) && (sEmail.empty())))
+      ((licenseParserResults.get() == nullptr) && (sEmail.empty())))
   {
     auto serviceDiscoveryDetails = make_shared<ServiceDiscoveryDetails>();
-    serviceDiscoveryDetails->EndUserLicensesUrl =
-      RestServiceUrls::GetEndUserLicensesUrl();
-    serviceDiscoveryDetails->PublishingLicensesUrl =
-      RestServiceUrls::GetPublishUrl();
-    serviceDiscoveryDetails->TemplatesUrl =
-      RestServiceUrls::GetTemplatesUrl();
-    serviceDiscoveryDetails->CloudDiagnosticsServerUrl =
-      RestServiceUrls::GetCloudDiagnosticsServerUrl();
-    serviceDiscoveryDetails->PerformanceServerUrl =
-      RestServiceUrls::GetPerformanceServerUrl();
-    serviceDiscoveryDetails->PublishedPoliciesUrl =
-      RestServiceUrls::GetPublishedPoliciesUrl();
-    serviceDiscoveryDetails->DocTrackingLandingPageUrl =
-      RestServiceUrls::GetDocTrackingLandingPageUrl();
-    serviceDiscoveryDetails->ClientLicensorCertificatesUrl =
-      RestServiceUrls::GetClientLicensorCertificatesUrl();
 
+    serviceDiscoveryDetails->EndUserLicensesUrl = RestServiceUrls::GetEndUserLicensesUrl();
+    serviceDiscoveryDetails->PublishingLicensesUrl = RestServiceUrls::GetPublishUrl();
+    serviceDiscoveryDetails->TemplatesUrl = RestServiceUrls::GetTemplatesUrl();
+    serviceDiscoveryDetails->CloudDiagnosticsServerUrl = RestServiceUrls::GetCloudDiagnosticsServerUrl();
+    serviceDiscoveryDetails->PerformanceServerUrl = RestServiceUrls::GetPerformanceServerUrl();
+    serviceDiscoveryDetails->ClientLicensorCertificatesUrl = RestServiceUrls::GetClientLicensorCertificatesUrl();
+    serviceDiscoveryDetails->OriginalInput = "";
     if (consentCallback)
     {
       GetConsent(*consentCallback, sEmail, serviceDiscoveryDetails);
@@ -253,18 +238,22 @@ GetServiceDiscoveryDetails(
 
   // In consumption we use the domains from the publish license, else in publish
   // flows we use the domain from the email. Hence, they cannot both be null.
-  if ((pbPublishLicense == nullptr) && (sEmail.empty())) {
+  if ((licenseParserResults.get() == nullptr) && (sEmail.empty()))
+  {
     throw exceptions::RMSInvalidArgumentException("Invalid operation values");
   }
 
   // Figure out the domain(s).
-  vector<shared_ptr<Domain> > domains;
-
-  if (pbPublishLicense != nullptr)
+  vector<shared_ptr<Domain>> domains;
+  shared_ptr<string> pServerPublicCertificate;
+  if (licenseParserResults.get() != nullptr)
   {
     Logger::Hidden("Using publishLicense to create domain");
-    domains = LicenseParser::ExtractDomainsFromPublishingLicense(pbPublishLicense,
-                                                                 cbPublishLicense);
+    domains = licenseParserResults->GetDomains();
+    if (rmscore::core::FeatureControl::IsEvoEnabled())
+    {
+        pServerPublicCertificate = licenseParserResults->GetServerPublicCertificate();
+    }
   }
   else
   {
@@ -388,8 +377,11 @@ GetServiceDiscoveryDetails(
   shared_ptr<IServiceDiscoveryClient> serviceDiscoveryClient =
     IServiceDiscoveryClient::Create();
   auto serviceDiscoveryResponse =
-    serviceDiscoveryClient->GetServiceDiscoveryDetails(
-      *selectedDomain, authenticationCallback, discoveryUrl, cancelState);
+    serviceDiscoveryClient->GetServiceDiscoveryDetails(*selectedDomain,
+      pServerPublicCertificate,
+      authenticationCallback,
+      discoveryUrl,
+      cancelState);
 
   auto serviceDiscoveryDetails = make_shared<ServiceDiscoveryDetails>();
   serviceDiscoveryDetails->Ttl = static_cast<uint32_t>(-1); // TODO : Currently
@@ -479,6 +471,8 @@ GetServiceDiscoveryDetails(
 
   serviceDiscoveryDetails->Domain =
     selectedDomain->GetDomainStringForDnsLookup();
+  serviceDiscoveryDetails->OriginalInput =
+    selectedDomain->GetOriginalInput();
   return serviceDiscoveryDetails;
 }
 

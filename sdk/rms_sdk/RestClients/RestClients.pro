@@ -10,6 +10,8 @@ CONFIG  += staticlib c++11 debug_and_release
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
+
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
@@ -57,3 +59,4 @@ HEADERS += \
     ITemplatesClient.h \
     PublishClient.h \
     CLCCacheResult.h
+    LicenseParserResult.h

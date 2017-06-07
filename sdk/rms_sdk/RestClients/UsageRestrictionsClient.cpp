@@ -7,13 +7,18 @@
  */
 
 #include <memory>
-#include "../ModernAPI/RMSExceptions.h"
+
 #include "../Json/jsonserializer.h"
-#include "../RestClients/RestServiceUrlClient.h"
-#include "../RestClients/RestHttpClient.h"
-#include "../RestClients/IRestClientCache.h"
+#include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Logger/Logger.h"
+#include "../RestClients/IRestClientCache.h"
+#include "../RestClients/RestServiceUrlClient.h"
+#include "../RestClients/RestHttpClient.h"
+
+#include "AuthenticationHandler.h"
+#include "LicenseParser.h"
+#include "LicenseParserResult.h"
 #include "RestClientErrorHandling.h"
 #include "UsageRestrictionsClient.h"
 
@@ -56,12 +61,15 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
   }
   auto pJsonSerializer   = json::IJsonSerializer::Create();
   auto serializedRequest = pJsonSerializer->SerializeUsageRestrictionsRequest(
-    request, false); //this will not work if the PL is XrML. Change later.
+    request);
 
   auto pRestServiceUrlClient = IRestServiceUrlClient::Create();
-  auto endUserLicenseUrl     = pRestServiceUrlClient->GetEndUserLicensesUrl(
-    request.pbPublishLicense,
-    request.cbPublishLicense,
+  auto licenseParserResult = LicenseParser::ParsePublishingLicense(request.pbPublishLicense,
+    request.cbPublishLicense);
+
+
+  auto endUserLicenseUrl = pRestServiceUrlClient->GetEndUserLicensesUrl(
+    licenseParserResult,
     email,
     authCallback,
     consentCallback,
@@ -111,7 +119,7 @@ void UsageRestrictionsClient::StoreToCache(
   const UsageRestrictionsRequest          & request,
   const std::string                       & email,
   std::shared_ptr<UsageRestrictionsResponse>response,
-  const vector<uint8_t>                 & strResponse,
+  const common::ByteArray                 & strResponse,
   bool                                      encryptData)
 {
   if (0 != _stricmp("AccessGranted", response->accessStatus.c_str()))
@@ -178,7 +186,7 @@ bool UsageRestrictionsClient::TryGetFromCache(
       // try to deserialize the cached response
       try
       {
-        vector<uint8_t> tmpArr(iResponse.begin(), iResponse.end());
+        common::ByteArray tmpArr(iResponse.begin(), iResponse.end());
         response = make_shared<UsageRestrictionsResponse>(
           pJsonSerializer->DeserializeUsageRestrictionsResponse(tmpArr));
 

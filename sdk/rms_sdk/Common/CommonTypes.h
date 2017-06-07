@@ -19,6 +19,7 @@ namespace common {
 template<typename T>
 using TIterable   = std::vector<T>;
 using CharArray   = TIterable<char>;
+using ByteArray   = TIterable<uint8_t>;
 using StringArray = TIterable<std::string>;
 using IUri        = rmscore::platform::http::IUri;
 using UrlArray    = TIterable<std::shared_ptr<IUri>>;

@@ -6,8 +6,8 @@
  * ======================================================================
  */
 
+#include <cmath>
 #include <algorithm>
-#include <tgmath.h>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Common/tools.h"
 #include "../Common/FrameworkSpecificTypes.h"
@@ -23,27 +23,21 @@ using namespace rmscore::restclients;
 
 namespace rmscore {
 namespace json {
-vector<uint8_t> JsonSerializer::SerializeUsageRestrictionsRequest(
-  const UsageRestrictionsRequest& request, bool encode)
+ByteArray JsonSerializer::SerializeUsageRestrictionsRequest(
+  const UsageRestrictionsRequest& request)
 {
-    vector<uint8_t> PL;
-    if (encode)
-    {
-        // convert the PL to base64 encoded string
-        PL = vector<uint8_t>(ConvertBytesToBase64(request.pbPublishLicense,
+  // convert the PL to base64 encoded string
+  ByteArray base64PL(ConvertBytesToBase64(request.pbPublishLicense,
                                           request.cbPublishLicense));
-    }
-    else
-        PL.assign(request.pbPublishLicense, request.pbPublishLicense + request.cbPublishLicense);
 
   auto pJsonObject = IJsonObject::Create();
 
-  pJsonObject->SetNamedValue("SerializedPublishingLicense", PL);
+  pJsonObject->SetNamedValue("SerializedPublishingLicense", base64PL);
 
   return pJsonObject->Stringify();
 }
 
-vector<uint8_t> JsonSerializer::SerializePublishUsingTemplateRequest(
+common::ByteArray JsonSerializer::SerializePublishUsingTemplateRequest(
   const PublishUsingTemplateRequest& request)
 {
   auto pJson = IJsonObject::Create();
@@ -75,7 +69,7 @@ vector<uint8_t> JsonSerializer::SerializePublishUsingTemplateRequest(
   return pJson->Stringify();
 }
 
-vector<uint8_t> JsonSerializer::SerializePublishCustomRequest(
+common::ByteArray JsonSerializer::SerializePublishCustomRequest(
   const PublishCustomRequest& request)
 {
   auto pJson = IJsonObject::Create();
@@ -85,19 +79,20 @@ vector<uint8_t> JsonSerializer::SerializePublishCustomRequest(
   //	"PreferDeprecatedAlgorithms": ...,
   //	"AllowAuditedExtraction": ...,
   //	"ReferralInfo":...,
-  //  "Descriptors": [
-  //      {       "Name": "Protected by Microsoft AADRM service",
-  //              "Description" : "This email is protected with Microsoft AADRM
-  // service. Your actions may be audited",
-  //              "Language" : "en-us"
-  //      }],
   //	"SignedApplicationData": {
   //          "SignedAppDataName1": "EncryptedAppDataValue1"
   //          "SignedAppDataName2": "EncryptedAppDataValue2"
   //          ...
   //      },
-  // "Policy" : {
-  //	...
+  //    "Policy" : {
+  //          "Descriptors": [{
+  //              "Name": "Protected by Microsoft AADRM service",
+  //              "Description" : "This email is protected with Microsoft AADRM
+  // service. Your actions may be audited",
+  //              "Language" : "en-us"
+  //            }],
+  //	      ...
+  //      }
   // }
 
   pJson->SetNamedBool("PreferDeprecatedAlgorithms",
@@ -303,12 +298,12 @@ void JsonSerializer::AddUserRightsOrRolesInCustomRequest(
 }
 
 UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
-  vector<uint8_t>& vResponse)
+  common::ByteArray& sResponse)
 {
   shared_ptr<IJsonParser> pJsonParser = IJsonParser::Create();
 
   // parse the JSON
-  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
+  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(sResponse);
 
   UsageRestrictionsResponse response;
 
@@ -410,7 +405,8 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
     auto pJsonPolicy = pJsonResponse->GetNamedObject("Policy");
 
     auto intervalTime =
-      static_cast<int>(round(pJsonPolicy->GetNamedNumber("IntervalTimeInDays", -1.0f)));
+      static_cast<int>(round(pJsonPolicy->GetNamedNumber("IntervalTimeInDays",
+                                                         -1.0)));
 
     if (intervalTime <= 0) response.bAllowOfflineAccess = false;
 
@@ -488,12 +484,12 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
 }
 
 ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
-  vector<uint8_t>& vResponse)
+  ByteArray& sResponse)
 {
   shared_ptr<IJsonParser> pJsonParser = IJsonParser::Create();
 
   // parse the JSON
-  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
+  shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(sResponse);
 
   ServerErrorResponse response;
 
@@ -512,27 +508,13 @@ ServerErrorResponse JsonSerializer::DeserializeErrorResponse(
   return response;
 }
 
-CertificateResponse JsonSerializer::DeserializeCertificateResponse(vector<uint8_t> &vResponse)
-{
-    auto pJsonParser = IJsonParser::Create();
-
-    shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
-
-    CertificateResponse response;
-
-    if (pJsonResponse->HasName("SerializedThinCLC") && !pJsonResponse->IsNull("SerializedThinCLC"))
-        response.serializedCert = pJsonResponse->GetNamedString("SerializedThinCLC");
-
-    return response;
-}
-
 TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(
-  vector<uint8_t>& vResponse)
+  ByteArray& sResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
   // template list should be an array
-  auto pJsonArray = pJsonParser->ParseArray(vResponse);
+  auto pJsonArray = pJsonParser->ParseArray(sResponse);
 
   TemplateListResponse response;
 
@@ -567,12 +549,12 @@ TemplateListResponse JsonSerializer::DeserializeTemplateListResponse(
   return response;
 }
 
-PublishResponse JsonSerializer::DeserializePublishResponse(vector<uint8_t>& vResponse)
+PublishResponse JsonSerializer::DeserializePublishResponse(ByteArray& sResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
   // parse the JSON
-  auto pJson = pJsonParser->Parse(vResponse);
+  auto pJson = pJsonParser->Parse(sResponse);
 
   PublishResponse response;
 
@@ -638,12 +620,12 @@ PublishResponse JsonSerializer::DeserializePublishResponse(vector<uint8_t>& vRes
 }
 
 ServiceDiscoveryListResponse JsonSerializer::DeserializeServiceDiscoveryResponse(
-  vector<uint8_t>& vResponse)
+  ByteArray& sResponse)
 {
   auto pJsonParser = IJsonParser::Create();
 
   // service discovery response should be an array
-  auto pJsonArray = pJsonParser->ParseArray(vResponse);
+  auto pJsonArray = pJsonParser->ParseArray(sResponse);
 
   ServiceDiscoveryListResponse response;
 
@@ -692,6 +674,20 @@ string JsonSerializer::ProcessReferrerResponse(const string&& referrerResponse)
   {
     return referrerResponse;
   }
+}
+
+CertificateResponse JsonSerializer::DeserializeCertificateResponse(ByteArray &vResponse)
+{
+    auto pJsonParser = IJsonParser::Create();
+
+    shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
+
+    CertificateResponse response;
+
+    if (pJsonResponse->HasName("SerializedThinCLC") && !pJsonResponse->IsNull("SerializedThinCLC"))
+        response.serializedCert = pJsonResponse->GetNamedString("SerializedThinCLC");
+
+    return response;
 }
 
 shared_ptr<IJsonSerializer>IJsonSerializer::Create()
