@@ -38,6 +38,7 @@ public:
     PFileError,
     RightsError,
     MetroOfficeFileError,
+    NotSupported,
   };
 
   RMSException(const ExceptionTypes type,

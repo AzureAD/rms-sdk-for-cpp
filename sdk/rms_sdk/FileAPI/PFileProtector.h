@@ -10,14 +10,14 @@
 #define RMS_SDK_FILE_API_PFILEPROTECTOR_H
 
 #include "BlockBasedProtectedStream.h"
-#include "Protector.h"
+#include "FileAPIStructures.h"
 #include "UserPolicy.h"
 #include "PfileHeader.h"
 
 namespace rmscore {
 namespace fileapi {
 
-class DLL_PUBLIC_RMS PFileProtector
+class PFileProtector
 {
 public:
     PFileProtector(const std::string& originalFileExtension);
@@ -28,24 +28,25 @@ public:
                              const modernapi::TemplateDescriptor& templateDescriptor,
                              const std::string& userId,
                              modernapi::IAuthenticationCallback& authenticationCallback,
-                             ProtectionOptions options,
+                             modernapi::UserPolicyCreationOptions options,
                              const modernapi::AppDataHashMap& signedAppData,
                              const std::shared_ptr<std::fstream>& outputStream,
                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
     void ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
-                                 modernapi::PolicyDescriptor& policyDescriptor,
+                                 const modernapi::PolicyDescriptor& policyDescriptor,
                                  const std::string& userId,
                                  modernapi::IAuthenticationCallback& authenticationCallback,
-                                 ProtectionOptions options,
+                                 modernapi::UserPolicyCreationOptions  options,
                                  const std::shared_ptr<std::fstream>& outputStream,
                                  std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 
-    UnprotectStatus UnProtect(const std::shared_ptr<std::fstream>& inputStream,
+    UnprotectStatus Unprotect(const std::shared_ptr<std::fstream>& inputStream,
                               const std::string& userId,
                               modernapi::IAuthenticationCallback& authenticationCallBack,
                               modernapi::IConsentCallback& consentCallBack,
                               const bool& isOffline,
+                              const bool& useCache,
                               const std::shared_ptr<std::fstream>& outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
 

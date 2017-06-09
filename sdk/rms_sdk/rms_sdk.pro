@@ -11,9 +11,11 @@ SUBDIRS += \
     RestClients \
     UnitTests \
     Pole \
-    OfficeProtector
+    OfficeProtector \
+    FileAPI
 
 UnitTests.depends   = ModernAPI
 RestClients.depends = PFile
 ModernAPI.depends   = Common Core Json Consent RestClients
 Common.depends      = Platform
+FileAPI.depends     = ModernAPI Pole OfficeProtector

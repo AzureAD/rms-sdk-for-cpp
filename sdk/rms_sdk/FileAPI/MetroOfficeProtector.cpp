@@ -43,7 +43,7 @@ void MetroOfficeProtector::ProtectWithTemplate(const std::shared_ptr<std::fstrea
                                                const modernapi::TemplateDescriptor& templateDescriptor,
                                                const std::string& userId,
                                                modernapi::IAuthenticationCallback& authenticationCallback,
-                                               ProtectionOptions options,
+                                               modernapi::UserPolicyCreationOptions options,
                                                const modernapi::AppDataHashMap& signedAppData,
                                                const std::shared_ptr<std::fstream>& outputStream,
                                                std::shared_ptr<std::atomic<bool>> cancelState)
@@ -63,35 +63,28 @@ void MetroOfficeProtector::ProtectWithTemplate(const std::shared_ptr<std::fstrea
                     exceptions::RMSMetroOfficeFileException::AlreadyProtected);
     }
 
-    if((options & ProtectionOptions::UseAES256_CBC4K) &&
-            (options & ProtectionOptions::PreferDeprecatedAlgorithms))
-    {
-        Logger::Error("Cannot use both ECB and CBC for protection");
-        throw exceptions::RMSInvalidArgumentException("Cannot use both ECB and CBC for protection");
-    }
-
-    auto upOptions = (modernapi::UserPolicyCreationOptions)(options);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(templateDescriptor,
                                                                        userId,
                                                                        authenticationCallback,
-                                                                       upOptions,
+                                                                       options,
                                                                        signedAppData,
                                                                        cancelState);
-    Protect(inputStream, outputStream);
+    m_storage = std::make_shared<pole::Storage>(outputStream);
+    m_storage->open(true, true);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                 true, m_userPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = m_userPolicy->SerializedPolicy();
     dataSpaces->WriteDataspaces(m_storage, publishingLicense);
-
+    Protect(inputStream, outputStream);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
 }
 
 void MetroOfficeProtector::ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
-                                                   modernapi::PolicyDescriptor& policyDescriptor,
+                                                   const modernapi::PolicyDescriptor &policyDescriptor,
                                                    const std::string& userId,
                                                    modernapi::IAuthenticationCallback& authenticationCallback,
-                                                   ProtectionOptions options,
+                                                   modernapi::UserPolicyCreationOptions options,
                                                    const std::shared_ptr<std::fstream>& outputStream,
                                                    std::shared_ptr<std::atomic<bool>> cancelState)
 {
@@ -110,34 +103,29 @@ void MetroOfficeProtector::ProtectWithCustomRights(const std::shared_ptr<std::fs
                     exceptions::RMSMetroOfficeFileException::AlreadyProtected);
     }
 
-    if((options & ProtectionOptions::UseAES256_CBC4K) &&
-            (options & ProtectionOptions::PreferDeprecatedAlgorithms))
-    {
-        Logger::Error("Cannot use both ECB and CBC for protection");
-        throw exceptions::RMSInvalidArgumentException("Cannot use both ECB and CBC for protection");
-    }
-
-    auto upOptions = (modernapi::UserPolicyCreationOptions)(options);
-    m_userPolicy = modernapi::UserPolicy::Create(policyDescriptor,
-                                                 userId,
-                                                 authenticationCallback,
-                                                 upOptions,
-                                                 cancelState);
-    Protect(inputStream, outputStream);
+    m_userPolicy = modernapi::UserPolicy::Create(
+                const_cast<modernapi::PolicyDescriptor&>(policyDescriptor),
+                userId,
+                authenticationCallback,
+                options,
+                cancelState);
+    m_storage = std::make_shared<pole::Storage>(outputStream);
+    m_storage->open(true, true);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                 true, m_userPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = m_userPolicy->SerializedPolicy();
     dataSpaces->WriteDataspaces(m_storage, publishingLicense);
-
+    Protect(inputStream, outputStream);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
 }
 
-UnprotectStatus MetroOfficeProtector::UnProtect(const std::shared_ptr<std::fstream>& inputStream,
+UnprotectStatus MetroOfficeProtector::Unprotect(const std::shared_ptr<std::fstream>& inputStream,
                                                 const std::string& userId,
                                                 modernapi::IAuthenticationCallback& authenticationCallBack,
                                                 modernapi::IConsentCallback& consentCallBack,
                                                 const bool& isOffline,
+                                                const bool& useCache,
                                                 const std::shared_ptr<std::fstream>& outputStream,
                                                 std::shared_ptr<std::atomic<bool> > cancelState)
 {
@@ -166,14 +154,19 @@ UnprotectStatus MetroOfficeProtector::UnProtect(const std::shared_ptr<std::fstre
       throw;
     }
 
+    auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
+    if(useCache)
+    {
+        cacheMask = static_cast<modernapi::ResponseCacheFlags>(modernapi::RESPONSE_CACHE_INMEMORY|
+                                                               modernapi::RESPONSE_CACHE_ONDISK |
+                                                               modernapi::RESPONSE_CACHE_CRYPTED);
+    }
     auto policyRequest = modernapi::UserPolicy::Acquire(publishingLicense,
                                                         userId,
                                                         authenticationCallBack,
                                                         &consentCallBack,
                                                         policyAcquisitionOptions,
-                                                        static_cast<modernapi::ResponseCacheFlags>(
-                                                            modernapi::RESPONSE_CACHE_INMEMORY|
-                                                            modernapi::RESPONSE_CACHE_ONDISK),
+                                                        cacheMask,
                                                         cancelState);
     if(policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
@@ -216,11 +209,10 @@ bool MetroOfficeProtector::IsProtected(const std::shared_ptr<std::fstream>& inpu
         throw exceptions::RMSStreamException("Input stream invalid");
     }
 
-    auto storage = std::make_shared<rmscore::pole::Storage>(inputStream);
-    storage->open();
-
     try
     {
+      auto storage = std::make_shared<rmscore::pole::Storage>(inputStream);
+      storage->open();
       auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
       ByteArray publishingLicense;
       dataSpaces->ReadDataspaces(storage, publishingLicense);
@@ -253,8 +245,6 @@ void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& inputStr
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
     }
 
-    m_storage = std::make_shared<pole::Storage>(outputStream);
-    m_storage->open(true, true);
     std::shared_ptr<pole::Stream> metroStream = std::make_shared<pole::Stream>(m_storage.get(),
                                                                                metroContent, true);
     inputStream->seekg(0, std::ios::end);
@@ -325,7 +315,6 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::iostream>& s
                                          const std::shared_ptr<pole::Stream>& metroStream,
                                          uint64_t originalFileSize)
 {
-    stdStream->write("helloe", 6);
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
     uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)

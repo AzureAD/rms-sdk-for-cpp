@@ -37,8 +37,8 @@ PFileProtector::~PFileProtector()
 void PFileProtector::ProtectWithTemplate(const std::shared_ptr<std::fstream>& inputStream,
                                          const modernapi::TemplateDescriptor& templateDescriptor,
                                          const std::string& userId,
-                                         modernapi::IAuthenticationCallback& authenticationCallback,
-                                         ProtectionOptions options,
+                                         modernapi::IAuthenticationCallback &authenticationCallback,
+                                         modernapi::UserPolicyCreationOptions options,
                                          const modernapi::AppDataHashMap& signedAppData,
                                          const std::shared_ptr<std::fstream>& outputStream,
                                          std::shared_ptr<std::atomic<bool>> cancelState)
@@ -57,18 +57,10 @@ void PFileProtector::ProtectWithTemplate(const std::shared_ptr<std::fstream>& in
                                             exceptions::RMSPFileException::AlreadyProtected);
     }
 
-    if((options & ProtectionOptions::UseAES256_CBC4K) &&
-            (options & ProtectionOptions::PreferDeprecatedAlgorithms))
-    {
-        Logger::Error("Cannot use both ECB and CBC for protection");
-        throw exceptions::RMSInvalidArgumentException("Cannot use both ECB and CBC for protection");
-    }
-
-    auto upOptions = (modernapi::UserPolicyCreationOptions)(options);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(templateDescriptor,
                                                                        userId,
                                                                        authenticationCallback,
-                                                                       upOptions,
+                                                                       options,
                                                                        signedAppData,
                                                                        cancelState);
     Protect(inputStream, outputStream);
@@ -76,10 +68,10 @@ void PFileProtector::ProtectWithTemplate(const std::shared_ptr<std::fstream>& in
 }
 
 void PFileProtector::ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
-                                             modernapi::PolicyDescriptor& policyDescriptor,
+                                             const modernapi::PolicyDescriptor &policyDescriptor,
                                              const std::string& userId,
                                              modernapi::IAuthenticationCallback& authenticationCallback,
-                                             ProtectionOptions options,
+                                             modernapi::UserPolicyCreationOptions options,
                                              const std::shared_ptr<std::fstream>& outputStream,
                                              std::shared_ptr<std::atomic<bool>> cancelState)
 {
@@ -97,28 +89,22 @@ void PFileProtector::ProtectWithCustomRights(const std::shared_ptr<std::fstream>
                                             exceptions::RMSPFileException::AlreadyProtected);
     }
 
-    if((options & ProtectionOptions::UseAES256_CBC4K) &&
-            (options & ProtectionOptions::PreferDeprecatedAlgorithms))
-    {
-        Logger::Error("Cannot use both ECB and CBC for protection");
-        throw exceptions::RMSInvalidArgumentException("Cannot use both ECB and CBC for protection");
-    }
-
-    auto userPolicyCreationOptions = (modernapi::UserPolicyCreationOptions)(options);
-    m_userPolicy = modernapi::UserPolicy::Create(policyDescriptor,
-                                                 userId,
-                                                 authenticationCallback,
-                                                 userPolicyCreationOptions,
-                                                 cancelState);
+    m_userPolicy = modernapi::UserPolicy::Create(
+                const_cast<modernapi::PolicyDescriptor&>(policyDescriptor),
+                userId,
+                authenticationCallback,
+                options,
+                cancelState);
     Protect(inputStream, outputStream);
     Logger::Hidden("-PFileProtector::ProtectWithCustomRights");
 }
 
-UnprotectStatus PFileProtector::UnProtect(const std::shared_ptr<std::fstream>& inputStream,
+UnprotectStatus PFileProtector::Unprotect(const std::shared_ptr<std::fstream>& inputStream,
                                           const std::string& userId,
                                           modernapi::IAuthenticationCallback& authenticationCallBack,
                                           modernapi::IConsentCallback& consentCallBack,
                                           const bool& isOffline,
+                                          const bool& useCache,
                                           const std::shared_ptr<std::fstream>& outputStream,
                                           std::shared_ptr<std::atomic<bool>> cancelState)
 {
@@ -147,14 +133,19 @@ UnprotectStatus PFileProtector::UnProtect(const std::shared_ptr<std::fstream>& i
       throw;
     }
 
+    auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
+    if(useCache)
+    {
+        cacheMask = static_cast<modernapi::ResponseCacheFlags>(modernapi::RESPONSE_CACHE_INMEMORY|
+                                                               modernapi::RESPONSE_CACHE_ONDISK |
+                                                               modernapi::RESPONSE_CACHE_CRYPTED);
+    }
     auto policyRequest = modernapi::UserPolicy::Acquire(header->GetPublishingLicense(),
                                                         userId,
                                                         authenticationCallBack,
                                                         &consentCallBack,
                                                         policyAcquisitionOptions,
-                                                        static_cast<modernapi::ResponseCacheFlags>(
-                                                            modernapi::RESPONSE_CACHE_INMEMORY|
-                                                            modernapi::RESPONSE_CACHE_ONDISK),
+                                                        cacheMask,
                                                         cancelState);
     if(policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
