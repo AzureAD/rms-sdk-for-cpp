@@ -33,8 +33,8 @@ public:
     std::string GetFileExtension();
 
     std::string GetOutputFileName();
-private:
 
+private:
     void Init();
 
     void Compute();
@@ -45,7 +45,6 @@ private:
     std::string m_fileExtension;
     std::string m_newFileName;
     ProtectorType m_pType;
-
 };
 
 } // namespace fileapi

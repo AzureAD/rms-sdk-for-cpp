@@ -53,7 +53,6 @@ public:
     bool IsProtected(const std::shared_ptr<std::fstream>& inputStream);
 
 private:
-
     void Protect(const std::shared_ptr<std::fstream>& inputStream,
                  const std::shared_ptr<std::fstream>& outputStream);
 

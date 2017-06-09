@@ -20,7 +20,6 @@ namespace fileapi {
 class DLL_PUBLIC_RMS Protector
 {
 public:
-
     Protector(std::string fileName, std::shared_ptr<std::fstream> inputStream);
 
     void ProtectWithTemplate(UserContext& userContext,
@@ -43,11 +42,9 @@ public:
     std::string GetOutputFileName();
 
 private:
-
     std::string m_filename;
     std::shared_ptr<std::fstream> m_inputStream;
     std::shared_ptr<ProtectorSelector> m_protectorSelector;
-
 };
 
 } // namespace fileapi

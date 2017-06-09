@@ -213,7 +213,6 @@ bool Protector::IsProtected()
         }
         break;
     }
-
 }
 
 std::string Protector::GetOutputFileName()

@@ -34,7 +34,6 @@ ProtectorType ProtectorSelector::GetProtectorType()
         Compute();
     }
     return m_pType;
-
 }
 
 std::string ProtectorSelector::GetFileExtension()
