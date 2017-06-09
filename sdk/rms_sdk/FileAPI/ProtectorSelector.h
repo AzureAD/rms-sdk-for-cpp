@@ -16,11 +16,11 @@
 namespace rmscore {
 namespace fileapi {
 
-enum ProtectorType {
-    Pfile = 0,
-    Opc = 1,
-    Mso = 2,
-    Pdf = 3,
+enum class ProtectorType {
+    PFILE = 0,
+    OPC = 1,
+    MSO = 2,
+    PDF = 3,
 };
 
 class ProtectorSelector
@@ -37,11 +37,10 @@ public:
 private:
     void Init();
 
-    void Compute();
+    void Compute(std::string fileName);
 
     std::map<ProtectorType, std::vector<std::string>> m_nativeProtectorExtensions;
     std::vector<std::string> m_pStarExtensions;
-    std::string m_fileName;
     std::string m_fileExtension;
     std::string m_newFileName;
     ProtectorType m_pType;

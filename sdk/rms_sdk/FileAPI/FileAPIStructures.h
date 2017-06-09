@@ -20,66 +20,72 @@
 namespace rmscore {
 namespace fileapi {
 
-enum UnprotectStatus {
+enum class UnprotectResult {
   Success = 0,
   NoRights = 1,
   Expired = 2
 };
 
-enum ProtectionAlgorithm {
-    Default = 0,
-    CBC = 1,
-    ECB = 2
+enum class CryptoOptions {
+    Auto = 0,
+    AES256_CBC4K  = 1,
+    AES128_ECB = 2
 };
 
-struct DLL_PUBLIC_RMS UserContext
+struct UserContext
 {
-    std::string m_userId;
-    modernapi::IAuthenticationCallback& m_authenticationCallback;
-    modernapi::IConsentCallback& m_consentCallback;
+    std::string userId;
+    modernapi::IAuthenticationCallback& authenticationCallback;
+    modernapi::IConsentCallback& consentCallback;
 
     UserContext(std::string userId, modernapi::IAuthenticationCallback& authenticationCallback,
-                modernapi::IConsentCallback& consentCallback) : m_userId(userId),
-                m_authenticationCallback(authenticationCallback),
-                m_consentCallback(consentCallback) {}
+                modernapi::IConsentCallback& consentCallback)
+        : userId(userId),
+          authenticationCallback(authenticationCallback),
+          consentCallback(consentCallback) {}
 };
 
-struct DLL_PUBLIC_RMS ProtectWithTemplateOptions
+struct ProtectWithTemplateOptions
 {
-    ProtectionAlgorithm m_algorithm;
-    modernapi::TemplateDescriptor& m_templateDescriptor;
-    modernapi::AppDataHashMap& m_signedAppData;
-    bool m_allowAuditedExtraction;
-    bool m_isOffline; //not supported as of now
+    CryptoOptions cryptoOptions;
+    modernapi::TemplateDescriptor& templateDescriptor;
+    modernapi::AppDataHashMap& signedAppData;
+    bool allowAuditedExtraction;
 
-    ProtectWithTemplateOptions(ProtectionAlgorithm algorithm,
+    ProtectWithTemplateOptions(CryptoOptions cryptoOptions,
                                modernapi::TemplateDescriptor& templateDescriptor,
                                modernapi::AppDataHashMap& signedAppData,
-                               bool allowAuditedExtraction, bool isOffline):
-        m_algorithm(algorithm), m_templateDescriptor(templateDescriptor), m_signedAppData(signedAppData),
-        m_allowAuditedExtraction(allowAuditedExtraction), m_isOffline(isOffline) {}
+                               bool allowAuditedExtraction, bool isOffline)
+        : cryptoOptions(cryptoOptions),
+          templateDescriptor(templateDescriptor),
+          signedAppData(signedAppData),
+          allowAuditedExtraction(allowAuditedExtraction) {}
 };
 
-struct DLL_PUBLIC_RMS ProtectWithCustomRightsOptions
+struct ProtectWithCustomRightsOptions
 {
-    ProtectionAlgorithm m_algorithm;
-    modernapi::PolicyDescriptor& m_policyDescriptor;
-    bool m_allowAuditedExtraction;
-    bool m_isOffline; //not supported as of now
+    CryptoOptions cryptoOptions;
+    modernapi::PolicyDescriptor& policyDescriptor;
+    bool allowAuditedExtraction;
 
-    ProtectWithCustomRightsOptions(ProtectionAlgorithm algorithm,
+    ProtectWithCustomRightsOptions(CryptoOptions cryptoOptions,
                                    modernapi::PolicyDescriptor& policyDescriptor,
-                                   bool allowAuditedExtraction, bool isOffline):
-        m_algorithm(algorithm), m_policyDescriptor(policyDescriptor),
-        m_allowAuditedExtraction(allowAuditedExtraction), m_isOffline(isOffline) {}
+                                   bool allowAuditedExtraction, bool isOffline)
+        : cryptoOptions(cryptoOptions),
+          policyDescriptor(policyDescriptor),
+          allowAuditedExtraction(allowAuditedExtraction) {}
 };
 
-struct DLL_PUBLIC_RMS UnprotectOptions
+struct UnprotectOptions
 {
-    bool m_isOffline;
-    bool m_useCache;
+    bool offlineOnly;
+    bool useCache;
 
-    UnprotectOptions(bool isOffline, bool useCache): m_isOffline(isOffline), m_useCache(useCache) {}
+    UnprotectOptions() : offlineOnly(false), useCache(true) {}
+
+    UnprotectOptions(bool offlineOnly, bool useCache)
+        : offlineOnly(offlineOnly),
+          useCache(useCache) {}
 };
 
 } // namespace fileapi

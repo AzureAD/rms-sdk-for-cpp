@@ -31,31 +31,28 @@ const char metroContent[]        = "EncryptedPackage";
 namespace rmscore {
 namespace fileapi {
 
-MetroOfficeProtector::MetroOfficeProtector()
+MetroOfficeProtector::MetroOfficeProtector(std::shared_ptr<std::fstream> inputStream)
 {
+    m_inputStream = inputStream;
 }
 
 MetroOfficeProtector::~MetroOfficeProtector()
 {
 }
 
-void MetroOfficeProtector::ProtectWithTemplate(const std::shared_ptr<std::fstream>& inputStream,
-                                               const modernapi::TemplateDescriptor& templateDescriptor,
-                                               const std::string& userId,
-                                               modernapi::IAuthenticationCallback& authenticationCallback,
-                                               modernapi::UserPolicyCreationOptions options,
-                                               const modernapi::AppDataHashMap& signedAppData,
-                                               const std::shared_ptr<std::fstream>& outputStream,
+void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
+                                               const ProtectWithTemplateOptions& options,
+                                               std::shared_ptr<std::fstream> outputStream,
                                                std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::ProtectWithTemplate");
-    if(!inputStream->is_open() || !outputStream->is_open())
+    if (!outputStream->is_open())
     {
-        Logger::Error("Input/Output stream invalid");
-        throw exceptions::RMSStreamException("Input/Output stream invalid");
+        Logger::Error("Output stream invalid");
+        throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    if(IsProtected(inputStream))
+    if (IsProtected())
     {
         Logger::Error("File is already protected");
         throw exceptions::RMSMetroOfficeFileException(
@@ -63,11 +60,13 @@ void MetroOfficeProtector::ProtectWithTemplate(const std::shared_ptr<std::fstrea
                     exceptions::RMSMetroOfficeFileException::AlreadyProtected);
     }
 
-    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(templateDescriptor,
-                                                                       userId,
-                                                                       authenticationCallback,
-                                                                       options,
-                                                                       signedAppData,
+    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+                options.allowAuditedExtraction, options.cryptoOptions);
+    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
+                                                                       userContext.userId,
+                                                                       userContext.authenticationCallback,
+                                                                       userPolicyCreationOptions,
+                                                                       options.signedAppData,
                                                                        cancelState);
     m_storage = std::make_shared<pole::Storage>(outputStream);
     m_storage->open(true, true);
@@ -76,26 +75,23 @@ void MetroOfficeProtector::ProtectWithTemplate(const std::shared_ptr<std::fstrea
                 true, m_userPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = m_userPolicy->SerializedPolicy();
     dataSpaces->WriteDataspaces(m_storage, publishingLicense);
-    Protect(inputStream, outputStream);
+    Protect(outputStream);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
 }
 
-void MetroOfficeProtector::ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
-                                                   const modernapi::PolicyDescriptor &policyDescriptor,
-                                                   const std::string& userId,
-                                                   modernapi::IAuthenticationCallback& authenticationCallback,
-                                                   modernapi::UserPolicyCreationOptions options,
-                                                   const std::shared_ptr<std::fstream>& outputStream,
+void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
+                                                   const ProtectWithCustomRightsOptions& options,
+                                                   std::shared_ptr<std::fstream> outputStream,
                                                    std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::ProtectWithCustomRights");
-    if(!inputStream->is_open() || !outputStream->is_open())
+    if (!outputStream->is_open())
     {
-        Logger::Error("Input/Output stream invalid");
-        throw exceptions::RMSStreamException("Input/Output stream invalid");
+        Logger::Error("Output stream invalid");
+        throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    if(IsProtected(inputStream))
+    if (IsProtected())
     {
         Logger::Error("File is already protected");
         throw exceptions::RMSMetroOfficeFileException(
@@ -103,11 +99,13 @@ void MetroOfficeProtector::ProtectWithCustomRights(const std::shared_ptr<std::fs
                     exceptions::RMSMetroOfficeFileException::AlreadyProtected);
     }
 
+    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+                options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
-                const_cast<modernapi::PolicyDescriptor&>(policyDescriptor),
-                userId,
-                authenticationCallback,
-                options,
+                const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
+                userContext.userId,
+                userContext.authenticationCallback,
+                userPolicyCreationOptions,
                 cancelState);
     m_storage = std::make_shared<pole::Storage>(outputStream);
     m_storage->open(true, true);
@@ -116,31 +114,27 @@ void MetroOfficeProtector::ProtectWithCustomRights(const std::shared_ptr<std::fs
                 true, m_userPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = m_userPolicy->SerializedPolicy();
     dataSpaces->WriteDataspaces(m_storage, publishingLicense);
-    Protect(inputStream, outputStream);
+    Protect(outputStream);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
 }
 
-UnprotectStatus MetroOfficeProtector::Unprotect(const std::shared_ptr<std::fstream>& inputStream,
-                                                const std::string& userId,
-                                                modernapi::IAuthenticationCallback& authenticationCallBack,
-                                                modernapi::IConsentCallback& consentCallBack,
-                                                const bool& isOffline,
-                                                const bool& useCache,
-                                                const std::shared_ptr<std::fstream>& outputStream,
-                                                std::shared_ptr<std::atomic<bool> > cancelState)
+UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
+                                                const UnprotectOptions& options,
+                                                std::shared_ptr<std::fstream> outputStream,
+                                                std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::UnProtect");
-    if(!inputStream->is_open() || !outputStream->is_open())
+    if (!outputStream->is_open())
     {
-        Logger::Error("Input/Output stream invalid");
-        throw exceptions::RMSStreamException("Input/Output stream invalid");
+        Logger::Error("Output stream invalid");
+        throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = isOffline?
+    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
                     modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
                     modernapi::PolicyAcquisitionOptions::POL_None;
 
-    auto storage = std::make_shared<rmscore::pole::Storage>(inputStream);
+    auto storage = std::make_shared<rmscore::pole::Storage>(m_inputStream);
     storage->open();
     ByteArray publishingLicense;
     try
@@ -155,20 +149,20 @@ UnprotectStatus MetroOfficeProtector::Unprotect(const std::shared_ptr<std::fstre
     }
 
     auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
-    if(useCache)
+    if (options.useCache)
     {
         cacheMask = static_cast<modernapi::ResponseCacheFlags>(modernapi::RESPONSE_CACHE_INMEMORY|
                                                                modernapi::RESPONSE_CACHE_ONDISK |
                                                                modernapi::RESPONSE_CACHE_CRYPTED);
     }
     auto policyRequest = modernapi::UserPolicy::Acquire(publishingLicense,
-                                                        userId,
-                                                        authenticationCallBack,
-                                                        &consentCallBack,
+                                                        userContext.userId,
+                                                        userContext.authenticationCallback,
+                                                        &userContext.consentCallback,
                                                         policyAcquisitionOptions,
                                                         cacheMask,
                                                         cancelState);
-    if(policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
+    if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
         Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
         throw exceptions::RMSMetroOfficeFileException(
@@ -177,19 +171,19 @@ UnprotectStatus MetroOfficeProtector::Unprotect(const std::shared_ptr<std::fstre
     }
 
     m_userPolicy = policyRequest->Policy;
-    if(m_userPolicy.get() == nullptr)
+    if (m_userPolicy.get() == nullptr)
     {
         Logger::Error("User Policy acquisition failed");
         throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
     }
 
-    if(!m_userPolicy->DoesUseDeprecatedAlgorithms())
+    if (!m_userPolicy->DoesUseDeprecatedAlgorithms())
     {
         throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
                                             "CBC Decryption with Office files is not yet supported");
     }
 
-    if(!storage->exists(metroContent))
+    if (!storage->exists(metroContent))
     {
         Logger::Error("Stream containing encrypted data not present");
         throw exceptions::RMSMetroOfficeFileException(
@@ -203,21 +197,16 @@ UnprotectStatus MetroOfficeProtector::Unprotect(const std::shared_ptr<std::fstre
     DecryptStream(outputStream, metroStream, originalFileSize);
 
     Logger::Hidden("-MetroOfficeProtector::UnProtect");
-    return (UnprotectStatus)policyRequest->Status;
+    return (UnprotectResult)policyRequest->Status;
 }
 
-bool MetroOfficeProtector::IsProtected(const std::shared_ptr<std::fstream>& inputStream)
+bool MetroOfficeProtector::IsProtected()
 {
     Logger::Hidden("+MetroOfficeProtector::IsProtected");
-    if(!inputStream->is_open())
-    {
-        Logger::Error("Input stream invalid");
-        throw exceptions::RMSStreamException("Input stream invalid");
-    }
 
     try
     {
-      auto storage = std::make_shared<rmscore::pole::Storage>(inputStream);
+      auto storage = std::make_shared<rmscore::pole::Storage>(m_inputStream);
       storage->open();
       auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
       ByteArray publishingLicense;
@@ -242,10 +231,9 @@ bool MetroOfficeProtector::IsProtected(const std::shared_ptr<std::fstream>& inpu
     return true;
 }
 
-void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& inputStream,
-                                   const std::shared_ptr<std::fstream>& outputStream)
+void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
 {
-    if(m_userPolicy.get() == nullptr)
+    if (m_userPolicy.get() == nullptr)
     {
         Logger::Error("User Policy creation failed");
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
@@ -253,12 +241,12 @@ void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& inputStr
 
     std::shared_ptr<pole::Stream> metroStream = std::make_shared<pole::Stream>(m_storage.get(),
                                                                                metroContent, true);
-    inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = inputStream->tellg();
+    m_inputStream->seekg(0, std::ios::end);
+    uint64_t originalFileSize = m_inputStream->tellg();
     WriteStreamHeader(metroStream, originalFileSize);
-    inputStream->seekg(0);
+    m_inputStream->seekg(0);
 
-    EncryptStream(inputStream, metroStream,
+    EncryptStream(m_inputStream, metroStream,
                   m_userPolicy->GetImpl()->GetCryptoProvider()->GetCipherTextSize(originalFileSize));
 }
 
@@ -363,7 +351,7 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::iostream>& s
 void MetroOfficeProtector::WriteStreamHeader(const std::shared_ptr<pole::Stream>& stm,
                                              const uint64_t &contentLength)
 {
-    if( stm == nullptr)
+    if ( stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing stream header");
         throw exceptions::RMSMetroOfficeFileException(
@@ -377,7 +365,7 @@ void MetroOfficeProtector::WriteStreamHeader(const std::shared_ptr<pole::Stream>
 void MetroOfficeProtector::ReadStreamHeader(const std::shared_ptr<pole::Stream>& stm,
                                             uint64_t &contentLength)
 {
-    if( stm == nullptr)
+    if ( stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading stream header");
         throw exceptions::RMSMetroOfficeFileException(
@@ -386,6 +374,29 @@ void MetroOfficeProtector::ReadStreamHeader(const std::shared_ptr<pole::Stream>&
     }
     stm->seek(0);
     stm->read(reinterpret_cast<unsigned char*>(&contentLength), sizeof(uint64_t));
+}
+
+modernapi::UserPolicyCreationOptions MetroOfficeProtector::ConvertToUserPolicyCreationOptions(
+        const bool& allowAuditedExtraction,
+        CryptoOptions cryptoOptions)
+{
+    auto userPolicyCreationOptions = allowAuditedExtraction ?
+                modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
+                modernapi::UserPolicyCreationOptions::USER_None;
+    if (cryptoOptions == CryptoOptions::Auto ||
+            cryptoOptions == CryptoOptions::AES128_ECB )
+    {
+        userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(
+                    userPolicyCreationOptions |
+                    modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
+    }
+    else    //temporary until we have CBC for office files
+    {
+        throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
+                                            "CBC Encryption with Office files is not yet"
+                                            "supported");
+    }
+    return userPolicyCreationOptions;
 }
 
 } // namespace fileapi

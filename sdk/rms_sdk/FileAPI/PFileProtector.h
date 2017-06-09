@@ -9,6 +9,7 @@
 #ifndef RMS_SDK_FILE_API_PFILEPROTECTOR_H
 #define RMS_SDK_FILE_API_PFILEPROTECTOR_H
 
+#include "Protector.h"
 #include "BlockBasedProtectedStream.h"
 #include "FileAPIStructures.h"
 #include "UserPolicy.h"
@@ -17,44 +18,33 @@
 namespace rmscore {
 namespace fileapi {
 
-class PFileProtector
+class PFileProtector : public Protector
 {
 public:
-    PFileProtector(const std::string& originalFileExtension);
+    PFileProtector(const std::string& originalFileExtension,
+                   std::shared_ptr<std::fstream> inputStream);
 
     ~PFileProtector();
 
-    void ProtectWithTemplate(const std::shared_ptr<std::fstream>& inputStream,
-                             const modernapi::TemplateDescriptor& templateDescriptor,
-                             const std::string& userId,
-                             modernapi::IAuthenticationCallback& authenticationCallback,
-                             modernapi::UserPolicyCreationOptions options,
-                             const modernapi::AppDataHashMap& signedAppData,
-                             const std::shared_ptr<std::fstream>& outputStream,
-                             std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+    void ProtectWithTemplate(const UserContext& userContext,
+                             const ProtectWithTemplateOptions& options,
+                             std::shared_ptr<std::fstream> outputStream,
+                             std::shared_ptr<std::atomic<bool>> cancelState) override;
 
-    void ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
-                                 const modernapi::PolicyDescriptor& policyDescriptor,
-                                 const std::string& userId,
-                                 modernapi::IAuthenticationCallback& authenticationCallback,
-                                 modernapi::UserPolicyCreationOptions  options,
-                                 const std::shared_ptr<std::fstream>& outputStream,
-                                 std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+    void ProtectWithCustomRights(const UserContext& userContext,
+                                 const ProtectWithCustomRightsOptions& options,
+                                 std::shared_ptr<std::fstream> outputStream,
+                                 std::shared_ptr<std::atomic<bool>> cancelState) override;
 
-    UnprotectStatus Unprotect(const std::shared_ptr<std::fstream>& inputStream,
-                              const std::string& userId,
-                              modernapi::IAuthenticationCallback& authenticationCallBack,
-                              modernapi::IConsentCallback& consentCallBack,
-                              const bool& isOffline,
-                              const bool& useCache,
-                              const std::shared_ptr<std::fstream>& outputStream,
-                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+    UnprotectResult Unprotect(const UserContext& userContext,
+                              const UnprotectOptions& options,
+                              std::shared_ptr<std::fstream> outputStream,
+                              std::shared_ptr<std::atomic<bool>> cancelState) override;
 
-    bool IsProtected(const std::shared_ptr<std::fstream>& inputStream);
+    bool IsProtected() override;
 
 private:
-    void Protect(const std::shared_ptr<std::fstream>& inputStream,
-                 const std::shared_ptr<std::fstream>& outputStream);
+    void Protect(const std::shared_ptr<std::fstream>& outputStream);
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
@@ -75,7 +65,12 @@ private:
     std::shared_ptr<rmscore::pfile::PfileHeader> ReadHeader(
             const rmscrypto::api::SharedStream& stream);
 
+    modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
+            const bool& allowAuditedExtraction,
+            CryptoOptions cryptoOptions);
+
     std::string m_originalFileExtension;
+    std::shared_ptr<std::fstream> m_inputStream;
     uint32_t m_blockSize;
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 };

@@ -25,100 +25,95 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace fileapi {
 
-PFileProtector::PFileProtector(const std::string& originalFileExtension)
+PFileProtector::PFileProtector(const std::string& originalFileExtension,
+                               std::shared_ptr<std::fstream> inputStream)
 {
     m_originalFileExtension = originalFileExtension;
+    m_inputStream = inputStream;
 }
 
 PFileProtector::~PFileProtector()
 {
 }
 
-void PFileProtector::ProtectWithTemplate(const std::shared_ptr<std::fstream>& inputStream,
-                                         const modernapi::TemplateDescriptor& templateDescriptor,
-                                         const std::string& userId,
-                                         modernapi::IAuthenticationCallback &authenticationCallback,
-                                         modernapi::UserPolicyCreationOptions options,
-                                         const modernapi::AppDataHashMap& signedAppData,
-                                         const std::shared_ptr<std::fstream>& outputStream,
+void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
+                                         const ProtectWithTemplateOptions& options,
+                                         std::shared_ptr<std::fstream> outputStream,
                                          std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+PFileProtector::ProtectWithTemplate");
-    if(!inputStream->is_open() || !outputStream->is_open())
+    if (!outputStream->is_open())
     {
-        Logger::Error("Input/Output stream invalid");
-        throw exceptions::RMSStreamException("Input/Output stream invalid");
+        Logger::Error("Output stream invalid");
+        throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    if(IsProtected(inputStream))
+    if (IsProtected())
     {
         Logger::Error("File is already protected");
         throw exceptions::RMSPFileException("File is already protected",
                                             exceptions::RMSPFileException::AlreadyProtected);
     }
 
-    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(templateDescriptor,
-                                                                       userId,
-                                                                       authenticationCallback,
-                                                                       options,
-                                                                       signedAppData,
+    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+                options.allowAuditedExtraction, options.cryptoOptions);
+    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
+                                                                       userContext.userId,
+                                                                       userContext.authenticationCallback,
+                                                                       userPolicyCreationOptions,
+                                                                       options.signedAppData,
                                                                        cancelState);
-    Protect(inputStream, outputStream);
+    Protect(outputStream);
     Logger::Hidden("-PFileProtector::ProtectWithTemplate");
 }
 
-void PFileProtector::ProtectWithCustomRights(const std::shared_ptr<std::fstream>& inputStream,
-                                             const modernapi::PolicyDescriptor &policyDescriptor,
-                                             const std::string& userId,
-                                             modernapi::IAuthenticationCallback& authenticationCallback,
-                                             modernapi::UserPolicyCreationOptions options,
-                                             const std::shared_ptr<std::fstream>& outputStream,
+void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
+                                             const ProtectWithCustomRightsOptions& options,
+                                             std::shared_ptr<std::fstream> outputStream,
                                              std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+PFileProtector::ProtectWithCustomRights");
-    if(!inputStream->is_open() || !outputStream->is_open())
+    if (!outputStream->is_open())
     {
-        Logger::Error("Input/Output stream invalid");
-        throw exceptions::RMSStreamException("Input/Output stream invalid");
+        Logger::Error("Output stream invalid");
+        throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    if(IsProtected(inputStream))
+    if (IsProtected())
     {
         Logger::Error("File is already protected");
         throw exceptions::RMSPFileException("File is already protected",
                                             exceptions::RMSPFileException::AlreadyProtected);
     }
 
+    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+                options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
-                const_cast<modernapi::PolicyDescriptor&>(policyDescriptor),
-                userId,
-                authenticationCallback,
-                options,
+                const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
+                userContext.userId,
+                userContext.authenticationCallback,
+                userPolicyCreationOptions,
                 cancelState);
-    Protect(inputStream, outputStream);
+    Protect(outputStream);
     Logger::Hidden("-PFileProtector::ProtectWithCustomRights");
 }
 
-UnprotectStatus PFileProtector::Unprotect(const std::shared_ptr<std::fstream>& inputStream,
-                                          const std::string& userId,
-                                          modernapi::IAuthenticationCallback& authenticationCallBack,
-                                          modernapi::IConsentCallback& consentCallBack,
-                                          const bool& isOffline,
-                                          const bool& useCache,
-                                          const std::shared_ptr<std::fstream>& outputStream,
+UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
+                                          const UnprotectOptions& options,
+                                          std::shared_ptr<std::fstream> outputStream,
                                           std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+PFileProtector::UnProtect");
-    if(!inputStream->is_open() || !outputStream->is_open())
+    if (!outputStream->is_open())
     {
-        Logger::Error("Input/Output stream invalid");
-        throw exceptions::RMSStreamException("Input/Output stream invalid");
+        Logger::Error("Output stream invalid");
+        throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    std::shared_ptr<std::iostream> inputIO = inputStream;
+    std::shared_ptr<std::iostream> inputIO = m_inputStream;
     auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
 
-    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = isOffline?
+    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
                 modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
                 modernapi::PolicyAcquisitionOptions::POL_None;
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
@@ -134,20 +129,20 @@ UnprotectStatus PFileProtector::Unprotect(const std::shared_ptr<std::fstream>& i
     }
 
     auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
-    if(useCache)
+    if (options.useCache)
     {
         cacheMask = static_cast<modernapi::ResponseCacheFlags>(modernapi::RESPONSE_CACHE_INMEMORY|
                                                                modernapi::RESPONSE_CACHE_ONDISK |
                                                                modernapi::RESPONSE_CACHE_CRYPTED);
     }
     auto policyRequest = modernapi::UserPolicy::Acquire(header->GetPublishingLicense(),
-                                                        userId,
-                                                        authenticationCallBack,
-                                                        &consentCallBack,
+                                                        userContext.userId,
+                                                        userContext.authenticationCallback,
+                                                        &userContext.consentCallback,
                                                         policyAcquisitionOptions,
                                                         cacheMask,
                                                         cancelState);
-    if(policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
+    if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
         Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
         throw exceptions::RMSPFileException("The file is corrupt",
@@ -155,7 +150,7 @@ UnprotectStatus PFileProtector::Unprotect(const std::shared_ptr<std::fstream>& i
     }
 
     m_userPolicy = policyRequest->Policy;
-    if(m_userPolicy.get() == nullptr)
+    if (m_userPolicy.get() == nullptr)
     {
         Logger::Error("User Policy acquisition failed");
         throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
@@ -165,19 +160,13 @@ UnprotectStatus PFileProtector::Unprotect(const std::shared_ptr<std::fstream>& i
     DecryptStream(outputStream, protectedStream, header->GetOriginalFileSize());
 
     Logger::Hidden("+PFileProtector::UnProtect");
-    return (UnprotectStatus)policyRequest->Status;
+    return (UnprotectResult)policyRequest->Status;
 }
 
-bool PFileProtector::IsProtected(const std::shared_ptr<std::fstream>& inputStream)
+bool PFileProtector::IsProtected()
 {
     Logger::Hidden("+PFileProtector::IsProtected");
-    if(!inputStream->is_open())
-    {
-        Logger::Error("Input stream invalid");
-        throw exceptions::RMSStreamException("Input stream invalid");
-    }
-
-    std::shared_ptr<std::iostream> inputIO = inputStream;
+    std::shared_ptr<std::iostream> inputIO = m_inputStream;
     auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
     try
     {
@@ -193,10 +182,9 @@ bool PFileProtector::IsProtected(const std::shared_ptr<std::fstream>& inputStrea
     return true;
 }
 
-void PFileProtector::Protect(const std::shared_ptr<std::fstream>& inputStream,
-                             const std::shared_ptr<std::fstream>& outputStream)
+void PFileProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
 {
-    if(m_userPolicy.get() == nullptr)
+    if (m_userPolicy.get() == nullptr)
     {
         Logger::Error("User Policy creation failed");
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
@@ -206,12 +194,12 @@ void PFileProtector::Protect(const std::shared_ptr<std::fstream>& inputStream,
     auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputIO);
     //std::string ext = m_originalFileExtension.empty() ? ".pfile" : m_originalFileExtension;
 
-    inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = inputStream->tellg();
+    m_inputStream->seekg(0, std::ios::end);
+    uint64_t originalFileSize = m_inputStream->tellg();
     //Write Header
     auto header = WriteHeader(outputSharedStream, originalFileSize);
     auto protectedStream = CreateProtectedStream(outputSharedStream, header);
-    EncryptStream(inputStream, protectedStream, originalFileSize);
+    EncryptStream(m_inputStream, protectedStream, originalFileSize);
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::CreateProtectedStream(
@@ -345,6 +333,22 @@ std::shared_ptr<pfile::PfileHeader> PFileProtector::ReadHeader(
                 header->GetContentStartPosition(),
                 header->GetOriginalFileSize());
     return header;
+}
+
+modernapi::UserPolicyCreationOptions PFileProtector::ConvertToUserPolicyCreationOptions(
+        const bool& allowAuditedExtraction,
+        CryptoOptions cryptoOptions)
+{
+    auto userPolicyCreationOptions = allowAuditedExtraction ?
+                modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
+                modernapi::UserPolicyCreationOptions::USER_None;
+    if (cryptoOptions == CryptoOptions::AES128_ECB )
+    {
+        userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(
+                    userPolicyCreationOptions |
+                    modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
+    }
+    return userPolicyCreationOptions;
 }
 
 } // namespace fileapi

@@ -11,40 +11,41 @@
 
 #include <string>
 #include "FileAPIStructures.h"
-#include "ProtectorSelector.h"
 #include "ModernAPIExport.h"
 
 namespace rmscore {
 namespace fileapi {
 
-class DLL_PUBLIC_RMS Protector
+class Protector
 {
 public:
-    Protector(std::string fileName, std::shared_ptr<std::fstream> inputStream);
+    DLL_PUBLIC_RMS
+    static std::unique_ptr<Protector> Create(const std::string& fileName,
+                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::string& outputFileName);
 
-    void ProtectWithTemplate(UserContext& userContext,
-                             const ProtectWithTemplateOptions& options,
-                             std::shared_ptr<std::fstream> outputStream,
-                             std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+    virtual void ProtectWithTemplate(const UserContext& userContext,
+                                     const ProtectWithTemplateOptions& options,
+                                     std::shared_ptr<std::fstream> outputStream,
+                                     std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
-    void ProtectWithCustomRights(UserContext& userContext,
-                                 const ProtectWithCustomRightsOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
-                                 std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+    virtual void ProtectWithCustomRights(const UserContext& userContext,
+                                         const ProtectWithCustomRightsOptions& options,
+                                         std::shared_ptr<std::fstream> outputStream,
+                                         std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
-    UnprotectStatus Unprotect(UserContext& userContext,
-                              const UnprotectOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
-                              std::shared_ptr<std::atomic<bool>> cancelState = nullptr);
+    virtual UnprotectResult Unprotect(const UserContext& userContext,
+                                      const UnprotectOptions& options,
+                                      std::shared_ptr<std::fstream> outputStream,
+                                      std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
-    bool IsProtected();
+    virtual bool IsProtected() = 0;
 
-    std::string GetOutputFileName();
+    virtual ~Protector() { }
 
-private:
-    std::string m_filename;
-    std::shared_ptr<std::fstream> m_inputStream;
-    std::shared_ptr<ProtectorSelector> m_protectorSelector;
+protected:
+    Protector()
+    {}
 };
 
 } // namespace fileapi
