@@ -55,6 +55,12 @@ void Protector::ProtectWithTemplate(UserContext& userContext,
                 upOptions = static_cast<modernapi::UserPolicyCreationOptions>(
                             upOptions | modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
             }
+            else    //temporary until we have CBC for office files
+            {
+                throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
+                                                    "CBC Encryption with Office files is not yet"
+                                                    "supported");
+            }
             auto metroProtector = std::make_shared<MetroOfficeProtector>();
             metroProtector->ProtectWithTemplate(m_inputStream, options.m_templateDescriptor,
                                                 userContext.m_userId, userContext.m_authenticationCallback,
@@ -114,6 +120,12 @@ void Protector::ProtectWithCustomRights(UserContext& userContext,
             {
                 upOptions = static_cast<modernapi::UserPolicyCreationOptions>(
                             upOptions | modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
+            }
+            else    //temporary until we have CBC for office files
+            {
+                throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
+                                                    "CBC Encryption with Office files is not yet"
+                                                    "supported");
             }
             auto metroProtector = std::make_shared<MetroOfficeProtector>();
             metroProtector->ProtectWithCustomRights(m_inputStream, options.m_policyDescriptor,

@@ -183,6 +183,12 @@ UnprotectStatus MetroOfficeProtector::Unprotect(const std::shared_ptr<std::fstre
         throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
     }
 
+    if(!m_userPolicy->DoesUseDeprecatedAlgorithms())
+    {
+        throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
+                                            "CBC Decryption with Office files is not yet supported");
+    }
+
     if(!storage->exists(metroContent))
     {
         Logger::Error("Stream containing encrypted data not present");
