@@ -29,7 +29,6 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
         throw exceptions::RMSInvalidArgumentException("The input stream is invalid");
     }
 
-    std::unique_ptr<Protector> protector;
     ProtectorSelector protectorSelector(fileName);
     ProtectorType pType = protectorSelector.GetProtectorType();
     outputFileName = protectorSelector.GetOutputFileName();
@@ -37,14 +36,17 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
     {
         case ProtectorType::OPC:
         {
-            protector = std::make_unique<MetroOfficeProtector>(inputStream);
+            std::unique_ptr<Protector> protector(new MetroOfficeProtector(inputStream));
+            return protector;
         }
         break;
 
         case ProtectorType::PFILE:
         {
-            protector = std::make_unique<PFileProtector>(protectorSelector.GetFileExtension(),
-                                                         inputStream);
+            std::unique_ptr<Protector> protector(new PFileProtector(
+                                                      protectorSelector.GetFileExtension(),
+                                                      inputStream));
+            return protector;
         }
         break;
 
@@ -55,7 +57,6 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
         }
         break;
     }
-    return protector;
 }
 
 } // namespace fileapi

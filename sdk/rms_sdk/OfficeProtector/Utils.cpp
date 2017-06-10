@@ -115,7 +115,7 @@ uint32_t ReadWideStringEntry(const std::shared_ptr<pole::Stream>& stm, std::stri
         throw exceptions::RMSMetroOfficeFileException(
                     "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
-    auto wideEntry = std::make_unique<unsigned char[]>(wideEntryLen);
+    std::unique_ptr<unsigned char[]> wideEntry(new unsigned char[wideEntryLen]);
     bytesRead += stm->read(wideEntry.get(), wideEntryLen);
     std::string wideStr((char*)wideEntry.get(), wideEntryLen);
     //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
