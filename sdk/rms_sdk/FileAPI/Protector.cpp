@@ -30,9 +30,9 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
     }
 
     std::unique_ptr<Protector> protector;
-    std::shared_ptr<ProtectorSelector> protectorSelector = std::make_shared<ProtectorSelector>(fileName);
-    ProtectorType pType = protectorSelector->GetProtectorType();
-    outputFileName = protectorSelector->GetOutputFileName();
+    ProtectorSelector protectorSelector(fileName);
+    ProtectorType pType = protectorSelector.GetProtectorType();
+    outputFileName = protectorSelector.GetOutputFileName();
     switch (pType)
     {
         case ProtectorType::OPC:
@@ -43,7 +43,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
 
         case ProtectorType::PFILE:
         {
-            protector = std::make_unique<PFileProtector>(protectorSelector->GetFileExtension(),
+            protector = std::make_unique<PFileProtector>(protectorSelector.GetFileExtension(),
                                                          inputStream);
         }
         break;

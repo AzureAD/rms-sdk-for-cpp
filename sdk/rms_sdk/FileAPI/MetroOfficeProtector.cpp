@@ -383,7 +383,7 @@ modernapi::UserPolicyCreationOptions MetroOfficeProtector::ConvertToUserPolicyCr
     auto userPolicyCreationOptions = allowAuditedExtraction ?
                 modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
                 modernapi::UserPolicyCreationOptions::USER_None;
-    if (cryptoOptions == CryptoOptions::Auto ||
+    if (cryptoOptions == CryptoOptions::AUTO ||
             cryptoOptions == CryptoOptions::AES128_ECB )
     {
         userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(

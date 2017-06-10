@@ -21,13 +21,13 @@ namespace rmscore {
 namespace fileapi {
 
 enum class UnprotectResult {
-  Success = 0,
-  NoRights = 1,
-  Expired = 2
+  SUCCESS = 0,
+  NORIGHTS = 1,
+  EXPIRED = 2
 };
 
 enum class CryptoOptions {
-    Auto = 0,
+    AUTO = 0,
     AES256_CBC4K  = 1,
     AES128_ECB = 2
 };
@@ -38,42 +38,42 @@ struct UserContext
     modernapi::IAuthenticationCallback& authenticationCallback;
     modernapi::IConsentCallback& consentCallback;
 
-    UserContext(std::string userId, modernapi::IAuthenticationCallback& authenticationCallback,
-                modernapi::IConsentCallback& consentCallback)
-        : userId(userId),
-          authenticationCallback(authenticationCallback),
-          consentCallback(consentCallback) {}
+    UserContext(const std::string& uId, modernapi::IAuthenticationCallback& authCallback,
+                modernapi::IConsentCallback& consntCallback)
+        : userId(uId),
+          authenticationCallback(authCallback),
+          consentCallback(consntCallback) {}
 };
 
 struct ProtectWithTemplateOptions
 {
     CryptoOptions cryptoOptions;
-    modernapi::TemplateDescriptor& templateDescriptor;
-    modernapi::AppDataHashMap& signedAppData;
+    modernapi::TemplateDescriptor templateDescriptor;
+    modernapi::AppDataHashMap signedAppData;
     bool allowAuditedExtraction;
 
-    ProtectWithTemplateOptions(CryptoOptions cryptoOptions,
-                               modernapi::TemplateDescriptor& templateDescriptor,
-                               modernapi::AppDataHashMap& signedAppData,
-                               bool allowAuditedExtraction, bool isOffline)
-        : cryptoOptions(cryptoOptions),
-          templateDescriptor(templateDescriptor),
-          signedAppData(signedAppData),
-          allowAuditedExtraction(allowAuditedExtraction) {}
+    ProtectWithTemplateOptions(CryptoOptions options,
+                               const modernapi::TemplateDescriptor& descriptor,
+                               const modernapi::AppDataHashMap& appData,
+                               bool allowExtraction)
+        : cryptoOptions(options),
+          templateDescriptor(descriptor),
+          signedAppData(appData),
+          allowAuditedExtraction(allowExtraction) {}
 };
 
 struct ProtectWithCustomRightsOptions
 {
     CryptoOptions cryptoOptions;
-    modernapi::PolicyDescriptor& policyDescriptor;
+    modernapi::PolicyDescriptor policyDescriptor;
     bool allowAuditedExtraction;
 
-    ProtectWithCustomRightsOptions(CryptoOptions cryptoOptions,
-                                   modernapi::PolicyDescriptor& policyDescriptor,
-                                   bool allowAuditedExtraction, bool isOffline)
-        : cryptoOptions(cryptoOptions),
-          policyDescriptor(policyDescriptor),
-          allowAuditedExtraction(allowAuditedExtraction) {}
+    ProtectWithCustomRightsOptions(CryptoOptions options,
+                                   const modernapi::PolicyDescriptor& descriptor,
+                                   bool allowExtraction)
+        : cryptoOptions(options),
+          policyDescriptor(descriptor),
+          allowAuditedExtraction(allowExtraction) {}
 };
 
 struct UnprotectOptions
@@ -83,9 +83,9 @@ struct UnprotectOptions
 
     UnprotectOptions() : offlineOnly(false), useCache(true) {}
 
-    UnprotectOptions(bool offlineOnly, bool useCache)
-        : offlineOnly(offlineOnly),
-          useCache(useCache) {}
+    UnprotectOptions(bool offline, bool cache)
+        : offlineOnly(offline),
+          useCache(cache) {}
 };
 
 } // namespace fileapi
