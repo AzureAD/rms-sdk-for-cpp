@@ -417,7 +417,7 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
     }
     uint32_t publishingLicenseLen = 0;
     stm->read(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
-    auto pl = std::make_unique<unsigned char[]>(publishingLicenseLen);
+    std::unique_ptr<unsigned char[]> pl(new unsigned char[publishingLicenseLen]);
     stm->read(pl.get(), publishingLicenseLen);
     std::string publishingLicenseStr((char*)pl.get(), publishingLicenseLen);
     if(m_doesUseDeprecatedAlgorithm)
