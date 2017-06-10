@@ -16,8 +16,8 @@
 #include "PfileHeader.h"
 #include "PfileHeaderReader.h"
 #include "PfileHeaderWriter.h"
-#include "../common/CommonTypes.h"
-#include "../../Core/ProtectionPolicy.h"
+#include "../Common//CommonTypes.h"
+#include "../Core/ProtectionPolicy.h"
 #include "../Platform/Logger/Logger.h"
 
 using namespace rmscore::platform::logger;

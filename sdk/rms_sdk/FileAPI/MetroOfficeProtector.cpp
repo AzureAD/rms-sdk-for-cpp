@@ -15,8 +15,8 @@
 #include "CryptoAPI.h"
 #include "RMSExceptions.h"
 #include "DataSpaces.h"
-#include "../common/CommonTypes.h"
-#include "../../Core/ProtectionPolicy.h"
+#include "../Common/CommonTypes.h"
+#include "../Core/ProtectionPolicy.h"
 #include "../Platform/Logger/Logger.h"
 
 using namespace rmscore::platform::logger;
