@@ -15,7 +15,7 @@ namespace modernapi{
  */
 struct Signature{
 public:
-    std::string Value; //The signed data in the signature
+    std::string SignedDataHash; //The signed data in the signature
     std::string SigningAlgorithm; //Signing algorithm used for the signature
     std::shared_ptr<platform::json::IJsonObject> Certificate; //Certificate used to sign this signature
 };
@@ -30,7 +30,10 @@ public:
  *
  * When verifying, use Seal(SealJSON) to generate a seal from a JSON String. Next, use GetSignature() to get the signature on the seal.
  * Use GetDataHash() to get the hash of the seal's data. Check these two against each other the verify the seal is attached to the signature.
- * Next, check every desired data value using GetValue().
+ *
+ * This simply matches the CLC with the Seal, not the seal with whatever data the seal attached to. Once the seal is authenticated,
+ * the client must match the seal with the data. To do this, pull data out of the seal using GetSealDataValue(). For every expected value in the seal,
+ * get the value and check it. If all of these values are correct, it is safe for the client to trust the data.
  *
  */
 
@@ -55,14 +58,14 @@ public:
      * @param Key - The Key to insert
      * @param Value - The value of the inserted data
      */
-    void AddValue(std::string& Key, std::string& Value);
+    void AddSealDataValue(std::string& Key, std::string& Value);
 
     /**
      * @brief Returns the data value associated with the key inside the seal, or null if the data doesn't exist
      * @param Key - Key for desired data
      * @return - String or Null
      */
-    std::string GetValue(std::string& Key);
+    std::string GetSealDataValue(std::string& Key);
 
     /**
      * @brief Checks if the desired key exists in the seal
