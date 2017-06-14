@@ -42,8 +42,7 @@ SOURCES += \
     ext/QTStreamImpl.cpp \
     HttpHelper.cpp \
     IRMSEnvironment.cpp \
-    SealPolicy.cpp \
-    Seal.cpp
+    DataCollection.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -71,8 +70,7 @@ HEADERS += \
     CacheControl.h \
     RMSExceptions.h \
     IRMSEnvironment.h \
-    SealPolicy.h \
-    Seal.h
+    DataCollection.h
 
 
 unix {
