@@ -31,6 +31,12 @@ public:
    * @throws Exception if DataCollection is read-only
    */
   void AddData(std::string& Key, std::string& Value);
+
+  /**
+   * @brief Signs the data collection, and returns it in JSON format
+   * @return
+   */
+  std::string SignAndSerializeDataCollection();
 };
 
 }
