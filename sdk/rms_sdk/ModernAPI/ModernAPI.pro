@@ -42,7 +42,8 @@ SOURCES += \
     ext/QTStreamImpl.cpp \
     HttpHelper.cpp \
     IRMSEnvironment.cpp \
-    DataCollection.cpp
+    DataCollection.cpp \
+    WritableDataCollection.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -70,7 +71,8 @@ HEADERS += \
     CacheControl.h \
     RMSExceptions.h \
     IRMSEnvironment.h \
-    DataCollection.h
+    DataCollection.h \
+    WritableDataCollection.h
 
 
 unix {
