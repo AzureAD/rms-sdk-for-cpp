@@ -4,25 +4,16 @@
 #include "DataCollection.h"
 #include "ModernAPIExport.h"
 #include "IAuthenticationCallback.h"
+#include "IWritableDataCollection.h"
 
 namespace rmscore{
 namespace modernapi{
 
-class DLL_PUBLIC_RMS WritableDataCollection : public DataCollection{
+class WritableDataCollection : public DataCollection, public IWritableDataCollection{
+
+friend class IWritableDataCollection;
 
 public:
-
-  /**
-   * @brief Gets a new DataCollection which can be inserted into
-   * @param AuthenticationCallback - Handles OAuth requests when obtaining signing certificate
-   * @param UserEmail - Email of user signing the document
-   * @param ClientID - Provided by application, used for authentication
-   * @return
-   */
-  static std::shared_ptr<WritableDataCollection> AcquireWritableDataCollection(
-          std::string& UserEmail,
-          IAuthenticationCallback& AuthenticationCallback,
-          std::string& ClientID);
 
   /**
    * @brief Inserts data into the Data Collection
@@ -30,13 +21,22 @@ public:
    * @param Value
    * @throws Exception if DataCollection is read-only
    */
-  void AddData(std::string& Key, std::string& Value);
+  virtual void AddData(std::string& Key, std::string& Value) override;
+
+  /**
+    * @brief Checks if the data collection has been signedAndSerialized yet. If so, return true. If not, return false;
+    * @return
+    */
+  virtual bool IsVerified() override;
 
   /**
    * @brief Signs the data collection, and returns it in JSON format
    * @return
    */
-  std::string SignAndSerializeDataCollection();
+  virtual std::string SignAndSerializeDataCollection() override;
+
+private:
+    WritableDataCollection(std::string &UserEmail, IAuthenticationCallback &AuthenticationCallback, std::string &ClientID);
 };
 
 }

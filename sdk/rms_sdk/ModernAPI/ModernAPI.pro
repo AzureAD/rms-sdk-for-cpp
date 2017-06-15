@@ -72,7 +72,9 @@ HEADERS += \
     RMSExceptions.h \
     IRMSEnvironment.h \
     DataCollection.h \
-    WritableDataCollection.h
+    WritableDataCollection.h \
+    IDataCollection.h \
+    IWritableDataCollection.h
 
 
 unix {
