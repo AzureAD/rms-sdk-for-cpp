@@ -9,8 +9,9 @@
 namespace rmscore{
 namespace modernapi{
 
-class DataCollection;
-
+/**
+ * @brief The DataCollection class implements the IDataCollection interface, to hide the implementation details of IsVerified
+ */
 class DataCollection: public IDataCollection
 {
 

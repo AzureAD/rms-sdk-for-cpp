@@ -8,6 +8,9 @@
 namespace rmscore{
 namespace modernapi{
 
+/**
+ * @brief The IWritableDataCollection class is an extension of IDataCollection which can be inserted into, and also serialized
+ */
 class DLL_PUBLIC_RMS IWritableDataCollection : public IDataCollection{
 
 public:

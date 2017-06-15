@@ -9,7 +9,10 @@
 namespace rmscore{
 namespace modernapi{
 
-class WritableDataCollection : public DataCollection, public IWritableDataCollection{
+/**
+ * @brief The WritableDataCollection class implements IWritableDataCollection
+ */
+class WritableDataCollection : public IWritableDataCollection{
 
 friend class IWritableDataCollection;
 
