@@ -24,7 +24,7 @@ using namespace rmscore::common;
 
 namespace{
 
-const char metroContent[]        = "EncryptedPackage";
+const char metroContent[]        = "/EncryptedPackage";
 
 } // namespace
 
@@ -32,8 +32,8 @@ namespace rmscore {
 namespace fileapi {
 
 MetroOfficeProtector::MetroOfficeProtector(std::shared_ptr<std::fstream> inputStream)
-{
-    m_inputStream = inputStream;
+    : m_inputStream(inputStream)
+{    
 }
 
 MetroOfficeProtector::~MetroOfficeProtector()
@@ -70,12 +70,12 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        cancelState);
     m_storage = std::make_shared<pole::Storage>(outputStream);
     m_storage->open(true, true);
+    Protect(outputStream);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                 true, m_userPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = m_userPolicy->SerializedPolicy();
-    dataSpaces->WriteDataspaces(m_storage, publishingLicense);
-    Protect(outputStream);
+    dataSpaces->WriteDataspaces(m_storage, publishingLicense);    
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
 }
 
@@ -130,12 +130,20 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
-                    modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
-                    modernapi::PolicyAcquisitionOptions::POL_None;
+    std::shared_ptr<rmscore::pole::Storage> storage;
+    try
+    {
+        storage = std::make_shared<rmscore::pole::Storage>(m_inputStream);
+        storage->open();
+    }
+    catch(std::exception&)
+    {
+        Logger::Hidden("Failed to open file as a valid CFB");
+        throw exceptions::RMSMetroOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSMetroOfficeFileException::CorruptFile);
+    }
 
-    auto storage = std::make_shared<rmscore::pole::Storage>(m_inputStream);
-    storage->open();
     ByteArray publishingLicense;
     try
     {
@@ -148,6 +156,9 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
       throw;
     }
 
+    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
+                modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
+                modernapi::PolicyAcquisitionOptions::POL_None;
     auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
     if (options.useCache)
     {
@@ -200,7 +211,7 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
     return (UnprotectResult)policyRequest->Status;
 }
 
-bool MetroOfficeProtector::IsProtected()
+bool MetroOfficeProtector::IsProtected() const
 {
     Logger::Hidden("+MetroOfficeProtector::IsProtected");
 

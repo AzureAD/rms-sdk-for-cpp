@@ -20,6 +20,8 @@ namespace fileapi {
 
 ProtectorSelector::ProtectorSelector(const std::string& fileName)
 {
+    m_fileExtension = ".pfile";
+    m_pType = ProtectorType::PFILE;
     Compute(fileName);
 }
 
@@ -38,21 +40,33 @@ std::string ProtectorSelector::GetOutputFileName()
     return m_newFileName;
 }
 
-void ProtectorSelector::Init()
+std::map<std::string, ProtectorType> ProtectorSelector::Init()
 {
-//    m_nativeProtectorExtensions[ProtectorType::MSO] = { ".doc", ".dot", ".xla", ".xls", ".xlt",
-//                                                        ".pps", ".ppt", ".pot" };
-    m_nativeProtectorExtensions[ProtectorType::OPC] = { ".docm", ".docx", ".dotm", ".dotx", ".xlam",
-                                                        ".xlsb", ".xlsm", ".xlsx", ".xltm", ".xltx",
-                                                        ".xps", ".potm", ".potx", ".ppsx", ".ppsm",
-                                                        ".pptm", ".pptx", ".thmx", ".vsdx", ".vsdm",
-                                                        ".vssx", ".vssm", ".vstx", ".vstm" };
-//    m_nativeProtectorExtensions[ProtectorType::PDF] = { ".pdf" };
-    m_pStarExtensions = {".jt", ".txt",".xm",".jpg",".jpeg",".png",".tif",".tiff",".bmp",
-                         ".gif",".jpe",".jfif",".jif", ".pdf"};
+    static std::map<std::string, ProtectorType> protectorExtensionsMap = {
+        {".docm", ProtectorType::OPC},{".docx", ProtectorType::OPC},{".dotm", ProtectorType::OPC},
+        {".dotx", ProtectorType::OPC},{".xlam", ProtectorType::OPC},{".xlsb", ProtectorType::OPC},
+        {".xlsm", ProtectorType::OPC},{".xlsx", ProtectorType::OPC},{".xltx", ProtectorType::OPC},
+        {".xps", ProtectorType::OPC},{".potm", ProtectorType::OPC},{".potx", ProtectorType::OPC},
+        {".ppsx", ProtectorType::OPC},{".ppsm", ProtectorType::OPC},{".pptm", ProtectorType::OPC},
+        {".pptx", ProtectorType::OPC},{".thmx", ProtectorType::OPC},{".vsdx", ProtectorType::OPC},
+        {".vsdm", ProtectorType::OPC},{".vssx", ProtectorType::OPC},{".vssm", ProtectorType::OPC},
+        {".vstx", ProtectorType::OPC},{".vstm", ProtectorType::OPC},{".jt", ProtectorType::PSTAR},
+        {".txt", ProtectorType::PSTAR},{".xm", ProtectorType::PSTAR},{".jpg", ProtectorType::PSTAR},
+        {".jpeg", ProtectorType::PSTAR},{".png", ProtectorType::PSTAR},{".tif", ProtectorType::PSTAR},
+        {".tiff", ProtectorType::PSTAR},{".bmp", ProtectorType::PSTAR},{".gif", ProtectorType::PSTAR},
+        {".jpe", ProtectorType::PSTAR},{".jfif", ProtectorType::PSTAR},{".jif", ProtectorType::PSTAR},
+        {".pdf", ProtectorType::PSTAR}};
+
+    return protectorExtensionsMap;
 }
 
-void ProtectorSelector::Compute(std::string fileName)
+std::map<std::string, ProtectorType> ProtectorSelector::GetProtectorExtensionsMap()
+{
+    static std::map<std::string, ProtectorType> protectorExtensionsMap = Init();
+    return protectorExtensionsMap;
+}
+
+void ProtectorSelector::Compute(const std::string& fileName)
 {
     if (fileName.empty())
     {
@@ -66,25 +80,22 @@ void ProtectorSelector::Compute(std::string fileName)
         throw exceptions::RMSInvalidArgumentException("Full filename with extension needed");
     }
 
-    std::string ext = fileName.substr(pos);
+    std::string ext = fileName.substr(pos);    
+    if (ext == ".pfile")
+    {
+        m_newFileName = fileName.substr(0, pos);
+        return;
+    }
+
     ProtectorType pType = ProtectorType::PFILE;
-    if (m_nativeProtectorExtensions.size() == 0)
+    auto protectorExtensionsMap = GetProtectorExtensionsMap();
+
+    if(protectorExtensionsMap.find(ext) != protectorExtensionsMap.end())  //Key present
     {
-        Init();
+        pType = protectorExtensionsMap[ext];
     }
 
-    for (auto it = std::begin(m_nativeProtectorExtensions);
-         it != std::end(m_nativeProtectorExtensions); ++it)
-    {
-        auto vectorIterator = std::find (it->second.begin(), it->second.end(), ext);
-        if (vectorIterator != std::end(it->second))
-        {
-            pType = it->first;
-            break;
-        }
-    }
-
-    if (pType != ProtectorType::PFILE)   //Native protector
+    if (pType != ProtectorType::PFILE && pType != ProtectorType::PSTAR)   //Native protector
     {
         m_pType = pType;
         m_newFileName = fileName;
@@ -92,23 +103,16 @@ void ProtectorSelector::Compute(std::string fileName)
         return;
     }
 
-    m_pType = ProtectorType::PFILE;
-    if (ext == ".pfile")
-    {
-        m_newFileName = fileName.substr(0, pos);
-        m_fileExtension = ".pfile";
-        return;
-    }
-
-    auto it = std::find (m_pStarExtensions.begin(), m_pStarExtensions.end(), ext);
     auto ppos = ext.find_first_of('p');
-    if (it != m_pStarExtensions.end())  //PStar extension protection
+    if (pType == ProtectorType::PSTAR)  //PStar extension protection
     {
+        m_pType = ProtectorType::PSTAR;
         m_fileExtension = ext;
         m_newFileName = fileName.substr(0, pos+1) + "p" + ext.substr(1);
     }
     else if (ppos != std::string::npos) // PStar extension unprotection
     {
+        m_pType = ProtectorType::PSTAR;
         m_fileExtension = ext.substr(ppos + 1);
         m_newFileName = fileName.substr(0, pos+1) + m_fileExtension;
     }

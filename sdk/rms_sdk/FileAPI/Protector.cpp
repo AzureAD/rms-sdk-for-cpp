@@ -42,6 +42,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
         break;
 
         case ProtectorType::PFILE:
+        case ProtectorType::PSTAR:
         {
             std::unique_ptr<Protector> protector(new PFileProtector(
                                                       protectorSelector.GetFileExtension(),

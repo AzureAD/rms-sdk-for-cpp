@@ -41,7 +41,7 @@ public:
                               std::shared_ptr<std::fstream> outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState) override;
 
-    bool IsProtected() override;
+    bool IsProtected() const override;
 
 private:
     void Protect(const std::shared_ptr<std::fstream>& outputStream);
@@ -63,7 +63,7 @@ private:
             uint64_t originalFileSize);
 
     std::shared_ptr<rmscore::pfile::PfileHeader> ReadHeader(
-            const rmscrypto::api::SharedStream& stream);
+            const rmscrypto::api::SharedStream& stream) const;
 
     modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
             const bool& allowAuditedExtraction,

@@ -28,19 +28,19 @@ public:
     void ProtectWithTemplate(const UserContext& userContext,
                              const ProtectWithTemplateOptions& options,
                              std::shared_ptr<std::fstream> outputStream,
-                             std::shared_ptr<std::atomic<bool>> cancelState);
+                             std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     void ProtectWithCustomRights(const UserContext& userContext,
                                  const ProtectWithCustomRightsOptions& options,
                                  std::shared_ptr<std::fstream> outputStream,
-                                 std::shared_ptr<std::atomic<bool>> cancelState);
+                                 std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     UnprotectResult Unprotect(const UserContext& userContext,
                               const UnprotectOptions& options,
                               std::shared_ptr<std::fstream> outputStream,
-                              std::shared_ptr<std::atomic<bool>> cancelState);
+                              std::shared_ptr<std::atomic<bool>> cancelState) override;
 
-    bool IsProtected();
+    bool IsProtected() const override;
 
 private:
     void Protect(const std::shared_ptr<std::fstream>& outputStream);

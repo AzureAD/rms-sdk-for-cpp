@@ -39,7 +39,7 @@ public:
                                       std::shared_ptr<std::fstream> outputStream,
                                       std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
-    virtual bool IsProtected() = 0;
+    virtual bool IsProtected() const = 0;
 
     virtual ~Protector() { }
 

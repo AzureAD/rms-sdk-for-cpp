@@ -18,9 +18,10 @@ namespace fileapi {
 
 enum class ProtectorType {
     PFILE = 0,
-    OPC = 1,
-    MSO = 2,
-    PDF = 3,
+    PSTAR = 1,
+    OPC = 2,
+    MSO = 3,
+    PDF = 4,
 };
 
 class ProtectorSelector
@@ -35,12 +36,12 @@ public:
     std::string GetOutputFileName();
 
 private:
-    void Init();
+    static std::map<std::string, ProtectorType> Init();
 
-    void Compute(std::string fileName);
+    static std::map<std::string, ProtectorType> GetProtectorExtensionsMap();
 
-    std::map<ProtectorType, std::vector<std::string>> m_nativeProtectorExtensions;
-    std::vector<std::string> m_pStarExtensions;
+    void Compute(const std::string& fileName);
+
     std::string m_fileExtension;
     std::string m_newFileName;
     ProtectorType m_pType;

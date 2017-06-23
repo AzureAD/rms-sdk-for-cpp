@@ -27,9 +27,9 @@ namespace fileapi {
 
 PFileProtector::PFileProtector(const std::string& originalFileExtension,
                                std::shared_ptr<std::fstream> inputStream)
+    : m_originalFileExtension(originalFileExtension),
+      m_inputStream(inputStream)
 {
-    m_originalFileExtension = originalFileExtension;
-    m_inputStream = inputStream;
 }
 
 PFileProtector::~PFileProtector()
@@ -111,11 +111,7 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
     }
 
     std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
-
-    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
-                modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
-                modernapi::PolicyAcquisitionOptions::POL_None;
+    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);    
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
     try
     {
@@ -128,6 +124,9 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
       throw;
     }
 
+    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
+                modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
+                modernapi::PolicyAcquisitionOptions::POL_None;
     auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
     if (options.useCache)
     {
@@ -163,7 +162,7 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
     return (UnprotectResult)policyRequest->Status;
 }
 
-bool PFileProtector::IsProtected()
+bool PFileProtector::IsProtected() const
 {
     Logger::Hidden("+PFileProtector::IsProtected");
     std::shared_ptr<std::iostream> inputIO = m_inputStream;
@@ -217,7 +216,7 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::Creat
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
     // Cache block size to be 512 for cbc512, 4096 for cbc4k and ecb
-    uint64_t protectedStreamBlockSize = cryptoProvider->GetBlockSize() == 512 ? 512 : 4096;
+    uint64_t protectedStreamBlockSize = m_blockSize == 512 ? 512 : 4096;
     auto contentStartPosition = header->GetContentStartPosition();
     auto backingStreamImpl = stream->Clone();
     return rmscrypto::api::BlockBasedProtectedStream::Create(cryptoProvider,
@@ -319,9 +318,9 @@ std::shared_ptr<pfile::PfileHeader> PFileProtector::WriteHeader(
 }
 
 std::shared_ptr<pfile::PfileHeader> PFileProtector::ReadHeader(
-        const rmscrypto::api::SharedStream& stream)
+        const rmscrypto::api::SharedStream& stream) const
 {
-    std::shared_ptr<pfile::PfileHeader> header = nullptr;
+    std::shared_ptr<pfile::PfileHeader> header;
     auto headerReader = pfile::IPfileHeaderReader::Create();
     header  = headerReader->Read(stream);
     Logger::Hidden(
