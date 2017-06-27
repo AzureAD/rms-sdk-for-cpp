@@ -75,7 +75,7 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                 true, m_userPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = m_userPolicy->SerializedPolicy();
-    dataSpaces->WriteDataspaces(m_storage, publishingLicense);    
+    dataSpaces->WriteDataspaces(m_storage, publishingLicense);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
 }
 

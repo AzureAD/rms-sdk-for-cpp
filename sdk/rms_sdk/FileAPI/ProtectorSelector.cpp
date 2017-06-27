@@ -19,9 +19,9 @@ namespace rmscore {
 namespace fileapi {
 
 ProtectorSelector::ProtectorSelector(const std::string& fileName)
+    : m_fileExtension(".pfile"),
+      m_pType(ProtectorType::PFILE)
 {
-    m_fileExtension = ".pfile";
-    m_pType = ProtectorType::PFILE;
     Compute(fileName);
 }
 
@@ -77,7 +77,8 @@ void ProtectorSelector::Compute(const std::string& fileName)
     if (pos == std::string::npos)
     {
         Logger::Error("Invalid filename provided.", fileName);
-        throw exceptions::RMSInvalidArgumentException("Full filename with extension needed");
+        throw exceptions::RMSInvalidArgumentException(
+                    "Full filename with extension needed. Filename provided: " + fileName);
     }
 
     std::string ext = fileName.substr(pos);    
