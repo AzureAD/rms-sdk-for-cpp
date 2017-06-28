@@ -91,56 +91,47 @@ void DataSpaces::WriteDataspaces(GsfOutfile* stg,
     }
 
     Logger::Hidden("Writing DataSpaces");
-    GsfOutput* dataSpaceStg = gsf_outfile_new_child(stg, dataSpace, true);
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> dataSpaceStg(
+                gsf_outfile_new_child(stg, dataSpace, true));
 
     Logger::Hidden("Writing Version.");
-    GsfOutput*  versionStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
-                                                   version, false);
-    gsf_output_seek(versionStm, 0, G_SEEK_SET);
-    WriteVersion(versionStm, versionFeature);
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> versionStm(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
+                                                   version, false));
+    gsf_output_seek(versionStm.get(), 0, G_SEEK_SET);
+    WriteVersion(versionStm.get(), versionFeature);
 
     Logger::Hidden("Writing DataSpaceMap.");
-    GsfOutput* dataSpaceMapStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
-                                                       dataSpaceMap, false);
-    gsf_output_seek(dataSpaceMapStm, 0, G_SEEK_SET);
-    WriteDataSpaceMap(dataSpaceMapStm);
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> dataSpaceMapStm(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
+                                                       dataSpaceMap, false));
+    gsf_output_seek(dataSpaceMapStm.get(), 0, G_SEEK_SET);
+    WriteDataSpaceMap(dataSpaceMapStm.get());
 
     Logger::Hidden("Writing DRMDataSpace.");
-    GsfOutput* dataSpaceInfoStg = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
-                                                        dataSpaceInfo, true);
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> dataSpaceInfoStg(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
+                                                        dataSpaceInfo, true));
     std::string drmDataSpaceStmName = m_isMetro ? metroDataSpace : drmDataSpace;
-    GsfOutput* drmDataSpaceStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceInfoStg),
-                                                       drmDataSpaceStmName.c_str(), false);
-    gsf_output_seek(drmDataSpaceStm, 0, G_SEEK_SET);
-    WriteDRMDataSpace(drmDataSpaceStm);
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> drmDataSpaceStm(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceInfoStg.get()),
+                                                       drmDataSpaceStmName.c_str(), false));
+    gsf_output_seek(drmDataSpaceStm.get(), 0, G_SEEK_SET);
+    WriteDRMDataSpace(drmDataSpaceStm.get());
 
     Logger::Hidden("Writing Primary in.");
-    GsfOutput* transformInfoStg = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
-                                                        transformInfo, true);
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> transformInfoStg(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
+                                                        transformInfo, true));
     std::string drmTransformStgName = m_isMetro ? metroTransform : drmTransform;
-    GsfOutput* drmTransformStg = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(transformInfoStg),
-                                                       drmTransformStgName.c_str(), true);
-    GsfOutput* primaryStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(drmTransformStg),
-                                                  primary, false);
-    gsf_output_seek(primaryStm, 0, G_SEEK_SET);
-    WritePrimary(primaryStm, publishingLicense);
-
-    gsf_output_close(dataSpaceStg);
-    gsf_output_close(versionStm);
-    gsf_output_close(dataSpaceMapStm);
-    gsf_output_close(dataSpaceInfoStg);
-    gsf_output_close(drmDataSpaceStm);
-    gsf_output_close(transformInfoStg);
-    gsf_output_close(drmTransformStg);
-    gsf_output_close(primaryStm);
-    g_object_unref(G_OBJECT(dataSpaceStg));
-    g_object_unref(G_OBJECT(versionStm));
-    g_object_unref(G_OBJECT(dataSpaceMapStm));
-    g_object_unref(G_OBJECT(dataSpaceInfoStg));
-    g_object_unref(G_OBJECT(drmDataSpaceStm));
-    g_object_unref(G_OBJECT(transformInfoStg));
-    g_object_unref(G_OBJECT(drmTransformStg));
-    g_object_unref(G_OBJECT(primaryStm));
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> drmTransformStg(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(transformInfoStg.get()),
+                                                       drmTransformStgName.c_str(), true));
+    std::unique_ptr<GsfOutput, GsfOutput_deleter> primaryStm(
+                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(drmTransformStg.get()),
+                                                  primary, false));
+    gsf_output_seek(primaryStm.get(), 0, G_SEEK_SET);
+    WritePrimary(primaryStm.get(), publishingLicense);
 }
 
 //todo add logging here
@@ -155,12 +146,15 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg,
                     exceptions::RMSMetroOfficeFileException::Unknown);
     }
     Logger::Hidden("Reading DataSpaces");
-    GsfInput* dataSpaceStg = gsf_infile_child_by_name(stg, dataSpace);
-    GsfInput* transformInfoStg = gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(dataSpaceStg),
-                                                           transformInfo);
-    GsfInput* passwordTransformStg = gsf_infile_child_by_name(
-                reinterpret_cast<GsfInfile*>(transformInfoStg), passwordTransform);
-    if(passwordTransformStg != nullptr)
+    std::unique_ptr<GsfInput, GsfInput_deleter> dataSpaceStg(
+                gsf_infile_child_by_name(stg, dataSpace));
+    std::unique_ptr<GsfInput, GsfInput_deleter> transformInfoStg(
+                gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(dataSpaceStg.get()),
+                                                           transformInfo));
+    std::unique_ptr<GsfInput, GsfInput_deleter> passwordTransformStg(
+                gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(transformInfoStg.get()),
+                                         passwordTransform));
+    if(passwordTransformStg.get() != nullptr)
     {
         Logger::Error("The file has been protected using non RMS technologies");
         throw exceptions::RMSMetroOfficeFileException(
@@ -169,10 +163,12 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg,
     }
 
     std::string drmTransformStgName = m_isMetro ? metroTransform : drmTransform;
-    GsfInput* drmTransformStg = gsf_infile_child_by_name(
-                reinterpret_cast<GsfInfile*>(transformInfoStg), drmTransformStgName.c_str());
-    GsfInput* primaryStm = gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(drmTransformStg),
-                                                    primary);
+    std::unique_ptr<GsfInput, GsfInput_deleter> drmTransformStg(
+                gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(transformInfoStg.get()),
+                                         drmTransformStgName.c_str()));
+    std::unique_ptr<GsfInput, GsfInput_deleter> primaryStm(
+                gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(drmTransformStg.get()),
+                                                    primary));
 
     if(primaryStm == nullptr)
     {
@@ -183,14 +179,8 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg,
     }
 
     Logger::Hidden("Reading Primary.");
-    gsf_input_seek(primaryStm, 0, G_SEEK_SET);
-    ReadPrimary(primaryStm, publishingLicense);
-
-    g_object_unref(G_OBJECT(dataSpaceStg));
-    g_object_unref(G_OBJECT(transformInfoStg));
-    g_object_unref(G_OBJECT(passwordTransformStg));
-    g_object_unref(G_OBJECT(drmTransformStg));
-    g_object_unref(G_OBJECT(primaryStm));
+    gsf_input_seek(primaryStm.get(), 0, G_SEEK_SET);
+    ReadPrimary(primaryStm.get(), publishingLicense);
 }
 
 void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content)

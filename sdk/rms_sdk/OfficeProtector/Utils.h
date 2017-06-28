@@ -23,6 +23,40 @@ void AlignInputAtFourBytes(GsfInput* stm, uint32_t contentLength);
 std::string ConvertCharStrToWideStr(const std::string& input);
 std::string ConvertWideStrToCharStr(const std::string& input);
 
+struct GsfOutput_deleter
+{
+    void operator () (GsfOutput* obj) const
+    {
+        gsf_output_close(obj);
+        g_object_unref(G_OBJECT(obj));
+    }
+};
+
+struct GsfOutfile_deleter
+{
+    void operator () (GsfOutfile* obj) const
+    {
+        gsf_output_close(reinterpret_cast<GsfOutput*>(obj));
+        g_object_unref(G_OBJECT(obj));
+    }
+};
+
+struct GsfInput_deleter
+{
+    void operator () (GsfInput* obj) const
+    {
+        g_object_unref(G_OBJECT(obj));
+    }
+};
+
+struct GsfInfile_deleter
+{
+    void operator () (GsfInfile* obj) const
+    {
+        g_object_unref(G_OBJECT(obj));
+    }
+};
+
 } // namespace officeprotector
 } // namespace rmscore
 
