@@ -10,15 +10,16 @@
 #define RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
 
 #include <string>
-#include "pole.h"
+#include <gsf/gsf.h>
 
 namespace rmscore {
 namespace officeprotector {
 
-uint32_t WriteWideStringEntry(const std::shared_ptr<pole::Stream>& stm, const std::string& entry);
-uint32_t ReadWideStringEntry(const std::shared_ptr<pole::Stream>& stm, std::string& entry);
+void WriteWideStringEntry(GsfOutput* stm, const std::string& entry);
+void ReadWideStringEntry(GsfInput* stm, std::string& entry);
 uint32_t FourByteAlignedWideStringLength(const std::string& entry);
-uint32_t AlignAtFourBytes(const std::shared_ptr<pole::Stream>& stm, uint32_t contentLength, bool write);
+void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength);
+void AlignInputAtFourBytes(GsfInput* stm, uint32_t contentLength);
 std::string ConvertCharStrToWideStr(const std::string& input);
 std::string ConvertWideStrToCharStr(const std::string& input);
 

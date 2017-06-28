@@ -80,7 +80,7 @@ DataSpaces::~DataSpaces()
 {
 }
 
-void DataSpaces::WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
+void DataSpaces::WriteDataspaces(GsfOutfile* stg,
                                  const ByteArray& publishingLicense)
 {
     if(stg == nullptr)
@@ -89,52 +89,62 @@ void DataSpaces::WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
         throw exceptions::RMSMetroOfficeFileException(
                     "Error in writing to storage", exceptions::RMSMetroOfficeFileException::Unknown);
     }
+
     Logger::Hidden("Writing DataSpaces");
-    Logger::Hidden("Deleting DataSpaces if exists");
-    std::string dataSpaceStgName("");
-    dataSpaceStgName.append(rootEntry).append(dataSpace);
-    stg->deleteByName(dataSpaceStgName);
+    GsfOutput* dataSpaceStg = gsf_outfile_new_child(stg, dataSpace, true);
 
-    std::string versionStmName = dataSpaceStgName + separator + version;
-    Logger::Hidden("Writing Version in " + versionStmName);
-    std::shared_ptr<pole::Stream> versionStm = std::make_shared<pole::Stream>(stg.get(),
-                                                                              versionStmName, true);
-    versionStm->seek(0);
+    Logger::Hidden("Writing Version.");
+    GsfOutput*  versionStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
+                                                   version, false);
+    gsf_output_seek(versionStm, 0, G_SEEK_SET);
     WriteVersion(versionStm, versionFeature);
-    versionStm->flush();
 
-    std::string dataSpaceMapStmName = dataSpaceStgName + separator + dataSpaceMap;
-    Logger::Hidden("Writing DataSpaceMap in " + dataSpaceMapStmName);
-    std::shared_ptr<pole::Stream> dataSpaceMapStm = std::make_shared<pole::Stream>(
-                stg.get(), dataSpaceMapStmName, true);
-    dataSpaceMapStm->seek(0);
+    Logger::Hidden("Writing DataSpaceMap.");
+    GsfOutput* dataSpaceMapStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
+                                                       dataSpaceMap, false);
+    gsf_output_seek(dataSpaceMapStm, 0, G_SEEK_SET);
     WriteDataSpaceMap(dataSpaceMapStm);
-    dataSpaceMapStm->flush();
 
-    std::string dataSpaceInfoStgName = dataSpaceStgName + separator + dataSpaceInfo;
-    std::string drmDataSpaceStmName = dataSpaceInfoStgName + separator +
-            (m_isMetro ? metroDataSpace : drmDataSpace);
-    Logger::Hidden("Writing DRMDataSpace in " + drmDataSpaceStmName);
-    std::shared_ptr<pole::Stream> drmDataSpaceStm = std::make_shared<pole::Stream>(
-                stg.get(), drmDataSpaceStmName, true);
-    drmDataSpaceStm->seek(0);
+    Logger::Hidden("Writing DRMDataSpace.");
+    GsfOutput* dataSpaceInfoStg = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
+                                                        dataSpaceInfo, true);
+    std::string drmDataSpaceStmName = m_isMetro ? metroDataSpace : drmDataSpace;
+    GsfOutput* drmDataSpaceStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceInfoStg),
+                                                       drmDataSpaceStmName.c_str(), false);
+    gsf_output_seek(drmDataSpaceStm, 0, G_SEEK_SET);
     WriteDRMDataSpace(drmDataSpaceStm);
-    drmDataSpaceStm->flush();
 
-    std::string transformInfoStgName = dataSpaceStgName + separator + transformInfo;
-    std::string drmTransformStgName = transformInfoStgName + separator +
-            (m_isMetro ? metroTransform : drmTransform);
-    std::string primaryStmName = drmTransformStgName + separator + primary;
-    Logger::Hidden("Writing Primary in " + primaryStmName);
-    std::shared_ptr<pole::Stream> primaryStm = std::make_shared<pole::Stream>(
-                stg.get(), primaryStmName, true);
-    primaryStm->seek(0);
+    Logger::Hidden("Writing Primary in.");
+    GsfOutput* transformInfoStg = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg),
+                                                        transformInfo, true);
+    std::string drmTransformStgName = m_isMetro ? metroTransform : drmTransform;
+    GsfOutput* drmTransformStg = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(transformInfoStg),
+                                                       drmTransformStgName.c_str(), true);
+    GsfOutput* primaryStm = gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(drmTransformStg),
+                                                  primary, false);
+    gsf_output_seek(primaryStm, 0, G_SEEK_SET);
     WritePrimary(primaryStm, publishingLicense);
-    primaryStm->flush();
+
+    gsf_output_close(dataSpaceStg);
+    gsf_output_close(versionStm);
+    gsf_output_close(dataSpaceMapStm);
+    gsf_output_close(dataSpaceInfoStg);
+    gsf_output_close(drmDataSpaceStm);
+    gsf_output_close(transformInfoStg);
+    gsf_output_close(drmTransformStg);
+    gsf_output_close(primaryStm);
+    g_object_unref(G_OBJECT(dataSpaceStg));
+    g_object_unref(G_OBJECT(versionStm));
+    g_object_unref(G_OBJECT(dataSpaceMapStm));
+    g_object_unref(G_OBJECT(dataSpaceInfoStg));
+    g_object_unref(G_OBJECT(drmDataSpaceStm));
+    g_object_unref(G_OBJECT(transformInfoStg));
+    g_object_unref(G_OBJECT(drmTransformStg));
+    g_object_unref(G_OBJECT(primaryStm));
 }
 
 //todo add logging here
-void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
+void DataSpaces::ReadDataspaces(GsfInfile *stg,
                                 ByteArray& publishingLicense)
 {
     if(stg == nullptr)
@@ -145,12 +155,12 @@ void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
                     exceptions::RMSMetroOfficeFileException::Unknown);
     }
     Logger::Hidden("Reading DataSpaces");
-    std::string dataSpaceStgName("");
-    dataSpaceStgName.append(rootEntry).append(dataSpace);
-    std::string transformInfoStgName = dataSpaceStgName + separator + transformInfo;
-    std::string passwordTransformStgName = transformInfoStgName + separator + passwordTransform;
-
-    if(stg->exists(passwordTransformStgName))
+    GsfInput* dataSpaceStg = gsf_infile_child_by_name(stg, dataSpace);
+    GsfInput* transformInfoStg = gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(dataSpaceStg),
+                                                           transformInfo);
+    GsfInput* passwordTransformStg = gsf_infile_child_by_name(
+                reinterpret_cast<GsfInfile*>(transformInfoStg), passwordTransform);
+    if(passwordTransformStg != nullptr)
     {
         Logger::Error("The file has been protected using non RMS technologies");
         throw exceptions::RMSMetroOfficeFileException(
@@ -158,10 +168,13 @@ void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
                     exceptions::RMSMetroOfficeFileException::NonRMSProtected);
     }
 
-    std::string primaryStmName = transformInfoStgName + separator +
-                                    (m_isMetro ? metroTransform : drmTransform) + separator + primary;
+    std::string drmTransformStgName = m_isMetro ? metroTransform : drmTransform;
+    GsfInput* drmTransformStg = gsf_infile_child_by_name(
+                reinterpret_cast<GsfInfile*>(transformInfoStg), drmTransformStgName.c_str());
+    GsfInput* primaryStm = gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(drmTransformStg),
+                                                    primary);
 
-    if(!stg->exists(primaryStmName))
+    if(primaryStm == nullptr)
     {
         Logger::Error("The primary stream doesn't exist.");
         throw exceptions::RMSMetroOfficeFileException(
@@ -169,14 +182,18 @@ void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
-    Logger::Hidden("Reading Primary from " + primaryStmName);
-    std::shared_ptr<pole::Stream> stm = std::make_shared<pole::Stream>(stg.get(), primaryStmName,
-                                                                       false);
-    stm->seek(0);
-    ReadPrimary(stm, publishingLicense);
+    Logger::Hidden("Reading Primary.");
+    gsf_input_seek(primaryStm, 0, G_SEEK_SET);
+    ReadPrimary(primaryStm, publishingLicense);
+
+    g_object_unref(G_OBJECT(dataSpaceStg));
+    g_object_unref(G_OBJECT(transformInfoStg));
+    g_object_unref(G_OBJECT(passwordTransformStg));
+    g_object_unref(G_OBJECT(drmTransformStg));
+    g_object_unref(G_OBJECT(primaryStm));
 }
 
-void DataSpaces::WriteVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& content)
+void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content)
 {
     if( stm == nullptr || content.empty())
     {
@@ -193,15 +210,15 @@ void DataSpaces::WriteVersion(const std::shared_ptr<pole::Stream>& stm, const st
     uint16_t writerMinor  = 0;
 
     WriteWideStringEntry(stm, content);
-    stm->write(reinterpret_cast<unsigned char*>(&readerMajor), sizeof(uint16_t));
-    stm->write(reinterpret_cast<unsigned char*>(&readerMinor), sizeof(uint16_t));
-    stm->write(reinterpret_cast<unsigned char*>(&updaterMajor), sizeof(uint16_t));
-    stm->write(reinterpret_cast<unsigned char*>(&updaterMinor), sizeof(uint16_t));
-    stm->write(reinterpret_cast<unsigned char*>(&writerMajor), sizeof(uint16_t));
-    stm->write(reinterpret_cast<unsigned char*>(&writerMinor), sizeof(uint16_t));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&readerMajor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&readerMinor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&updaterMajor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&updaterMinor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&writerMajor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&writerMinor));
 }
 
-void DataSpaces::ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm,
+void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
                                       const std::string& contentExpected)
 {
     if( stm == nullptr || contentExpected.empty())
@@ -225,12 +242,12 @@ void DataSpaces::ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm,
     uint16_t writerMinorRead  = 0;
 
     ReadWideStringEntry(stm, contentRead);
-    stm->read(reinterpret_cast<unsigned char*>(&readerMajorRead), sizeof(uint16_t));
-    stm->read(reinterpret_cast<unsigned char*>(&readerMinorRead), sizeof(uint16_t));
-    stm->read(reinterpret_cast<unsigned char*>(&updaterMajorRead), sizeof(uint16_t));
-    stm->read(reinterpret_cast<unsigned char*>(&updaterMinorRead), sizeof(uint16_t));
-    stm->read(reinterpret_cast<unsigned char*>(&writerMajorRead), sizeof(uint16_t));
-    stm->read(reinterpret_cast<unsigned char*>(&writerMinorRead), sizeof(uint16_t));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&readerMajorRead));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&readerMinorRead));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&updaterMajorRead));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&updaterMinorRead));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&writerMajorRead));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&writerMinorRead));
 
     if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
             updaterMajorRead != updaterMajorExpected || writerMajorRead != writerMajorExpected)
@@ -243,7 +260,7 @@ void DataSpaces::ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm,
     }
 }
 
-void DataSpaces::WriteDataSpaceMap(const std::shared_ptr<pole::Stream>& stm)
+void DataSpaces::WriteDataSpaceMap(GsfOutput *stm)
 {
     DataSpaceMapHeader dsmh;
     DataSpaceMapEntryHeader dsmeh;
@@ -259,8 +276,9 @@ void DataSpaces::WriteDataSpaceMap(const std::shared_ptr<pole::Stream>& stm)
 
     dsmh.headerLen = sizeof(dsmh);
     dsmh.entryCount = 1;
-    stm->write(reinterpret_cast<unsigned char*>(&dsmh.headerLen), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(&dsmh.entryCount), sizeof(uint32_t));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dsmh.headerLen));
+    gsf_output_write(stm, sizeof(uint32_t),
+                     reinterpret_cast<const unsigned char*>(&dsmh.entryCount));
 
     dsmeh.entryLen = sizeof(dsmeh) + sizeof(uint32_t) +
                         (m_isMetro ? FourByteAlignedWideStringLength(metroContent) +
@@ -269,14 +287,15 @@ void DataSpaces::WriteDataSpaceMap(const std::shared_ptr<pole::Stream>& stm)
                                      FourByteAlignedWideStringLength(drmDataSpace));
     dsmeh.componentCount = 1;
 
-    stm->write(reinterpret_cast<unsigned char*>(&dsmeh.entryLen), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(&dsmeh.componentCount), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(&refVar), sizeof(uint32_t));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dsmeh.entryLen));
+    gsf_output_write(stm, sizeof(uint32_t),
+                     reinterpret_cast<const unsigned char*>(&dsmeh.componentCount));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&refVar));
     WriteWideStringEntry(stm, m_isMetro ? metroContent : drmContent);
     WriteWideStringEntry(stm, m_isMetro ? metroDataSpace : drmDataSpace);
 }
 
-void DataSpaces::WriteDRMDataSpace(const std::shared_ptr<pole::Stream>& stm)
+void DataSpaces::WriteDRMDataSpace(GsfOutput* stm)
 {
     if( stm == nullptr)
     {
@@ -290,12 +309,12 @@ void DataSpaces::WriteDRMDataSpace(const std::shared_ptr<pole::Stream>& stm)
     dth.headerLen = sizeof(dth);
     dth.txCount = 1;
 
-    stm->write(reinterpret_cast<unsigned char*>(&dth.headerLen), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(&dth.txCount), sizeof(uint32_t));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dth.headerLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dth.txCount));
     WriteWideStringEntry(stm, m_isMetro ? metroTransform : drmTransform);
 }
 
-void DataSpaces::WriteTxInfo(const std::shared_ptr<pole::Stream>& stm,
+void DataSpaces::WriteTxInfo(GsfOutput *stm,
                              const std::string& txClassName,
                              const std::string& featureName)
 {
@@ -311,13 +330,13 @@ void DataSpaces::WriteTxInfo(const std::shared_ptr<pole::Stream>& stm,
     dti.headerLen = sizeof(dti) + FourByteAlignedWideStringLength(txClassName);
     dti.txClassType = 1;
 
-    stm->write(reinterpret_cast<unsigned char*>(&dti.headerLen), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(&dti.txClassType), sizeof(uint32_t));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dti.headerLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dti.txClassType));
     WriteWideStringEntry(stm, txClassName);
     WriteVersion(stm, featureName);
 }
 
-void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
+void DataSpaces::ReadTxInfo(GsfInput* stm,
                             const std::string& txClassNameExpected,
                             const std::string& featureNameExpected)
 {
@@ -334,8 +353,8 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
     dtiExpected.txClassType = 1;
 
     DRMTransformInfo dtiRead;
-    stm->read(reinterpret_cast<unsigned char*>(&dtiRead.headerLen), sizeof(uint32_t));
-    stm->read(reinterpret_cast<unsigned char*>(&dtiRead.txClassType), sizeof(uint32_t));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&dtiRead.headerLen));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&dtiRead.txClassType));
 
     if(dtiRead.headerLen != dtiExpected.headerLen || dtiRead.txClassType != dtiExpected.txClassType)
     {
@@ -359,7 +378,7 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
     ReadAndVerifyVersion(stm, featureNameExpected);
 }
 
-void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
+void DataSpaces::WritePrimary(GsfOutput* stm,
                               const ByteArray& publishingLicense)
 {
     if(stm == nullptr || publishingLicense.empty())
@@ -371,7 +390,7 @@ void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
 
     uint32_t headerLen = sizeof(headerLen);
     WriteTxInfo(stm, drmTransformClass, drmTransformFeature);
-    stm->write(reinterpret_cast<unsigned char*>(&headerLen), sizeof(uint32_t));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&headerLen));
     std::string publishingLicenseStr(reinterpret_cast<const char*>(publishingLicense.data()),
                                      publishingLicense.size());
     if ((publishingLicenseStr.length() > sizeof(BOM_UTF8)) &&
@@ -388,13 +407,14 @@ void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
     }
 
     uint32_t publishingLicenseLen = publishingLicenseStr.length();
-    stm->write(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
-    stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(publishingLicenseStr.data())),
-               publishingLicenseLen);
-    AlignAtFourBytes(stm, publishingLicenseLen, true);
+    gsf_output_write(stm, sizeof(uint32_t),
+                     reinterpret_cast<const unsigned char*>(&publishingLicenseLen));
+    gsf_output_write(stm, sizeof(uint32_t),
+                     reinterpret_cast<const unsigned char*>(publishingLicenseStr.data()));
+    AlignOutputAtFourBytes(stm, publishingLicenseLen);
 }
 
-void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense)
+void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
 {
     if(stm == nullptr)
     {
@@ -406,7 +426,7 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
 
     uint32_t headerLenRead = 0;
     ReadTxInfo(stm, drmTransformClass, drmTransformFeature);
-    stm->read(reinterpret_cast<unsigned char*>(&headerLenRead), sizeof(uint32_t));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&headerLenRead));
     headerLenRead -= sizeof(headerLenRead);
     if(headerLenRead != 0)
     {
@@ -416,9 +436,9 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
     uint32_t publishingLicenseLen = 0;
-    stm->read(reinterpret_cast<unsigned char*>(&publishingLicenseLen), sizeof(uint32_t));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&publishingLicenseLen));
     std::unique_ptr<unsigned char[]> pl(new unsigned char[publishingLicenseLen]);
-    stm->read(pl.get(), publishingLicenseLen);
+    gsf_input_read(stm, publishingLicenseLen, pl.get());
     std::string publishingLicenseStr((char*)pl.get(), publishingLicenseLen);
     if(m_doesUseDeprecatedAlgorithm)
     {
@@ -427,7 +447,7 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
 
     publishingLicense.clear();
     std::copy(publishingLicenseStr.begin(), publishingLicenseStr.end(), std::back_inserter(publishingLicense));
-    AlignAtFourBytes(stm, publishingLicenseLen, false);
+    AlignInputAtFourBytes(stm, publishingLicenseLen);
 }
 
 std::shared_ptr<IDataSpaces>IDataSpaces::Create(bool isMetro)

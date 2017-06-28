@@ -11,7 +11,6 @@
 
 #include "IDataSpaces.h"
 #include "../Common/CommonTypes.h"
-#include "pole.h"
 
 using namespace rmscore::common;
 
@@ -23,25 +22,25 @@ class DataSpaces : public IDataSpaces
 public:
     DataSpaces(bool isMetro, bool doesUseDeprecatedAlgorithm = true);
     ~DataSpaces();
-    void WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
+    void WriteDataspaces(GsfOutfile* stg,
                          const ByteArray& publishingLicense) override;
-    void ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
+    void ReadDataspaces(GsfInfile* stg,
                         ByteArray& publishingLicense) override;
 
 private:
 
-    void WriteVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& content);
-    void ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& contentExpected);
-    void WriteDataSpaceMap(const std::shared_ptr<pole::Stream>& stm);
-    void WriteDRMDataSpace(const std::shared_ptr<pole::Stream>& stm);
-    void WriteTxInfo(const std::shared_ptr<pole::Stream>& stm,
+    void WriteVersion(GsfOutput* stm, const std::string& content);
+    void ReadAndVerifyVersion(GsfInput* stm, const std::string& contentExpected);
+    void WriteDataSpaceMap(GsfOutput* stm);
+    void WriteDRMDataSpace(GsfOutput *stm);
+    void WriteTxInfo(GsfOutput* stm,
                      const std::string& txClassName,
                      const std::string& featureName);
-    void ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
+    void ReadTxInfo(GsfInput* stm,
                     const std::string& txClassName,
                     const std::string& featureName);
-    void WritePrimary(const std::shared_ptr<pole::Stream>& stm,  const ByteArray& publishingLicense);
-    void ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense);
+    void WritePrimary(GsfOutput* stm,  const ByteArray& publishingLicense);
+    void ReadPrimary(GsfInput* stm, ByteArray& publishingLicense);
 
     bool m_isMetro = true;
     bool m_doesUseDeprecatedAlgorithm;

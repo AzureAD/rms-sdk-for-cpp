@@ -41,10 +41,62 @@ std::string ConvertWideStrToCharStr(const std::string& input)
     return charStr;
 }
 
-// Aligns the stream at four bytes. Adds null chars while writing
-// and seeks to the aligned position while reading.
-uint32_t AlignAtFourBytes(const std::shared_ptr<pole::Stream>& stm,
-                          uint32_t contentLength, bool write)
+// Writes a string to a stream after converting it to a wide string.
+void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
+{
+    if(stm == nullptr || entry.empty())
+    {
+        Logger::Error("Invalid arguments provided for writing string entry");
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
+    }
+
+    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
+    std::string wideEntry = ConvertCharStrToWideStr(entry);
+    uint32_t wideEntryLen = wideEntry.length();
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&wideEntryLen));
+    gsf_output_write(stm, wideEntryLen, reinterpret_cast<const unsigned char*>(wideEntry.data()));
+    AlignOutputAtFourBytes(stm, wideEntryLen);
+}
+
+// Reads a wide string and converts it to a string.
+void ReadWideStringEntry(GsfInput *stm, std::string& entry)
+{
+    if(stm == nullptr)
+    {
+        Logger::Error("Invalid arguments provided for reading string entry");
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Error in reading from stream", exceptions::RMSMetroOfficeFileException::Unknown);
+    }
+
+    uint32_t wideEntryLen = 0;
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&wideEntryLen));
+
+    if(wideEntryLen % 2 != 0)
+    {
+        Logger::Error("Corrupt doc file.");
+        throw exceptions::RMSMetroOfficeFileException(
+                    "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
+    }
+    std::unique_ptr<unsigned char[]> wideEntry(new unsigned char[wideEntryLen]);
+    gsf_input_read(stm, wideEntryLen, wideEntry.get());
+    std::string wideStr((char*)wideEntry.get(), wideEntryLen);
+    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
+    entry = ConvertWideStrToCharStr(wideStr);
+    AlignInputAtFourBytes(stm, wideEntryLen);
+}
+
+// calculates length of bytes written/read in WriteWideStringEntry()/ReadWideStringEntry()
+uint32_t FourByteAlignedWideStringLength(const std::string& entry)
+{
+    size_t len = sizeof(uint32_t) + (entry.length() << 1);
+    // The bitmask is used to round up to the nearest multiple of 4.
+    return ((len + 3) & ~3);
+}
+
+
+// Aligns the stream at four bytes. Adds null chars
+void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength)
 {
     if(stm == nullptr || contentLength < 1)
     {
@@ -56,81 +108,25 @@ uint32_t AlignAtFourBytes(const std::shared_ptr<pole::Stream>& stm,
     uint32_t alignCount = ((contentLength + 3) & ~3) - contentLength;
     std::string alignBytes;
 
-    if(write)
-    {
-        for(uint32_t i = 0; i < alignCount; i++)
-            alignBytes.push_back('\0');
+    for(uint32_t i = 0; i < alignCount; i++)
+        alignBytes.push_back('\0');
 
-        stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(alignBytes.data())),
-                   alignCount);
-    }
-    else
-    {
-        uint64_t pos = stm->tell();
-        stm->seek(pos + alignCount);
-    }
-    return alignCount;
+    gsf_output_write(stm, alignCount, reinterpret_cast<const unsigned char*>(alignBytes.data()));
 }
 
-// Writes a string to a stream after converting it to a wide string.
-uint32_t WriteWideStringEntry(const std::shared_ptr<pole::Stream>& stm, const std::string& entry)
+// Aligns the stream at four bytes. Seeks to the aligned position while reading.
+void AlignInputAtFourBytes(GsfInput *stm, uint32_t contentLength)
 {
-    if(stm == nullptr || entry.empty())
+    if(stm == nullptr || contentLength < 1)
     {
-        Logger::Error("Invalid arguments provided for writing string entry");
+        Logger::Error("Invalid arguments provided for byte alignment");
         throw exceptions::RMSMetroOfficeFileException(
-                    "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
+                    "Error in aligning stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
-    uint32_t bytesWritten = 0;
-    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
-    std::string wideEntry = ConvertCharStrToWideStr(entry);
-    uint32_t wideEntryLen = wideEntry.length();
-    bytesWritten += stm->write(reinterpret_cast<unsigned char*>(&wideEntryLen),
-                               sizeof(uint32_t));
-    bytesWritten += stm->write(reinterpret_cast<unsigned char*>(const_cast<char*>(wideEntry.data())),
-                               wideEntryLen);
-    bytesWritten += AlignAtFourBytes(stm, wideEntryLen, true);
-
-    return bytesWritten;
-}
-
-// Reads a wide string and converts it to a string.
-uint32_t ReadWideStringEntry(const std::shared_ptr<pole::Stream>& stm, std::string& entry)
-{
-    if(stm == nullptr)
-    {
-        Logger::Error("Invalid arguments provided for reading string entry");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Error in reading from stream", exceptions::RMSMetroOfficeFileException::Unknown);
-    }
-
-    uint32_t bytesRead = 0;
-    uint32_t wideEntryLen = 0;
-    bytesRead += stm->read(reinterpret_cast<unsigned char*>(&wideEntryLen), sizeof(uint32_t));
-
-    if(wideEntryLen % 2 != 0)
-    {
-        Logger::Error("Corrupt doc file.");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
-    }
-    std::unique_ptr<unsigned char[]> wideEntry(new unsigned char[wideEntryLen]);
-    bytesRead += stm->read(wideEntry.get(), wideEntryLen);
-    std::string wideStr((char*)wideEntry.get(), wideEntryLen);
-    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
-    entry = ConvertWideStrToCharStr(wideStr);
-    bytesRead += AlignAtFourBytes(stm, wideEntryLen, false);
-
-    return bytesRead;
-}
-
-// calculates length of bytes written/read in WriteWideStringEntry()/ReadWideStringEntry()
-uint32_t FourByteAlignedWideStringLength(const std::string& entry)
-{
-    size_t len = sizeof(uint32_t) + (entry.length() << 1);
-    // The bitmask is used to round up to the nearest multiple of 4.
-    return ((len + 3) & ~3);
+    uint32_t alignCount = ((contentLength + 3) & ~3) - contentLength;
+    uint64_t pos = gsf_input_tell(stm);
+    gsf_input_seek(stm, pos + alignCount, G_SEEK_SET);
 }
 
 } // namespace officeprotector

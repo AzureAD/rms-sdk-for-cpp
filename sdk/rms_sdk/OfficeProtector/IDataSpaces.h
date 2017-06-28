@@ -9,8 +9,10 @@
 #ifndef RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 #define RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 
+#define _GLIBCXX_USE_CXX11_ABI 0
+
 #include "../Common/CommonTypes.h"
-#include "pole.h"
+#include <gsf/gsf.h>
 
 using namespace rmscore::common;
 
@@ -22,9 +24,9 @@ class IDataSpaces
 public:
     virtual ~IDataSpaces() {}
 
-    virtual void WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
+    virtual void WriteDataspaces(GsfOutfile* stg,
                                  const ByteArray& publishingLicense) = 0;
-    virtual void ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
+    virtual void ReadDataspaces(GsfInfile* stg,
                                 ByteArray& publishingLicense) = 0;
 
     static std::shared_ptr<IDataSpaces> Create(bool isMetro);
