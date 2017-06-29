@@ -9,7 +9,7 @@
 #ifndef RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 #define RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 
-#define _GLIBCXX_USE_CXX11_ABI 0
+//#define _GLIBCXX_USE_CXX11_ABI 0
 
 #include "../Common/CommonTypes.h"
 #include <gsf/gsf.h>

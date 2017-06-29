@@ -47,7 +47,16 @@ public:
     bool IsProtected() const override;
 
 private:
-    void Protect(GsfOutfile* stg, const std::shared_ptr<std::fstream>& outputStream);
+    void ProtectInternal(std::string tempFileName, std::fstream* outputStream);
+
+    UnprotectResult UnprotectInternal(const UserContext& userContext,
+                                      const UnprotectOptions& options,
+                                      std::shared_ptr<std::fstream> outputStream,
+                                      std::string tempFileName,
+                                      std::shared_ptr<std::atomic<bool>> cancelState);
+
+    bool IsProtectedInternal(std::string tempFileName) const;
+
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
@@ -76,7 +85,9 @@ private:
 
     void CopyFromFstreamToFile(FILE* file, std::fstream* stream) const;
 
-    std::string m_tempFileName;
+    std::string CreateTemporaryFileName() const;
+
+    std::string m_fileName;
     std::shared_ptr<std::fstream> m_inputStream;
     uint32_t m_blockSize;
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;    
