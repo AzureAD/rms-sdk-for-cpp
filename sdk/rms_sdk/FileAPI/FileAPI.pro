@@ -3,7 +3,7 @@ DESTDIR   = $$REPO_ROOT/bin
 TARGET    = rmsfile
 
 TEMPLATE = lib
-CONFIG  += plugin c++11 debug_and_release warn_on
+CONFIG  += plugin c++11 debug_and_release warn_on no_keywords
 
 DEFINES     += RMS_LIBRARY
 
@@ -57,7 +57,9 @@ unix {
     } else {
         target.path += /usr/lib
         INSTALLS += target
-    }
+    }    
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libgsf-1
 }
 
 

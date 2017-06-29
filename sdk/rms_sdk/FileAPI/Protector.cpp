@@ -36,7 +36,8 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
     {
         case ProtectorType::OPC:
         {
-            std::unique_ptr<Protector> protector(new MetroOfficeProtector(inputStream));
+            std::unique_ptr<Protector> protector(new MetroOfficeProtector(fileName,
+                                                                          inputStream));
             return protector;
         }
         break;
