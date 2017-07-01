@@ -33,9 +33,11 @@ call copy bin\rmscrypto.exp rmsSdkDeploy\.
 call copy bin\rmsd.dll rmsSdkDeploy\.
 call copy bin\rmsd.lib rmsSdkDeploy\.
 call copy bin\rmsd.exp rmsSdkDeploy\.
+call copy bin\rmsd.pdb rmsSdkDeploy\.
 call copy bin\rmscryptod.dll rmsSdkDeploy\.
 call copy bin\rmscryptod.lib rmsSdkDeploy\.
 call copy bin\rmscryptod.exp rmsSdkDeploy\.
+call copy bin\rmscryptod.pdb rmsSdkDeploy\.
 
 call copy third_party\lib\eay\ssleay32.dll rmsSdkDeploy\.
 call copy third_party\lib\eay\libeay32.dll rmsSdkDeploy\.
