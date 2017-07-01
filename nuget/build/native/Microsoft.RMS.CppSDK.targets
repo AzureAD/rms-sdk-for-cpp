@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup Label="Debug" Condition="( $(Configuration.ToLower().IndexOf('debug')) &gt; -1 )">
+    <Link>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/Debug/rmsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/Debug/rmscryptod.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Label="Release" Condition="( $(Configuration.ToLower().IndexOf('debug')) == -1 )">
+    <Link>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/Release/rms.lib;%(AdditionalDependencies)</AdditionalDependencies>
+	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/Release/rmscrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

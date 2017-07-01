@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.RMS.CppSDK</id>
+    <version>4.2.0</version>
+    <authors>RMS Dev Team</authors>
+    <licenseUrl>https://github.com/AzureAD/rms-sdk-for-cpp/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/AzureAD/rms-sdk-for-cpp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>RMS SDK for portable C++</description>
+    <summary>The Rights Management Service (RMS) portable SDK is an open-source, cross-platform, simplified SDK that enables a lightweight development experience in upgrading your device apps with information protection via Azure Rights Management Services. Developers can build apps that leverage Active Directory Rights Management Services (AD RMS) or Azure Rights Management to provide information protection and can easily protect or consume information, while transparently handling complex security practices such as key management, encryption and decryption, policy and permissions creation, secure caching, and communication with AD RMS and Azure RMS services.</summary>
+    <releaseNotes>SDK Support for Windows; EVO token support; rmsauth port to QtWebEngine; bugfixes</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>native rms rmssdk</tags>
+  </metadata>
+</package>
