@@ -50,7 +50,10 @@ struct GsfOutput_deleter
 {
     void operator () (GsfOutput* obj) const
     {
-        gsf_output_close(obj);
+        if(!gsf_output_is_closed(obj))
+        {
+            gsf_output_close(obj);
+        }
         g_object_unref(G_OBJECT(obj));
     }
 };
@@ -59,7 +62,10 @@ struct GsfOutfile_deleter
 {
     void operator () (GsfOutfile* obj) const
     {
-        gsf_output_close(reinterpret_cast<GsfOutput*>(obj));
+        if(!gsf_output_is_closed(GSF_OUTPUT(obj)))
+        {
+            gsf_output_close(GSF_OUTPUT(obj));
+        }
         g_object_unref(G_OBJECT(obj));
     }
 };

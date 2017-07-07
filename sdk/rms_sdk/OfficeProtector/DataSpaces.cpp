@@ -80,8 +80,7 @@ DataSpaces::~DataSpaces()
 {
 }
 
-void DataSpaces::WriteDataspaces(GsfOutfile* stg,
-                                 const ByteArray& publishingLicense)
+void DataSpaces::WriteDataspaces(GsfOutfile* stg, const ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
@@ -96,47 +95,40 @@ void DataSpaces::WriteDataspaces(GsfOutfile* stg,
 
     Logger::Hidden("Writing Version.");
     std::unique_ptr<GsfOutput, GsfOutput_deleter> versionStm(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
-                                                   version, false));
-    gsf_output_seek(versionStm.get(), 0, G_SEEK_SET);
+                gsf_outfile_new_child(GSF_OUTFILE(dataSpaceStg.get()), version, false));
+    gsf_output_seek(versionStm.get(), 0, G_SEEK_SET);    
     WriteVersion(versionStm.get(), versionFeature);
 
     Logger::Hidden("Writing DataSpaceMap.");
     std::unique_ptr<GsfOutput, GsfOutput_deleter> dataSpaceMapStm(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
-                                                       dataSpaceMap, false));
+                gsf_outfile_new_child(GSF_OUTFILE(dataSpaceStg.get()), dataSpaceMap, false));
     gsf_output_seek(dataSpaceMapStm.get(), 0, G_SEEK_SET);
     WriteDataSpaceMap(dataSpaceMapStm.get());
 
     Logger::Hidden("Writing DRMDataSpace.");
     std::unique_ptr<GsfOutput, GsfOutput_deleter> dataSpaceInfoStg(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
-                                                        dataSpaceInfo, true));
+                gsf_outfile_new_child(GSF_OUTFILE(dataSpaceStg.get()), dataSpaceInfo, true));
     std::string drmDataSpaceStmName = m_isMetro ? metroDataSpace : drmDataSpace;
     std::unique_ptr<GsfOutput, GsfOutput_deleter> drmDataSpaceStm(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceInfoStg.get()),
-                                                       drmDataSpaceStmName.c_str(), false));
+                gsf_outfile_new_child(GSF_OUTFILE(dataSpaceInfoStg.get()),
+                                      drmDataSpaceStmName.c_str(), false));
     gsf_output_seek(drmDataSpaceStm.get(), 0, G_SEEK_SET);
     WriteDRMDataSpace(drmDataSpaceStm.get());
 
-    Logger::Hidden("Writing Primary in.");
+    Logger::Hidden("Writing Primary");
     std::unique_ptr<GsfOutput, GsfOutput_deleter> transformInfoStg(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(dataSpaceStg.get()),
-                                                        transformInfo, true));
+                gsf_outfile_new_child(GSF_OUTFILE(dataSpaceStg.get()), transformInfo, true));
     std::string drmTransformStgName = m_isMetro ? metroTransform : drmTransform;
     std::unique_ptr<GsfOutput, GsfOutput_deleter> drmTransformStg(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(transformInfoStg.get()),
-                                                       drmTransformStgName.c_str(), true));
+                gsf_outfile_new_child(GSF_OUTFILE(transformInfoStg.get()),
+                                      drmTransformStgName.c_str(), true));
     std::unique_ptr<GsfOutput, GsfOutput_deleter> primaryStm(
-                gsf_outfile_new_child(reinterpret_cast<GsfOutfile*>(drmTransformStg.get()),
-                                                  primary, false));
+                gsf_outfile_new_child(GSF_OUTFILE(drmTransformStg.get()), primary, false));
     gsf_output_seek(primaryStm.get(), 0, G_SEEK_SET);
     WritePrimary(primaryStm.get(), publishingLicense);
 }
 
-//todo add logging here
-void DataSpaces::ReadDataspaces(GsfInfile *stg,
-                                ByteArray& publishingLicense)
+void DataSpaces::ReadDataspaces(GsfInfile *stg, ByteArray& publishingLicense)
 {
     if(stg == nullptr)
     {
@@ -145,6 +137,7 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg,
                     "Error in reading from storage",
                     exceptions::RMSMetroOfficeFileException::Unknown);
     }
+
     Logger::Hidden("Reading DataSpaces");
     std::unique_ptr<GsfInput, GsfInput_deleter> dataSpaceStg(
                 gsf_infile_child_by_name(stg, dataSpace));
@@ -232,12 +225,12 @@ void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
     uint16_t writerMinorRead  = 0;
 
     ReadWideStringEntry(stm, contentRead);
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&readerMajorRead));
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&readerMinorRead));
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&updaterMajorRead));
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&updaterMinorRead));
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&writerMajorRead));
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&writerMinorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&readerMajorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&readerMinorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&updaterMajorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&updaterMinorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&writerMajorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&writerMinorRead));
 
     if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
             updaterMajorRead != updaterMajorExpected || writerMajorRead != writerMajorExpected)
@@ -399,7 +392,7 @@ void DataSpaces::WritePrimary(GsfOutput* stm,
     uint32_t publishingLicenseLen = publishingLicenseStr.length();
     gsf_output_write(stm, sizeof(uint32_t),
                      reinterpret_cast<const unsigned char*>(&publishingLicenseLen));
-    gsf_output_write(stm, sizeof(uint32_t),
+    gsf_output_write(stm, publishingLicenseLen,
                      reinterpret_cast<const unsigned char*>(publishingLicenseStr.data()));
     AlignOutputAtFourBytes(stm, publishingLicenseLen);
 }

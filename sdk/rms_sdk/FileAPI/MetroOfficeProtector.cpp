@@ -27,7 +27,7 @@ using namespace rmscore::common;
 
 namespace{
 
-const char metroContent[]        = "/EncryptedPackage";
+const char metroContent[]        = "EncryptedPackage";
 
 } // namespace
 
@@ -38,11 +38,13 @@ MetroOfficeProtector::MetroOfficeProtector(std::string fileName,
                                            std::shared_ptr<std::fstream> inputStream)
     : m_fileName(fileName),
       m_inputStream(inputStream)
-{    
+{
+    gsf_init();
 }
 
 MetroOfficeProtector::~MetroOfficeProtector()
-{        
+{
+    gsf_shutdown();
 }
 
 struct FILE_deleter
@@ -83,7 +85,18 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        options.signedAppData,
                                                                        cancelState);
     std::string tempFileName = CreateTemporaryFileName();
-    ProtectInternal(tempFileName, outputStream.get());
+    try
+    {
+        std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
+        ProtectInternal(tempFile.get(), tempFileName);
+        CopyFromFileToFstream(tempFile.get(), outputStream.get());
+    }
+    catch(std::exception&)
+    {
+        remove(tempFileName.c_str());
+        Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
+        throw;
+    }
     remove(tempFileName.c_str());
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
 }
@@ -117,7 +130,18 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
                 userPolicyCreationOptions,
                 cancelState);
     std::string tempFileName = CreateTemporaryFileName();
-    ProtectInternal(tempFileName, outputStream.get());
+    try
+    {
+        std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
+        ProtectInternal(tempFile.get(), tempFileName);
+        CopyFromFileToFstream(tempFile.get(), outputStream.get());
+    }
+    catch(std::exception&)
+    {
+        remove(tempFileName.c_str());
+        Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
+        throw;
+    }
     remove(tempFileName.c_str());
     Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
 }
@@ -134,9 +158,19 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    auto result = UnprotectResult::NORIGHTS;
     std::string tempFileName = CreateTemporaryFileName();
-    UnprotectResult result = UnprotectInternal(userContext, options, outputStream, tempFileName,
+    try
+    {
+        result = UnprotectInternal(userContext, options, outputStream, tempFileName,
                                                cancelState);
+    }
+    catch(std::exception&)
+    {
+        remove((tempFileName.c_str()));
+        Logger::Hidden("-MetroOfficeProtector::UnProtect");
+        throw;
+    }
     remove((tempFileName.c_str()));
     Logger::Hidden("-MetroOfficeProtector::UnProtect");
     return result;
@@ -148,13 +182,13 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
                                                         std::string tempFileName,
                                                         std::shared_ptr<std::atomic<bool>> cancelState)
 {
-    std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
-    CopyFromFstreamToFile(tempFile.get(), m_inputStream.get());
+    //std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "rb"));
+    CopyFromFstreamToFile(tempFileName, m_inputStream.get());
     std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg;
     try
     {
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
-                    gsf_input_stdio_new_FILE(tempFileName.c_str(), tempFile.get(), true));
+                    gsf_input_stdio_new(tempFileName.c_str(), nullptr));
         stg.reset(gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
     }
     catch(std::exception&)
@@ -233,12 +267,12 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
 
 bool MetroOfficeProtector::IsProtectedInternal(std::string tempFileName) const
 {
-    std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
-    CopyFromFstreamToFile(tempFile.get(), m_inputStream.get());
+    //std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "rb"));
+    CopyFromFstreamToFile(tempFileName, m_inputStream.get());
     try
     {
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
-                        gsf_input_stdio_new_FILE(tempFileName.c_str(), tempFile.get(), true));
+                        gsf_input_stdio_new(tempFileName.c_str(), nullptr));
         std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg(
                     gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
         auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
@@ -273,7 +307,7 @@ bool MetroOfficeProtector::IsProtected() const
     return isProtected;
 }
 
-void MetroOfficeProtector::ProtectInternal(std::string tempFileName, std::fstream* outputStream)
+void MetroOfficeProtector::ProtectInternal(FILE* tempFile, std::string tempFileName)
 {
     if (m_userPolicy.get() == nullptr)
     {
@@ -281,11 +315,19 @@ void MetroOfficeProtector::ProtectInternal(std::string tempFileName, std::fstrea
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
     }
 
-    std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
-                gsf_output_stdio_new_FILE(tempFileName.c_str(), tempFile.get(), true));
+                gsf_output_stdio_new_FILE(tempFileName.c_str(), tempFile, true));
+
     std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> stg(
                 gsf_outfile_msole_new(gsfOutputStdIO.get()));
+    {
+        //Write Dataspaces
+        auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
+                    true, m_userPolicy->DoesUseDeprecatedAlgorithms());
+        auto publishingLicense = m_userPolicy->SerializedPolicy();
+        dataSpaces->WriteDataspaces(stg.get(), publishingLicense);
+    }
+
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> metroStream(
                 gsf_outfile_new_child(stg.get(), metroContent, false));
     m_inputStream->seekg(0, std::ios::end);
@@ -293,14 +335,8 @@ void MetroOfficeProtector::ProtectInternal(std::string tempFileName, std::fstrea
     WriteStreamHeader(metroStream.get(), originalFileSize);
     m_inputStream->seekg(0);
 
-    EncryptStream(m_inputStream, metroStream.get(),
-                  m_userPolicy->GetImpl()->GetCryptoProvider()->GetCipherTextSize(originalFileSize));
-    //Write Dataspaces
-    auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
-                true, m_userPolicy->DoesUseDeprecatedAlgorithms());
-    auto publishingLicense = m_userPolicy->SerializedPolicy();
-    dataSpaces->WriteDataspaces(stg.get(), publishingLicense);
-    CopyFromFileToFstream(tempFile.get(), outputStream);
+    EncryptStream(m_inputStream, metroStream.get(), m_userPolicy->GetImpl()->
+                  GetCryptoProvider()->GetCipherTextSize(originalFileSize));
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> MetroOfficeProtector::CreateProtectedStream(
@@ -456,15 +492,16 @@ void MetroOfficeProtector::CopyFromFileToFstream(FILE* file, std::fstream* strea
     stream->flush();
 }
 
-void MetroOfficeProtector::CopyFromFstreamToFile(FILE* file, std::fstream* stream) const
+void MetroOfficeProtector::CopyFromFstreamToFile(std::string tempFileName, std::fstream* stream) const
 {
+    std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
     stream->seekg(0L, std::ios::end);
     uint64_t fileSize = stream->tellg();
     stream->seekg(0);
     std::vector<uint8_t> buffer(fileSize);
     stream->read(reinterpret_cast<char *>(&buffer[0]), fileSize);
-    fwrite(reinterpret_cast<const char*>(buffer.data()), fileSize, 1, file);
-    fflush(file);
+    fwrite(reinterpret_cast<const char*>(buffer.data()), fileSize, 1, tempFile.get());
+    fflush(tempFile.get());
 }
 
 std::string MetroOfficeProtector::CreateTemporaryFileName() const

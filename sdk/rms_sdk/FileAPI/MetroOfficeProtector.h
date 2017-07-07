@@ -47,7 +47,7 @@ public:
     bool IsProtected() const override;
 
 private:
-    void ProtectInternal(std::string tempFileName, std::fstream* outputStream);
+    void ProtectInternal(FILE* tempFile, std::string tempFileName);
 
     UnprotectResult UnprotectInternal(const UserContext& userContext,
                                       const UnprotectOptions& options,
@@ -83,7 +83,7 @@ private:
 
     void CopyFromFileToFstream(FILE* file, std::fstream* stream) const;
 
-    void CopyFromFstreamToFile(FILE* file, std::fstream* stream) const;
+    void CopyFromFstreamToFile(std::string tempFileName, std::fstream* stream) const;
 
     std::string CreateTemporaryFileName() const;
 
