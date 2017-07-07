@@ -60,7 +60,7 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
     return protectorExtensionsMap;
 }
 
-std::map<std::string, ProtectorType> ProtectorSelector::GetProtectorExtensionsMap()
+const std::map<std::string, ProtectorType>& ProtectorSelector::GetProtectorExtensionsMap()
 {
     static std::map<std::string, ProtectorType> protectorExtensionsMap = Init();
     return protectorExtensionsMap;
