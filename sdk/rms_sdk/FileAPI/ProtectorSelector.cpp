@@ -51,7 +51,7 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
         {".pptx", ProtectorType::OPC},{".thmx", ProtectorType::OPC},{".vsdx", ProtectorType::OPC},
         {".vsdm", ProtectorType::OPC},{".vssx", ProtectorType::OPC},{".vssm", ProtectorType::OPC},
         {".vstx", ProtectorType::OPC},{".vstm", ProtectorType::OPC},{".jt", ProtectorType::PSTAR},
-        {".txt", ProtectorType::PSTAR},{".xm", ProtectorType::PSTAR},{".jpg", ProtectorType::PSTAR},
+        {".txt", ProtectorType::PSTAR},{".xml", ProtectorType::PSTAR},{".jpg", ProtectorType::PSTAR},
         {".jpeg", ProtectorType::PSTAR},{".png", ProtectorType::PSTAR},{".tif", ProtectorType::PSTAR},
         {".tiff", ProtectorType::PSTAR},{".bmp", ProtectorType::PSTAR},{".gif", ProtectorType::PSTAR},
         {".jpe", ProtectorType::PSTAR},{".jfif", ProtectorType::PSTAR},{".jif", ProtectorType::PSTAR},
