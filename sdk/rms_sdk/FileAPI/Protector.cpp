@@ -21,10 +21,10 @@ namespace rmscore {
 namespace fileapi {
 
 std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
-                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::shared_ptr<std::istream> inputStream,
                                              std::string& outputFileName)
 {
-    if (!inputStream->is_open())
+    if (!inputStream->good())
     {
         throw exceptions::RMSInvalidArgumentException("The input stream is invalid");
     }

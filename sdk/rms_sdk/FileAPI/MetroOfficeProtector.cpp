@@ -35,7 +35,7 @@ namespace rmscore {
 namespace fileapi {
 
 MetroOfficeProtector::MetroOfficeProtector(std::string fileName,
-                                           std::shared_ptr<std::fstream> inputStream)
+                                           std::shared_ptr<std::istream> inputStream)
     : m_fileName(fileName),
       m_inputStream(inputStream)
 {
@@ -55,14 +55,13 @@ struct FILE_deleter
     }
 };
 
-
 void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                const ProtectWithTemplateOptions& options,
-                                               std::shared_ptr<std::fstream> outputStream,
+                                               std::shared_ptr<std::ostream> outputStream,
                                                std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::ProtectWithTemplate");
-    if (!outputStream->is_open())
+    if (!outputStream->good())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -89,7 +88,7 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     {
         std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
         ProtectInternal(tempFile.get(), tempFileName);
-        CopyFromFileToFstream(tempFile.get(), outputStream.get());
+        CopyFromFileToOstream(tempFile.get(), outputStream.get());
     }
     catch(std::exception&)
     {
@@ -103,11 +102,11 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
 
 void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
                                                    const ProtectWithCustomRightsOptions& options,
-                                                   std::shared_ptr<std::fstream> outputStream,
+                                                   std::shared_ptr<std::ostream> outputStream,
                                                    std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::ProtectWithCustomRights");
-    if (!outputStream->is_open())
+    if (!outputStream->good())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -134,7 +133,7 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
     {
         std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
         ProtectInternal(tempFile.get(), tempFileName);
-        CopyFromFileToFstream(tempFile.get(), outputStream.get());
+        CopyFromFileToOstream(tempFile.get(), outputStream.get());
     }
     catch(std::exception&)
     {
@@ -148,11 +147,11 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
 
 UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
                                                 const UnprotectOptions& options,
-                                                std::shared_ptr<std::fstream> outputStream,
+                                                std::shared_ptr<std::ostream> outputStream,
                                                 std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::UnProtect");
-    if (!outputStream->is_open())
+    if (!outputStream->good())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -178,12 +177,12 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
 
 UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userContext,
                                                         const UnprotectOptions& options,
-                                                        std::shared_ptr<std::fstream> outputStream,
+                                                        std::shared_ptr<std::ostream> outputStream,
                                                         std::string tempFileName,
                                                         std::shared_ptr<std::atomic<bool>> cancelState)
 {
     //std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "rb"));
-    CopyFromFstreamToFile(tempFileName, m_inputStream.get());
+    CopyFromIstreamToFile(tempFileName);
     std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg;
     try
     {
@@ -268,7 +267,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
 bool MetroOfficeProtector::IsProtectedInternal(std::string tempFileName) const
 {
     //std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "rb"));
-    CopyFromFstreamToFile(tempFileName, m_inputStream.get());
+    CopyFromIstreamToFile(tempFileName);
     try
     {
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
@@ -335,7 +334,7 @@ void MetroOfficeProtector::ProtectInternal(FILE* tempFile, std::string tempFileN
     WriteStreamHeader(metroStream.get(), originalFileSize);
     m_inputStream->seekg(0);
 
-    EncryptStream(m_inputStream, metroStream.get(), m_userPolicy->GetImpl()->
+    EncryptStream(metroStream.get(), m_userPolicy->GetImpl()->
                   GetCryptoProvider()->GetCipherTextSize(originalFileSize));
 }
 
@@ -353,8 +352,7 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> MetroOfficeProtector:
                                                              protectedStreamBlockSize);
 }
 
-void MetroOfficeProtector::EncryptStream(const std::shared_ptr<std::fstream>& stdStream,
-                                         GsfOutput* metroStream,
+void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
                                          uint64_t originalFileSize)
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
@@ -376,8 +374,8 @@ void MetroOfficeProtector::EncryptStream(const std::shared_ptr<std::fstream>& st
         auto sharedStringStream = rmscrypto::api::CreateStreamFromStdStream(iosstream);
         auto pStream = CreateProtectedStream(sharedStringStream, 0, cryptoProvider);
 
-        stdStream->seekg(offsetRead);
-        stdStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
+        m_inputStream->seekg(offsetRead);
+        m_inputStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
 
         pStream->WriteAsync(
                     buffer.data(), toProcess, 0, std::launch::deferred).get();
@@ -392,7 +390,7 @@ void MetroOfficeProtector::EncryptStream(const std::shared_ptr<std::fstream>& st
     }
 }
 
-void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::iostream>& stdStream,
+void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& stdStream,
                                          GsfInput* metroStream,
                                          uint64_t originalFileSize)
 {
@@ -425,7 +423,7 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::iostream>& s
 
         pStream->ReadAsync(&buffer[0], toProcess, 0, std::launch::deferred).get();
 
-        stdStream->seekg(offsetWrite);
+        stdStream->seekp(offsetWrite);
         stdStream->write(reinterpret_cast<const char *>(buffer.data()), originalRemaining);
     }
     stdStream->flush();
@@ -481,7 +479,7 @@ modernapi::UserPolicyCreationOptions MetroOfficeProtector::ConvertToUserPolicyCr
     return userPolicyCreationOptions;
 }
 
-void MetroOfficeProtector::CopyFromFileToFstream(FILE* file, std::fstream* stream) const
+void MetroOfficeProtector::CopyFromFileToOstream(FILE* file, std::ostream* stream) const
 {
     fseek(file, 0L, SEEK_END);
     uint64_t fileSize = ftell(file);
@@ -492,14 +490,14 @@ void MetroOfficeProtector::CopyFromFileToFstream(FILE* file, std::fstream* strea
     stream->flush();
 }
 
-void MetroOfficeProtector::CopyFromFstreamToFile(std::string tempFileName, std::fstream* stream) const
+void MetroOfficeProtector::CopyFromIstreamToFile(std::string tempFileName) const
 {
     std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
-    stream->seekg(0L, std::ios::end);
-    uint64_t fileSize = stream->tellg();
-    stream->seekg(0);
+    m_inputStream->seekg(0L, std::ios::end);
+    uint64_t fileSize = m_inputStream->tellg();
+    m_inputStream->seekg(0);
     std::vector<uint8_t> buffer(fileSize);
-    stream->read(reinterpret_cast<char *>(&buffer[0]), fileSize);
+    m_inputStream->read(reinterpret_cast<char *>(&buffer[0]), fileSize);
     fwrite(reinterpret_cast<const char*>(buffer.data()), fileSize, 1, tempFile.get());
     fflush(tempFile.get());
 }

@@ -25,23 +25,23 @@ class MetroOfficeProtector : public Protector
 {
 public:
     MetroOfficeProtector(std::string fileName,
-                         std::shared_ptr<std::fstream> inputStream);
+                         std::shared_ptr<std::istream> inputStream);
 
     ~MetroOfficeProtector();
 
     void ProtectWithTemplate(const UserContext& userContext,
                              const ProtectWithTemplateOptions& options,
-                             std::shared_ptr<std::fstream> outputStream,
+                             std::shared_ptr<std::ostream> outputStream,
                              std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     void ProtectWithCustomRights(const UserContext& userContext,
                                  const ProtectWithCustomRightsOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
+                                 std::shared_ptr<std::ostream> outputStream,
                                  std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     UnprotectResult Unprotect(const UserContext& userContext,
                               const UnprotectOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
+                              std::shared_ptr<std::ostream> outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     bool IsProtected() const override;
@@ -51,7 +51,7 @@ private:
 
     UnprotectResult UnprotectInternal(const UserContext& userContext,
                                       const UnprotectOptions& options,
-                                      std::shared_ptr<std::fstream> outputStream,
+                                      std::shared_ptr<std::ostream> outputStream,
                                       std::string tempFileName,
                                       std::shared_ptr<std::atomic<bool>> cancelState);
 
@@ -63,11 +63,10 @@ private:
             uint64_t streamSize,
             std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider);
 
-    void EncryptStream(const std::shared_ptr<std::fstream> &stdStream,
-                       GsfOutput* metroStream,
+    void EncryptStream(GsfOutput* metroStream,
                        uint64_t originalFileSize);
 
-    void DecryptStream(const std::shared_ptr<std::iostream>& stdStream,
+    void DecryptStream(const std::shared_ptr<std::ostream>& stdStream,
                        GsfInput* metroStream,
                        uint64_t originalFileSize);
 
@@ -81,14 +80,14 @@ private:
             const bool& allowAuditedExtraction,
             CryptoOptions cryptoOptions);
 
-    void CopyFromFileToFstream(FILE* file, std::fstream* stream) const;
+    void CopyFromFileToOstream(FILE* file, std::ostream* stream) const;
 
-    void CopyFromFstreamToFile(std::string tempFileName, std::fstream* stream) const;
+    void CopyFromIstreamToFile(std::string tempFileName) const;
 
     std::string CreateTemporaryFileName() const;
 
     std::string m_fileName;
-    std::shared_ptr<std::fstream> m_inputStream;
+    std::shared_ptr<std::istream> m_inputStream;
     uint32_t m_blockSize;
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;    
 };

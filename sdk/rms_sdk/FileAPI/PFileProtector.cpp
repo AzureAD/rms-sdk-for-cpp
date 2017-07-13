@@ -26,7 +26,7 @@ namespace rmscore {
 namespace fileapi {
 
 PFileProtector::PFileProtector(const std::string& originalFileExtension,
-                               std::shared_ptr<std::fstream> inputStream)
+                               std::shared_ptr<std::istream> inputStream)
     : m_originalFileExtension(originalFileExtension),
       m_inputStream(inputStream)
 {
@@ -38,11 +38,11 @@ PFileProtector::~PFileProtector()
 
 void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
                                          const ProtectWithTemplateOptions& options,
-                                         std::shared_ptr<std::fstream> outputStream,
+                                         std::shared_ptr<std::ostream> outputStream,
                                          std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+PFileProtector::ProtectWithTemplate");
-    if (!outputStream->is_open())
+    if (!outputStream->good())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -63,17 +63,17 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        userPolicyCreationOptions,
                                                                        options.signedAppData,
                                                                        cancelState);
-    Protect(outputStream);
+    ProtectInternal(outputStream);
     Logger::Hidden("-PFileProtector::ProtectWithTemplate");
 }
 
 void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
                                              const ProtectWithCustomRightsOptions& options,
-                                             std::shared_ptr<std::fstream> outputStream,
+                                             std::shared_ptr<std::ostream> outputStream,
                                              std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+PFileProtector::ProtectWithCustomRights");
-    if (!outputStream->is_open())
+    if (!outputStream->good())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -94,24 +94,23 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
                 userContext.authenticationCallback,
                 userPolicyCreationOptions,
                 cancelState);
-    Protect(outputStream);
+    ProtectInternal(outputStream);
     Logger::Hidden("-PFileProtector::ProtectWithCustomRights");
 }
 
 UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
                                           const UnprotectOptions& options,
-                                          std::shared_ptr<std::fstream> outputStream,
+                                          std::shared_ptr<std::ostream> outputStream,
                                           std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+PFileProtector::UnProtect");
-    if (!outputStream->is_open())
+    if (!outputStream->good())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);    
+    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(m_inputStream);
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
     try
     {
@@ -165,8 +164,7 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
 bool PFileProtector::IsProtected() const
 {
     Logger::Hidden("+PFileProtector::IsProtected");
-    std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
+    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(m_inputStream);
     try
     {
       ReadHeader(inputSharedStream);
@@ -181,7 +179,7 @@ bool PFileProtector::IsProtected() const
     return true;
 }
 
-void PFileProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
+void PFileProtector::ProtectInternal(const std::shared_ptr<std::ostream>& outputStream)
 {
     if (m_userPolicy.get() == nullptr)
     {
@@ -189,16 +187,15 @@ void PFileProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
     }
 
-    std::shared_ptr<std::iostream> outputIO = outputStream;
-    auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-    //std::string ext = m_originalFileExtension.empty() ? ".pfile" : m_originalFileExtension;
+    auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputStream);
 
     m_inputStream->seekg(0, std::ios::end);
     uint64_t originalFileSize = m_inputStream->tellg();
+    m_inputStream->seekg(0);
     //Write Header
     auto header = WriteHeader(outputSharedStream, originalFileSize);
     auto protectedStream = CreateProtectedStream(outputSharedStream, header);
-    EncryptStream(m_inputStream, protectedStream, originalFileSize);
+    EncryptStream(protectedStream, originalFileSize);
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::CreateProtectedStream(
@@ -227,7 +224,6 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::Creat
 }
 
 void PFileProtector::EncryptStream(
-        const std::shared_ptr<std::fstream>& stdStream,
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {
@@ -246,8 +242,8 @@ void PFileProtector::EncryptStream(
         readPosition  += toProcess;
         writePosition += toProcess;
 
-        stdStream->seekg(offsetRead);
-        stdStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
+        m_inputStream->seekg(offsetRead);
+        m_inputStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
 
         auto written = pStream->WriteAsync(
                     buffer.data(), toProcess, offsetWrite, std::launch::deferred).get();
@@ -260,7 +256,8 @@ void PFileProtector::EncryptStream(
     pStream->Flush();
 }
 
-void PFileProtector::DecryptStream(const std::shared_ptr<std::fstream> &stdStream,
+void PFileProtector::DecryptStream(
+        const std::shared_ptr<std::ostream>& stdStream,
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {

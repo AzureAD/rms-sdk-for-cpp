@@ -22,39 +22,38 @@ class PFileProtector : public Protector
 {
 public:
     PFileProtector(const std::string& originalFileExtension,
-                   std::shared_ptr<std::fstream> inputStream);
+                   std::shared_ptr<std::istream> inputStream);
 
     ~PFileProtector();
 
     void ProtectWithTemplate(const UserContext& userContext,
                              const ProtectWithTemplateOptions& options,
-                             std::shared_ptr<std::fstream> outputStream,
+                             std::shared_ptr<std::ostream> outputStream,
                              std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     void ProtectWithCustomRights(const UserContext& userContext,
                                  const ProtectWithCustomRightsOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
+                                 std::shared_ptr<std::ostream> outputStream,
                                  std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     UnprotectResult Unprotect(const UserContext& userContext,
                               const UnprotectOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
+                              std::shared_ptr<std::ostream> outputStream,
                               std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     bool IsProtected() const override;
 
 private:
-    void Protect(const std::shared_ptr<std::fstream>& outputStream);
+    void ProtectInternal(const std::shared_ptr<std::ostream>& outputStream);
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
             const std::shared_ptr<pfile::PfileHeader>& header);
 
-    void EncryptStream(const std::shared_ptr<std::fstream>& stdStream,
-                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
+    void EncryptStream(const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
                        uint64_t originalFileSize);
 
-    void DecryptStream(const std::shared_ptr<std::fstream>& stdStream,
+    void DecryptStream(const std::shared_ptr<std::ostream>& stdStream,
                        const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
                        uint64_t originalFileSize);
 
@@ -70,7 +69,7 @@ private:
             CryptoOptions cryptoOptions);
 
     std::string m_originalFileExtension;
-    std::shared_ptr<std::fstream> m_inputStream;
+    std::shared_ptr<std::istream> m_inputStream;
     uint32_t m_blockSize;
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 };

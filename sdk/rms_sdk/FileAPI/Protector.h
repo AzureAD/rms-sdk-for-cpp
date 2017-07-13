@@ -21,22 +21,22 @@ class Protector
 public:
     DLL_PUBLIC_RMS
     static std::unique_ptr<Protector> Create(const std::string& fileName,
-                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::shared_ptr<std::istream> inputStream,
                                              std::string& outputFileName);
 
     virtual void ProtectWithTemplate(const UserContext& userContext,
                                      const ProtectWithTemplateOptions& options,
-                                     std::shared_ptr<std::fstream> outputStream,
+                                     std::shared_ptr<std::ostream> outputStream,
                                      std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
     virtual void ProtectWithCustomRights(const UserContext& userContext,
                                          const ProtectWithCustomRightsOptions& options,
-                                         std::shared_ptr<std::fstream> outputStream,
+                                         std::shared_ptr<std::ostream> outputStream,
                                          std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
     virtual UnprotectResult Unprotect(const UserContext& userContext,
                                       const UnprotectOptions& options,
-                                      std::shared_ptr<std::fstream> outputStream,
+                                      std::shared_ptr<std::ostream> outputStream,
                                       std::shared_ptr<std::atomic<bool>> cancelState = nullptr) = 0;
 
     virtual bool IsProtected() const = 0;
