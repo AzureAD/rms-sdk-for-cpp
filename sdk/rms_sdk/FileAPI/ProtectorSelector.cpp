@@ -60,7 +60,7 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
     return protectorExtensionsMap;
 }
 
-std::map<std::string, ProtectorType> ProtectorSelector::GetProtectorExtensionsMap()
+const std::map<std::string, ProtectorType>& ProtectorSelector::GetProtectorExtensionsMap()
 {
     static std::map<std::string, ProtectorType> protectorExtensionsMap = Init();
     return protectorExtensionsMap;
@@ -81,7 +81,8 @@ void ProtectorSelector::Compute(const std::string& fileName)
                     "Full filename with extension needed. Filename provided: " + fileName);
     }
 
-    std::string ext = fileName.substr(pos);    
+    std::string ext = fileName.substr(pos);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
     if (ext == ".pfile")
     {
         m_newFileName = fileName.substr(0, pos);
@@ -110,18 +111,24 @@ void ProtectorSelector::Compute(const std::string& fileName)
         m_pType = ProtectorType::PSTAR;
         m_fileExtension = ext;
         m_newFileName = fileName.substr(0, pos+1) + "p" + ext.substr(1);
+        return;
     }
-    else if (ppos != std::string::npos) // PStar extension unprotection
+    else if (ppos != std::string::npos) // Possible PStar extension unprotection
     {
-        m_pType = ProtectorType::PSTAR;
-        m_fileExtension = ext.substr(ppos + 1);
-        m_newFileName = fileName.substr(0, pos+1) + m_fileExtension;
+        auto extension = "." + ext.substr(ppos + 1);
+        if(protectorExtensionsMap.find(extension) != protectorExtensionsMap.end() &&
+                protectorExtensionsMap[extension] == ProtectorType::PSTAR)
+        {
+            m_pType = ProtectorType::PSTAR;
+            m_fileExtension = extension;
+            m_newFileName = fileName.substr(0, pos) + m_fileExtension;
+            return;
+        }
+
     }
-    else                                // Pfile extension
-    {
-        m_fileExtension = ext;
-        m_newFileName = fileName + ".pfile";
-    }
+    // Pfile protection
+    m_fileExtension = ext;
+    m_newFileName = fileName + ".pfile";
 }
 
 } // namespace fileapi

@@ -38,7 +38,7 @@ public:
 private:
     static std::map<std::string, ProtectorType> Init();
 
-    static std::map<std::string, ProtectorType> GetProtectorExtensionsMap();
+    static const std::map<std::string, ProtectorType>& GetProtectorExtensionsMap();
 
     void Compute(const std::string& fileName);
 
