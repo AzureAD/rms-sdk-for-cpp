@@ -23,10 +23,9 @@ AuthenticationContext::AuthenticationContext(const String& authority, AuthorityV
     authenticator_ = std::make_shared<Authenticator>(authority, (validateAuthority != AuthorityValidationType::False));
 }
 
-AuthenticationResultPtr AuthenticationContext::acquireToken(const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, const String &userId)
+AuthenticationResultPtr AuthenticationContext::acquireToken(const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, const String &userId, const String& extraQueryParameters)
 {
     Logger::info(Tag(), "acquireToken");
-    String extraQueryParameters = "";
     bool callSync = true;
     UserIdentifierPtr uid = userId.empty() ? UserIdentifier::anyUser() : std::make_shared<UserIdentifier>(userId, UserIdentifierType::OptionalDisplayableId);
     return acquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior, uid, extraQueryParameters, callSync);

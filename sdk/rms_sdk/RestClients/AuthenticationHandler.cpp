@@ -17,7 +17,6 @@
 #include "../Common/CommonTypes.h"
 #include "../Core/FeatureControl.h"
 #include "../ModernAPI/RMSExceptions.h"
-#include "../Platform/Http/IHttpClient.h"
 #include "../Platform/Http/IUri.h"
 
 
@@ -70,29 +69,35 @@ string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
                                    challenge));
 }
 
+std::shared_ptr<IHttpClient> AuthenticationHandler::MakeDummyCall(const std::string & sUrl, common::ByteArray && requestBody, std::shared_ptr<std::atomic<bool>> cancelState)
+{
+	// do a dummy get to the url to get the auth challenge
+
+	auto pHttpClient = IHttpClient::Create();
+	common::ByteArray response;
+
+	pHttpClient->AddHeader("content-type", "application/json");
+	StatusCode nStatusCode = pHttpClient->Post(sUrl,
+		requestBody,
+		std::string("application/json"),
+		response,
+		cancelState);
+
+	// this must be an authenticated endpoint and we must get a 401
+	// (unauthorized).
+	// Otherwise, there is something wrong with the server
+	if (StatusCode::UNAUTHORIZED != nStatusCode)
+	{
+		throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+	}
+	return pHttpClient;
+}
+
 AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& sUrl,
     common::ByteArray&& requestBody,
     std::shared_ptr<std::atomic<bool>> cancelState)
 {
-    // do a dummy get to the url to get the auth challenge
-
-    auto pHttpClient = IHttpClient::Create();
-    common::ByteArray response;
-
-    pHttpClient->AddHeader("content-type", "application/json");
-    StatusCode nStatusCode = pHttpClient->Post(sUrl,
-                                               requestBody,
-                                               std::string("application/json"),
-                                               response,
-                                               cancelState);
-
-    // this must be an authenticated endpoint and we must get a 401
-    // (unauthorized).
-    // Otherwise, there is something wrong with the server
-    if (StatusCode::UNAUTHORIZED != nStatusCode)
-    {
-        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
-    }
+	auto pHttpClient = MakeDummyCall(sUrl, move(requestBody), cancelState);
 
     try
     {
@@ -275,8 +280,9 @@ AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string
     std::string sResource;
     std::string sRealm;
     std::string sScope;
+    std::string sClaims;
 
-    for_each(begin(pairs), end(pairs), [&challenge, &sResource, &sRealm, &sScope](const pair<string, string>& p)
+    for_each(begin(pairs), end(pairs), [&challenge, &sResource, &sRealm, &sScope, &sClaims](const pair<string, string>& p)
     {
         if ((0 ==_strcmpi("authorization_uri", p.first.c_str())) ||
             (0 == _strcmpi("authorization", p.first.c_str())))
@@ -295,6 +301,10 @@ AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string
         {
             sScope = p.second;
         }
+        else if (0 == _strcmpi("claims", p.first.c_str()))
+        {
+            sClaims = p.second;
+        }
     });
 
     if ((core::FeatureControl::IsEvoEnabled()) &&
@@ -303,12 +313,14 @@ AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string
         // In Evo challenge Resource key is expected.
         challenge.resource = sResource;
         challenge.scope = sRealm;
+        challenge.claims = sClaims;
     }
     else
     {
         // Backwards compatibility with non - evo endpoints
         challenge.resource = sRealm;
         challenge.scope = sScope;
+        challenge.claims = sClaims;
     }
 
     if (challenge.authority.empty())

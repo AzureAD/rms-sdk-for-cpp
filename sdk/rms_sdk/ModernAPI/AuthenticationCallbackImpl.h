@@ -31,11 +31,17 @@ public:
   virtual std::string GetAccessToken(const AuthenticationChallenge& challenge)
   override
   {
-    auto parameters = std::make_shared<AuthenticationParameters>(
-      challenge.authority,
-      challenge.resource,
-      challenge.scope,
-      m_userId);
+    auto parameters = challenge.claims == "" ? std::make_shared<AuthenticationParameters>(
+													challenge.authority,
+													challenge.resource,
+													challenge.scope,
+													m_userId)
+											 : std::make_shared<AuthenticationParameters>(
+													challenge.authority,
+													challenge.resource,
+													challenge.scope,
+													m_userId,
+													challenge.claims);
 
     return m_callback.GetToken(parameters);
   }

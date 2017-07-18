@@ -15,6 +15,7 @@
 
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../Common/CommonTypes.h"
+#include "../Platform/Http/IHttpClient.h"
 
 namespace rmscore {
 namespace restclients {
@@ -38,11 +39,9 @@ public:
                                             common::ByteArray&& requestBody,
                                             modernapi::IAuthenticationCallbackImpl& callback,
                                             std::shared_ptr<std::atomic<bool>> cancelState);
-
-
-
-private:
-
+	static std::shared_ptr<rmscore::platform::http::IHttpClient> MakeDummyCall(const std::string& sUrl,
+		common::ByteArray&& requestBody,
+		std::shared_ptr<std::atomic<bool>> cancelState);
     static modernapi::AuthenticationChallenge GetChallengeForUrl(const std::string& sUrl,
         const AuthenticationHandlerParameters& authParams,
         std::shared_ptr<std::atomic<bool>> cancelState);

@@ -42,7 +42,7 @@ public:
     AuthenticationContext(const String& authority, TokenCachePtr tokenCache);
     AuthenticationContext(const String& authority, AuthorityValidationType validateAuthority, TokenCachePtr tokenCache);
 
-    AuthenticationResultPtr acquireToken(const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, const String& userId = "");
+    AuthenticationResultPtr acquireToken(const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, const String& userId = "", const String& extraQueryParameters = "");
     AuthenticationResultPtr acquireToken(const String& resource, const String& clientId, UserCredentialPtr userCredentiar);
     AuthenticationResultPtr acquireToken(const String& resource, const String& clientId, UserAssertionPtr userAssertion);
     AuthenticationResultPtr acquireToken(const String& resource, ClientCredentialPtr clientCredential);

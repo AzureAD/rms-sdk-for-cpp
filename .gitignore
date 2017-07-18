@@ -1,5 +1,6 @@
 # Build Artifacts
 *.o
+.vs/
 build/
 bin/
 dest/
@@ -22,8 +23,15 @@ build-**
 # Doxygen output
 docs/html/
 
+#vs junk
+*.filters
+*.vcxproj
+*.vcxproj.user
+*.sln
+
 *.exe
 .DS_Store
 *.dat
 third_party**
 
+sdk/rmsauth_sdk/WebAuthDialog/GeneratedFiles/qrc_res.cpp

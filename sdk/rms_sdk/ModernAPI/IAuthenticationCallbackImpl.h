@@ -19,6 +19,7 @@ struct AuthenticationChallenge
   std::string authority;
   std::string resource;
   std::string scope;
+  std::string claims;
 };
 
 class IAuthenticationCallbackImpl {

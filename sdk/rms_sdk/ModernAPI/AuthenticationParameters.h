@@ -50,6 +50,11 @@ public:
     return m_userId;
   }
 
+  std::string Claims()
+  {
+      return m_claims;
+  }
+
   AuthenticationParameters(const std::string& authority,
                            const std::string& resource,
                            const std::string& scope,
@@ -59,6 +64,17 @@ public:
     , m_scope(scope)
     , m_userId(userId)
   {}
+  AuthenticationParameters(const std::string& authority,
+                           const std::string& resource,
+                           const std::string& scope,
+                           const std::string& userId,
+                           const std::string& claims)
+    : m_authority(authority)
+    , m_resource(resource)
+    , m_scope(scope)
+    , m_userId(userId)
+    , m_claims(claims)
+  {}
 
 private:
 
@@ -66,6 +82,7 @@ private:
   std::string m_resource;
   std::string m_scope;
   std::string m_userId;
+  std::string m_claims;
 };
 } // namespace modernapi
 } // namespace rmscore

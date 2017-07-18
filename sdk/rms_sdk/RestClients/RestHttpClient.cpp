@@ -26,20 +26,23 @@ namespace restclients {
 RestHttpClient::Result RestHttpClient::Get(const std::string& sUrl,
     const AuthenticationHandler::AuthenticationHandlerParameters&  authParams,
     IAuthenticationCallbackImpl& authenticationCallback,
-    std::shared_ptr<std::atomic<bool>> cancelState)
+    std::shared_ptr<std::atomic<bool>> cancelState,
+	std::string accessToken)
 {
     // Performance latency should exclude the time it takes in Authentication and
     // consent operations
-    auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-        authParams,
-        authenticationCallback,
-        cancelState);
+    auto _accessToken = accessToken == "" ? 
+		AuthenticationHandler::GetAccessTokenForUrl(sUrl,
+			authParams,
+			authenticationCallback,
+			cancelState) 
+		: accessToken;
 
     auto parameters = HttpRequestParameters {
         HTTP_GET,            // type
         string(sUrl),        // Url
         common::ByteArray(), // requestBody
-        accessToken,         // accessToken
+        _accessToken,         // accessToken
         cancelState };
 
     // call the DoHttpRequest() and abandon the call when the cancel event is
@@ -50,28 +53,34 @@ RestHttpClient::Result RestHttpClient::Get(const std::string& sUrl,
 RestHttpClient::Result RestHttpClient::Post(const string& sUrl,
     ByteArray&& requestBody,
     IAuthenticationCallbackImpl& authenticationCallback,
-    std::shared_ptr<std::atomic<bool>> cancelState)
+    std::shared_ptr<std::atomic<bool>> cancelState,
+	std::string accessToken)
 {
     // Performance latency should exclude the time it takes in Authentication and
     // consent operations
 
     // empty not needed at the moment for post.
+    RestHttpClient::Result result;
 
-    auto accessToken = AuthenticationHandler::GetAccessTokenForUrl(sUrl,
-        move(requestBody), // requestBody
-        authenticationCallback,
-        cancelState);
+	auto _accessToken = accessToken == "" ?
+		AuthenticationHandler::GetAccessTokenForUrl(sUrl,
+			move(requestBody), // requestBody
+			authenticationCallback,
+			cancelState)
+		: accessToken;
 
     auto parameters = HttpRequestParameters {
         HTTP_POST,         // type
         string(sUrl),      // Url
         move(requestBody), // requestBody
-        accessToken,       // accessToken
+        _accessToken,       // accessToken
         cancelState };
 
     // call the DoHttpRequest() and abandon the call when the cancel event is
     // signalled (for Office scenarios)
-    return RestHttpClient::DoHttpRequest(move(parameters));
+    result = RestHttpClient::DoHttpRequest(move(parameters));
+
+    return result;
 }
 
 RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters& parameters)
@@ -126,6 +135,8 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters
     }
 
     Logger::Hidden("RestHttpClient::DoHttpRequest returned status code: %d", (int)result.status);
+
+	result.header = pHttpClient->GetResponseHeader("WWW-Authenticate");
 
     return result;
 }

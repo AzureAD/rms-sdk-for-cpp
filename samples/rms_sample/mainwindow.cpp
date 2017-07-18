@@ -62,11 +62,17 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap)
     AuthenticationContext authContext(
       ap->Authority(), AuthorityValidationType::False, FileCachePtr);
 
-    auto result = authContext.acquireToken(ap->Resource(),
+    auto result = ap->Claims() == "" ? authContext.acquireToken(ap->Resource(),
                                            clientId_,
                                            redirectUrl_,
                                            PromptBehavior::Auto,
-                                           ap->UserId());
+                                           ap->UserId())
+                                     : authContext.acquireToken(ap->Resource(),
+                                           clientId_,
+                                           redirectUrl_m,
+                                           PromptBehavior::Auto,
+                                           ap->UserId(),
+                                           ap->Claims());
     return result->accessToken();
   }
   catch (const rmsauth::Exception& /*ex*/)

@@ -75,11 +75,28 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
     consentCallback,
     cancelState);
 
+  //"&claims=%7B%27access_token%27%3A%7B%27polids%27%3A%7B%27essential%27%3Atrue%2C%27values%27%3A%5B%2745a7a203-ff7f-497a-9f22-64d1c4a93b8e%27%5D%7D%7D%7D";
   auto httpRequestResult = RestHttpClient::Post(
     endUserLicenseUrl,
     move(serializedRequest),
     authCallback,
     cancelState);
+
+  //if we receive 401 here, that probably means the CA flow should be triggered. In this case, we will keep taking the challenge from the 401
+  //and re-raising the auth callback until the user cancels or produces a token of sufficient authority 
+  while (httpRequestResult.status != StatusCode::UNAUTHORIZED)
+  {
+	  AuthenticationChallenge challenge = AuthenticationHandler::ParseChallengeHeader(httpRequestResult.header, endUserLicenseUrl);
+
+	  auto token = authCallback.GetAccessToken(static_cast<const AuthenticationChallenge&>(challenge));
+
+	  httpRequestResult = RestHttpClient::Post(
+		  endUserLicenseUrl,
+		  move(serializedRequest),
+		  authCallback,
+		  cancelState,
+		  token);
+  }
 
   if (StatusCode::OK != httpRequestResult.status)
   {

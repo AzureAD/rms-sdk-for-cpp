@@ -22,23 +22,24 @@ namespace rmscore {
 namespace restclients {
 class RestHttpClient {
 public:
-
     struct Result
     {
         platform::http::StatusCode status;
         common::ByteArray          responseBody;
+		std::string				   header;
     };
 
-    static Result Get(const std::string& sUrl,
-        const AuthenticationHandler::AuthenticationHandlerParameters &authParams,
-        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-        std::shared_ptr<std::atomic<bool> >     cancelState);
+	static Result Get(const std::string& sUrl,
+		const AuthenticationHandler::AuthenticationHandlerParameters &authParams,
+		modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+		std::shared_ptr<std::atomic<bool> >     cancelState,
+		std::string accessToken = "");
 
-    static Result Post(const std::string& sUrl,
-        common::ByteArray&& requestBody,
-        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
-        std::shared_ptr<std::atomic<bool>> cancelState);
-
+	static Result Post(const std::string& sUrl,
+		common::ByteArray&& requestBody,
+		modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+		std::shared_ptr<std::atomic<bool>> cancelState,
+		std::string accessToken = "");
 private:
 
     enum HttpRequestType
@@ -56,7 +57,7 @@ private:
         std::shared_ptr<std::atomic<bool>> cancelState;
     };
 
-    static Result DoHttpRequest(const HttpRequestParameters& parameters);
+	static Result DoHttpRequest(const HttpRequestParameters& parameters);
 
     static std::string ConstructAuthTokenHeader(const std::string& accessToken);
     static std::string ConstructLanguageHeader();
