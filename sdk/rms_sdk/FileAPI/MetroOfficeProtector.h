@@ -21,6 +21,10 @@
 namespace rmscore {
 namespace fileapi {
 
+static const uint64_t MAX_FILE_SIZE_FOR_ENCRYPT = 1ul << 30;
+static const uint64_t MAX_FILE_SIZE_FOR_DECRYPT = 3ul << 30;
+static const uint64_t BUF_SIZE = 4096;
+
 class MetroOfficeProtector : public Protector
 {
 public:
@@ -47,15 +51,16 @@ public:
     bool IsProtected() const override;
 
 private:
-    void ProtectInternal(FILE* tempFile, std::string tempFileName);
+    void ProtectInternal(FILE* tempFile, std::string tempFileName, uint64_t inputFileSize);
 
     UnprotectResult UnprotectInternal(const UserContext& userContext,
                                       const UnprotectOptions& options,
                                       std::shared_ptr<std::ostream> outputStream,
                                       std::string tempFileName,
+                                      uint64_t inputFileSize,
                                       std::shared_ptr<std::atomic<bool>> cancelState);
 
-    bool IsProtectedInternal(std::string tempFileName) const;
+    bool IsProtectedInternal(std::string tempFileName, uint64_t inputFileSize) const;
 
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
@@ -82,9 +87,11 @@ private:
 
     void CopyFromFileToOstream(FILE* file, std::ostream* stream) const;
 
-    void CopyFromIstreamToFile(std::string tempFileName) const;
+    void CopyFromIstreamToFile(std::string tempFileName, uint64_t inputFileSize) const;
 
     std::string CreateTemporaryFileName() const;
+
+    uint64_t GetFileSize(uint64_t maxFileSize) const;
 
     std::string m_fileName;
     std::shared_ptr<std::istream> m_inputStream;

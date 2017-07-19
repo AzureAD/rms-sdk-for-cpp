@@ -44,7 +44,7 @@ std::string ConvertWideStrToCharStr(const std::string& input)
 // Writes a string to a stream after converting it to a wide string.
 void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
 {
-    if(stm == nullptr || entry.empty())
+    if (stm == nullptr || entry.empty())
     {
         Logger::Error("Invalid arguments provided for writing string entry");
         throw exceptions::RMSMetroOfficeFileException(
@@ -54,15 +54,15 @@ void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
     //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
     std::string wideEntry = ConvertCharStrToWideStr(entry);
     uint32_t wideEntryLen = wideEntry.length();
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&wideEntryLen));
-    gsf_output_write(stm, wideEntryLen, reinterpret_cast<const unsigned char*>(wideEntry.data()));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&wideEntryLen));
+    gsf_output_write(stm, wideEntryLen, reinterpret_cast<const uint8_t*>(wideEntry.data()));
     AlignOutputAtFourBytes(stm, wideEntryLen);
 }
 
 // Reads a wide string and converts it to a string.
 void ReadWideStringEntry(GsfInput *stm, std::string& entry)
 {
-    if(stm == nullptr)
+    if (stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading string entry");
         throw exceptions::RMSMetroOfficeFileException(
@@ -70,15 +70,15 @@ void ReadWideStringEntry(GsfInput *stm, std::string& entry)
     }
 
     uint32_t wideEntryLen = 0;
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&wideEntryLen));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&wideEntryLen));
 
-    if(wideEntryLen % 2 != 0)
+    if (wideEntryLen % 2 != 0)
     {
         Logger::Error("Corrupt doc file.");
         throw exceptions::RMSMetroOfficeFileException(
                     "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
-    std::unique_ptr<unsigned char[]> wideEntry(new unsigned char[wideEntryLen]);
+    std::unique_ptr<uint8_t[]> wideEntry(new uint8_t[wideEntryLen]);
     gsf_input_read(stm, wideEntryLen, wideEntry.get());
     std::string wideStr((char*)wideEntry.get(), wideEntryLen);
     //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
@@ -98,7 +98,7 @@ uint32_t FourByteAlignedWideStringLength(const std::string& entry)
 // Aligns the stream at four bytes. Adds null chars
 void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength)
 {
-    if(stm == nullptr || contentLength < 1)
+    if (stm == nullptr || contentLength < 1)
     {
         Logger::Error("Invalid arguments provided for byte alignment");
         throw exceptions::RMSMetroOfficeFileException(
@@ -111,13 +111,13 @@ void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength)
     for(uint32_t i = 0; i < alignCount; i++)
         alignBytes.push_back('\0');
 
-    gsf_output_write(stm, alignCount, reinterpret_cast<const unsigned char*>(alignBytes.data()));
+    gsf_output_write(stm, alignCount, reinterpret_cast<const uint8_t*>(alignBytes.data()));
 }
 
 // Aligns the stream at four bytes. Seeks to the aligned position while reading.
 void AlignInputAtFourBytes(GsfInput *stm, uint32_t contentLength)
 {
-    if(stm == nullptr || contentLength < 1)
+    if (stm == nullptr || contentLength < 1)
     {
         Logger::Error("Invalid arguments provided for byte alignment");
         throw exceptions::RMSMetroOfficeFileException(

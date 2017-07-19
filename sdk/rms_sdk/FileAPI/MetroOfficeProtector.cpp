@@ -67,6 +67,7 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    auto inputFileSize = GetFileSize(MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -87,10 +88,10 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     try
     {
         std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
-        ProtectInternal(tempFile.get(), tempFileName);
+        ProtectInternal(tempFile.get(), tempFileName, inputFileSize);
         CopyFromFileToOstream(tempFile.get(), outputStream.get());
     }
-    catch(std::exception&)
+    catch (std::exception&)
     {
         remove(tempFileName.c_str());
         Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
@@ -112,6 +113,7 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    auto inputFileSize = GetFileSize(MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -132,10 +134,10 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
     try
     {
         std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
-        ProtectInternal(tempFile.get(), tempFileName);
+        ProtectInternal(tempFile.get(), tempFileName, inputFileSize);
         CopyFromFileToOstream(tempFile.get(), outputStream.get());
     }
-    catch(std::exception&)
+    catch (std::exception&)
     {
         remove(tempFileName.c_str());
         Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
@@ -157,20 +159,21 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    auto inputFileSize = GetFileSize(MAX_FILE_SIZE_FOR_DECRYPT);
     auto result = UnprotectResult::NORIGHTS;
     std::string tempFileName = CreateTemporaryFileName();
     try
     {
         result = UnprotectInternal(userContext, options, outputStream, tempFileName,
-                                               cancelState);
+                                   inputFileSize, cancelState);
     }
-    catch(std::exception&)
+    catch (std::exception&)
     {
         remove((tempFileName.c_str()));
         Logger::Hidden("-MetroOfficeProtector::UnProtect");
         throw;
     }
-    remove((tempFileName.c_str()));
+    remove(tempFileName.c_str());
     Logger::Hidden("-MetroOfficeProtector::UnProtect");
     return result;
 }
@@ -179,10 +182,11 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
                                                         const UnprotectOptions& options,
                                                         std::shared_ptr<std::ostream> outputStream,
                                                         std::string tempFileName,
+                                                        uint64_t inputFileSize,
                                                         std::shared_ptr<std::atomic<bool>> cancelState)
 {
     //std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "rb"));
-    CopyFromIstreamToFile(tempFileName);
+    CopyFromIstreamToFile(tempFileName, inputFileSize);
     std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg;
     try
     {
@@ -190,7 +194,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
                     gsf_input_stdio_new(tempFileName.c_str(), nullptr));
         stg.reset(gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
     }
-    catch(std::exception&)
+    catch (std::exception&)
     {
         Logger::Hidden("Failed to open file as a valid CFB");
         throw exceptions::RMSMetroOfficeFileException(
@@ -202,7 +206,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     try
     {
         auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true, true);
-        dataSpaces->ReadDataspaces(stg.get(), publishingLicense);
+        dataSpaces->ReadDataSpaces(stg.get(), publishingLicense);
     }
     catch (std::exception&)
     {
@@ -249,7 +253,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     }
 
     std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> metroStream(
-                gsf_infile_child_by_name(stg.get(), metroContent));
+                gsf_infile_child_by_name(stg.get(), metroContent));   
     if (metroStream == nullptr)
     {
         Logger::Error("Stream containing encrypted data not present");
@@ -264,10 +268,11 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     return (UnprotectResult)policyRequest->Status;
 }
 
-bool MetroOfficeProtector::IsProtectedInternal(std::string tempFileName) const
+bool MetroOfficeProtector::IsProtectedInternal(std::string tempFileName,
+                                               uint64_t inputFileSize) const
 {
     //std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "rb"));
-    CopyFromIstreamToFile(tempFileName);
+    CopyFromIstreamToFile(tempFileName, inputFileSize);
     try
     {
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
@@ -276,7 +281,7 @@ bool MetroOfficeProtector::IsProtectedInternal(std::string tempFileName) const
                     gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
         auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
         ByteArray publishingLicense;
-        dataSpaces->ReadDataspaces(stg.get(), publishingLicense);
+        dataSpaces->ReadDataSpaces(stg.get(), publishingLicense);
     }
     catch (std::exception& e)
     {
@@ -299,14 +304,17 @@ bool MetroOfficeProtector::IsProtectedInternal(std::string tempFileName) const
 bool MetroOfficeProtector::IsProtected() const
 {
     Logger::Hidden("+MetroOfficeProtector::IsProtected");
+    auto inputFileSize = GetFileSize(MAX_FILE_SIZE_FOR_DECRYPT);
     std::string tempFileName = CreateTemporaryFileName();
-    bool isProtected = IsProtectedInternal(tempFileName);
+    bool isProtected = IsProtectedInternal(tempFileName, inputFileSize);
     remove((tempFileName.c_str()));
     Logger::Hidden("-MetroOfficeProtector::IsProtected");
     return isProtected;
 }
 
-void MetroOfficeProtector::ProtectInternal(FILE* tempFile, std::string tempFileName)
+void MetroOfficeProtector::ProtectInternal(FILE* tempFile,
+                                           std::string tempFileName,
+                                           uint64_t originalFileSize)
 {
     if (m_userPolicy.get() == nullptr)
     {
@@ -324,15 +332,12 @@ void MetroOfficeProtector::ProtectInternal(FILE* tempFile, std::string tempFileN
         auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                     true, m_userPolicy->DoesUseDeprecatedAlgorithms());
         auto publishingLicense = m_userPolicy->SerializedPolicy();
-        dataSpaces->WriteDataspaces(stg.get(), publishingLicense);
+        dataSpaces->WriteDataSpaces(stg.get(), publishingLicense);
     }
 
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> metroStream(
-                gsf_outfile_new_child(stg.get(), metroContent, false));
-    m_inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = m_inputStream->tellg();
+                gsf_outfile_new_child(stg.get(), metroContent, false));    
     WriteStreamHeader(metroStream.get(), originalFileSize);
-    m_inputStream->seekg(0);
 
     EncryptStream(metroStream.get(), m_userPolicy->GetImpl()->
                   GetCryptoProvider()->GetCipherTextSize(originalFileSize));
@@ -357,8 +362,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
+    std::vector<uint8_t> buffer(BUF_SIZE);
     uint64_t readPosition  = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
     uint64_t totalSize = isECB? ((originalFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
@@ -366,7 +370,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
         readPosition  += toProcess;
 
         auto sstream = std::make_shared<std::stringstream>();
@@ -386,7 +390,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
         auto encryptedDataLen = encryptedData.length();
 
         gsf_output_write(metroStream, encryptedDataLen,
-                         reinterpret_cast<const unsigned char*>(encryptedData.data()));
+                         reinterpret_cast<const uint8_t*>(encryptedData.data()));
     }
 }
 
@@ -396,8 +400,7 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
+    std::vector<uint8_t> buffer(BUF_SIZE);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     //bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
@@ -406,8 +409,8 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(bufSize, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(BUF_SIZE, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -439,7 +442,7 @@ void MetroOfficeProtector::WriteStreamHeader(GsfOutput* stm,
                     "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
     gsf_output_seek(stm, 0, G_SEEK_SET);
-    gsf_output_write(stm, sizeof(uint64_t), reinterpret_cast<const unsigned char*>(&contentLength));
+    gsf_output_write(stm, sizeof(uint64_t), reinterpret_cast<const uint8_t*>(&contentLength));
 }
 
 void MetroOfficeProtector::ReadStreamHeader(GsfInput* stm,
@@ -453,7 +456,7 @@ void MetroOfficeProtector::ReadStreamHeader(GsfInput* stm,
                     exceptions::RMSMetroOfficeFileException::Unknown);
     }
     gsf_input_seek(stm, 0, G_SEEK_SET);
-    gsf_input_read(stm, sizeof(uint64_t), reinterpret_cast<unsigned char*>(&contentLength));
+    gsf_input_read(stm, sizeof(uint64_t), reinterpret_cast<uint8_t*>(&contentLength));
 }
 
 modernapi::UserPolicyCreationOptions MetroOfficeProtector::ConvertToUserPolicyCreationOptions(
@@ -484,21 +487,36 @@ void MetroOfficeProtector::CopyFromFileToOstream(FILE* file, std::ostream* strea
     fseek(file, 0L, SEEK_END);
     uint64_t fileSize = ftell(file);
     rewind(file);
-    std::vector<uint8_t> buffer(fileSize);
-    fread(&buffer[0], fileSize, 1, file);
-    stream->write(reinterpret_cast<const char*>(buffer.data()), fileSize);
+    std::vector<uint8_t> buffer(BUF_SIZE);
+    auto count = fileSize;
+    while(count > BUF_SIZE)
+    {
+        fread(&buffer[0], BUF_SIZE, 1, file);
+        stream->write(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE);
+        count -= BUF_SIZE;
+    }
+
+    fread((&buffer[0]), count, 1, file);
+    stream->write(reinterpret_cast<const char*>(buffer.data()), count);
     stream->flush();
 }
 
-void MetroOfficeProtector::CopyFromIstreamToFile(std::string tempFileName) const
+void MetroOfficeProtector::CopyFromIstreamToFile(std::string tempFileName,
+                                                 uint64_t inputFileSize) const
 {
     std::unique_ptr<FILE, FILE_deleter> tempFile(fopen(tempFileName.c_str(), "w+b"));
-    m_inputStream->seekg(0L, std::ios::end);
-    uint64_t fileSize = m_inputStream->tellg();
-    m_inputStream->seekg(0);
-    std::vector<uint8_t> buffer(fileSize);
-    m_inputStream->read(reinterpret_cast<char *>(&buffer[0]), fileSize);
-    fwrite(reinterpret_cast<const char*>(buffer.data()), fileSize, 1, tempFile.get());
+
+    std::vector<uint8_t> buffer(BUF_SIZE);
+    auto count = inputFileSize;
+    while(count > BUF_SIZE)
+    {
+        m_inputStream->read(reinterpret_cast<char *>(&buffer[0]), BUF_SIZE);
+        fwrite(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE, 1, tempFile.get());
+        count -= BUF_SIZE;
+    }
+
+    m_inputStream->read(reinterpret_cast<char *>(&buffer[0]), count);
+    fwrite(reinterpret_cast<const char*>(buffer.data()), count, 1, tempFile.get());
     fflush(tempFile.get());
 }
 
@@ -507,6 +525,22 @@ std::string MetroOfficeProtector::CreateTemporaryFileName() const
     srand(time(NULL));
     uint32_t random = rand() % 10000;
     return (m_fileName + std::to_string(random) + ".tmp");
+}
+
+uint64_t MetroOfficeProtector::GetFileSize(uint64_t maxFileSize) const
+{
+    m_inputStream->seekg(0, std::ios::end);
+    uint64_t fileSize = m_inputStream->tellg();
+    m_inputStream->seekg(0);
+    if(maxFileSize < fileSize)
+    {
+        Logger::Error("Input file too large");
+        throw exceptions::RMSLogicException(exceptions::RMSLogicException::ErrorTypes::NotSupported,
+                                            "The file is too large. The limit is 1GB for encryption"
+                                            "and 3GB for decryption");
+    }
+
+    return fileSize;
 }
 
 } // namespace fileapi

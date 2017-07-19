@@ -80,9 +80,9 @@ DataSpaces::~DataSpaces()
 {
 }
 
-void DataSpaces::WriteDataspaces(GsfOutfile* stg, const ByteArray& publishingLicense)
+void DataSpaces::WriteDataSpaces(GsfOutfile* stg, const ByteArray& publishingLicense)
 {
-    if(stg == nullptr)
+    if (stg == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing dataspaces.");
         throw exceptions::RMSMetroOfficeFileException(
@@ -113,7 +113,7 @@ void DataSpaces::WriteDataspaces(GsfOutfile* stg, const ByteArray& publishingLic
                 gsf_outfile_new_child(GSF_OUTFILE(dataSpaceInfoStg.get()),
                                       drmDataSpaceStmName.c_str(), false));
     gsf_output_seek(drmDataSpaceStm.get(), 0, G_SEEK_SET);
-    WriteDRMDataSpace(drmDataSpaceStm.get());
+    WriteDrmDataSpace(drmDataSpaceStm.get());
 
     Logger::Hidden("Writing Primary");
     std::unique_ptr<GsfOutput, GsfOutput_deleter> transformInfoStg(
@@ -128,9 +128,9 @@ void DataSpaces::WriteDataspaces(GsfOutfile* stg, const ByteArray& publishingLic
     WritePrimary(primaryStm.get(), publishingLicense);
 }
 
-void DataSpaces::ReadDataspaces(GsfInfile *stg, ByteArray& publishingLicense)
+void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense)
 {
-    if(stg == nullptr)
+    if (stg == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading dataspaces.");
         throw exceptions::RMSMetroOfficeFileException(
@@ -147,7 +147,7 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg, ByteArray& publishingLicense)
     std::unique_ptr<GsfInput, GsfInput_deleter> passwordTransformStg(
                 gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(transformInfoStg.get()),
                                          passwordTransform));
-    if(passwordTransformStg.get() != nullptr)
+    if (passwordTransformStg)
     {
         Logger::Error("The file has been protected using non RMS technologies");
         throw exceptions::RMSMetroOfficeFileException(
@@ -163,7 +163,7 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg, ByteArray& publishingLicense)
                 gsf_infile_child_by_name(reinterpret_cast<GsfInfile*>(drmTransformStg.get()),
                                                     primary));
 
-    if(primaryStm == nullptr)
+    if (primaryStm == nullptr)
     {
         Logger::Error("The primary stream doesn't exist.");
         throw exceptions::RMSMetroOfficeFileException(
@@ -178,7 +178,7 @@ void DataSpaces::ReadDataspaces(GsfInfile *stg, ByteArray& publishingLicense)
 
 void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content)
 {
-    if( stm == nullptr || content.empty())
+    if (stm == nullptr || content.empty())
     {
         Logger::Error("Invalid arguments provided for writing version");
         throw exceptions::RMSMetroOfficeFileException(
@@ -193,18 +193,18 @@ void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content)
     uint16_t writerMinor  = 0;
 
     WriteWideStringEntry(stm, content);
-    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&readerMajor));
-    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&readerMinor));
-    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&updaterMajor));
-    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&updaterMinor));
-    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&writerMajor));
-    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const unsigned char*>(&writerMinor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&readerMajor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&readerMinor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&updaterMajor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&updaterMinor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&writerMajor));
+    gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&writerMinor));
 }
 
 void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
                                       const std::string& contentExpected)
 {
-    if( stm == nullptr || contentExpected.empty())
+    if (stm == nullptr || contentExpected.empty())
     {
         Logger::Error("Invalid arguments provided for reading version");
         throw exceptions::RMSMetroOfficeFileException(
@@ -225,14 +225,14 @@ void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
     uint16_t writerMinorRead  = 0;
 
     ReadWideStringEntry(stm, contentRead);
-    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&readerMajorRead));
-    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&readerMinorRead));
-    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&updaterMajorRead));
-    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&updaterMinorRead));
-    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&writerMajorRead));
-    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<unsigned char*>(&writerMinorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&readerMajorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&readerMinorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&updaterMajorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&updaterMinorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&writerMajorRead));
+    gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&writerMinorRead));
 
-    if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
+    if (contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
             updaterMajorRead != updaterMajorExpected || writerMajorRead != writerMajorExpected)
     {
         Logger::Error("Major Version mismatch", contentRead, readerMajorRead,
@@ -249,7 +249,7 @@ void DataSpaces::WriteDataSpaceMap(GsfOutput *stm)
     DataSpaceMapEntryHeader dsmeh;
     uint32_t refVar = 0;
 
-    if( stm == nullptr)
+    if (stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing DataSpaceMap");
         throw exceptions::RMSMetroOfficeFileException(
@@ -259,9 +259,9 @@ void DataSpaces::WriteDataSpaceMap(GsfOutput *stm)
 
     dsmh.headerLen = sizeof(dsmh);
     dsmh.entryCount = 1;
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dsmh.headerLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dsmh.headerLen));
     gsf_output_write(stm, sizeof(uint32_t),
-                     reinterpret_cast<const unsigned char*>(&dsmh.entryCount));
+                     reinterpret_cast<const uint8_t*>(&dsmh.entryCount));
 
     dsmeh.entryLen = sizeof(dsmeh) + sizeof(uint32_t) +
                         (m_isMetro ? FourByteAlignedWideStringLength(metroContent) +
@@ -270,17 +270,16 @@ void DataSpaces::WriteDataSpaceMap(GsfOutput *stm)
                                      FourByteAlignedWideStringLength(drmDataSpace));
     dsmeh.componentCount = 1;
 
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dsmeh.entryLen));
-    gsf_output_write(stm, sizeof(uint32_t),
-                     reinterpret_cast<const unsigned char*>(&dsmeh.componentCount));
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&refVar));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dsmeh.entryLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dsmeh.componentCount));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&refVar));
     WriteWideStringEntry(stm, m_isMetro ? metroContent : drmContent);
     WriteWideStringEntry(stm, m_isMetro ? metroDataSpace : drmDataSpace);
 }
 
-void DataSpaces::WriteDRMDataSpace(GsfOutput* stm)
+void DataSpaces::WriteDrmDataSpace(GsfOutput* stm)
 {
-    if( stm == nullptr)
+    if (stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for writing DRMDataSpace");
         throw exceptions::RMSMetroOfficeFileException(
@@ -292,8 +291,8 @@ void DataSpaces::WriteDRMDataSpace(GsfOutput* stm)
     dth.headerLen = sizeof(dth);
     dth.txCount = 1;
 
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dth.headerLen));
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dth.txCount));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dth.headerLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dth.txCount));
     WriteWideStringEntry(stm, m_isMetro ? metroTransform : drmTransform);
 }
 
@@ -301,7 +300,7 @@ void DataSpaces::WriteTxInfo(GsfOutput *stm,
                              const std::string& txClassName,
                              const std::string& featureName)
 {
-    if( stm == nullptr || txClassName.empty() || featureName.empty())
+    if (stm == nullptr || txClassName.empty() || featureName.empty())
     {
         Logger::Error("Invalid arguments provided for writing Transform Info");
         throw exceptions::RMSMetroOfficeFileException(
@@ -313,8 +312,8 @@ void DataSpaces::WriteTxInfo(GsfOutput *stm,
     dti.headerLen = sizeof(dti) + FourByteAlignedWideStringLength(txClassName);
     dti.txClassType = 1;
 
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dti.headerLen));
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&dti.txClassType));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dti.headerLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dti.txClassType));
     WriteWideStringEntry(stm, txClassName);
     WriteVersion(stm, featureName);
 }
@@ -323,7 +322,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
                             const std::string& txClassNameExpected,
                             const std::string& featureNameExpected)
 {
-    if( stm == nullptr || txClassNameExpected.empty() || featureNameExpected.empty())
+    if (stm == nullptr || txClassNameExpected.empty() || featureNameExpected.empty())
     {
         Logger::Error("Invalid arguments provided for reading Transform Info");
         throw exceptions::RMSMetroOfficeFileException(
@@ -336,10 +335,10 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
     dtiExpected.txClassType = 1;
 
     DRMTransformInfo dtiRead;
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&dtiRead.headerLen));
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&dtiRead.txClassType));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&dtiRead.headerLen));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&dtiRead.txClassType));
 
-    if(dtiRead.headerLen != dtiExpected.headerLen || dtiRead.txClassType != dtiExpected.txClassType)
+    if (dtiRead.headerLen != dtiExpected.headerLen || dtiRead.txClassType != dtiExpected.txClassType)
     {
         Logger::Error("DRMTransformInfo mismatch",
                       std::to_string(dtiRead.headerLen), std::to_string(dtiRead.txClassType));
@@ -350,7 +349,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
 
     std::string txClassNameRead;
     ReadWideStringEntry(stm, txClassNameRead);
-    if(txClassNameRead.compare(txClassNameExpected) != 0)
+    if (txClassNameRead.compare(txClassNameExpected) != 0)
     {
         Logger::Error("Transform Class mismatch", txClassNameRead);
         throw exceptions::RMSMetroOfficeFileException(
@@ -364,7 +363,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
 void DataSpaces::WritePrimary(GsfOutput* stm,
                               const ByteArray& publishingLicense)
 {
-    if(stm == nullptr || publishingLicense.empty())
+    if (stm == nullptr || publishingLicense.empty())
     {
         Logger::Error("Invalid arguments provided for writing Primary stream");
         throw exceptions::RMSMetroOfficeFileException(
@@ -373,7 +372,7 @@ void DataSpaces::WritePrimary(GsfOutput* stm,
 
     uint32_t headerLen = sizeof(headerLen);
     WriteTxInfo(stm, drmTransformClass, drmTransformFeature);
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const unsigned char*>(&headerLen));
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&headerLen));
     std::string publishingLicenseStr(reinterpret_cast<const char*>(publishingLicense.data()),
                                      publishingLicense.size());
     if ((publishingLicenseStr.length() > sizeof(BOM_UTF8)) &&
@@ -384,22 +383,22 @@ void DataSpaces::WritePrimary(GsfOutput* stm,
         publishingLicenseStr = utf8NoBOM;
     }
 
-    if(m_doesUseDeprecatedAlgorithm)
+    if (m_doesUseDeprecatedAlgorithm)
     {
         publishingLicenseStr = ConvertWideStrToCharStr(publishingLicenseStr);
     }
 
     uint32_t publishingLicenseLen = publishingLicenseStr.length();
     gsf_output_write(stm, sizeof(uint32_t),
-                     reinterpret_cast<const unsigned char*>(&publishingLicenseLen));
+                     reinterpret_cast<const uint8_t*>(&publishingLicenseLen));
     gsf_output_write(stm, publishingLicenseLen,
-                     reinterpret_cast<const unsigned char*>(publishingLicenseStr.data()));
+                     reinterpret_cast<const uint8_t*>(publishingLicenseStr.data()));
     AlignOutputAtFourBytes(stm, publishingLicenseLen);
 }
 
 void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
 {
-    if(stm == nullptr)
+    if (stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading Primary stream");
         throw exceptions::RMSMetroOfficeFileException(
@@ -409,9 +408,9 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
 
     uint32_t headerLenRead = 0;
     ReadTxInfo(stm, drmTransformClass, drmTransformFeature);
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&headerLenRead));
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&headerLenRead));
     headerLenRead -= sizeof(headerLenRead);
-    if(headerLenRead != 0)
+    if (headerLenRead != 0)
     {
         Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead));
         throw exceptions::RMSMetroOfficeFileException(
@@ -419,11 +418,11 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
     uint32_t publishingLicenseLen = 0;
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<unsigned char*>(&publishingLicenseLen));
-    std::unique_ptr<unsigned char[]> pl(new unsigned char[publishingLicenseLen]);
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&publishingLicenseLen));
+    std::unique_ptr<uint8_t[]> pl(new uint8_t[publishingLicenseLen]);
     gsf_input_read(stm, publishingLicenseLen, pl.get());
     std::string publishingLicenseStr((char*)pl.get(), publishingLicenseLen);
-    if(m_doesUseDeprecatedAlgorithm)
+    if (m_doesUseDeprecatedAlgorithm)
     {
         publishingLicenseStr = ConvertCharStrToWideStr(publishingLicenseStr);
     }

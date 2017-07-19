@@ -22,9 +22,9 @@ class DataSpaces : public IDataSpaces
 public:
     DataSpaces(bool isMetro, bool doesUseDeprecatedAlgorithm = true);
     ~DataSpaces();
-    void WriteDataspaces(GsfOutfile* stg,
+    void WriteDataSpaces(GsfOutfile* stg,
                          const ByteArray& publishingLicense) override;
-    void ReadDataspaces(GsfInfile* stg,
+    void ReadDataSpaces(GsfInfile* stg,
                         ByteArray& publishingLicense) override;
 
 private:
@@ -32,7 +32,7 @@ private:
     void WriteVersion(GsfOutput* stm, const std::string& content);
     void ReadAndVerifyVersion(GsfInput* stm, const std::string& contentExpected);
     void WriteDataSpaceMap(GsfOutput* stm);
-    void WriteDRMDataSpace(GsfOutput *stm);
+    void WriteDrmDataSpace(GsfOutput *stm);
     void WriteTxInfo(GsfOutput* stm,
                      const std::string& txClassName,
                      const std::string& featureName);

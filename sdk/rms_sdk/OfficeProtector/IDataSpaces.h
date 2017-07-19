@@ -24,9 +24,9 @@ class IDataSpaces
 public:
     virtual ~IDataSpaces() {}
 
-    virtual void WriteDataspaces(GsfOutfile* stg,
+    virtual void WriteDataSpaces(GsfOutfile* stg,
                                  const ByteArray& publishingLicense) = 0;
-    virtual void ReadDataspaces(GsfInfile* stg,
+    virtual void ReadDataSpaces(GsfInfile* stg,
                                 ByteArray& publishingLicense) = 0;
 
     static std::shared_ptr<IDataSpaces> Create(bool isMetro);
