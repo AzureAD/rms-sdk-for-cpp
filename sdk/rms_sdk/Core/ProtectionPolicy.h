@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <CryptoAPI.h>
+#include <mutex>
 #include "../Common/CommonTypes.h"
 #include "../Common/FrameworkSpecificTypes.h"
 #include "../ModernAPI/IConsentCallbackImpl.h"
@@ -262,7 +263,7 @@ private:
   typedef std::list<std::shared_ptr<ProtectionPolicy> >CachedProtectionPolicies;
 
   static CachedProtectionPolicies *s_pCachedProtectionPolicies;
-  static common::Mutex s_cachedProtectionPoliciesMutex;
+  static std::mutex s_cachedProtectionPoliciesMutex;
 };
 } // namespace core
 } // namespace rmscore
