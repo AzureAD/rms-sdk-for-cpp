@@ -4,6 +4,7 @@ SUBDIRS += \
     Common \
     Consent \
     Core \
+    Googletest \
     Json \
     ModernAPI \
     PFile \
