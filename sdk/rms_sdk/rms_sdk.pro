@@ -12,7 +12,8 @@ SUBDIRS += \
     UnitTests \
     Pole \
     OfficeProtector \
-    FileAPI
+    FileAPI \
+    API
 
 UnitTests.depends   = ModernAPI FileAPI
 RestClients.depends = PFile
