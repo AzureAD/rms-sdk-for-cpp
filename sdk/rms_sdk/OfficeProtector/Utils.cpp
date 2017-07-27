@@ -7,6 +7,8 @@
 */
 
 #include "Utils.h"
+#include <codecvt>
+#include <locale>
 #include "../Platform/Logger/Logger.h"
 #include "../ModernAPI/RMSExceptions.h"
 
@@ -15,31 +17,39 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace officeprotector {
 
-// Adds a '\0' after every char to make for MSIPC wstring compatibility.
-// "RMS" becomes "R\0M\0S\0"
-std::string ConvertCharStrToWideStr(const std::string& input)
+#if _MSC_VER >= 1900
+
+std::string utf16_to_utf8(std::u16string utf16_string)
 {
-    size_t inputLen = input.length();
-    std::string wideStr(2 * inputLen, '\0');
-    for(size_t i = 0; i < inputLen; i++)
-    {
-        wideStr[2 * i] = input[i];
-    }
-    return wideStr;
+    std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
+    auto p = reinterpret_cast<const int16_t *>(utf16_string.data());
+    return convert.to_bytes(p, p + utf16_string.size());
 }
 
-// Removes a '\0' present after every char to make for MSIPC wstring compatibility.
-// "R\0M\0S\0" becomes "RMS"
-std::string ConvertWideStrToCharStr(const std::string& input)
+std::u16string utf8_to_utf16(std::string utf8_string)
 {
-    size_t inputLen = input.length();
-    std::string charStr(inputLen / 2, '\0');
-    for(size_t i = 0; i < inputLen; i += 2)
-    {
-        charStr[i / 2] = input[i];
-    }
-    return charStr;
+    std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
+
+    auto str = convert.from_bytes(utf8_string);
+    std::u16string result{ str.begin(), str.end() };
+    return result;
 }
+
+#else
+
+std::string utf16_to_utf8(std::u16string utf16_string)
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+    return convert.to_bytes(utf16_string);
+}
+
+std::u16string utf8_to_utf16(std::string utf8_string)
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+    return convert.from_bytes(utf8_string);
+}
+
+#endif
 
 // Writes a string to a stream after converting it to a wide string.
 void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
@@ -51,12 +61,11 @@ void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
                     "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
-    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
-    std::string wideEntry = ConvertCharStrToWideStr(entry);
-    uint32_t wideEntryLen = wideEntry.length();
-    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&wideEntryLen));
-    gsf_output_write(stm, wideEntryLen, reinterpret_cast<const uint8_t*>(wideEntry.data()));
-    AlignOutputAtFourBytes(stm, wideEntryLen);
+    auto entry_utf16 = utf8_to_utf16(entry);
+    uint32_t entry_utf16_len = entry_utf16.length() * 2;
+    gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&entry_utf16_len));
+    gsf_output_write(stm, entry_utf16_len, reinterpret_cast<const uint8_t*>(entry_utf16.data()));
+    AlignOutputAtFourBytes(stm, entry_utf16_len);
 }
 
 // Reads a wide string and converts it to a string.
@@ -69,21 +78,20 @@ void ReadWideStringEntry(GsfInput *stm, std::string& entry)
                     "Error in reading from stream", exceptions::RMSMetroOfficeFileException::Unknown);
     }
 
-    uint32_t wideEntryLen = 0;
-    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&wideEntryLen));
+    uint32_t entry_utf16_len = 0;
+    gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&entry_utf16_len));
 
-    if (wideEntryLen % 2 != 0)
+    if (entry_utf16_len % 2 != 0)
     {
         Logger::Error("Corrupt doc file.");
         throw exceptions::RMSMetroOfficeFileException(
                     "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
-    std::unique_ptr<uint8_t[]> wideEntry(new uint8_t[wideEntryLen]);
-    gsf_input_read(stm, wideEntryLen, wideEntry.get());
-    std::string wideStr((char*)wideEntry.get(), wideEntryLen);
-    //Doing it this way because wchar_t is 4 bytes on Unix and 2 bytes on Windows.
-    entry = ConvertWideStrToCharStr(wideStr);
-    AlignInputAtFourBytes(stm, wideEntryLen);
+    std::vector<uint8_t> ent(entry_utf16_len);
+    gsf_input_read(stm, entry_utf16_len, &ent[0]);
+    std::u16string entry_utf16(reinterpret_cast<const char16_t*>(ent.data()), (ent.size()+1)/2);
+    entry = utf16_to_utf8(entry_utf16);
+    AlignInputAtFourBytes(stm, entry_utf16_len);
 }
 
 // calculates length of bytes written/read in WriteWideStringEntry()/ReadWideStringEntry()

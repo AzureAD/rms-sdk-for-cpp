@@ -20,8 +20,8 @@ void ReadWideStringEntry(GsfInput* stm, std::string& entry);
 uint32_t FourByteAlignedWideStringLength(const std::string& entry);
 void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength);
 void AlignInputAtFourBytes(GsfInput* stm, uint32_t contentLength);
-std::string ConvertCharStrToWideStr(const std::string& input);
-std::string ConvertWideStrToCharStr(const std::string& input);
+std::string utf16_to_utf8(std::u16string utf16_string);
+std::u16string utf8_to_utf16(std::string utf8_string);
 
 } // namespace officeprotector
 } // namespace rmscore

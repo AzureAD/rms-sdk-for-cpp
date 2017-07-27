@@ -373,27 +373,19 @@ void DataSpaces::WritePrimary(GsfOutput* stm,
     uint32_t headerLen = sizeof(headerLen);
     WriteTxInfo(stm, drmTransformClass, drmTransformFeature);
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&headerLen));
-    std::string publishingLicenseStr(reinterpret_cast<const char*>(publishingLicense.data()),
-                                     publishingLicense.size());
-    if ((publishingLicenseStr.length() > sizeof(BOM_UTF8)) &&
-            (memcmp(publishingLicenseStr.data(), BOM_UTF8, sizeof(BOM_UTF8)) == 0))
-    {
-        std::string utf8NoBOM(publishingLicenseStr.data() + sizeof(BOM_UTF8),
-                         publishingLicenseStr.data() + publishingLicenseStr.length());
-        publishingLicenseStr = utf8NoBOM;
-    }
 
     if (m_doesUseDeprecatedAlgorithm)
     {
-        publishingLicenseStr = ConvertWideStrToCharStr(publishingLicenseStr);
+        std::u16string pl_utf16(reinterpret_cast<const char16_t*>(publishingLicense.data()),
+                                (publishingLicense.size()+1)/2);
+        auto pl_utf8 = utf16_to_utf8(pl_utf16);
+        uint32_t publishingLicenseLen = pl_utf8.length();
+        gsf_output_write(stm, sizeof(uint32_t),
+                         reinterpret_cast<const uint8_t*>(&publishingLicenseLen));
+        gsf_output_write(stm, publishingLicenseLen,
+                         reinterpret_cast<const uint8_t*>(pl_utf8.data()));
+        AlignOutputAtFourBytes(stm, publishingLicenseLen);
     }
-
-    uint32_t publishingLicenseLen = publishingLicenseStr.length();
-    gsf_output_write(stm, sizeof(uint32_t),
-                     reinterpret_cast<const uint8_t*>(&publishingLicenseLen));
-    gsf_output_write(stm, publishingLicenseLen,
-                     reinterpret_cast<const uint8_t*>(publishingLicenseStr.data()));
-    AlignOutputAtFourBytes(stm, publishingLicenseLen);
 }
 
 void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
@@ -419,17 +411,18 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
     }
     uint32_t publishingLicenseLen = 0;
     gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&publishingLicenseLen));
-    std::unique_ptr<uint8_t[]> pl(new uint8_t[publishingLicenseLen]);
-    gsf_input_read(stm, publishingLicenseLen, pl.get());
-    std::string publishingLicenseStr((char*)pl.get(), publishingLicenseLen);
-    if (m_doesUseDeprecatedAlgorithm)
+    if(m_doesUseDeprecatedAlgorithm)
     {
-        publishingLicenseStr = ConvertCharStrToWideStr(publishingLicenseStr);
+        std::vector<uint8_t> pl(publishingLicenseLen);
+        gsf_input_read(stm, publishingLicenseLen, &pl[0]);
+        std::string pl_utf8((char*)pl.data(), pl.size());
+        auto pl_utf16 = utf8_to_utf16(pl_utf8);
+        publishingLicense.clear();
+        publishingLicense.assign(reinterpret_cast<const unsigned char*>(pl_utf16.data()),
+                                 reinterpret_cast<const unsigned char*>(pl_utf16.data()) +
+                                 pl_utf16.size() * 2);
+        AlignInputAtFourBytes(stm, publishingLicenseLen);
     }
-
-    publishingLicense.clear();
-    std::copy(publishingLicenseStr.begin(), publishingLicenseStr.end(), std::back_inserter(publishingLicense));
-    AlignInputAtFourBytes(stm, publishingLicenseLen);
 }
 
 std::shared_ptr<IDataSpaces>IDataSpaces::Create(bool isMetro)
