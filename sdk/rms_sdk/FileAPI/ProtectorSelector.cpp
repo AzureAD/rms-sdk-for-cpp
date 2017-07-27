@@ -55,7 +55,9 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
         {".jpeg", ProtectorType::PSTAR},{".png", ProtectorType::PSTAR},{".tif", ProtectorType::PSTAR},
         {".tiff", ProtectorType::PSTAR},{".bmp", ProtectorType::PSTAR},{".gif", ProtectorType::PSTAR},
         {".jpe", ProtectorType::PSTAR},{".jfif", ProtectorType::PSTAR},{".jif", ProtectorType::PSTAR},
-        {".pdf", ProtectorType::PSTAR}};
+        {".pdf", ProtectorType::PSTAR}, {".doc", ProtectorType::MSO},{".dot", ProtectorType::MSO},
+        {".xla", ProtectorType::MSO},{".xls", ProtectorType::MSO},{".xlt", ProtectorType::MSO},
+        {".pps", ProtectorType::MSO},{".ppt", ProtectorType::MSO},{".pot", ProtectorType::MSO}};
 
     return protectorExtensionsMap;
 }

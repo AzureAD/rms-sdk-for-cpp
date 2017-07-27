@@ -16,7 +16,6 @@ QT 	     -= gui
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Pole
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/OfficeProtector
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
 
 LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
@@ -42,13 +41,18 @@ HEADERS += \
     PFileProtector.h \
     Protector.h \
     FileAPIStructures.h \
-    ProtectorSelector.h
+    ProtectorSelector.h \
+    MsoOfficeProtector.h \
+    OfficeUtils.h \
+    TemplateConstants.h
 
 SOURCES += \
     Protector.cpp \
     PFileProtector.cpp \
     MetroOfficeProtector.cpp \
-    ProtectorSelector.cpp
+    ProtectorSelector.cpp \
+    MsoOfficeProtector.cpp \
+    OfficeUtils.cpp
 
 unix {
     contains(QMAKE_HOST.arch, x86_64) {

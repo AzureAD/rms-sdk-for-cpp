@@ -57,8 +57,8 @@ void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
     if (stm == nullptr || entry.empty())
     {
         Logger::Error("Invalid arguments provided for writing string entry");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Error in writing to stream", exceptions::RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSOfficeFileException(
+                    "Error in writing to stream", exceptions::RMSOfficeFileException::Unknown);
     }
 
     auto entry_utf16 = utf8_to_utf16(entry);
@@ -74,8 +74,8 @@ void ReadWideStringEntry(GsfInput *stm, std::string& entry)
     if (stm == nullptr)
     {
         Logger::Error("Invalid arguments provided for reading string entry");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Error in reading from stream", exceptions::RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSOfficeFileException(
+                    "Error in reading from stream", exceptions::RMSOfficeFileException::Unknown);
     }
 
     uint32_t entry_utf16_len = 0;
@@ -84,8 +84,8 @@ void ReadWideStringEntry(GsfInput *stm, std::string& entry)
     if (entry_utf16_len % 2 != 0)
     {
         Logger::Error("Corrupt doc file.");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Corrupt doc file", exceptions::RMSMetroOfficeFileException::CorruptFile);
+        throw exceptions::RMSOfficeFileException(
+                    "Corrupt doc file", exceptions::RMSOfficeFileException::CorruptFile);
     }
     std::vector<uint8_t> ent(entry_utf16_len);
     gsf_input_read(stm, entry_utf16_len, &ent[0]);
@@ -109,8 +109,8 @@ void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength)
     if (stm == nullptr || contentLength < 1)
     {
         Logger::Error("Invalid arguments provided for byte alignment");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Error in aligning stream", exceptions::RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSOfficeFileException(
+                    "Error in aligning stream", exceptions::RMSOfficeFileException::Unknown);
     }
 
     uint32_t alignCount = ((contentLength + 3) & ~3) - contentLength;
@@ -128,8 +128,8 @@ void AlignInputAtFourBytes(GsfInput *stm, uint32_t contentLength)
     if (stm == nullptr || contentLength < 1)
     {
         Logger::Error("Invalid arguments provided for byte alignment");
-        throw exceptions::RMSMetroOfficeFileException(
-                    "Error in aligning stream", exceptions::RMSMetroOfficeFileException::Unknown);
+        throw exceptions::RMSOfficeFileException(
+                    "Error in aligning stream", exceptions::RMSOfficeFileException::Unknown);
     }
 
     uint32_t alignCount = ((contentLength + 3) & ~3) - contentLength;

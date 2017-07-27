@@ -9,6 +9,7 @@
 #include "Protector.h"
 #include <fstream>
 #include "MetroOfficeProtector.h"
+#include "MsoOfficeProtector.h"
 #include "PFileProtector.h"
 #include "ProtectorSelector.h"
 #include "RMSExceptions.h"
@@ -41,6 +42,13 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
             return protector;
         }
         break;
+
+        case ProtectorType::MSO:
+        {
+            std::unique_ptr<Protector> protector(new MsoOfficeProtector(fileName, inputStream));
+
+            return protector;
+        }
 
         case ProtectorType::PFILE:
         case ProtectorType::PSTAR:

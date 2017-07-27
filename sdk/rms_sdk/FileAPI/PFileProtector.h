@@ -44,14 +44,14 @@ public:
     bool IsProtected() const override;
 
 private:
-    void ProtectInternal(const std::shared_ptr<std::ostream>& outputStream);
+    void ProtectInternal(const std::shared_ptr<std::ostream>& outputStream, uint64_t inputFileSize);
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
             const std::shared_ptr<pfile::PfileHeader>& header);
 
     void EncryptStream(const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
-                       uint64_t originalFileSize);
+                       uint64_t inputFileSize);
 
     void DecryptStream(const std::shared_ptr<std::ostream>& stdStream,
                        const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,

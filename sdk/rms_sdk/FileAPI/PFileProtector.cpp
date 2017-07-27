@@ -16,6 +16,7 @@
 #include "PfileHeader.h"
 #include "PfileHeaderReader.h"
 #include "PfileHeaderWriter.h"
+#include "OfficeUtils.h"
 #include "../Common//CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../Platform/Logger/Logger.h"
@@ -48,6 +49,7 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -63,7 +65,7 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        userPolicyCreationOptions,
                                                                        options.signedAppData,
                                                                        cancelState);
-    ProtectInternal(outputStream);
+    ProtectInternal(outputStream, inputFileSize);
     Logger::Hidden("-PFileProtector::ProtectWithTemplate");
 }
 
@@ -79,6 +81,7 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -94,7 +97,7 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
                 userContext.authenticationCallback,
                 userPolicyCreationOptions,
                 cancelState);
-    ProtectInternal(outputStream);
+    ProtectInternal(outputStream, inputFileSize);
     Logger::Hidden("-PFileProtector::ProtectWithCustomRights");
 }
 
@@ -110,6 +113,7 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
+    GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(m_inputStream);
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
     try
@@ -179,7 +183,8 @@ bool PFileProtector::IsProtected() const
     return true;
 }
 
-void PFileProtector::ProtectInternal(const std::shared_ptr<std::ostream>& outputStream)
+void PFileProtector::ProtectInternal(const std::shared_ptr<std::ostream>& outputStream,
+                                     uint64_t inputFileSize)
 {
     if (m_userPolicy.get() == nullptr)
     {
@@ -189,13 +194,10 @@ void PFileProtector::ProtectInternal(const std::shared_ptr<std::ostream>& output
 
     auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputStream);
 
-    m_inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = m_inputStream->tellg();
-    m_inputStream->seekg(0);
     //Write Header
-    auto header = WriteHeader(outputSharedStream, originalFileSize);
+    auto header = WriteHeader(outputSharedStream, inputFileSize);
     auto protectedStream = CreateProtectedStream(outputSharedStream, header);
-    EncryptStream(protectedStream, originalFileSize);
+    EncryptStream(protectedStream, inputFileSize);
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::CreateProtectedStream(
@@ -225,20 +227,19 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::Creat
 
 void PFileProtector::EncryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
-        uint64_t originalFileSize)
+        uint64_t inputFileSize)
 {
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
+    std::vector<uint8_t> buffer(BUF_SIZE);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
-    uint64_t totalSize = isECB? ((originalFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
-                                originalFileSize;
+    uint64_t totalSize = isECB? ((inputFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
+                                inputFileSize;
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -261,8 +262,7 @@ void PFileProtector::DecryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
+    std::vector<uint8_t> buffer(BUF_SIZE);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = pStream->Size();
@@ -270,8 +270,8 @@ void PFileProtector::DecryptStream(
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(bufSize, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(BUF_SIZE, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
