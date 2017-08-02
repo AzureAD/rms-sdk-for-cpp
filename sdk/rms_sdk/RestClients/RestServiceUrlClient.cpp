@@ -240,7 +240,7 @@ GetServiceDiscoveryDetails(
     domains.push_back(domain);
   }
 
-  auto pCache = IRestClientCache::Create(IRestClientCache::CACHE_PLAINDATA);
+  auto pCache = IRestClientCache::Create(IRestClientCache::CacheType::CACHE_PLAINDATA);
 
   for (auto& domain : domains)
   {

@@ -86,7 +86,7 @@ void DataSpaces::WriteDataSpaces(GsfOutfile* stg, const ByteArray& publishingLic
     {
         Logger::Error("Invalid arguments provided for writing dataspaces.");
         throw exceptions::RMSOfficeFileException(
-                    "Error in writing to storage", exceptions::RMSOfficeFileException::Unknown);
+                    "Error in writing to storage", exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     Logger::Hidden("Writing DataSpaces");
@@ -134,7 +134,7 @@ void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense)
     {
         Logger::Error("Invalid arguments provided for reading dataspaces.");
         throw exceptions::RMSOfficeFileException( "Error in reading from storage",
-                                                  exceptions::RMSOfficeFileException::Unknown);
+                                                  exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     Logger::Hidden("Reading DataSpaces");
@@ -151,7 +151,7 @@ void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense)
         Logger::Error("The file has been protected using non RMS technologies");
         throw exceptions::RMSOfficeFileException(
                     "The file has been protected using non RMS technologies",
-                    exceptions::RMSOfficeFileException::NonRMSProtected);
+                    exceptions::RMSOfficeFileException::Reason::NonRMSProtected);
     }
 
     std::string drmTransformStgName = m_isMetro ? metroTransform : drmTransform;
@@ -166,7 +166,7 @@ void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense)
     {
         Logger::Error("The primary stream doesn't exist.");
         throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+                                                 exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     Logger::Hidden("Reading Primary.");
@@ -180,7 +180,7 @@ void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content)
     {
         Logger::Error("Invalid arguments provided for writing version");
         throw exceptions::RMSOfficeFileException("Error in writing to stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
     uint16_t readerMajor  = 1;
     uint16_t readerMinor  = 0;
@@ -205,7 +205,7 @@ void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
     {
         Logger::Error("Invalid arguments provided for reading version");
         throw exceptions::RMSOfficeFileException("Error in reading from stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     uint16_t readerMajorExpected  = 1;
@@ -234,7 +234,7 @@ void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
         Logger::Error("Major Version mismatch", contentRead, readerMajorRead,
                       updaterMajorRead, writerMajorRead);
         throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+                                                 exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 }
 
@@ -248,7 +248,7 @@ void DataSpaces::WriteDataSpaceMap(GsfOutput *stm)
     {
         Logger::Error("Invalid arguments provided for writing DataSpaceMap");
         throw exceptions::RMSOfficeFileException("Error in writing to stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     dsmh.headerLen = sizeof(dsmh);
@@ -277,7 +277,7 @@ void DataSpaces::WriteDrmDataSpace(GsfOutput* stm)
     {
         Logger::Error("Invalid arguments provided for writing DRMDataSpace");
         throw exceptions::RMSOfficeFileException("Error in writing to stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     DRMTransformHeader dth;
@@ -297,7 +297,7 @@ void DataSpaces::WriteTxInfo(GsfOutput *stm,
     {
         Logger::Error("Invalid arguments provided for writing Transform Info");
         throw exceptions::RMSOfficeFileException("Error in writing to stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     DRMTransformInfo dti;
@@ -318,7 +318,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
     {
         Logger::Error("Invalid arguments provided for reading Transform Info");
         throw exceptions::RMSOfficeFileException("Error in reading from stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     DRMTransformInfo dtiExpected;
@@ -334,7 +334,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
         Logger::Error("DRMTransformInfo mismatch",
                       std::to_string(dtiRead.headerLen), std::to_string(dtiRead.txClassType));
         throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+                                                 exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     std::string txClassNameRead;
@@ -343,7 +343,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
     {
         Logger::Error("Transform Class mismatch", txClassNameRead);
         throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+                                                 exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     ReadAndVerifyVersion(stm, featureNameExpected);
@@ -356,7 +356,7 @@ void DataSpaces::WritePrimary(GsfOutput* stm,
     {
         Logger::Error("Invalid arguments provided for writing Primary stream");
         throw exceptions::RMSOfficeFileException("Error in writing to stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     uint32_t headerLen = sizeof(headerLen);
@@ -383,7 +383,7 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
     {
         Logger::Error("Invalid arguments provided for reading Primary stream");
         throw exceptions::RMSOfficeFileException("Error in reading from stream",
-                                                 exceptions::RMSOfficeFileException::Unknown);
+                                                 exceptions::RMSOfficeFileException::Reason::Unknown);
     }
 
     uint32_t headerLenRead = 0;
@@ -394,7 +394,7 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
     {
         Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead));
         throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+                                                 exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
     uint32_t publishingLicenseLen = 0;
     gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&publishingLicenseLen));

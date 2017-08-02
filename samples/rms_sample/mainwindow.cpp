@@ -734,7 +734,7 @@ void MainWindow::FileAPIEncrypt(const string &fileIn,
 //                            UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms,
 //                            signedData, outFile, self->cancelState);
 
-    rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+    rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AUTO,
                                                      (*templates)[pos], signedData, true);
     rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
     obj->ProtectWithTemplate(ut, pt, outFile, self->cancelState);

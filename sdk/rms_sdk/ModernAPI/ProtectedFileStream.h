@@ -102,9 +102,10 @@ public:
         IAuthenticationCallback& authenticationCallback,
         IConsentCallback* consentCallback,
         PolicyAcquisitionOptions options,
-        ResponseCacheFlags cacheMask = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
-                                                                       RESPONSE_CACHE_ONDISK |
-                                                                       RESPONSE_CACHE_CRYPTED),
+        ResponseCacheFlags cacheMask = static_cast<ResponseCacheFlags>(
+                ResponseCacheFlags::RESPONSE_CACHE_INMEMORY |
+                ResponseCacheFlags::RESPONSE_CACHE_ONDISK |
+                ResponseCacheFlags::RESPONSE_CACHE_CRYPTED),
         std::shared_ptr<std::atomic<bool> > cancelState = nullptr);
 
     /*!

@@ -28,7 +28,7 @@ namespace modernapi {
 class TemplateDescriptor;
 class PolicyDescriptor;
 
-enum GetUserPolicyResultStatus {
+enum class GetUserPolicyResultStatus {
   Success = 0, NoRights = 1, Expired = 2
 };
 
@@ -89,7 +89,7 @@ enum UserPolicyCreationOptions {
 /*!
    @brief Source of policy.
  */
-enum UserPolicyType {
+enum class UserPolicyType {
   /*!
      @brief Policy was created from a template.
    */

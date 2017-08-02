@@ -123,7 +123,7 @@ StatusCode HttpClientQt::Post(const string                     & url,
                           error.errorString().toStdString().c_str());
             throw exceptions::RMSNetworkException(
               error.errorString().toStdString(),
-              exceptions::RMSNetworkException::ServerError);
+              exceptions::RMSNetworkException::Reason::ServerError);
           }
         });
 
@@ -135,7 +135,7 @@ StatusCode HttpClientQt::Post(const string                     & url,
     if ((cancelState != nullptr) && cancelState->load()) {
       throw exceptions::RMSNetworkException(
               "Network operation was cancelled by user",
-              exceptions::RMSNetworkException::CancelledByUser);
+              exceptions::RMSNetworkException::Reason::CancelledByUser);
     }
   } while (!timer.isActive() || !lastReply_->isFinished());
 
@@ -189,7 +189,7 @@ StatusCode HttpClientQt::Get(const string                     & url,
                           error.errorString().toStdString().c_str());
             throw exceptions::RMSNetworkException(
               error.errorString().toStdString(),
-              exceptions::RMSNetworkException::ServerError);
+              exceptions::RMSNetworkException::Reason::ServerError);
           }
         });
 
@@ -201,7 +201,7 @@ StatusCode HttpClientQt::Get(const string                     & url,
     if ((cancelState != nullptr) && cancelState->load()) {
       throw exceptions::RMSNetworkException(
               "Network operation was cancelled by user",
-              exceptions::RMSNetworkException::CancelledByUser);
+              exceptions::RMSNetworkException::Reason::CancelledByUser);
     }
   } while (!timer.isActive() || !lastReply_->isFinished());
 

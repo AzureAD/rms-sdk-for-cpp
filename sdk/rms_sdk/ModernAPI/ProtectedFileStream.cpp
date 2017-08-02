@@ -80,9 +80,9 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   }
   catch (exceptions::RMSException& e)
   {
-    if ((e.error() != exceptions::RMSException::PFileError) ||
+    if ((e.error() != static_cast<int>(exceptions::RMSException::ErrorTypes::PFileError)) ||
         (static_cast<exceptions::RMSPFileException&>(e).reason() !=
-         exceptions::RMSPFileException::NotPFile))
+         exceptions::RMSPFileException::Reason::NotPFile))
     {
       throw;
     }

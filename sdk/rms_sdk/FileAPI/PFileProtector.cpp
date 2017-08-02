@@ -53,8 +53,9 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSPFileException("File is already protected",
-                                            exceptions::RMSPFileException::AlreadyProtected);
+        throw exceptions::RMSPFileException(
+                    "File is already protected",
+                    exceptions::RMSPFileException::Reason::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -85,8 +86,9 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSPFileException("File is already protected",
-                                            exceptions::RMSPFileException::AlreadyProtected);
+        throw exceptions::RMSPFileException(
+                    "File is already protected",
+                    exceptions::RMSPFileException::Reason::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -147,8 +149,9 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
     if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
         Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
-        throw exceptions::RMSPFileException("The file is corrupt",
-                                            exceptions::RMSPFileException::CorruptFile);
+        throw exceptions::RMSPFileException(
+                    "The file is corrupt",
+                    exceptions::RMSPFileException::Reason::CorruptFile);
     }
 
     m_userPolicy = policyRequest->Policy;

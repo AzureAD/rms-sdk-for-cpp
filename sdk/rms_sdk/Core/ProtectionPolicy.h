@@ -21,7 +21,7 @@
 
 namespace rmscore {
 namespace core {
-enum AccessStatus {
+enum class AccessStatus {
   ACCESS_STATUS_ACCESS_GRANTED,
   ACCESS_STATUS_ACCESS_DENIED,
   ACCESS_STATUS_ACCESS_EXPIRED,

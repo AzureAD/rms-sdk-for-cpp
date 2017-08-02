@@ -64,8 +64,9 @@ void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSOfficeFileException("File is already protected",
-                                                 exceptions::RMSOfficeFileException::AlreadyProtected);
+        throw exceptions::RMSOfficeFileException(
+                    "File is already protected",
+                    exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -113,8 +114,9 @@ void MsoOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSOfficeFileException("File is already protected",
-                                                 exceptions::RMSOfficeFileException::AlreadyProtected);
+        throw exceptions::RMSOfficeFileException(
+                    "File is already protected",
+                    exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -219,16 +221,18 @@ void MsoOfficeProtector::ProtectInternal(FILE* outputTempFile,
     catch (std::exception&)
     {
         Logger::Hidden("Failed to open file as a valid CFB");
-        throw exceptions::RMSOfficeFileException("The file is invalid",
-                                                 exceptions::RMSOfficeFileException::NotOfficeFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file is invalid",
+                    exceptions::RMSOfficeFileException::Reason::NotOfficeFile);
     }
 
     auto num_children = gsf_infile_num_children(inputStg.get());
     if(num_children < 0)
     {
         Logger::Hidden("Empty storage. Nothing to protect");
-        throw exceptions::RMSOfficeFileException("The file is invalid",
-                                                 exceptions::RMSOfficeFileException::NotOfficeFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file is invalid",
+                    exceptions::RMSOfficeFileException::Reason::NotOfficeFile);
     }
 
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
@@ -308,8 +312,9 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
     catch (std::exception&)
     {
         Logger::Hidden("Failed to open file as a valid CFB");
-        throw exceptions::RMSOfficeFileException("The file is invalid",
-                                                 exceptions::RMSOfficeFileException::NotOfficeFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file is invalid",
+                    exceptions::RMSOfficeFileException::Reason::NotOfficeFile);
     }
 
     ByteArray publishingLicense;
@@ -344,8 +349,9 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
     if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
         Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
-        throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     m_userPolicy = policyRequest->Policy;
@@ -372,8 +378,9 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
         if(drmEncryptedStream.get() == nullptr)
         {
             Logger::Error("Encrypted data not found");
-            throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                     exceptions::RMSOfficeFileException::CorruptFile);
+            throw exceptions::RMSOfficeFileException(
+                        "The file has been corrupted",
+                        exceptions::RMSOfficeFileException::Reason::CorruptFile);
         }
 
         uint64_t originalFileSize = 0;
@@ -424,9 +431,9 @@ bool MsoOfficeProtector::IsProtectedInternal(std::string inputTempFileName,
     catch (std::exception& e)
     {
         if (static_cast<exceptions::RMSException&>(e).error() ==
-                exceptions::RMSException::OfficeFileError &&
+                static_cast<int>(exceptions::RMSException::ErrorTypes::OfficeFileError) &&
                 (static_cast<exceptions::RMSOfficeFileException&>(e).reason() ==
-                 exceptions::RMSOfficeFileException::NonRMSProtected))
+                 exceptions::RMSOfficeFileException::Reason::NonRMSProtected))
         {
             return true;
         }

@@ -49,14 +49,14 @@ void PfileHeaderReader::CheckPreamble(rmscrypto::api::SharedStream stream)
   if (pr.size() != expectedLength)
   {
     throw exceptions::RMSPFileException("Invalid pfile preamble",
-                                        exceptions::RMSPFileException::NotPFile);
+                                        exceptions::RMSPFileException::Reason::NotPFile);
   }
 
   for (uint32_t i = 0; i < pr.size(); ++i)
   {
     if (pr[i] != ExpectedPreamble[i]) {
       throw exceptions::RMSPFileException("Invalid pfile preamble",
-                                          exceptions::RMSPFileException::NotPFile);
+                                          exceptions::RMSPFileException::Reason::NotPFile);
     }
   }
 }
@@ -76,14 +76,14 @@ tuple<uint32_t, uint32_t>PfileHeaderReader::ReadVersionNumber(
       (minorVersion >= MaxValidVersionNumber))
   {
     throw exceptions::RMSPFileException("Invalid pfile version",
-                                        exceptions::RMSPFileException::NotPFile);
+                                        exceptions::RMSPFileException::Reason::NotPFile);
   }
 
   if (majorVersion > MAX_SUPPORTED_MJVERSION_FOR_READING ||
       majorVersion < MIN_SUPPORTED_MJVERSION_FOR_READING)
   {
     throw exceptions::RMSPFileException("This version is not supported",
-                                        exceptions::RMSPFileException::NotSupportedVersion);
+                                        exceptions::RMSPFileException::Reason::NotSupportedVersion);
   }
 
   return make_tuple(majorVersion, minorVersion);
@@ -101,7 +101,7 @@ string PfileHeaderReader::ReadCleartextRedirectionHeader(
 
   if (redirectHeader.size() != redirectHeaderLength) {
     throw exceptions::RMSPFileException("Bad redirect header",
-                                        exceptions::RMSPFileException::BadArguments);
+                                        exceptions::RMSPFileException::Reason::BadArguments);
   }
 
   string redirectHeaderStr(redirectHeader.begin(), redirectHeader.end());
@@ -118,7 +118,7 @@ string PfileHeaderReader::ReadExtension(rmscrypto::api::SharedStream stream,
 
   if (offset >= stream->Size()) {
     throw exceptions::RMSPFileException("Bad extension",
-                                        exceptions::RMSPFileException::BadArguments);
+                                        exceptions::RMSPFileException::Reason::BadArguments);
   }
 
   ReadAtOffset(ext, stream, offset, length);
@@ -172,7 +172,7 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   if (contentOffset < endOfHeader)
   {
     throw exceptions::RMSPFileException("Bad content offset",
-                                        exceptions::RMSPFileException::BadArguments);
+                                        exceptions::RMSPFileException::Reason::BadArguments);
   }
 
   string extension = ReadExtension(stream, extensionOffset, extensionLength);
@@ -208,7 +208,7 @@ void PfileHeaderReader::ReadBytes(ByteArray                  & dst,
   if (length > stream->Size())
   {
     throw exceptions::RMSPFileException("Bad block length",
-                                        exceptions::RMSPFileException::BadArguments);
+                                        exceptions::RMSPFileException::Reason::BadArguments);
   }
 
   auto pos = dst.size();

@@ -63,8 +63,9 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSOfficeFileException("File is already protected",
-                                                 exceptions::RMSOfficeFileException::AlreadyProtected);
+        throw exceptions::RMSOfficeFileException(
+                    "File is already protected",
+                    exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -107,8 +108,9 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSOfficeFileException("File is already protected",
-                                                 exceptions::RMSOfficeFileException::AlreadyProtected);
+        throw exceptions::RMSOfficeFileException(
+                    "File is already protected",
+                    exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -183,8 +185,9 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     catch (std::exception&)
     {
         Logger::Hidden("Failed to open file as a valid CFB");
-        throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     ByteArray publishingLicense;
@@ -219,8 +222,9 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
         Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
-        throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     m_userPolicy = policyRequest->Policy;
@@ -241,8 +245,9 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     if (metroStream == nullptr)
     {
         Logger::Error("Stream containing encrypted data not present");
-        throw exceptions::RMSOfficeFileException("The file has been corrupted",
-                                                 exceptions::RMSOfficeFileException::CorruptFile);
+        throw exceptions::RMSOfficeFileException(
+                    "The file has been corrupted",
+                    exceptions::RMSOfficeFileException::Reason::CorruptFile);
     }
 
     uint64_t originalFileSize = 0;
@@ -268,9 +273,9 @@ bool MetroOfficeProtector::IsProtectedInternal(std::string inputTempFileName,
     catch (std::exception& e)
     {
         if (static_cast<exceptions::RMSException&>(e).error() ==
-                exceptions::RMSException::OfficeFileError &&
+                static_cast<int>(exceptions::RMSException::ErrorTypes::OfficeFileError) &&
                 (static_cast<exceptions::RMSOfficeFileException&>(e).reason() ==
-                 exceptions::RMSOfficeFileException::NonRMSProtected))
+                 exceptions::RMSOfficeFileException::Reason::NonRMSProtected))
         {
             return true;
         }

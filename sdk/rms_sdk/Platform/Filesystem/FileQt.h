@@ -38,9 +38,9 @@ private:
   {
     switch (mode)
     {
-    case FILE_OPEN_WRITE: return QIODevice::WriteOnly;
+    case FileOpenModes::FILE_OPEN_WRITE: return QIODevice::WriteOnly;
 
-    case FILE_OPEN_READ: return QIODevice::ReadOnly;
+    case FileOpenModes::FILE_OPEN_READ: return QIODevice::ReadOnly;
 
     default: throw exceptions::RMSInvalidArgumentException("unknown FileOpenMode");
     }

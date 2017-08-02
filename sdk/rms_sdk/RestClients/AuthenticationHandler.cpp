@@ -91,7 +91,8 @@ AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& 
     // Otherwise, there is something wrong with the server
     if (StatusCode::UNAUTHORIZED != nStatusCode)
     {
-        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+        throw exceptions::RMSNetworkException("Server error",
+                                              exceptions::RMSNetworkException::Reason::ServerError);
     }
 
     try
@@ -104,7 +105,8 @@ AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& 
     {
         // if couldn't find the header or couldn't parse it, that means the server
         // returned an invalid response.
-        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+        throw exceptions::RMSNetworkException("Server error",
+                                              exceptions::RMSNetworkException::Reason::ServerError);
     }
 }
 
@@ -132,7 +134,8 @@ AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& 
     // Otherwise, there is something wrong with the server
     if (StatusCode::UNAUTHORIZED != nStatusCode)
     {
-        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+        throw exceptions::RMSNetworkException("Server error",
+                                              exceptions::RMSNetworkException::Reason::ServerError);
     }
 
     try
@@ -145,7 +148,8 @@ AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& 
     {
         // if couldn't find the header or couldn't parse it, that means the server
         // returned an invalid response.
-        throw exceptions::RMSNetworkException("Server error", exceptions::RMSNetworkException::ServerError);
+        throw exceptions::RMSNetworkException("Server error",
+                                              exceptions::RMSNetworkException::Reason::ServerError);
     }
 }
 
@@ -262,7 +266,8 @@ AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string
 
     if (trimmed.empty())
     {
-        throw exceptions::RMSNetworkException("Challenge is not bearer", exceptions::RMSNetworkException::ServerError);
+        throw exceptions::RMSNetworkException("Challenge is not bearer",
+                                              exceptions::RMSNetworkException::Reason::ServerError);
     }
 
     // parse name value pairs
@@ -314,7 +319,7 @@ AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string
     if (challenge.authority.empty())
     {
         throw exceptions::RMSNetworkException("Invalid challenge returned by the server.",
-            exceptions::RMSNetworkException::ServerError);
+            exceptions::RMSNetworkException::Reason::ServerError);
     }
 
     // if the resource (realm) is not in the header, use the source url's hostname
@@ -328,7 +333,8 @@ AuthenticationChallenge AuthenticationHandler::ParseChallengeHeader(const string
 
         if ((scheme.compare("http") != 0) && (scheme.compare("https") != 0))
         {
-            throw exceptions::RMSNetworkException("Invalid scheme", exceptions::RMSNetworkException::ServerError);
+            throw exceptions::RMSNetworkException("Invalid scheme",
+                                                  exceptions::RMSNetworkException::Reason::ServerError);
         }
 
         challenge.resource = uri->GetHost();

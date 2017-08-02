@@ -36,7 +36,7 @@ RestHttpClient::Result RestHttpClient::Get(const std::string& sUrl,
         cancelState);
 
     auto parameters = HttpRequestParameters {
-        HTTP_GET,            // type
+        HttpRequestType::HTTP_GET,            // type
         string(sUrl),        // Url
         common::ByteArray(), // requestBody
         accessToken,         // accessToken
@@ -63,7 +63,7 @@ RestHttpClient::Result RestHttpClient::Post(const string& sUrl,
         cancelState);
 
     auto parameters = HttpRequestParameters {
-        HTTP_POST,         // type
+        HttpRequestType::HTTP_POST,         // type
         string(sUrl),      // Url
         move(requestBody), // requestBody
         accessToken,       // accessToken
@@ -102,7 +102,7 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters
 
     switch (parameters.type)
     {
-        case HTTP_POST:
+        case HttpRequestType::HTTP_POST:
         {
             Logger::Hidden("RestHttpClient::DoHttpRequest doing http POST to %s, Request-ID: %s",
                 parameters.requestUrl.c_str(),
@@ -114,7 +114,7 @@ RestHttpClient::Result RestHttpClient::DoHttpRequest(const HttpRequestParameters
                 parameters.cancelState);
         }
         break;
-        case HTTP_GET:
+    case HttpRequestType::HTTP_GET:
         {
             Logger::Hidden("RestHttpClient::DoHttpRequest doing http GET to %s, Request-ID: %s",
                 parameters.requestUrl.c_str(),

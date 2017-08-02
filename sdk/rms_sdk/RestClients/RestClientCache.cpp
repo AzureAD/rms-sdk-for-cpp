@@ -93,7 +93,7 @@ common::StringArray RestClientCache::Lookup(
         if (iis) {
           // create input protected stream
           auto ips = m_type ==
-                     CACHE_ENCRYPTED ? rmscrypto::api::
+                     CacheType::CACHE_ENCRYPTED ? rmscrypto::api::
                      CreateCryptoStreamWithAutoKey(
             rmscrypto::api::CIPHER_MODE_CBC4K, filePath, iis) : iis;
 
@@ -194,7 +194,7 @@ void RestClientCache::Store(
     if (ois) {
       // create output protected stream
       auto ops = m_type ==
-                 CACHE_ENCRYPTED ? rmscrypto::api::CreateCryptoStreamWithAutoKey(
+                 CacheType::CACHE_ENCRYPTED ? rmscrypto::api::CreateCryptoStreamWithAutoKey(
         rmscrypto::api::CIPHER_MODE_CBC4K, filePath, ois) : ois;
 
       if (ops) {
