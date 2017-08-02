@@ -25,9 +25,10 @@ public:
     std::shared_ptr<Domain>domain) override;
 
 private:
+    /*
   void SendPacket(
     common::DataStream &sendStream,
-    const common::ByteArray &requestMessage);
+    const common::ByteArray &requestMessage);*/
 
   common::StringArray GetPossibleDomains(const std::string& domain);
 };
