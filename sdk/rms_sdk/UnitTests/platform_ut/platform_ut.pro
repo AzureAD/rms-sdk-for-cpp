@@ -23,6 +23,7 @@ CONFIG(debug, debug|release) {
 }
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/ -lcpprest_2_9
 else:LIBS  += -lssl -lcrypto
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"

@@ -9,6 +9,7 @@
 #ifdef QTFRAMEWORK
 #include <QDir>
 #include <QTextStream>
+#include <QDataStream>
 #include <iostream>
 #include <cstdio>
 #include "FileQt.h"

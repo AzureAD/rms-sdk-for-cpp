@@ -8,6 +8,8 @@
 
 #ifdef QTFRAMEWORK
 #include "UriQt.h"
+
+
 namespace rmscore { namespace platform { namespace http {
 
 std::shared_ptr<IUri> IUri::Create(const std::string& uri)
@@ -16,11 +18,15 @@ std::shared_ptr<IUri> IUri::Create(const std::string& uri)
 }
 const std::string UriQt::GetScheme() const
 {
-    return this->pImpl_->scheme().toStdString();
+    std::wstring ws(this->pImpl_->scheme());
+    std::string scheme(ws.begin(),ws.end());
+    return scheme;
 }
 const std::string UriQt::GetHost() const
 {
-    return this->pImpl_->host().toStdString();
+    std::wstring ws(this->pImpl_->host());
+    std::string host(ws.begin(),ws.end());
+    return host;
 }
 int UriQt::GetPort() const
 {
@@ -28,10 +34,13 @@ int UriQt::GetPort() const
 }
 const std::string UriQt::ToString()const
 {
-    return this->pImpl_->toString().toStdString();
+  std::wstring ws(this->pImpl_->to_string());
+  std::string str(ws.begin(),ws.end());
+  return str;
 }
 
 }}} // namespace rmscore { namespace platform { namespace http {
 #endif
+
 
 

@@ -9,8 +9,9 @@
 #ifndef _RMS_LIB_COMMONTYPES_H_
 #define _RMS_LIB_COMMONTYPES_H_
 
-#include <vector>
 #include <stdint.h>
+#include <vector>
+#include <QDataStream>
 #include "FrameworkSpecificTypes.h"
 #include "../Platform/Http/IUri.h"
 

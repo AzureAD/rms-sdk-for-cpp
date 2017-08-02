@@ -22,13 +22,13 @@ tm ConvertStdTimeToGmtTm(time_t time) {
   // But that function is not thread safe on all platforms since it uses an internal
   // static buffer.
   // The thread safe function is gmtime_s on Windows and gmtime_r in POSIX.
-#ifdef WIN32
+  #ifdef WIN32
   gmtime_s(&gmTime, &time);
-#elif POSIX
+  #elif POSIX
   gmtime_r(&time, &gmTime);
-#else
-#error "Compiled on unsupported platform"
-#endif
+  #else
+  #error "Compiled on unsupported platform"
+  #endif
   return gmTime;
 }
 
@@ -47,31 +47,30 @@ string GetCurrentGmtAsString(const string& format) {
 
 std::time_t GetTimeFromString(const std::string& dateTime, const std::string& format)
 {
-       // Create a stream which we will use to parse the string,
-       // which we provide to constructor of stream to fill the buffer.
-       std::stringstream ss{ dateTime };
+  // Create a stream which we will use to parse the string,
+  // which we provide to constructor of stream to fill the buffer.
+  std::stringstream ss{ dateTime };
 
-       // Create a tm object to store the parsed date and time.
-       std::tm dt;
+  // Create a tm object to store the parsed date and time.
+  std::tm dt;
 
-       // Now we read from buffer using get_time manipulator
-       // and formatting the input appropriately.
-       ss >> std::get_time(&dt, format.c_str());
+  // Now we read from buffer using get_time manipulator
+  // and formatting the input appropriately.
+  ss >> std::get_time(&dt, format.c_str());
 
-       // Convert the tm structure to time_t value and return.
-       return std::mktime(&dt);
+  // Convert the tm structure to time_t value and return.
+  return std::mktime(&dt);
 }
 
 uint64_t timeToWinFileTime(const time_t& dateTime) {
   // Definition of FILETIME from MSDN:
   // Contains a 64-bit value representing the number of 100-nanosecond intervals
   // since January 1, 1601 (UTC).
-      struct tm origin = {0};
-      uint64_t seconds;
-
-      origin.tm_hour = 0;   origin.tm_min = 0; origin.tm_sec = 0;
-      origin.tm_year = 1601; origin.tm_mon = 1; origin.tm_mday = 1;
-      seconds = difftime(dateTime,mktime(&origin));
+  struct tm origin = {0};
+  uint64_t seconds;
+  origin.tm_hour = 0;   origin.tm_min = 0; origin.tm_sec = 0;
+  origin.tm_year = 1601; origin.tm_mon = 1; origin.tm_mday = 1;
+  seconds = difftime(dateTime,mktime(&origin));
 
   // Get offset - note we need 100-nanosecond intervals, hence we multiply by
   // 10000.
@@ -105,9 +104,30 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
   return ByteArray(convArray.begin(), convArray.end());
 }
 
+
 string GenerateAGuid()
 {
   return QUuid::createUuid().toString().toStdString();
+//TODO: Linker error resolve for rpc.h and test for posix(uuid.h)
+/*
+#ifdef WIN32
+    UUID uuid;
+    UuidCreate ( &uuid );
+
+    unsigned char * str;
+    UuidToStringA ( &uuid, &str );
+
+    std::string s( ( char* ) str );
+
+    RpcStringFreeA ( &str );
+#else
+    uuid_t uuid;
+    uuid_generate_random ( uuid );
+    char s[37];
+    uuid_unparse ( uuid, s );
+#endif
+    return s;
+*/
 }
 } // namespace common
 } // namespace rmscore

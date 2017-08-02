@@ -13,10 +13,11 @@
 #include <ctime>
 #include <string>
 #include <sstream>
-#include<iomanip>
+#include <iomanip>
 
 namespace rmscore {
 namespace common {
+
 // Turns out that there is no platform-independent, re-entrant way of converting
 // time_t to tm.
 // This platform independent re-entrant function converts the given time_t to

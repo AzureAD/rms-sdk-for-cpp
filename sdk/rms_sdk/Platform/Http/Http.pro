@@ -13,7 +13,12 @@ QT -= gui
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
+} else {
 }
+
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/
+
+LIBS+=-L$$REPO_ROOT/third_party/lib/ -lcpprest_2_9
 
 SOURCES += \
     HttpClientQt.cpp \

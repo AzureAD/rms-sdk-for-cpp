@@ -20,8 +20,16 @@ ConsentDBHelper& ConsentDBHelper::GetInstance()
 // Initialize the DBHelper
 // Creates the storage files if not present
 // Reads the file contents and keep it in in-memory cache
-bool ConsentDBHelper::Initialize(const string& path)
+bool ConsentDBHelper::Initialize()
 {
+    #ifdef WIN32
+    const std::string path = (*getenv("HOMEDRIVE") + *getenv("HOMEPATH")+ ("/.ms-ad/"));
+    #elif POSIX
+    const std::string path = (*getenv("HOME")+ ("/.ms-ad/"));
+    #else
+    #error "Compiled on unsupported platform"
+    #endif
+
     if (m_init != true)
     {
 
