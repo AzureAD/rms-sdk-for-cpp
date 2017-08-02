@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef _RMS_CRYPTO_EXPORT_H_
-#define _RMS_CRYPTO_EXPORT_H_
+#ifndef PROFILE_API_EXPORT_H_
+#define PROFILE_API_EXPORT_H_
 
 // This code produces too many warnings
 
@@ -36,4 +36,4 @@
   #endif
 #endif
 
-#endif  // _RMS_CRYPTO_EXPORT_H_
+#endif  // PROFILE_API_EXPORT_H_

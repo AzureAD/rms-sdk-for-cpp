@@ -5,8 +5,9 @@ TARGET    = platformlogger
 QT       -= gui
 QT       += core
 
-
 DEFINES += QTFRAMEWORK
+
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
 
 TEMPLATE = lib
 

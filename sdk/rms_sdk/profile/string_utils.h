@@ -6,22 +6,25 @@
  * ======================================================================
 */
 
-#ifndef CONSENTTYPE
-#define CONSENTTYPE
-#include "api_export.h"
+#ifndef PROFILE_STRING_UTILS_H_
+#define PROFILE_STRING_UTILS_H_
+
+#include <string>
 
 namespace rmscore {
-namespace modernapi {
-enum class ConsentType : char
-{
-  // consent type for document tracking
-  DocumentTrackingConsent = 0,
 
-  // consent type for contacting a service url
-  ServiceUrlConsent = 1
-};
-} // namespace modernapi
+namespace stringutils {
+
+inline char GetDirectorySeparator() {
+#ifdef _WIN32
+    return '\\';
+#else
+    return '/';
+#endif
+}
+
+} // namespace stringutils
+
 } // namespace rmscore
 
-
-#endif // CONSENTTYPE
+#endif  // PROFILE_STRING_UTILS_H_

@@ -6,6 +6,8 @@ TEMPLATE = lib
 
 DEFINES += QTFRAMEWORK
 
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
+
 CONFIG += staticlib warn_on c++11 debug_and_release
 
 QT += core

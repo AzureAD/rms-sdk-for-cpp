@@ -12,6 +12,7 @@ QT += core
 QT -= gui
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)

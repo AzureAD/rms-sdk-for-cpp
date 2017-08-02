@@ -14,7 +14,7 @@
 
 #include "IAuthenticationCallback.h"
 #include "IConsentCallback.h"
-#include "ModernAPIExport.h"
+#include "api_export.h"
 #include "CacheControl.h"
 #include "TemplateDescriptor.h"
 #include "PolicyDescriptor.h"

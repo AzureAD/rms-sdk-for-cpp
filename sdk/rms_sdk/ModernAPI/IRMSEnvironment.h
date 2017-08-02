@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace modernapi {

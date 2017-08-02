@@ -5,23 +5,18 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
+#ifndef LOGGER_H
+#define LOGGER_H
 
-#ifndef CONSENTTYPE
-#define CONSENTTYPE
-#include "api_export.h"
+#include "easylogging++.h"
 
 namespace rmscore {
-namespace modernapi {
-enum class ConsentType : char
-{
-  // consent type for document tracking
-  DocumentTrackingConsent = 0,
 
-  // consent type for contacting a service url
-  ServiceUrlConsent = 1
+class Logger {
+public:
+  static void Init();
 };
-} // namespace modernapi
+
 } // namespace rmscore
 
-
-#endif // CONSENTTYPE
+#endif // ELOGGER_H

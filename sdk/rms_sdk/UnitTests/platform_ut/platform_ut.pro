@@ -11,6 +11,7 @@ CONFIG   += console c++11 debug_and_release
 CONFIG   -= app_bundle
 
 INCLUDEPATH       += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
 
 LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/platform

@@ -3,6 +3,9 @@ DESTDIR   = $$REPO_ROOT/bin
 TARGET    = rms
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/logger
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp
 
 DEFINES     += RMS_LIBRARY
 
@@ -20,11 +23,13 @@ CONFIG(debug, debug|release) {
     LIBS += -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
     LIBS += -lplatformhttpd -lplatformloggerd -lplatformxmld -lplatformjsond -lplatformfilesystemd -lplatformsettingsd
     LIBS += -lrmscryptod
+    LIBS += -lloggerd
 } else {
     LIBS += -lmodprotectedfile -lmodcore -lmodrestclients -lmodconsent -lmodcommon -lmodjson
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings
 #link third-part library at the end to prevent logger implementation conflict
     LIBS += -lrmscrypto
+    LIBS += -llogger
 }
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
@@ -39,7 +44,8 @@ SOURCES += \
     CustomProtectedStream.cpp \
     ext/QTStreamImpl.cpp \
     HttpHelper.cpp \
-    IRMSEnvironment.cpp
+    IRMSEnvironment.cpp \
+    $$REPO_ROOT/sdk/rms_sdk/profile/profile.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -63,10 +69,10 @@ HEADERS += \
     CustomProtectedStream.h \
     ext/QTStreamImpl.h \
     HttpHelper.h \
-    ModernAPIExport.h \
     CacheControl.h \
     RMSExceptions.h \
-    IRMSEnvironment.h
+    IRMSEnvironment.h \
+    $$REPO_ROOT/sdk/rms_sdk/profile/profile.h
 
 
 unix {

@@ -11,7 +11,7 @@
 
 #include <future>
 #include "IAuthenticationCallback.h"
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace core {
