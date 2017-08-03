@@ -45,7 +45,7 @@ public:
     bool IsProtected() const override;
 
 private:
-    void ProtectInternal(FILE* tempFile, std::string outpoutTempFileName, uint64_t inputFileSize);
+    void ProtectInternal(std::string outputTempFileName, uint64_t inputFileSize);
 
     UnprotectResult UnprotectInternal(const UserContext& userContext,
                                       const UnprotectOptions& options,

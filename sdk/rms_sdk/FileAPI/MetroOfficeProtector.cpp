@@ -79,9 +79,9 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
     try
     {
-        std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
-        ProtectInternal(outputTempFileStream.get(), outputTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileStream.get(), outputStream.get());
+        //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
+        ProtectInternal(outputTempFileName, inputFileSize);
+        CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -124,9 +124,9 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
     std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
     try
     {
-        std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
-        ProtectInternal(outputTempFileStream.get(), outputTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileStream.get(), outputStream.get());
+        //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
+        ProtectInternal(outputTempFileName, inputFileSize);
+        CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -297,8 +297,7 @@ bool MetroOfficeProtector::IsProtected() const
     return isProtected;
 }
 
-void MetroOfficeProtector::ProtectInternal(FILE* tempFile,
-                                           std::string outpoutTempFileName,
+void MetroOfficeProtector::ProtectInternal(std::string outputTempFileName,
                                            uint64_t originalFileSize)
 {
     if (m_userPolicy.get() == nullptr)
@@ -308,7 +307,7 @@ void MetroOfficeProtector::ProtectInternal(FILE* tempFile,
     }
 
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
-                gsf_output_stdio_new_FILE(outpoutTempFileName.c_str(), tempFile, true));
+                gsf_output_stdio_new(outputTempFileName.c_str(), nullptr));
 
     std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> stg(
                 gsf_outfile_msole_new(gsfOutputStdIO.get()));

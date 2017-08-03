@@ -33,7 +33,7 @@ modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
         const bool& allowAuditedExtraction,
         CryptoOptions cryptoOptions);
 
-void CopyFromFileToOstream(FILE* file, std::ostream* stream);
+void CopyFromFileToOstream(std::string fileName, std::ostream* stream);
 
 void CopyFromIstreamToFile(std::istream *stream, const std::string& tempFileName,
                            uint64_t inputFileSize);

@@ -48,15 +48,13 @@ public:
 
 private:
 
-    void ProtectInternal(FILE* outputTempFile,
-                         const std::string& inputTempFileName,
+    void ProtectInternal(const std::string& inputTempFileName,
                          const std::string& outputTempFileName,
                          const std::string& drmTempFileName,
                          uint64_t inputFileSize);
 
     UnprotectResult UnprotectInternal(const UserContext& userContext,
                                       const UnprotectOptions& options,
-                                      FILE* outputTempFile,
                                       const std::string& inputTempFileName,
                                       const std::string& outputTempFileName,
                                       const std::string& drmTempFileName,

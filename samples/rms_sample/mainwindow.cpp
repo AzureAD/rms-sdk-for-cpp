@@ -670,15 +670,15 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
       this->cancelState);
 
     switch (pfs->m_status) {
-    case Success:
+    case GetUserPolicyResultStatus::Success:
       AddLog("Successfully converted to ", fileOut.c_str());
       break;
 
-    case NoRights:
+    case GetUserPolicyResultStatus::NoRights:
       AddLog("User has no rights to PFILE!", "");
       break;
 
-    case Expired:
+    case GetUserPolicyResultStatus::Expired:
       AddLog("Content has expired!", "");
       break;
     }

@@ -70,22 +70,23 @@ modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
     return userPolicyCreationOptions;
 }
 
-void CopyFromFileToOstream(FILE* file, std::ostream* stream)
+void CopyFromFileToOstream(std::string fileName, std::ostream* stream)
 {
-    fseek(file, 0L, SEEK_END);
-    uint64_t fileSize = ftell(file);
-    rewind(file);
+    std::unique_ptr<FILE, FILE_deleter> file(fopen(fileName.c_str(), "r+b"));
+    fseek(file.get(), 0L, SEEK_END);
+    uint64_t fileSize = ftell(file.get());
+    rewind(file.get());
     stream->seekp(0);
     std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     auto count = fileSize;
     while(count > BUF_SIZE_BYTES)
     {
-        fread(&buffer[0], BUF_SIZE_BYTES, 1, file);
+        fread(&buffer[0], BUF_SIZE_BYTES, 1, file.get());
         stream->write(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE_BYTES);
         count -= BUF_SIZE_BYTES;
     }
 
-    fread((&buffer[0]), count, 1, file);
+    fread((&buffer[0]), count, 1, file.get());
     stream->write(reinterpret_cast<const char*>(buffer.data()), count);
     stream->flush();
 }

@@ -84,10 +84,9 @@ void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     std::unique_ptr<tempFileName, tempFile_deleter> drmTempFile(&drmTempFileName);
     try
     {
-        std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
-        ProtectInternal(outputTempFileStream.get(), inputTempFileName, outputTempFileName,
-                        drmTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileStream.get(), outputStream.get());
+        //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
+        ProtectInternal(inputTempFileName, outputTempFileName, drmTempFileName, inputFileSize);
+        CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -135,10 +134,9 @@ void MsoOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
     std::unique_ptr<tempFileName, tempFile_deleter> drmTempFile(&drmTempFileName);
     try
     {
-        std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
-        ProtectInternal(outputTempFileStream.get(), inputTempFileName, outputTempFileName,
-                        drmTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileStream.get(), outputStream.get());
+        //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
+        ProtectInternal(inputTempFileName, outputTempFileName, drmTempFileName, inputFileSize);
+        CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -170,11 +168,10 @@ UnprotectResult MsoOfficeProtector::Unprotect(const UserContext& userContext,
     std::unique_ptr<tempFileName, tempFile_deleter> drmTempFile(&drmTempFileName);
     try
     {
-        std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
-        result = UnprotectInternal(userContext, options, outputTempFileStream.get(),
-                                   inputTempFileName, outputTempFileName, drmTempFileName,
-                                   inputFileSize, cancelState);
-        CopyFromFileToOstream(outputTempFileStream.get(), outputStream.get());
+        //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
+        result = UnprotectInternal(userContext, options, inputTempFileName, outputTempFileName,
+                                   drmTempFileName,inputFileSize, cancelState);
+        CopyFromFileToOstream(outputTempFileName, outputStream.get());
 
     }
     catch (std::exception&)
@@ -197,8 +194,7 @@ bool MsoOfficeProtector::IsProtected() const
     return isProtected;
 }
 
-void MsoOfficeProtector::ProtectInternal(FILE* outputTempFile,
-                                         const std::string& inputTempFileName,
+void MsoOfficeProtector::ProtectInternal(const std::string& inputTempFileName,
                                          const std::string& outputTempFileName,
                                          const std::string& drmTempFileName,
                                          uint64_t inputFileSize)
@@ -235,13 +231,13 @@ void MsoOfficeProtector::ProtectInternal(FILE* outputTempFile,
     }
 
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
-                gsf_output_stdio_new_FILE(outputTempFileName.c_str(), outputTempFile, true));
+                gsf_output_stdio_new(outputTempFileName.c_str(), nullptr));
     std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> outputStg(
                 gsf_outfile_msole_new(gsfOutputStdIO.get()));
-    std::unique_ptr<FILE, FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "w+b"));
+    //std::unique_ptr<FILE, FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "w+b"));
     {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfDrmStdIO(
-                    gsf_output_stdio_new_FILE(drmTempFileName.c_str(), drmTempFileStream.get(), true));
+                    gsf_output_stdio_new(drmTempFileName.c_str(), nullptr));
 
         std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> drmStg(
                     gsf_outfile_msole_new(gsfDrmStdIO.get()));
@@ -285,15 +281,15 @@ void MsoOfficeProtector::ProtectInternal(FILE* outputTempFile,
     {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> drmEncryptedStream(
                     gsf_outfile_new_child(outputStg.get(), drmContent, false));
+        std::unique_ptr<FILE, FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "r+b"));
         auto drmContentSize = ValidateAndGetFileSize(drmTempFileStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-        WriteStreamHeader(drmEncryptedStream.get(), drmContentSize);
+        WriteStreamHeader(drmEncryptedStream.get(), drmContentSize);        
         EncryptStream(drmTempFileStream.get(), drmEncryptedStream.get(), drmContentSize);
     }
 }
 
 UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userContext,
                                                       const UnprotectOptions& options,
-                                                      FILE* outputTempFile,
                                                       const std::string& inputTempFileName,
                                                       const std::string& outputTempFileName,
                                                       const std::string& drmTempFileName,
@@ -367,7 +363,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
     }
 
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
-                gsf_output_stdio_new_FILE(outputTempFileName.c_str(), outputTempFile, true));
+                gsf_output_stdio_new(outputTempFileName.c_str(), nullptr));
     std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> outputStg(
                 gsf_outfile_msole_new(gsfOutputStdIO.get()));
     {
@@ -423,7 +419,7 @@ bool MsoOfficeProtector::IsProtectedInternal(const std::string& inputTempFileNam
                         gsf_input_stdio_new(inputTempFileName.c_str(), nullptr));
         std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg(
                     gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
-        auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
+        auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(false);
         ByteArray publishingLicense;
         dataSpaces->ReadDataSpaces(stg.get(), publishingLicense);
     }
