@@ -76,13 +76,13 @@ void CopyFromFileToOstream(FILE* file, std::ostream* stream)
     uint64_t fileSize = ftell(file);
     rewind(file);
     stream->seekp(0);
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     auto count = fileSize;
-    while(count > BUF_SIZE)
+    while(count > BUF_SIZE_BYTES)
     {
-        fread(&buffer[0], BUF_SIZE, 1, file);
-        stream->write(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE);
-        count -= BUF_SIZE;
+        fread(&buffer[0], BUF_SIZE_BYTES, 1, file);
+        stream->write(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE_BYTES);
+        count -= BUF_SIZE_BYTES;
     }
 
     fread((&buffer[0]), count, 1, file);
@@ -97,13 +97,13 @@ void CopyFromIstreamToFile(std::istream* stream , const std::string& tempFileNam
 
     stream->seekg(0);
     fseek(tempFile.get(), 0L, SEEK_SET);
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     auto count = inputFileSize;
-    while(count > BUF_SIZE)
+    while(count > BUF_SIZE_BYTES)
     {
-        stream->read(reinterpret_cast<char *>(&buffer[0]), BUF_SIZE);
-        fwrite(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE, 1, tempFile.get());
-        count -= BUF_SIZE;
+        stream->read(reinterpret_cast<char *>(&buffer[0]), BUF_SIZE_BYTES);
+        fwrite(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE_BYTES, 1, tempFile.get());
+        count -= BUF_SIZE_BYTES;
     }
 
     stream->read(reinterpret_cast<char *>(&buffer[0]), count);
@@ -118,7 +118,7 @@ std::string CreateTemporaryFileName(const std::string& fileName)
     return (fileName + std::to_string(random) + ".tmp");
 }
 
-uint64_t GetFileSize(std::istream* stream, uint64_t maxFileSize)
+uint64_t ValidateAndGetFileSize(std::istream* stream, uint64_t maxFileSize)
 {
     stream->seekg(0, std::ios::end);
     uint64_t fileSize = stream->tellg();
@@ -134,7 +134,7 @@ uint64_t GetFileSize(std::istream* stream, uint64_t maxFileSize)
     return fileSize;
 }
 
-uint64_t GetFileSize(FILE* file, uint64_t maxFileSize)
+uint64_t ValidateAndGetFileSize(FILE* file, uint64_t maxFileSize)
 {
     fseek(file, 0L, SEEK_END);
     uint64_t fileSize = ftell(file);

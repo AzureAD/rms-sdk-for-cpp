@@ -40,8 +40,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
             std::unique_ptr<Protector> protector(new MetroOfficeProtector(fileName,
                                                                           inputStream));
             return protector;
-        }
-        break;
+        }        
 
         case ProtectorType::MSO:
         {
@@ -57,8 +56,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
                                                       protectorSelector.GetFileExtension(),
                                                       inputStream));
             return protector;
-        }
-        break;
+        }        
 
         default:
         {

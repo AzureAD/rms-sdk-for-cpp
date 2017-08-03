@@ -17,16 +17,19 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace officeprotector {
 
+// Known issue with Visual C++. Please refer
+// https://connect.microsoft.com/VisualStudio/feedback/details/1348277/link-error-when-using-std-codecvt-utf8-utf16-char16-t
+
 #if _MSC_VER >= 1900
 
-std::string utf16_to_utf8(std::u16string utf16_string)
+std::string utf16_to_utf8(const std::u16string& utf16_string)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
     auto p = reinterpret_cast<const int16_t *>(utf16_string.data());
     return convert.to_bytes(p, p + utf16_string.size());
 }
 
-std::u16string utf8_to_utf16(std::string utf8_string)
+std::u16string utf8_to_utf16(const std::string& utf8_string)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
 
@@ -37,13 +40,13 @@ std::u16string utf8_to_utf16(std::string utf8_string)
 
 #else
 
-std::string utf16_to_utf8(std::u16string utf16_string)
+std::string utf16_to_utf8(const std::u16string& utf16_string)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
     return convert.to_bytes(utf16_string);
 }
 
-std::u16string utf8_to_utf16(std::string utf8_string)
+std::u16string utf8_to_utf16(const std::string& utf8_string)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
     return convert.from_bytes(utf8_string);

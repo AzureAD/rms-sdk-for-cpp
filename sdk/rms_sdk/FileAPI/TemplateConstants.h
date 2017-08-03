@@ -9,12 +9,6 @@
 #ifndef RMS_SDK_FILEAPI_TEMPLATECONSTANTS_H
 #define RMS_SDK_FILEAPI_TEMPLATECONSTANTS_H
 
-#include <cstdio>
-#include <string>
-#include "FileAPIStructures.h"
-#include "UserPolicy.h"
-#include <gsf/gsf.h>
-
 namespace rmscore {
 namespace fileapi {
 

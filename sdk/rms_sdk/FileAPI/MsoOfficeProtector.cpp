@@ -28,14 +28,14 @@ using namespace rmscore::common;
 
 namespace{
 
-const char drmContent[]          = "\11DRMContent";
+const char drmContent[] = "\11DRMContent";
 
 } // namespace
 
 namespace rmscore {
 namespace fileapi {
 
-MsoOfficeProtector::MsoOfficeProtector(std::string fileName,
+MsoOfficeProtector::MsoOfficeProtector(const std::string& fileName,
                                        std::shared_ptr<std::istream> inputStream)
 : m_fileName(fileName),
   m_inputStream(inputStream)
@@ -45,7 +45,6 @@ MsoOfficeProtector::MsoOfficeProtector(std::string fileName,
 
 MsoOfficeProtector::~MsoOfficeProtector()
 {
-    gsf_shutdown();
 }
 
 void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
@@ -60,7 +59,6 @@ void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -69,6 +67,7 @@ void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
@@ -110,7 +109,6 @@ void MsoOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -119,6 +117,7 @@ void MsoOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
@@ -161,7 +160,7 @@ UnprotectResult MsoOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
     auto result = UnprotectResult::NORIGHTS;
     std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
     std::string outputTempFileName = CreateTemporaryFileName("output");
@@ -190,7 +189,7 @@ UnprotectResult MsoOfficeProtector::Unprotect(const UserContext& userContext,
 bool MsoOfficeProtector::IsProtected() const
 {
     Logger::Hidden("+MsoOfficeProtector::IsProtected");
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
     std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
     std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
     bool isProtected = IsProtectedInternal(inputTempFileName, inputFileSize);
@@ -286,7 +285,7 @@ void MsoOfficeProtector::ProtectInternal(FILE* outputTempFile,
     {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> drmEncryptedStream(
                     gsf_outfile_new_child(outputStg.get(), drmContent, false));
-        auto drmContentSize = GetFileSize(drmTempFileStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
+        auto drmContentSize = ValidateAndGetFileSize(drmTempFileStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
         WriteStreamHeader(drmEncryptedStream.get(), drmContentSize);
         EncryptStream(drmTempFileStream.get(), drmEncryptedStream.get(), drmContentSize);
     }
@@ -414,7 +413,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
     return (UnprotectResult)policyRequest->Status;
 }
 
-bool MsoOfficeProtector::IsProtectedInternal(std::string inputTempFileName,
+bool MsoOfficeProtector::IsProtectedInternal(const std::string& inputTempFileName,
                                              uint64_t inputFileSize) const
 {
     CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
@@ -465,7 +464,7 @@ void MsoOfficeProtector::EncryptStream(FILE* drmStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
     uint64_t totalSize = isECB? ((inputFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
@@ -473,7 +472,7 @@ void MsoOfficeProtector::EncryptStream(FILE* drmStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
-        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
         readPosition  += toProcess;
 
         auto sstream = std::make_shared<std::stringstream>();
@@ -503,7 +502,7 @@ void MsoOfficeProtector::DecryptStream(FILE* drmStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = (uint64_t)gsf_input_size(drmEncryptedStream) - sizeof(uint64_t);
@@ -511,8 +510,8 @@ void MsoOfficeProtector::DecryptStream(FILE* drmStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(BUF_SIZE, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(BUF_SIZE_BYTES, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -536,38 +535,38 @@ void MsoOfficeProtector::DecryptStream(FILE* drmStream,
 
 bool MsoOfficeProtector::CopyStorage(GsfInfile *src, GsfOutfile *dest)
 {
-        if(src == nullptr || dest == nullptr)
-        {
-            return false;
-        }
+    if(src == nullptr || dest == nullptr)
+    {
+        return false;
+    }
 
-        auto childCount = gsf_infile_num_children(src);
-        if(childCount == -1)    //It's a stream
-        {
-            return CopyStream(GSF_INPUT(src), GSF_OUTPUT(dest));
-        }
+    auto childCount = gsf_infile_num_children(src);
+    if(childCount == -1)    //It's a stream
+    {
+        return CopyStream(GSF_INPUT(src), GSF_OUTPUT(dest));
+    }
 
-        bool result = true;
-        for(int i = 0; i < childCount; i++)
+    bool result = true;
+    for(int i = 0; i < childCount; i++)
+    {
+        std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> srcChild(
+                    gsf_infile_child_by_index(src, i));
+        std::string childName = gsf_input_name(srcChild.get());
+        if(gsf_infile_num_children(GSF_INFILE(srcChild.get())) < 0) // Child is a stream
         {
-            std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> srcChild(
-                        gsf_infile_child_by_index(src, i));
-            std::string childName = gsf_input_name(srcChild.get());
-            if(gsf_infile_num_children(GSF_INFILE(srcChild.get())) < 0) // Child is a stream
-            {
-                std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> destChild(
-                            gsf_outfile_new_child(dest, childName.c_str(), false));
-                result = result & CopyStream(srcChild.get(), destChild.get());
-            }
-            else    // Child is a storage
-            {
-                std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> destChild(
-                            gsf_outfile_new_child(dest, childName.c_str(), true));
-                result = result & CopyStorage(GSF_INFILE(srcChild.get()),
-                                              GSF_OUTFILE(destChild.get()));
-            }
+            std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> destChild(
+                        gsf_outfile_new_child(dest, childName.c_str(), false));
+            result = result & CopyStream(srcChild.get(), destChild.get());
         }
-        return result;
+        else    // Child is a storage
+        {
+            std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> destChild(
+                        gsf_outfile_new_child(dest, childName.c_str(), true));
+            result = result & CopyStorage(GSF_INFILE(srcChild.get()),
+                                          GSF_OUTFILE(destChild.get()));
+        }
+    }
+    return result;
 }
 
 bool MsoOfficeProtector::CopyStream(GsfInput *src, GsfOutput *dest)

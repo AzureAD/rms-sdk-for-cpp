@@ -11,6 +11,8 @@
 
 #include <cstdio>
 #include <map>
+#include <memory>
+#include <string>
 #include "Protector.h"
 #include "BlockBasedProtectedStream.h"
 #include "FileAPIStructures.h"
@@ -23,8 +25,7 @@ namespace fileapi {
 class MsoOfficeProtector : public Protector
 {
 public:
-    MsoOfficeProtector(std::string fileName,
-                       std::shared_ptr<std::istream> inputStream);
+    MsoOfficeProtector(const std::string& fileName, std::shared_ptr<std::istream> inputStream);
 
     ~MsoOfficeProtector();
 
@@ -62,24 +63,18 @@ private:
                                       uint64_t inputFileSize,
                                       std::shared_ptr<std::atomic<bool>> cancelState);
 
-    bool IsProtectedInternal(std::string inputTempFileName, uint64_t inputFileSize) const;
-
+    bool IsProtectedInternal(const std::string& inputTempFileName, uint64_t inputFileSize) const;
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
             uint64_t streamSize,
             std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider);
 
-    void EncryptStream(FILE* drmStream,
-                       GsfOutput* drmEncryptedStream,
-                       uint64_t inputFileSize);
+    void EncryptStream(FILE* drmStream, GsfOutput* drmEncryptedStream, uint64_t inputFileSize);
 
-    void DecryptStream(FILE* drmStream,
-                       GsfInput* drmEncryptedStream,
-                       uint64_t originalFileSize);
+    void DecryptStream(FILE* drmStream, GsfInput* drmEncryptedStream, uint64_t originalFileSize);
 
-    bool CopyStorage(GsfInfile* src,
-                     GsfOutfile* dest);
+    bool CopyStorage(GsfInfile* src, GsfOutfile* dest);
 
     bool CopyStream(GsfInput* src, GsfOutput* dest);
 

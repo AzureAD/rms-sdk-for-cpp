@@ -49,7 +49,6 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -58,6 +57,7 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
                     exceptions::RMSPFileException::Reason::AlreadyProtected);
     }
 
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
@@ -82,7 +82,6 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -91,6 +90,7 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
                     exceptions::RMSPFileException::Reason::AlreadyProtected);
     }
 
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
@@ -115,7 +115,7 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
+    ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(m_inputStream);
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
     try
@@ -232,7 +232,7 @@ void PFileProtector::EncryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t inputFileSize)
 {
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
@@ -242,7 +242,7 @@ void PFileProtector::EncryptStream(
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -265,7 +265,7 @@ void PFileProtector::DecryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = pStream->Size();
@@ -273,8 +273,8 @@ void PFileProtector::DecryptStream(
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(BUF_SIZE, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(BUF_SIZE_BYTES, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 

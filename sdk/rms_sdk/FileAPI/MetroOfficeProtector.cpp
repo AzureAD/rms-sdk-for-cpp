@@ -44,7 +44,6 @@ MetroOfficeProtector::MetroOfficeProtector(std::string fileName,
 
 MetroOfficeProtector::~MetroOfficeProtector()
 {
-    gsf_shutdown();
 }
 
 void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
@@ -59,7 +58,6 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -68,6 +66,7 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
@@ -104,7 +103,6 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     if (IsProtected())
     {
         Logger::Error("File is already protected");
@@ -113,6 +111,7 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
@@ -149,7 +148,7 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
     auto result = UnprotectResult::NORIGHTS;
     std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
     std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
@@ -290,7 +289,7 @@ bool MetroOfficeProtector::IsProtectedInternal(std::string inputTempFileName,
 bool MetroOfficeProtector::IsProtected() const
 {
     Logger::Hidden("+MetroOfficeProtector::IsProtected");
-    auto inputFileSize = GetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
+    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
     std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
     std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
     bool isProtected = IsProtectedInternal(inputTempFileName, inputFileSize);
@@ -347,7 +346,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
     uint64_t totalSize = isECB? ((inputFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
@@ -355,7 +354,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
-        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
         readPosition  += toProcess;
 
         auto sstream = std::make_shared<std::stringstream>();
@@ -385,7 +384,7 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE);
+    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = (uint64_t)gsf_input_size(metroStream) - sizeof(uint64_t);
@@ -393,8 +392,8 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(BUF_SIZE, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(BUF_SIZE_BYTES, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
