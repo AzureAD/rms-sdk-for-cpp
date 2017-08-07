@@ -48,7 +48,7 @@ static void InitHelper() {
 }
 
 void Logger::Init() {
-    std::call_once(flag, InitHelper);
+  std::call_once(flag, InitHelper);
 }
 
 } // namespace rmscore
