@@ -10,6 +10,7 @@
 #define _RMS_LIB_AUTHENTICATIONCALLBACK_H_
 
 #include "ModernAPIExport.h"
+#include <string>
 
 namespace rmscore {
 namespace modernapi {

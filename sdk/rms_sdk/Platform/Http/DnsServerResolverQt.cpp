@@ -9,6 +9,8 @@
 #ifdef QTFRAMEWORK
 #include <QDnsLookup>
 #include <QEventLoop>
+#include <QCoreApplication>
+#include <QTimer>
 #include "DnsServerResolverQt.h"
 #include <QUdpSocket>
 #include <QThread>
@@ -26,7 +28,7 @@ shared_ptr<IDnsServerResolver>IDnsServerResolver::Create()
   return make_shared<DnsServerResolverQt>();
 }
 
-std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
+std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest)
 {
   QDnsLookup dns;
 
@@ -52,6 +54,28 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
   }
   return "";
 }
+
+std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
+{
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if (!QCoreApplication::instance()){
+      int argc = 0;
+      QCoreApplication a(argc, nullptr);
+
+      auto result = doLookup(dnsRequest);
+
+      QTimer::singleShot(0, &a, SLOT(quit()));
+      a.exec();
+
+      return result;
+  }
+
+  return doLookup(dnsRequest);
+}
+
+
 } // namespace http
 } // namespace platform
 } // namespace rmscore

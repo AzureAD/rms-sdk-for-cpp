@@ -23,34 +23,22 @@ public:
   /// <summary>
   /// User will only be able to view the document. They cannot edit, copy, or print it.
   /// </summary>
-  static const std::string Viewer()
-  {
-    return "VIEWER";
-  }
+  static const std::string Viewer();
 
   /// <summary>
   /// User will be able to view and edit the document. They cannot copy or print it.
   /// </summary>
-  static const std::string Reviewer()
-  {
-    return "REVIEWER";
-  }
+  static const std::string Reviewer();
 
   /// <summary>
   /// User will be able to view, edit, copy, and print the document.
   /// </summary>
-  static const std::string Author()
-  {
-    return "AUTHOR";
-  }
+  static const std::string Author();
 
   /// <summary>
   /// User will have all permissions.
   /// </summary>
-  static const std::string CoOwner()
-  {
-    return "COOWNER";
-  }
+  static const std::string CoOwner();
 };
 } // namespace modernapi
 } // namespace rmscore
