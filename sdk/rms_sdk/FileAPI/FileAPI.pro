@@ -17,10 +17,10 @@ INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Pole
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
-win32:INCLUDEPATH += C:\Libgsf\include
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 
 LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
-win32:LIBS += -LC:\Libgsf\dll -llibgthread-2.0-0 -llibiconv-2 -llibintl-8 -lliblzma-5 -llibpcre-1
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgthread-2.0-0 -llibiconv-2 -llibintl-8 -lliblzma-5 -llibpcre-1
 win32:LIBS += -llibwinpthread-1 -llibxml2-2 -lzlib1 -llibbz2-1 -llibffi-6 -llibgio-2.0-0 -llibglib-2.0-0
 win32:LIBS += -llibgmodule-2.0-0 -llibgobject-2.0-0 -llibgsf-1-114
 
