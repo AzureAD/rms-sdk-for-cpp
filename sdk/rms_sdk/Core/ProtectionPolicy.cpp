@@ -92,7 +92,6 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
   if (pbPublishLicense == nullptr) throw exceptions::RMSNullPointerException(
             "pbPublishLicense is null pointer");
 
-
   Logger::Hidden(" +ProtectionPolicy::Acquire");
 
   shared_ptr<ProtectionPolicy> pProtectionPolicy;
@@ -176,6 +175,11 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   // log the response
   Logger::Hidden("ProtectionPolicy ::Create got a publish response");
+
+  string license;
+  for(auto x : response.serializedLicense)
+      license.push_back(x);
+  Logger::Hidden("Serialized License: %s", license.c_str());
   Logger::Hidden("Id: %s",         response.id.c_str());
   Logger::Hidden("Name: %s",       response.name.c_str());
   Logger::Hidden("Referrer: '%s'", response.referrer.c_str());
