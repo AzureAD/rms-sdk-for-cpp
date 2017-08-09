@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemDefinitionGroup Label="Debug_x86" Condition="'$(Platform.ToLower())' == 'win32' And ( $(Configuration.ToLower().IndexOf('debug')) &gt; -1)">
+  <ItemDefinitionGroup Label="Debug_x86" Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'win32'">
     <Link>
       <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/Debug/x86/rmsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
 	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/Debug/x86/rmscryptod.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -9,7 +9,7 @@
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//lib/Debug/x86/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="Release_x86" Condition="'$(Platform.ToLower())' == 'win32' And ( $(Configuration.ToLower().IndexOf('debug')) == -1 )">
+  <ItemDefinitionGroup Label="Release_x86" Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'win32'">
     <Link>
       <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/Release/x86/rms.lib;%(AdditionalDependencies)</AdditionalDependencies>
 	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/Release/x86/rmscrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -18,7 +18,7 @@
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//lib/Release/x86/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="Debug_amd64" Condition="'$(Platform.ToLower())' == 'x64' And ( $(Configuration.ToLower().IndexOf('debug')) &gt; -1)">
+  <ItemDefinitionGroup Label="Debug_amd64" Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'x64'">
 	<ClCompile>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -27,7 +27,7 @@
 	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/rmscryptod.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Label="Release_amd64" Condition="'$(Platform.ToLower())' == 'x64' And ( $(Configuration.ToLower().IndexOf('debug')) == -1 )">
+  <ItemDefinitionGroup Label="Release_amd64" Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'x64'">
     <Link>
       <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/Release/amd64/rms.lib;%(AdditionalDependencies)</AdditionalDependencies>
 	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/Release/amd64/rmscrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -38,18 +38,34 @@
   </ItemDefinitionGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'x64'">
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/rmsd.dll" />
-	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/rmsd.pdb" />
-    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/rmscryptod.dll" />
-	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/rmscryptod.pdb" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/rmscryptod.dll" />
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/libeay32.dll" />
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/amd64/ssleay32.dll" />
   </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'x64'">
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/rms.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/rmscrypto.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/libeay32.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/ssleay32.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/Qt5Core.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/Qt5Network.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/Qt5Xml.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/amd64/Qt5XmlPatterns.dll" />
+  </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'win32'">
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/x86/rmsd.dll" />
-	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/x86/rmsd.pdb" />
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/x86/rmscryptod.dll" />
-	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/x86/rmscryptod.pdb" />
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/x86/libeay32.dll" />
 	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Debug/x86/ssleay32.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'win32'">
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/rms.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/rmscrypto.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/libeay32.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/ssleay32.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/Qt5Core.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/Qt5Network.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/Qt5Xml.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/Release/x86/Qt5XmlPatterns.dll" />
   </ItemGroup>
 </Project>
