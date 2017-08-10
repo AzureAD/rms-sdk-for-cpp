@@ -21,6 +21,26 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_clientId">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string notr="true">Your-Registered-Client-ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="lineEdit_redirectUrl">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>Your-Registered-Redirection-URI://authorize</string>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_resourseId">
             <property name="text">
@@ -35,13 +55,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_clientId">
-            <property name="text">
-             <string>Your-Registered-Client-ID</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_clitntId">
             <property name="text">
@@ -49,24 +62,10 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="lineEdit_redirectUrl">
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="ineEdit_certificatesPath">
             <property name="text">
-             <string>Your-Registered-Redirection-URI://authorize</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_certificatesPath">
-            <property name="text">
-             <string>Certificates path</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QPushButton" name="certificatesPathButton">
-            <property name="text">
-             <string>Browse...</string>
+             <string>./certificates/</string>
             </property>
            </widget>
           </item>
@@ -84,10 +83,41 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="ineEdit_certificatesPath">
+          <item row="6" column="2">
+           <widget class="QPushButton" name="certificatesPathButton">
             <property name="text">
-             <string>./certificates/</string>
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_certificatesPath">
+            <property name="text">
+             <string>Certificates path</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_clientEmail">
+            <property name="text">
+             <string>Client Email</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineEdit_clientEmail">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string notr="true">contos@fabricam.com</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="encryptPFILERightsButton">
+            <property name="text">
+             <string>Encrypt  Sync (rights)</string>
             </property>
            </widget>
           </item>
@@ -104,24 +134,27 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_clientEmail">
+          <item row="7" column="2">
+           <widget class="QPushButton" name="applyLabelButton">
             <property name="text">
-             <string>Client Email</string>
+             <string>Apply Label</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_clientEmail">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_LabelGuid">
             <property name="text">
-             <string>contos@fabricam.com</string>
+             <string>Label GUID</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="encryptPFILERightsButton">
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="lineEdit_LabelGuid">
             <property name="text">
-             <string>Encrypt  Sync (rights)</string>
+             <string notr="true"/>
+            </property>
+            <property name="placeholderText">
+             <string notr="true">{00000000-0000-0000-0000-000000000000000000}</string>
             </property>
            </widget>
           </item>

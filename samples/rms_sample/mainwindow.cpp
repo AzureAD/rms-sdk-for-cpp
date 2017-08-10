@@ -7,6 +7,7 @@
  */
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include <cstdio>
 #include <fstream>
@@ -352,6 +353,17 @@ void MainWindow::on_encryptPFILERightsButton_clicked()
       ui->lineEdit_redirectUrl->text().toStdString(),
       ui->lineEdit_clientEmail->text().toStdString());
   }
+}
+
+
+void MainWindow::on_applyLabelButton_clicked()
+{
+    string fileIn = SelectFile("Select file to Label");
+    if (!fileIn.empty()) {
+        QMessageBox Msgbox;
+        Msgbox.setText("Selected file for labeling: " + QString::fromStdString(fileIn));
+        Msgbox.exec();
+    }
 }
 
 void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
