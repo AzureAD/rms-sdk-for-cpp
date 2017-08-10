@@ -97,6 +97,7 @@ private slots:
   void on_encryptPFILETemplatesButton_clicked();
   void on_fromPFILEButton_clicked();
   void on_encryptPFILERightsButton_clicked();
+  void on_applyLabelButton_clicked();
 
 private:
 
