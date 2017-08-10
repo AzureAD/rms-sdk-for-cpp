@@ -18,6 +18,7 @@
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../Platform/Http/IHttpClient.h"
 
+using namespace std;
 namespace rmscore {
 namespace restclients {
 class RestHttpClient {

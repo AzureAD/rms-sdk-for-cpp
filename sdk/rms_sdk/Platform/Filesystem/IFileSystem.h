@@ -15,6 +15,7 @@
 #include"../../Common/CommonTypes.h"
 #include"IFile.h"
 
+using namespace std;
 namespace rmscore { namespace platform { namespace filesystem {
 
 class IFileSystem

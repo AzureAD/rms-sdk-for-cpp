@@ -9,6 +9,9 @@ TEMPLATE = lib
 CONFIG  += staticlib c++11 debug_and_release
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk
+
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
@@ -29,7 +32,8 @@ SOURCES += \
     ServiceDiscoveryClient.cpp \
     RestClientCache.cpp \
     TemplatesClient.cpp \
-    PublishClient.cpp
+    PublishClient.cpp \
+    CLCClient.cpp
 
 HEADERS += \
     RestObjects.h \
@@ -56,4 +60,7 @@ HEADERS += \
     TemplatesClient.h \
     ITemplatesClient.h \
     PublishClient.h \
+    CLCCacheResult.h \
+    CLCClient.h \
+    iclcclient.h
     LicenseParserResult.h

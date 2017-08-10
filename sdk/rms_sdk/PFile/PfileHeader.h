@@ -13,6 +13,7 @@
 #include <IStream.h>
 #include "../Common/CommonTypes.h"
 
+using namespace std;
 namespace rmscore {
 namespace pfile {
 
@@ -27,17 +28,17 @@ static const uint32_t MaxMajorVerionsCBC4KIsForced = 2;
 class PfileHeader {
 public:
 
-  PfileHeader(common::ByteArray&& publishingLicense,
+  PfileHeader(vector<uint8_t>&& publishingLicense,
               const std::string & fileExtension,
               uint32_t            contentStartPosition,
               uint64_t            originalFileSize,
-              common::ByteArray&& metadata,
+              vector<uint8_t>&& metadata,
               uint32_t            majorVersion,
               uint32_t            minorVersion,
               const std::string & cleartextRedirectionHeader);
 
-  const common::ByteArray& GetPublishingLicense() const;
-  const common::ByteArray& GetMetadata() const;
+  const vector<uint8_t>& GetPublishingLicense() const;
+  const vector<uint8_t>& GetMetadata() const;
   const std::string      & GetFileExtension() const;
   uint32_t                 GetContentStartPosition() const;
   uint64_t                 GetOriginalFileSize() const;
@@ -47,11 +48,11 @@ public:
 
 private:
 
-  common::ByteArray m_PublishingLicense;
+  vector<uint8_t> m_PublishingLicense;
   std::string m_FileExtension;
   const uint32_t m_ContentStartPosition;
   const uint64_t m_OriginalFileSize;
-  common::ByteArray m_Metadata;
+  vector<uint8_t> m_Metadata;
   const uint32_t    m_MajorVersion;
   const uint32_t    m_MinorVersion;
   std::string       m_CleartextRedirectionHeader;

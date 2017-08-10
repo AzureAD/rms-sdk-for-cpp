@@ -676,6 +676,20 @@ string JsonSerializer::ProcessReferrerResponse(const string&& referrerResponse)
   }
 }
 
+CertificateResponse JsonSerializer::DeserializeCertificateResponse(ByteArray &vResponse)
+{
+    auto pJsonParser = IJsonParser::Create();
+
+    shared_ptr<IJsonObject> pJsonResponse = pJsonParser->Parse(vResponse);
+
+    CertificateResponse response;
+
+    if (pJsonResponse->HasName("SerializedThinCLC") && !pJsonResponse->IsNull("SerializedThinCLC"))
+        response.serializedCert = pJsonResponse->GetNamedString("SerializedThinCLC");
+
+    return response;
+}
+
 shared_ptr<IJsonSerializer>IJsonSerializer::Create()
 {
   return make_shared<JsonSerializer>();

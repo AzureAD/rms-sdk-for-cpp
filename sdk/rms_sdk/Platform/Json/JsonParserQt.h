@@ -17,8 +17,9 @@ namespace rmscore { namespace platform { namespace json {
 class JsonParserQt : public IJsonParser
 {
 private:
-    virtual std::shared_ptr<IJsonObject> Parse(const common::ByteArray& json) override;
-    virtual std::shared_ptr<IJsonArray> ParseArray(const common::ByteArray& jsonArray) override;
+    virtual std::shared_ptr<IJsonObject> Parse(const std::vector<uint8_t>& json) override;
+    virtual std::shared_ptr<IJsonObject> Parse(const std::string& json) override;
+    virtual std::shared_ptr<IJsonArray> ParseArray(const std::vector<uint8_t>& jsonArray) override;
 
 };
 

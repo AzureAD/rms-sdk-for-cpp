@@ -34,7 +34,7 @@ private:
   static void StoreToCache(const UsageRestrictionsRequest          & request,
                            const std::string                       & email,
                            std::shared_ptr<UsageRestrictionsResponse>response,
-                           const common::ByteArray                 & strResponse,
+                           const std::vector<uint8_t>                 & strResponse,
                            bool                                      encryptData);
 
 private:

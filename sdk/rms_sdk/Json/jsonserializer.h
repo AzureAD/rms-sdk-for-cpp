@@ -26,6 +26,7 @@ public:
     virtual restclients::TemplateListResponse DeserializeTemplateListResponse(common::ByteArray &sResponse) override;
     virtual restclients::PublishResponse DeserializePublishResponse(common::ByteArray &sResponse) override;
     virtual restclients::ServiceDiscoveryListResponse DeserializeServiceDiscoveryResponse(common::ByteArray &sResponse) override;
+    virtual restclients::CertificateResponse DeserializeCertificateResponse(common::ByteArray &vResponse) override;
 
 private:
     std::string ProcessReferrerResponse(const std::string&& referrerResponse);

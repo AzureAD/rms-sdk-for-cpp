@@ -21,7 +21,7 @@ void PlatformHttpClientTest::testHttpClient(bool enabled)
   if (!enabled) return;
 
   auto pclient = http::IHttpClient::Create();
-  rmscore::common::ByteArray response;
+  std::vector<uint8_t> response;
   std::string request("any");
 
   auto url = "https://api.aadrm.com/my/v1/servicediscovery";
@@ -37,7 +37,7 @@ void PlatformHttpClientTest::testHttpClient(bool enabled)
   pclient->AddHeader("content-type", "application/x-www-form-urlencoded");
   status = pclient->Post(
     url,
-    rmscore::common::ByteArray(request.begin(), request.end()),
+    std::vector<uint8_t>(request.begin(), request.end()),
     "any",
     response,
     nullptr);

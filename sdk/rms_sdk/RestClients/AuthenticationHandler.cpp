@@ -41,15 +41,15 @@ string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
 {
     AuthenticationChallenge challenge;
 
-    // get the challenge only if needed (e.g., it's not needed in Office case
-    // for now)
-    if (callback.NeedsChallenge())
-    {
-        challenge = GetChallengeForUrl(sUrl, authParams, cancelState);
-    }
+      // get the challenge only if needed (e.g., it's not needed in Office case
+      // for now)
+      if (callback.NeedsChallenge())
+      {
+          challenge = GetChallengeForUrl(sUrl, authParams, cancelState);
+      }
 
-    return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
-                                   challenge));
+      return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
+                                     challenge));
 }
 
 string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
@@ -57,6 +57,7 @@ string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
                                                    IAuthenticationCallbackImpl& callback,
                                                    std::shared_ptr<std::atomic<bool>> cancelState)
 {
+
     AuthenticationChallenge challenge;
 
     // get the challenge only if needed (e.g., it's not needed in Office case
@@ -68,6 +69,7 @@ string AuthenticationHandler::GetAccessTokenForUrl(const string& sUrl,
 
     return callback.GetAccessToken(static_cast<const AuthenticationChallenge&>(
                                    challenge));
+
 }
 
 AuthenticationChallenge AuthenticationHandler::GetChallengeForUrl(const string& sUrl,

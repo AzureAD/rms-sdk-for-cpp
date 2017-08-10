@@ -73,7 +73,7 @@ void PlatformJsonObjectTest::testGetNamedString(bool enabled)
 
   auto pparser   = IJsonParser::Create();
   auto p_rootObj =
-    pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
+    pparser->Parse(std::vector<uint8_t>(jsonArr.begin(),
                                              jsonArr.end()));
   QVERIFY(p_rootObj != nullptr);
 
@@ -136,7 +136,7 @@ void PlatformJsonObjectTest::testGetNamedBool(bool enabled)
 
   auto jsonArr = jsonAsString.toUtf8();
   auto pparser   = IJsonParser::Create();
-  auto p_rootObj = pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
+  auto p_rootObj = pparser->Parse(std::vector<uint8_t>(jsonArr.begin(),
                                                             jsonArr.end()));
   QVERIFY(p_rootObj != nullptr);
 
@@ -190,7 +190,7 @@ void PlatformJsonObjectTest::testGetNamedObject(bool enabled)
   auto jsonArr = jsonAsString.toUtf8();
 
   auto pparser   = IJsonParser::Create();
-  auto p_rootObj = pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
+  auto p_rootObj = pparser->Parse(std::vector<uint8_t>(jsonArr.begin(),
                                                             jsonArr.end()));
   QVERIFY(p_rootObj != nullptr);
 
@@ -232,7 +232,7 @@ void PlatformJsonObjectTest::testStringify()
 
   auto jsonArr = jsonAsString.toUtf8();
   auto pJsonParser = IJsonParser::Create();
-  auto pJsonObject = pJsonParser->Parse(rmscore::common::ByteArray(jsonArr.begin(), jsonArr.end()));
+  auto pJsonObject = pJsonParser->Parse(std::vector<uint8_t>(jsonArr.begin(), jsonArr.end()));
   QVERIFY(pJsonObject != nullptr);
   auto stringified = pJsonObject->Stringify();
   QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());

@@ -23,6 +23,26 @@ string RestServiceUrls::GetEndUserLicensesUrl()
     return GetServiceRootUrl() + sPath;
 }
 
+string RestServiceUrls::GetClientLicensorCertificatesUrl()
+{
+    string sPath = "/clientlicensorcertificates";
+
+    return GetServiceRootUrl() + sPath;
+}
+string RestServiceUrls::GetDocTrackingLandingPageUrl()
+{
+    string sPath = "/doctrackinglandingpage";
+
+    return GetServiceRootUrl() + sPath;
+}
+
+string RestServiceUrls::GetPublishedPoliciesUrl()
+{
+    string sPath = "/publishedpolicies";
+
+    return GetServiceRootUrl() + sPath;
+}
+
 string RestServiceUrls::GetTemplatesUrl()
 {
     string sPath = "/templates";

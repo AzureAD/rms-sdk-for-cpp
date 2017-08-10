@@ -54,11 +54,11 @@ void JsonArrayQt::Append(const std::string& name)
     this->impl_.append(val);
 }
 
-common::ByteArray JsonArrayQt::Stringify()
+vector<uint8_t> JsonArrayQt::Stringify()
 {
     QJsonDocument doc(this->impl_);
     auto res = doc.toJson(QJsonDocument::Compact);
-    return common::ByteArray(res.begin(), res.end());
+    return vector<uint8_t>(res.begin(), res.end());
 
 }
 

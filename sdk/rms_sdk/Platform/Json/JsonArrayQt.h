@@ -30,7 +30,7 @@ private:
     virtual void Append(const IJsonObject& jsonObject) override;
     virtual void Append(const std::string& name) override;
 
-    virtual common::ByteArray Stringify()  override;
+    virtual std::vector<uint8_t> Stringify()  override;
 
 private:
     QJsonArray impl_;

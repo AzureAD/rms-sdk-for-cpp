@@ -8,21 +8,24 @@
 
 #include "../Common/FrameworkSpecificTypes.h"
 #include "../Common/CommonTypes.h"
+#include "../Common/Constants.h"
+#include "../Platform/Json/IJsonParser.h"
+#include "../Platform/Json/IJsonObject.h"
+#include "../Common/tools.h"
+#include "LicenseParser.h"
 #include "../Core/FeatureControl.h"
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Xml/IDomDocument.h"
 #include "../Platform/Xml/IDomElement.h"
-
 #include "CXMLUtils.h"
-#include "LicenseParser.h"
 
 
 
 using namespace std;
 
-namespace rmscore 
+namespace rmscore
 {
-namespace restclients 
+namespace restclients
 {
 
 namespace {
@@ -56,13 +59,13 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
     else if (cbPublishLicense % 2 == 0)
     {
         // Assume UTF16LE (Unicode)
-        auto strUnicode = QString::fromUtf16(reinterpret_cast<const uint16_t*>(pbPublishLicense), 
+        auto strUnicode = QString::fromUtf16(reinterpret_cast<const uint16_t*>(pbPublishLicense),
                                                               static_cast<int>(cbPublishLicense) / sizeof(uint16_t));
         auto utf8ByteArray = strUnicode.toUtf8();
         string utfString(utf8ByteArray.constData(), utf8ByteArray.length());
         publishLicense = utfString;
     }
-    else 
+    else
     {
         throw exceptions::RMSNetworkException("Invalid publishing license encoding",
                                               exceptions::RMSNetworkException::InvalidPL);
@@ -82,7 +85,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
                                  errLine,
                                  errColumn);
 
-    if (!ok) 
+    if (!ok)
     {
         throw exceptions::RMSNetworkException("Invalid publishing license",
                                           exceptions::RMSNetworkException::InvalidPL);
@@ -111,7 +114,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
             domains.push_back(Domain::CreateFromUrl(intranetDomain));
         }
     }
-    if (domains.empty()) 
+    if (domains.empty())
     {
         throw exceptions::RMSNetworkException("Invalid domains publishing license",
                                           exceptions::RMSNetworkException::InvalidPL);

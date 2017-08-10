@@ -59,7 +59,7 @@
             <item row="1" column="1">
              <widget class="QLineEdit" name="lineEdit_resource_ac">
               <property name="text">
-               <string>api.aadrm.com</string>
+               <string>api.hostedrms.com</string>
               </property>
              </widget>
             </item>

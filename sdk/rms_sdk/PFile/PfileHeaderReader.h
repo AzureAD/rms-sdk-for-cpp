@@ -37,12 +37,12 @@ private:
                                          uint32_t                     minorVersion,
                                          const std::string          & cleartextRedirectionHeader);
 
-  void ReadAtOffset(common::ByteArray          & dst,
+  void ReadAtOffset(vector<uint8_t>          & dst,
                     rmscrypto::api::SharedStream stream,
                     uint32_t                     offset,
                     uint32_t                     length);
 
-  void ReadBytes(common::ByteArray          & dst,
+  void ReadBytes(vector<uint8_t>          & dst,
                  rmscrypto::api::SharedStream stream,
                  uint32_t                     length);
 

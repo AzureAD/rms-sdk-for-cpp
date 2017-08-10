@@ -15,15 +15,25 @@ namespace rmscore {
 namespace restclients {
 struct ServiceDiscoveryDetails
 {
+  std::string Domain;
+  uint32_t    Ttl;
+
+  //sdk 4.0/4.1 endpoints
   std::string EndUserLicensesUrl;
   std::string TemplatesUrl;
   std::string PublishingLicensesUrl;
   std::string CloudDiagnosticsServerUrl;
+
+  //sdk 4.2 endpoints
   std::string PerformanceServerUrl;
-  std::string Domain;
+  std::string DocTrackingLandingPageUrl;
+  std::string PublishedPoliciesUrl;
+
+  //sdk 4.3 endpoints
+  std::string ClientLicensorCertificatesUrl;
   std::string OriginalInput;
-  uint32_t    Ttl;
 };
+
 } // namespace restclients
 } // namespace rmscore
 #endif // _RMS_LIB_SERVICEDISCOVERYDETAILS_H_

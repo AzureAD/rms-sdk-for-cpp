@@ -25,7 +25,6 @@ struct MyStringCompare
   {
     auto lhs = ilhs;
     auto rhs = irhs;
-
     std::transform(lhs.begin(), lhs.end(), lhs.begin(), ::toupper);
     std::transform(rhs.begin(), rhs.end(), rhs.begin(), ::toupper);
     return lhs < rhs;
@@ -37,6 +36,11 @@ class RestServiceUrlClient : public IRestServiceUrlClient
 public:
 
     virtual ~RestServiceUrlClient();
+
+    virtual std::string GetClientLicensorCertificatesUrl(
+        const std::string                     & sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        std::shared_ptr<std::atomic<bool> >     cancelState) override;
 
     virtual std::string GetEndUserLicensesUrl(const std::shared_ptr<LicenseParserResult>& licenseParserResult,
         const std::string& sEmail,

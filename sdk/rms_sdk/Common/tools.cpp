@@ -26,7 +26,7 @@ uint64_t timeToWinFileTime(const QDateTime& dateTime) {
   return TIME_CONVERSION_MS_TO_100NS * origin.msecsTo(dateTime);
 }
 
-ByteArray ConvertBase64ToBytes(const ByteArray& base64str) {
+vector<uint8_t> ConvertBase64ToBytes(const vector<uint8_t>& base64str) {
   QByteArray ba;
 
   ba.append(QByteArray(reinterpret_cast<const char *>(base64str.data()),
@@ -34,7 +34,7 @@ ByteArray ConvertBase64ToBytes(const ByteArray& base64str) {
 
   auto convArray = QByteArray::fromBase64(ba);
 
-  return ByteArray(convArray.begin(), convArray.end());
+  return vector<uint8_t>(convArray.begin(), convArray.end());
 }
 
 string timeToString(const QDateTime& dateTime) {
@@ -49,11 +49,30 @@ string timeToString(const QDateTime& dateTime) {
   }
 }
 
-ByteArray ConvertBytesToBase64(const ByteArray& bytes) {
+std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace, int occurrences)
+{
+    size_t pos = 0;
+    int found = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos)
+    {
+         subject.replace(pos, search.length(), replace);
+         if (occurrences != 0)
+         {
+            ++found;
+            if (found >= occurrences)
+                break;
+         }
+         pos += replace.length();
+    }
+    return subject;
+}
+
+vector<uint8_t> ConvertBytesToBase64(const vector<uint8_t>& bytes) {
   return ConvertBytesToBase64(bytes.data(), bytes.size());
 }
 
-ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
+vector<uint8_t> ConvertBytesToBase64(const void *bytes, const size_t size)
 {
   QByteArray ba;
 
@@ -61,12 +80,63 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
 
   auto convArray = ba.toBase64();
 
-  return ByteArray(convArray.begin(), convArray.end());
+  return vector<uint8_t>(convArray.begin(), convArray.end());
+}
+
+vector<uint8_t> HashString(const vector<uint8_t>& bytes, size_t *size, bool isSHA256)
+{
+    if (isSHA256)
+    {
+        vector<uint8_t> hash(SHA256_DIGEST_LENGTH);
+        SHA256_CTX sha256;
+        SHA256_Init(&sha256);
+        SHA256_Update(&sha256, &bytes[0], bytes.size());
+        SHA256_Final(&hash[0], &sha256);
+        *size = SHA256_DIGEST_LENGTH;
+        return hash;
+    }
+    else
+    {
+        //sha1
+        vector<uint8_t> hash(SHA_DIGEST_LENGTH);
+        SHA1(&bytes[0], bytes.size(), &hash[0]);
+        *size = SHA_DIGEST_LENGTH;
+        return hash;
+    }
+}
+
+std::string Hash(const std::string& str, size_t *size)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.length());
+    SHA256_Final(hash, &sha256);
+    *size = SHA256_DIGEST_LENGTH;
+    char mdString[SHA256_DIGEST_LENGTH*2+1];
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+        sprintf(&mdString[i*2], "%02x", (unsigned int)hash[i]);
+    return std::string(mdString);
 }
 
 string GenerateAGuid()
 {
   return QUuid::createUuid().toString().toStdString();
 }
+
+string Unescape(string source, bool skipReformat){
+    stringstream ss;
+    for (size_t i = 0; i < source.length(); i++)
+        if (source[i] != '\\')
+            ss << source[i];
+    auto ret = ss.str();
+    if (!skipReformat)
+    {
+        ret = common::ReplaceString(ret, "\"{\"", "{\"");
+        ret = common::ReplaceString(ret, "}}\"", "}}");
+    }
+    return ret;
+}
+
 } // namespace common
 } // namespace rmscore

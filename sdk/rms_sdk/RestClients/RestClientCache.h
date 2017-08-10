@@ -14,6 +14,7 @@
 
 namespace rmscore {
 namespace restclients {
+
 class RestClientCache : public IRestClientCache {
 public:
   RestClientCache(CacheType type);
@@ -30,7 +31,7 @@ public:
              const uint8_t           *pbKey,
              size_t                   cbKey,
              const std::string      & expires,
-             const common::ByteArray& strResponse,
+             const std::vector<uint8_t>& strResponse,
              bool                     useHash) override;
 
   _ptr<ServiceDiscoveryDetails>LookupServiceDiscoveryDetails(
@@ -64,7 +65,7 @@ private:
   static const std::string cacheFolderName;
 
   // hashes the key and returns base64 of the hash
-  static common::ByteArray HashKey(const uint8_t *pbKey,
+  static std::vector<uint8_t> HashKey(const uint8_t *pbKey,
                                    size_t         cbKey);
 
   // gets the filename from the cache name, tag and key
@@ -125,7 +126,7 @@ private:
 
   // replace '/' or '+' character in the given base64 by '-' such that we can
   // use it as a file name
-  static void ReplaceNotAllowedCharactersInBase64(common::ByteArray& strBase64);
+  static void ReplaceNotAllowedCharactersInBase64(std::vector<uint8_t>& strBase64);
 
   // replace ':' character in the given datetime by '_' such that we can use it
   // as a file name

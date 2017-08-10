@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformcrypto", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/Crypto\platformcrypto.vcxproj", "{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformkeystorage", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/KeyStorage\platformkeystorage.vcxproj", "{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformlogger", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/Logger\platformlogger.vcxproj", "{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformsettings", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/Settings\platformsettings.vcxproj", "{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Debug|Win32.Build.0 = Debug|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Release|Win32.ActiveCfg = Release|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Release|Win32.Build.0 = Release|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Debug|Win32.Build.0 = Debug|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Release|Win32.ActiveCfg = Release|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Release|Win32.Build.0 = Release|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Debug|Win32.Build.0 = Debug|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Release|Win32.ActiveCfg = Release|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Release|Win32.Build.0 = Release|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Debug|Win32.Build.0 = Debug|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Release|Win32.ActiveCfg = Release|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

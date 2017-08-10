@@ -8,13 +8,19 @@ QT       += core
 
 CONFIG   += staticlib warn_on c++11 debug_and_release
 
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
+INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
 
 HEADERS += CommonTypes.h \
     FrameworkSpecificTypes.h \
-    tools.h
+    tools.h \
+    Constants.h
 
 SOURCES += \
-    tools.cpp
+    tools.cpp \
+    Constants.cpp \
+    Constants.cpp

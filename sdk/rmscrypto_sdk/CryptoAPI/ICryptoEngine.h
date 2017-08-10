@@ -10,8 +10,10 @@
 #define _CRYPTO_STREAMS_LIB_ICRYPTOENGINE
 
 #include <memory>
+#include <vector>
 #include "ICryptoHash.h"
 #include "ICryptoKey.h"
+#include "IRSAKeyBlob.h"
 
 namespace rmscrypto {
 namespace api {
@@ -28,6 +30,8 @@ public:
   virtual std::shared_ptr<ICryptoKey>CreateKey(const uint8_t  *pbKey,
                                                uint32_t        cbKey,
                                                CryptoAlgorithm algorithm) =
+    0;
+  virtual std::shared_ptr<IRSAKeyBlob> CreateRSAKeyBlob(std::vector<uint8_t> d, std::vector<uint8_t> e, std::vector<uint8_t> n, bool checkKey) =
     0;
   virtual std::shared_ptr<ICryptoHash> CreateHash(CryptoHashAlgorithm algorithm) =
     0;

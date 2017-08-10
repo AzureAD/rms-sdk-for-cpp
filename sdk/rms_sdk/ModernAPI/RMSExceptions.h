@@ -32,11 +32,13 @@ public:
     InvalidArgument = 0,
     NullPointer,
     NotFound,
+    NotImplemented,
     NetworkError,
     CryptoError,
     StreamError,
     PFileError,
-    RightsError
+    RightsError,
+    EndpointNotFound
   };
 
   RMSException(const ExceptionTypes type,
@@ -117,6 +119,18 @@ public:
   virtual ~RMSInvalidArgumentException() _NOEXCEPT {}
 };
 
+class RMSEndpointNotFoundException : public RMSLogicException {
+public:
+
+  RMSEndpointNotFoundException(const std::string& message) _NOEXCEPT
+    : RMSLogicException(EndpointNotFound, message) {}
+
+  RMSEndpointNotFoundException(const char *const& message) _NOEXCEPT
+    : RMSLogicException(EndpointNotFound, message) {}
+
+  virtual ~RMSEndpointNotFoundException() _NOEXCEPT {}
+};
+
 class RMSNullPointerException : public RMSLogicException {
 public:
 
@@ -139,6 +153,18 @@ public:
     : RMSLogicException(NullPointer, message) {}
 
   virtual ~RMSNotFoundException() _NOEXCEPT {}
+};
+
+class RMSNotImplementedException : public RMSLogicException {
+public:
+
+  RMSNotImplementedException(const std::string& message) _NOEXCEPT
+    : RMSLogicException(NotImplemented, message) {}
+
+  RMSNotImplementedException(const char *const& message) _NOEXCEPT
+    : RMSLogicException(NotImplemented, message) {}
+
+  virtual ~RMSNotImplementedException() _NOEXCEPT {}
 };
 
 class RMSNetworkException : public RMSLogicException {

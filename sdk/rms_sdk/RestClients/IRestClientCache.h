@@ -38,7 +38,7 @@ public:
         const std::string &tag,
         const uint8_t *pbKey, size_t cbKey,
         const std::string &expires,
-        const common::ByteArray& strResponse,
+        const std::vector<uint8_t>& strResponse,
         bool useHash) = 0;
 
     virtual _ptr<ServiceDiscoveryDetails> LookupServiceDiscoveryDetails(

@@ -39,23 +39,9 @@ static AccessStatus MapAccessStatus(const string& accessStatus) {
   }
 }
 
-static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode) {
-  if (0 ==
-      _stricmp("MICROSOFT.CBC4K",
-               cipherMode.c_str())) return rmscrypto::api::CIPHER_MODE_CBC4K;
-
-  if (0 == _stricmp("MICROSOFT.CBC512.NOPADDING", cipherMode.c_str())) {
-    return rmscrypto::api::CIPHER_MODE_CBC512NOPADDING;
-  } else if (0 == _stricmp("MICROSOFT.ECB", cipherMode.c_str())) {
-    return rmscrypto::api::CIPHER_MODE_ECB;
-  } else {
-    ostringstream str;
-
-    str << "Got an invalid CipherMode (" << cipherMode.c_str() <<
-      ") from the server.";
-    throw exceptions::RMSNetworkException(
-            str.str(), exceptions::RMSNetworkException::ServerError);
-  }
+static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode)
+{
+    return rmscrypto::api::ICryptoProvider::StringToCipherMode(cipherMode);
 }
 
 shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
@@ -169,7 +155,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
     signedAppData
   };
 
-  auto response = pPublishClient->PublishUsingTemplate(request,
+  auto response = pPublishClient->LocalPublishUsingTemplate(request,
                                                        authenticationCallback,
                                                        email,
                                                        cancelState);
@@ -257,7 +243,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
   if (descriptor.referrer.size() >
       0) request.wsReferralInfo = descriptor.referrer;
 
-  auto response = pPublishClient->PublishCustom(request,
+  auto response = pPublishClient->LocalPublishCustom(request,
                                                 authenticationCallback,
                                                 email,
                                                 cancelState);
@@ -395,8 +381,8 @@ void ProtectionPolicy::Initialize(
   m_bAllowAuditedExtraction = bAllowAuditedExtraction;
 
   // if access is granted verify the key and create a crypto provider
-  if (ACCESS_STATUS_ACCESS_GRANTED ==
-      m_accessStatus) InitializeKey(response.key);
+  if (ACCESS_STATUS_ACCESS_GRANTED == m_accessStatus)
+      InitializeKey(response.key);
 
   // initialize the publishing license
   m_publishLicense = response.serializedLicense;

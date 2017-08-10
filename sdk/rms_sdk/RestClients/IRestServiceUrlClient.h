@@ -50,6 +50,10 @@ public:
         modernapi::IAuthenticationCallbackImpl& authenticationCallback,
         std::shared_ptr<std::atomic<bool>> cancelState) = 0;
 
+    virtual std::string GetClientLicensorCertificatesUrl(
+        const std::string                     & sEmail,
+        modernapi::IAuthenticationCallbackImpl& authenticationCallback,
+        std::shared_ptr<std::atomic<bool> >     cancelState) = 0;
     virtual std::shared_ptr<ServiceDiscoveryDetails>GetServiceDiscoveryDetails(
         const std::shared_ptr<LicenseParserResult>& licenseParserResults,
         const std::string& sEmail,

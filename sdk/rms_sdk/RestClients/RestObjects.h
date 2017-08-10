@@ -16,6 +16,7 @@
 #include "../Common/CommonTypes.h"
 #include "../Platform/Json/IJsonObject.h"
 
+using namespace std;
 namespace rmscore {
 namespace restclients {
 struct UsageRestrictionsRequest {
@@ -24,7 +25,7 @@ struct UsageRestrictionsRequest {
 };
 
 struct KeyDetailsResponse {
-  common::ByteArray value;
+  vector<uint8_t> value;
   std::string       algorithm;
   std::string       cipherMode;
 };
@@ -93,6 +94,11 @@ struct ServiceDiscoveryListResponse {
   std::vector<ServiceDiscoveryResponse>serviceEndpoints;
 };
 
+struct CertificateResponse
+{
+    std::string serializedCert;
+};
+
 struct PublishUsingTemplateRequest {
   bool                      bPreferDeprecatedAlgorithms;
   bool                      bAllowAuditedExtraction;
@@ -121,6 +127,7 @@ struct PublishCustomRequest {
     : bPreferDeprecatedAlgorithms(bPreferDeprecatedAlgorithms)
     , bAllowAuditedExtraction(bAllowAuditedExtraction) {}
 
+  PublishCustomRequest();
   bool        bPreferDeprecatedAlgorithms;
   bool        bAllowAuditedExtraction;
   std::string wsReferralInfo;
@@ -138,7 +145,7 @@ struct PublishCustomRequest {
 };
 
 struct PublishResponse {
-  common::ByteArray         serializedLicense;
+  vector<uint8_t>         serializedLicense;
   std::string               id;
   std::string               name;
   std::string               description;

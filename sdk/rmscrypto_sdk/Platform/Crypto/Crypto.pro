@@ -5,6 +5,7 @@ TARGET    = platformcrypto
 TEMPLATE  = lib
 
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
+INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 
 DEFINES  += QTFRAMEWORK
 
@@ -19,9 +20,11 @@ CONFIG(debug, debug|release) {
 
 HEADERS += CryptoEngine.h \
     CryptoHash.h \
-    AESCryptoKey.h
+    AESCryptoKey.h \
+    RSAKeyBlob.h
 
 SOURCES += \
     CryptoEngine.cpp \
     CryptoHash.cpp \
-    AESCryptoKey.cpp
+    AESCryptoKey.cpp \
+    RSAKeyBlob.cpp

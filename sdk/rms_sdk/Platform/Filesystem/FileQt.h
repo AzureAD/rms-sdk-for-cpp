@@ -26,7 +26,7 @@ public:
   virtual void        Clear() override;
   virtual void        Close() override;
   virtual std::string ReadAllAsText() override;
-  virtual void        AppendText(const common::ByteArray& text) override;
+  virtual void        AppendText(const std::vector<uint8_t>& text) override;
 
   virtual size_t      GetSize() override;
 

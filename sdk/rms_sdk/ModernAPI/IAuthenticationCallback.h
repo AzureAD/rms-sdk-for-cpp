@@ -22,16 +22,17 @@ namespace modernapi {
  * Apps should implement this interface, specifically the GetToken method, to return an
  * access token for use by the API client.
  */
-class IAuthenticationCallback {
+class DLL_PUBLIC_RMS IAuthenticationCallback {
 public:
+
+    static std::shared_ptr<IAuthenticationCallback> MakePrebuilt(std::string& clientID, std::string& redirect);
 
   /**
    * @brief Override to return an access token clients can attach to outbound API calls.
    * @param[in] authenticationParameters Coordinates for OAuth calls. These are determined from a challenge returned by the RMS API.
    * @return A usable access token.
    */
-  virtual std::string GetToken(
-    std::shared_ptr<AuthenticationParameters>& authenticationParameters) = 0;
+  virtual std::string GetToken(std::shared_ptr<AuthenticationParameters>& authenticationParameters) = 0;
 };
 } // namespace modernapi
 } // namespace rmscore

@@ -17,7 +17,6 @@ namespace rmscore {
 namespace modernapi {
 class DLL_PUBLIC_RMS AuthenticationCallbackImpl : public IAuthenticationCallbackImpl {
 public:
-
   AuthenticationCallbackImpl(IAuthenticationCallback& callback,
                              const std::string      & userId)
     : m_callback(callback)

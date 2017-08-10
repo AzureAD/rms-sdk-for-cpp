@@ -13,11 +13,11 @@ using namespace rmscore::common;
 
 namespace rmscore {
 namespace pfile {
-PfileHeader::PfileHeader(ByteArray  && publishingLicense,
+PfileHeader::PfileHeader(vector<uint8_t>  && publishingLicense,
                          const string& fileExtension,
                          uint32_t      contentStartPosition,
                          uint64_t      originalFileSize,
-                         ByteArray  && metadata,
+                         vector<uint8_t>  && metadata,
                          uint32_t      majorVersion,
                          uint32_t      minorVersion,
                          const string& cleartextRedirectionHeader) :
@@ -27,11 +27,11 @@ PfileHeader::PfileHeader(ByteArray  && publishingLicense,
     majorVersion), m_MinorVersion(minorVersion), m_CleartextRedirectionHeader(
     cleartextRedirectionHeader) {}
 
-const ByteArray& PfileHeader::GetPublishingLicense() const {
+const vector<uint8_t>& PfileHeader::GetPublishingLicense() const {
   return m_PublishingLicense;
 }
 
-const ByteArray& PfileHeader::GetMetadata() const {
+const vector<uint8_t>& PfileHeader::GetMetadata() const {
   return m_Metadata;
 }
 

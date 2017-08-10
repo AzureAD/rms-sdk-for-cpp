@@ -117,6 +117,26 @@ string RestServiceUrlClient::GetTemplatesUrl(
   return string(serviceDiscoveryDetails->TemplatesUrl);
 }
 
+string RestServiceUrlClient::GetClientLicensorCertificatesUrl(
+  const string &sEmail,
+  IAuthenticationCallbackImpl &authenticationCallback,
+  std::shared_ptr<std::atomic<bool> > cancelState)
+{
+    shared_ptr<ServiceDiscoveryDetails> serviceDiscoveryDetails =
+            FindCache(sEmail);
+    if (serviceDiscoveryDetails == nullptr)
+    {
+      serviceDiscoveryDetails = GetServiceDiscoveryDetails(
+        nullptr,
+        sEmail,
+        authenticationCallback,
+        nullptr,
+        cancelState);
+      serviceDiscoveryDetailsCache[string(sEmail)] = serviceDiscoveryDetails;
+    }
+    return string(serviceDiscoveryDetails->ClientLicensorCertificatesUrl);
+}
+
 string RestServiceUrlClient::GetPublishUrl(
   const string                     & sEmail,
   IAuthenticationCallbackImpl      & authenticationCallback,
@@ -200,11 +220,13 @@ GetServiceDiscoveryDetails(
       ((licenseParserResults.get() == nullptr) && (sEmail.empty())))
   {
     auto serviceDiscoveryDetails = make_shared<ServiceDiscoveryDetails>();
+
     serviceDiscoveryDetails->EndUserLicensesUrl = RestServiceUrls::GetEndUserLicensesUrl();
     serviceDiscoveryDetails->PublishingLicensesUrl = RestServiceUrls::GetPublishUrl();
     serviceDiscoveryDetails->TemplatesUrl = RestServiceUrls::GetTemplatesUrl();
     serviceDiscoveryDetails->CloudDiagnosticsServerUrl = RestServiceUrls::GetCloudDiagnosticsServerUrl();
     serviceDiscoveryDetails->PerformanceServerUrl = RestServiceUrls::GetPerformanceServerUrl();
+    serviceDiscoveryDetails->ClientLicensorCertificatesUrl = RestServiceUrls::GetClientLicensorCertificatesUrl();
     serviceDiscoveryDetails->OriginalInput = "";
     if (consentCallback)
     {
@@ -389,6 +411,18 @@ GetServiceDiscoveryDetails(
     {
       serviceDiscoveryDetails->PerformanceServerUrl = (*endpoint).uri;
     }
+    else if (_strcmpi((*endpoint).name.c_str(), "doctrackinglandingpage") == 0)
+    {
+      serviceDiscoveryDetails->DocTrackingLandingPageUrl = (*endpoint).uri;
+    }
+    else if (_strcmpi((*endpoint).name.c_str(), "publishedpolicies") == 0)
+    {
+      serviceDiscoveryDetails->PublishedPoliciesUrl = (*endpoint).uri;
+    }
+    else if (_strcmpi((*endpoint).name.c_str(), "clientlicensorcertificates") == 0)
+    {
+      serviceDiscoveryDetails->ClientLicensorCertificatesUrl = (*endpoint).uri;
+    }
   }
 
   if (serviceDiscoveryDetails->EndUserLicensesUrl.empty()) {
@@ -419,7 +453,10 @@ GetServiceDiscoveryDetails(
     serviceDiscoveryDetails->PublishingLicensesUrl.c_str(),
     serviceDiscoveryDetails->TemplatesUrl.c_str(),
     serviceDiscoveryDetails->CloudDiagnosticsServerUrl.c_str(),
-    serviceDiscoveryDetails->PerformanceServerUrl.c_str());
+    serviceDiscoveryDetails->PerformanceServerUrl.c_str(),
+    serviceDiscoveryDetails->DocTrackingLandingPageUrl.c_str(),
+    serviceDiscoveryDetails->PublishedPoliciesUrl.c_str(),
+    serviceDiscoveryDetails->ClientLicensorCertificatesUrl.c_str());
 
   // Store answer only if DNS record was found
   // don't store when dns record was not found as the result could be user's

@@ -1,0 +1,74 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modcrypto", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Crypto\modcrypto.vcxproj", "{35F62B21-0C6A-3AF8-BC6C-56D1017764A8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9} = {E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rmscrypto", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/CryptoAPI\rmscrypto.vcxproj", "{4F121EBA-A421-3171-859E-0D4FD996991E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{35F62B21-0C6A-3AF8-BC6C-56D1017764A8} = {35F62B21-0C6A-3AF8-BC6C-56D1017764A8}
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F} = {2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9} = {E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953} = {CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8} = {F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformcrypto", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/Crypto\platformcrypto.vcxproj", "{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformkeystorage", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/KeyStorage\platformkeystorage.vcxproj", "{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformlogger", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/Logger\platformlogger.vcxproj", "{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platformsettings", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/Platform/Settings\platformsettings.vcxproj", "{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rmscryptoUnitTests", "C:/Users/t-joanto/sdk_update/rms-sdk-for-cpp/sdk/rmscrypto_sdk/UnitTests\rmscryptoUnitTests.vcxproj", "{10BD9B4D-5C25-3A76-BC7D-8E38ECA7AB53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{35F62B21-0C6A-3AF8-BC6C-56D1017764A8} = {35F62B21-0C6A-3AF8-BC6C-56D1017764A8}
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F} = {2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9} = {E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953} = {CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8} = {F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}
+		{4F121EBA-A421-3171-859E-0D4FD996991E} = {4F121EBA-A421-3171-859E-0D4FD996991E}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35F62B21-0C6A-3AF8-BC6C-56D1017764A8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35F62B21-0C6A-3AF8-BC6C-56D1017764A8}.Debug|Win32.Build.0 = Debug|Win32
+		{35F62B21-0C6A-3AF8-BC6C-56D1017764A8}.Release|Win32.ActiveCfg = Release|Win32
+		{35F62B21-0C6A-3AF8-BC6C-56D1017764A8}.Release|Win32.Build.0 = Release|Win32
+		{4F121EBA-A421-3171-859E-0D4FD996991E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4F121EBA-A421-3171-859E-0D4FD996991E}.Debug|Win32.Build.0 = Debug|Win32
+		{4F121EBA-A421-3171-859E-0D4FD996991E}.Release|Win32.ActiveCfg = Release|Win32
+		{4F121EBA-A421-3171-859E-0D4FD996991E}.Release|Win32.Build.0 = Release|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Debug|Win32.Build.0 = Debug|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Release|Win32.ActiveCfg = Release|Win32
+		{E25BC3E9-E374-3CF5-BA56-CFD38E6A74F9}.Release|Win32.Build.0 = Release|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Debug|Win32.Build.0 = Debug|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Release|Win32.ActiveCfg = Release|Win32
+		{2EE2EB0A-D7BF-3865-BAA8-A94D55AA477F}.Release|Win32.Build.0 = Release|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Debug|Win32.Build.0 = Debug|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Release|Win32.ActiveCfg = Release|Win32
+		{CD633A48-FE2B-3681-ABFF-B6BE7BAB8953}.Release|Win32.Build.0 = Release|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Debug|Win32.Build.0 = Debug|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Release|Win32.ActiveCfg = Release|Win32
+		{F52BD9C1-7061-30F6-99B8-FC5BE6CDC7B8}.Release|Win32.Build.0 = Release|Win32
+		{10BD9B4D-5C25-3A76-BC7D-8E38ECA7AB53}.Debug|Win32.ActiveCfg = Debug|Win32
+		{10BD9B4D-5C25-3A76-BC7D-8E38ECA7AB53}.Debug|Win32.Build.0 = Debug|Win32
+		{10BD9B4D-5C25-3A76-BC7D-8E38ECA7AB53}.Release|Win32.ActiveCfg = Release|Win32
+		{10BD9B4D-5C25-3A76-BC7D-8E38ECA7AB53}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

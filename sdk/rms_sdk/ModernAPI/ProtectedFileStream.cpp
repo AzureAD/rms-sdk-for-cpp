@@ -136,14 +136,13 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
     auto headerWriter = IPfileHeaderWriter::Create();
 
     auto publishingLicense = policy->SerializedPolicy();
-    ByteArray metadata; // No metadata
+    vector<uint8_t> metadata; // No metadata
 
     // calculate content size
     uint32_t contentStartPosition =
       static_cast<uint32_t>(ext.size() +
-                            publishingLicense.size()
-                            +
-                            metadata.size() + 454);
+                            publishingLicense.size() +
+                            454);
     pHeader = make_shared<PfileHeader>(move(publishingLicense),
                                        ext,
                                        contentStartPosition,

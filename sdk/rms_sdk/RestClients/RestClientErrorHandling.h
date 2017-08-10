@@ -13,7 +13,7 @@
 
 namespace rmscore { namespace restclients {
 
-void HandleRestClientError(platform::http::StatusCode httpStatusCode, rmscore::common::ByteArray &sResponse);
+void HandleRestClientError(platform::http::StatusCode httpStatusCode, std::vector<uint8_t> &sResponse);
 
 } // namespace restclients
 } // namespace rmscore

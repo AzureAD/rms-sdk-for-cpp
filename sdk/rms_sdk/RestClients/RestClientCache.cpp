@@ -24,6 +24,7 @@ using namespace rmscore::platform::logger;
 
 namespace rmscore {
 namespace restclients {
+
 static const string END_USER_LICENSES_TAG   = "END_USER_LICENSES_UR";
 static const string PUBLISHING_LICENSES_TAG = "PUBLISHING_LICENSES_UR";
 static const string TEMPLATES_TAG           = "TEMPLATES_UR";
@@ -31,6 +32,7 @@ static const string CLOUD_DIAGNOSTICS_TAG   = "CLOUD_DIAGNOSTICS_UR";
 static const string PERFORMANCE_TAG         = "PERFORMANCE_UR";
 static const string DNS_CLIENT_RESULT_TAG   = "DNS_CLIENT_RESULT";
 static const string ORIGINAL_INPUT_TAG      = "ORIGINAL_INPUT";
+static const string CLIENT_LICENSOR_CERTIFICATES_TAG = "CLIENT_LICENSOR_CERTIFICATES_UR";
 
 using SELF = RestClientCache;
 
@@ -153,7 +155,7 @@ void RestClientCache::Store(
   const string& tag,
   const uint8_t *pbKey, size_t cbKey,
   const string& expires,
-  const common::ByteArray& strResponse,
+  const vector<uint8_t>& strResponse,
   bool useHash)
 {
   Logger::Info(
@@ -286,7 +288,7 @@ void RestClientCache::Store(
               nullptr,
               0,
               expires,
-              common::ByteArray(serviceDiscoveryDetails->EndUserLicensesUrl.begin(),
+              vector<uint8_t>(serviceDiscoveryDetails->EndUserLicensesUrl.begin(),
                                 serviceDiscoveryDetails->EndUserLicensesUrl.end()),
               false);
   this->Store(domain,
@@ -294,7 +296,7 @@ void RestClientCache::Store(
               nullptr,
               0,
               expires,
-              common::ByteArray(serviceDiscoveryDetails->PublishingLicensesUrl.
+              vector<uint8_t>(serviceDiscoveryDetails->PublishingLicensesUrl.
                                 begin(),
                                 serviceDiscoveryDetails->PublishingLicensesUrl.end()),
               false);
@@ -303,7 +305,7 @@ void RestClientCache::Store(
               nullptr,
               0,
               expires,
-              common::ByteArray(serviceDiscoveryDetails->TemplatesUrl.begin(),
+              vector<uint8_t>(serviceDiscoveryDetails->TemplatesUrl.begin(),
                                 serviceDiscoveryDetails->TemplatesUrl.end()),
               false);
   this->Store(domain,
@@ -311,7 +313,7 @@ void RestClientCache::Store(
               nullptr,
               0,
               expires,
-              common::ByteArray(serviceDiscoveryDetails->CloudDiagnosticsServerUrl
+              vector<uint8_t>(serviceDiscoveryDetails->CloudDiagnosticsServerUrl
                                 .begin(),
                                 serviceDiscoveryDetails->CloudDiagnosticsServerUrl
                                 .end()),
@@ -321,7 +323,7 @@ void RestClientCache::Store(
               nullptr,
               0,
               expires,
-              common::ByteArray(serviceDiscoveryDetails->PerformanceServerUrl.
+              vector<uint8_t>(serviceDiscoveryDetails->PerformanceServerUrl.
                                 begin(),
                                 serviceDiscoveryDetails->PerformanceServerUrl.end()),
               false);
@@ -352,7 +354,7 @@ void RestClientCache::StoreDnsClientResult(
               nullptr,
               0,
               ttl,
-              common::ByteArray(dnsClientResult.begin(), dnsClientResult.end()),
+              vector<uint8_t>(dnsClientResult.begin(), dnsClientResult.end()),
               false);
 }
 
@@ -391,13 +393,13 @@ bool RestClientCache::IsCacheLookupDisableTestHookOn()
 }
 
 // hashes the key and returns base64 of the hash
-common::ByteArray RestClientCache::HashKey(const uint8_t *pbKey, size_t cbKey)
+vector<uint8_t> RestClientCache::HashKey(const uint8_t *pbKey, size_t cbKey)
 {
   auto cryptoEngine = rmscrypto::api::CreateCryptoEngine();
   auto sha256       = cryptoEngine->CreateHash(
     rmscrypto::api::CryptoHashAlgorithm::CRYPTO_HASH_ALGORITHM_SHA256);
 
-  common::ByteArray vbHash(sha256->GetOutputSize());
+  vector<uint8_t> vbHash(sha256->GetOutputSize());
 
   uint32_t cbHashSize = static_cast<uint32_t>(vbHash.size());
 
@@ -405,7 +407,7 @@ common::ByteArray RestClientCache::HashKey(const uint8_t *pbKey, size_t cbKey)
   sha256->Hash(pbKey, static_cast<uint32_t>(cbKey), &vbHash[0], cbHashSize);
   vbHash.resize(cbHashSize);
 
-  common::ByteArray strBase64(common::ConvertBytesToBase64(vbHash));
+  vector<uint8_t> strBase64(common::ConvertBytesToBase64(vbHash));
 
   SELF::ReplaceNotAllowedCharactersInBase64(strBase64);
 
@@ -457,7 +459,7 @@ string RestClientCache::GetFileName(
 
   string nh("NoHash");
   string enAll("*?");
-  common::ByteArray hash(nh.begin(), nh.end());
+  vector<uint8_t> hash(nh.begin(), nh.end());
 
   if (useHash)
   {
@@ -466,7 +468,7 @@ string RestClientCache::GetFileName(
       //            CHECK_BOOL_X_HR(pattern, E_INVALIDARG);
 
       // enumerate all
-      hash = common::ByteArray(enAll.begin(), enAll.end());
+      hash = vector<uint8_t>(enAll.begin(), enAll.end());
     }
     else
     {
@@ -762,7 +764,7 @@ string RestClientCache::GetCacheSettingName(
 // replace '/' or '+' character in the given base64 by '-' such that we can
 // use it as a file name
 void RestClientCache::ReplaceNotAllowedCharactersInBase64(
-  common::ByteArray& strBase64)
+  vector<uint8_t>& strBase64)
 {
   for (size_t iChar = 0; iChar < strBase64.size(); ++iChar)
   {

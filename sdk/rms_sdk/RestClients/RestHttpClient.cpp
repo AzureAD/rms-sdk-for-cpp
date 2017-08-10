@@ -159,8 +159,10 @@ string RestHttpClient::GenerateRequestId()
 
 string RestHttpClient::GetPlatformIdHeader()
 {
+  //TODO: change platform to 'Linux' when appropriate server change is in prod. (eta 9/24/2016)
+
   string platformId(
-    "AppName=rmscore;AppVersion=1.0;DevicePlatform=WindowsStore;SDKVersion=4.1;");
+    "AppName=rmscore;AppVersion=1.0;DevicePlatform=WindowsStore;SDKVersion=4.3;");
 
   return platformId;
 }
