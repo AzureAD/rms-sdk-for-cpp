@@ -1,0 +1,90 @@
+10:32:24 INF: AuthenticationContext: AuthenticationContext
+10:32:24 INF: Authenticator: detectAuthorityType
+10:32:24 INF: Authenticator: isAdfsAuthority: '0'
+10:32:24 INF: AuthenticationContext: acquireToken
+10:32:24 INF: AuthenticationContext: acquireTokenCommonAsync
+10:32:24 INF: AuthenticationContext: createWebAuthenticationDialog
+10:32:24 INF: AcquireTokenHandlerBase: AcquireTokenHandlerBase
+10:32:24 INF: AcquireTokenHandlerBase: createCallState
+10:32:24 INF: AcquireTokenHandlerBase: === Token Acquisition started:
+	Authority: https://sts.aadrm.com/_sts/oauth/authorize/
+	Resource: api.hostedrms.com
+	ClientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+	CacheType: nullptr
+	Authentication Target: 0
+	
+10:32:24 INF: AcquireTokenInteractiveHandler: AcquireTokenInteractiveHandler
+10:32:24 INF: AcquireTokenHandlerBase: runAsync
+10:32:24 INF: AcquireTokenHandlerBase: preRunAsync
+10:32:24 INF: Authenticator: updateFromTemplateAsync
+10:32:24 INF: AcquireTokenHandlerBase: validateAuthorityType
+10:32:24 INF: AcquireTokenInteractiveHandler: preTokenRequest
+10:32:24 INF: AcquireTokenHandlerBase: preTokenRequest
+10:32:24 INF: AcquireTokenInteractiveHandler: acquireAuthorization
+10:32:24 INF: AcquireTokenInteractiveHandler: sendAuthorizeRequest
+10:32:24 INF: AcquireTokenInteractiveHandler: includeFormsAuthParams
+10:32:24 INF: AcquireTokenInteractiveHandler: createAuthorizationUri
+10:32:24 INF: AcquireTokenInteractiveHandler: createAuthorizationRequest
+10:32:25 INF: OAuth2Response: parseAuthorizeResponse
+10:32:25 INF: AcquireTokenInteractiveHandler: verifyAuthorizationResult
+10:32:25 ERR: AcquireTokenHandlerBase: runAsync(): exception: unknown_resource
+10:32:27 INF: AuthenticationContext: AuthenticationContext
+10:32:27 INF: Authenticator: detectAuthorityType
+10:32:27 INF: Authenticator: isAdfsAuthority: '0'
+10:32:27 INF: AuthenticationContext: acquireToken
+10:32:27 INF: AuthenticationContext: acquireTokenCommonAsync
+10:32:27 INF: AuthenticationContext: createWebAuthenticationDialog
+10:32:27 INF: AcquireTokenHandlerBase: AcquireTokenHandlerBase
+10:32:27 INF: AcquireTokenHandlerBase: createCallState
+10:32:27 INF: AcquireTokenHandlerBase: === Token Acquisition started:
+	Authority: https://sts.aadrm.com/_sts/oauth/authorize/
+	Resource: api.hostedrms.com
+	ClientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+	CacheType: nullptr
+	Authentication Target: 0
+	
+10:32:27 INF: AcquireTokenInteractiveHandler: AcquireTokenInteractiveHandler
+10:32:27 INF: AcquireTokenHandlerBase: runAsync
+10:32:27 INF: AcquireTokenHandlerBase: preRunAsync
+10:32:27 INF: Authenticator: updateFromTemplateAsync
+10:32:27 INF: AcquireTokenHandlerBase: validateAuthorityType
+10:32:27 INF: AcquireTokenInteractiveHandler: preTokenRequest
+10:32:27 INF: AcquireTokenHandlerBase: preTokenRequest
+10:32:27 INF: AcquireTokenInteractiveHandler: acquireAuthorization
+10:32:27 INF: AcquireTokenInteractiveHandler: sendAuthorizeRequest
+10:32:27 INF: AcquireTokenInteractiveHandler: includeFormsAuthParams
+10:32:27 INF: AcquireTokenInteractiveHandler: createAuthorizationUri
+10:32:27 INF: AcquireTokenInteractiveHandler: createAuthorizationRequest
+10:32:27 INF: OAuth2Response: parseAuthorizeResponse
+10:32:27 INF: AcquireTokenInteractiveHandler: verifyAuthorizationResult
+10:32:27 ERR: AcquireTokenHandlerBase: runAsync(): exception: unknown_resource
+10:32:45 INF: AuthenticationContext: AuthenticationContext
+10:32:45 INF: Authenticator: detectAuthorityType
+10:32:45 INF: Authenticator: isAdfsAuthority: '0'
+10:32:45 INF: AuthenticationContext: acquireToken
+10:32:45 INF: AuthenticationContext: acquireTokenCommonAsync
+10:32:45 INF: AuthenticationContext: createWebAuthenticationDialog
+10:32:45 INF: AcquireTokenHandlerBase: AcquireTokenHandlerBase
+10:32:45 INF: AcquireTokenHandlerBase: createCallState
+10:32:45 INF: AcquireTokenHandlerBase: === Token Acquisition started:
+	Authority: https://sts.aadrm.com/_sts/oauth/authorize/
+	Resource: https://api.hostedrms.com
+	ClientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+	CacheType: nullptr
+	Authentication Target: 0
+	
+10:32:45 INF: AcquireTokenInteractiveHandler: AcquireTokenInteractiveHandler
+10:32:45 INF: AcquireTokenHandlerBase: runAsync
+10:32:45 INF: AcquireTokenHandlerBase: preRunAsync
+10:32:45 INF: Authenticator: updateFromTemplateAsync
+10:32:45 INF: AcquireTokenHandlerBase: validateAuthorityType
+10:32:45 INF: AcquireTokenInteractiveHandler: preTokenRequest
+10:32:45 INF: AcquireTokenHandlerBase: preTokenRequest
+10:32:45 INF: AcquireTokenInteractiveHandler: acquireAuthorization
+10:32:45 INF: AcquireTokenInteractiveHandler: sendAuthorizeRequest
+10:32:45 INF: AcquireTokenInteractiveHandler: includeFormsAuthParams
+10:32:45 INF: AcquireTokenInteractiveHandler: createAuthorizationUri
+10:32:45 INF: AcquireTokenInteractiveHandler: createAuthorizationRequest
+10:32:46 INF: OAuth2Response: parseAuthorizeResponse
+10:32:46 INF: AcquireTokenInteractiveHandler: verifyAuthorizationResult
+10:32:46 ERR: AcquireTokenHandlerBase: runAsync(): exception: unknown_resource

@@ -1,0 +1,25 @@
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="END_USER_LICENSES_UR"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="END_USER_LICENSES_UR" returning 0 result(s)
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="PUBLISHING_LICENSES_UR"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="PUBLISHING_LICENSES_UR" returning 0 result(s)
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="TEMPLATES_UR"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="TEMPLATES_UR" returning 0 result(s)
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="CLOUD_DIAGNOSTICS_UR"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="CLOUD_DIAGNOSTICS_UR" returning 0 result(s)
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="PERFORMANCE_UR"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="PERFORMANCE_UR" returning 0 result(s)
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="ORIGINAL_INPUT"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="ORIGINAL_INPUT" returning 0 result(s)
+10:34:23 INF: +RestClientCache::Lookup: cacheName="microsoft.com", tag="DNS_CLIENT_RESULT"
+10:34:23 INF: RestClientCache::IsCacheLookupDisableTestHookOn: FALSE state
+10:34:23 INF: -RestClientCache::Lookup: cacheName="microsoft.com", tag="DNS_CLIENT_RESULT" returning 0 result(s)
+10:34:24 INF: ==> HttpClientQt::GET https://api.aadrm.com/my/v2/servicediscovery?email=t-joanto@microsoft.com
+10:34:25 INF: Response StatusCode: 401
+10:34:25 ERR: error: Host requires authentication

@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3314D590-D72E-4BAC-BB35-E0E47B8AAA9B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SecureSenderLibrary</RootNamespace>
+    <AssemblyName>SecureSenderLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="src\core\EmailHelper.cs" />
+    <Compile Include="src\integrity\DataIntegrityCheck.cs" />
+    <Compile Include="src\core\HasherManager.cs" />
+    <Compile Include="src\helper\HeaderFolder.cs" />
+    <Compile Include="src\helper\IHeaderFolder.cs" />
+    <Compile Include="src\core\IHasher.cs" />
+    <Compile Include="src\core\SHA256Hasher.cs" />
+    <Compile Include="src\integrity\IProperty.cs" />
+    <Compile Include="src\integrity\SignatureCreator.cs" />
+    <Compile Include="src\models\EmailProperty.cs" />
+    <Compile Include="src\models\json\CertificateJsonObject.cs" />
+    <Compile Include="src\models\json\CertificatePayload.cs" />
+    <Compile Include="src\models\json\CertificatePublicData.cs" />
+    <Compile Include="src\models\json\CertificatePublicPayload.cs" />
+    <Compile Include="src\models\json\CertificateSignature.cs" />
+    <Compile Include="src\models\json\Id.cs" />
+    <Compile Include="src\models\json\IssuedTo.cs" />
+    <Compile Include="src\models\json\Issuer.cs" />
+    <Compile Include="src\models\json\PublicKey.cs" />
+    <Compile Include="src\models\message\CertificateInformationMessage.cs" />
+    <Compile Include="src\models\table\DataTable.cs" />
+    <Compile Include="src\models\message\EmailErrorMessage.cs" />
+    <Compile Include="src\models\message\InformationMessage.cs" />
+    <Compile Include="src\models\IntegrityStatus.cs" />
+    <Compile Include="src\models\IEmail.cs" />
+    <Compile Include="src\models\table\EmailPropertiesDataTable.cs" />
+    <Compile Include="src\models\table\TableElement.cs" />
+    <Compile Include="src\ui\DataIntegrityCheckBinder.cs" />
+    <Compile Include="src\ui\IUIDataBinder.cs" />
+    <Compile Include="src\ui\IUserInterface.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\valid_email_icon.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\wrapper\cli_wrapper\rms_sdk_cpp_wrapper\rms_sdk_cpp_wrapper.vcxproj">
+      <Project>{0e665d8c-0b5f-4a48-9c2c-261e1237b561}</Project>
+      <Name>rms_sdk_cpp_wrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

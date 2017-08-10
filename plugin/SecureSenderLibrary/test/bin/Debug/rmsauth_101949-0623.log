@@ -1,0 +1,30 @@
+10:19:49 INF: AuthenticationContext: AuthenticationContext
+10:19:49 INF: Authenticator: detectAuthorityType
+10:19:49 INF: Authenticator: isAdfsAuthority: '0'
+10:19:49 INF: AuthenticationContext: acquireToken
+10:19:49 INF: AuthenticationContext: acquireTokenCommonAsync
+10:19:49 INF: AuthenticationContext: createWebAuthenticationDialog
+10:19:49 INF: AcquireTokenHandlerBase: AcquireTokenHandlerBase
+10:19:49 INF: AcquireTokenHandlerBase: createCallState
+10:19:49 INF: AcquireTokenHandlerBase: === Token Acquisition started:
+	Authority: https://sts.aadrm.com/_sts/oauth/authorize/
+	Resource: api.hostedrms.com
+	ClientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+	CacheType: nullptr
+	Authentication Target: 0
+	
+10:19:49 INF: AcquireTokenInteractiveHandler: AcquireTokenInteractiveHandler
+10:19:49 INF: AcquireTokenHandlerBase: runAsync
+10:19:49 INF: AcquireTokenHandlerBase: preRunAsync
+10:19:49 INF: Authenticator: updateFromTemplateAsync
+10:19:49 INF: AcquireTokenHandlerBase: validateAuthorityType
+10:19:49 INF: AcquireTokenInteractiveHandler: preTokenRequest
+10:19:49 INF: AcquireTokenHandlerBase: preTokenRequest
+10:19:49 INF: AcquireTokenInteractiveHandler: acquireAuthorization
+10:19:49 INF: AcquireTokenInteractiveHandler: sendAuthorizeRequest
+10:19:49 INF: AcquireTokenInteractiveHandler: includeFormsAuthParams
+10:19:49 INF: AcquireTokenInteractiveHandler: createAuthorizationUri
+10:19:49 INF: AcquireTokenInteractiveHandler: createAuthorizationRequest
+10:19:50 INF: OAuth2Response: parseAuthorizeResponse
+10:19:50 INF: AcquireTokenInteractiveHandler: verifyAuthorizationResult
+10:19:50 ERR: AcquireTokenHandlerBase: runAsync(): exception: unknown_resource

@@ -1,0 +1,44 @@
+﻿  Stdafx.cpp
+c:\users\t-joanto\sdk_update\rms-sdk-for-cpp\sdk\rms_sdk\modernapi\AuthenticationParameters.h(65): warning C4251: 'rmscore::modernapi::AuthenticationParameters::m_authority': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'rmscore::modernapi::AuthenticationParameters'
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.10.25017\include\xstring(3997): note: see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+c:\users\t-joanto\sdk_update\rms-sdk-for-cpp\sdk\rms_sdk\modernapi\AuthenticationParameters.h(66): warning C4251: 'rmscore::modernapi::AuthenticationParameters::m_resource': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'rmscore::modernapi::AuthenticationParameters'
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.10.25017\include\xstring(3997): note: see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+c:\users\t-joanto\sdk_update\rms-sdk-for-cpp\sdk\rms_sdk\modernapi\AuthenticationParameters.h(67): warning C4251: 'rmscore::modernapi::AuthenticationParameters::m_scope': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'rmscore::modernapi::AuthenticationParameters'
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.10.25017\include\xstring(3997): note: see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+c:\users\t-joanto\sdk_update\rms-sdk-for-cpp\sdk\rms_sdk\modernapi\AuthenticationParameters.h(68): warning C4251: 'rmscore::modernapi::AuthenticationParameters::m_userId': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'rmscore::modernapi::AuthenticationParameters'
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.10.25017\include\xstring(3997): note: see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+c:\users\t-joanto\sdk_update\rms-sdk-for-cpp\sdk\rms_sdk\modernapi\AuthenticationCallbackImpl.h(45): warning C4251: 'rmscore::modernapi::AuthenticationCallbackImpl::m_userId': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'rmscore::modernapi::AuthenticationCallbackImpl'
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.10.25017\include\xstring(3997): note: see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(497): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(498): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(499): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(501): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(503): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(505): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(506): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(508): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(509): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(511): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(512): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(513): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(514): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(515): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(517): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(519): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(521): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(523): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(530): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(531): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(532): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(556): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(557): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(558): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+C:\Qt\5.7\msvc2015\include\QtCore/qchar.h(559): warning C4561: '__fastcall' incompatible with the '/clr' option: converting to '__stdcall'
+  AssemblyInfo.cpp
+  AuthenticationCallbackTester.cpp
+  DataCollectionExp.cpp
+  IAuthenticationCallbackWrapper.cpp
+  WritableDataCollectionExp.cpp
+  Generating Code...
+  .NETFramework,Version=v4.5.2.AssemblyAttributes.cpp
+  rms_sdk_cpp_wrapper.vcxproj -> C:\Users\t-joanto\documents\visual studio 2017\Projects\VSTOSecureSenderPlugIn\Debug\rms_sdk_cpp_wrapper.dll

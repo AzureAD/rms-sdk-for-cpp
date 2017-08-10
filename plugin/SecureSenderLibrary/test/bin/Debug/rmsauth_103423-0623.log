@@ -1,0 +1,61 @@
+10:34:23 INF: FileCache: path: C:/Users/t-joanto/.ms-ad/token_cache.dat
+10:34:25 INF: AuthenticationContext: AuthenticationContext
+10:34:25 INF: Authenticator: detectAuthorityType
+10:34:25 INF: Authenticator: isAdfsAuthority: '0'
+10:34:25 INF: AuthenticationContext: acquireToken
+10:34:25 INF: AuthenticationContext: acquireTokenCommonAsync
+10:34:25 INF: AuthenticationContext: createWebAuthenticationDialog
+10:34:25 INF: AcquireTokenHandlerBase: AcquireTokenHandlerBase
+10:34:25 INF: AcquireTokenHandlerBase: createCallState
+10:34:25 INF: AcquireTokenHandlerBase: === Token Acquisition started:
+	Authority: https://login.windows.net/common/oauth2/authorize/
+	Resource: https://api.aadrm.com/
+	ClientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+	CacheType: FileCache (0 items)
+	Authentication Target: 0
+	
+10:34:25 INF: AcquireTokenInteractiveHandler: AcquireTokenInteractiveHandler
+10:34:25 INF: AcquireTokenHandlerBase: runAsync
+10:34:25 INF: AcquireTokenHandlerBase: preRunAsync
+10:34:25 INF: Authenticator: updateFromTemplateAsync
+10:34:25 INF: AcquireTokenHandlerBase: validateAuthorityType
+10:34:25 INF: AcquireTokenHandlerBase: notifyBeforeAccessCache
+10:34:25 INF: FileCache: onBeforeAccess
+10:34:25 INF: FileCache: readCache
+10:34:25 INF: TokenCache: deserialize
+10:34:25 INF: AuthenticationResult: deserialize
+10:34:25 INF: TokenCacheKey: TokenCacheKey::getHashCode(): authority: https://login.windows.net/common/oauth2/authorize/; resource: https://api.aadrm.com/; clientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7 uniqueId: 62012187-8d83-4d8a-b996-6af37b0f1d54; tokenSubjectType_: 0; hashcode: 856858900;
+10:34:25 INF: TokenCache: Deserialized 1 items to token cache.
+10:34:25 INF: TokenCache: loadFromCache
+10:34:25 INF: TokenCache: An item matching the requested resource was found in the cache
+10:34:25 INF: TokenCache: Local time UTC: '17:34:25 06.23.17', token expiresOn: 17:31:07 06.09.17 (1497029467)
+10:34:25 INF: TokenCache: An expired or near expiry token was found in the cache
+10:34:25 INF: TokenCache: A matching token was found in the cache
+10:34:25 INF: AcquireTokenHandlerBase: refreshAccessTokenAsync
+10:34:25 INF: AcquireTokenHandlerBase: sendTokenRequestByRefreshTokenAsync
+10:34:25 INF: AcquireTokenHandlerBase: sendHttpMessageAsync
+10:34:25 INF: HttpHelperQt: sendPostRequestAndDeserializeJsonResponseAsync
+10:34:25 INF: HttpHelperQt: createRequest
+10:34:25 INF: HttpHelperQt: jobPost
+10:34:25 INF: HttpHelperQt: deserializeTokenResponse
+10:34:25 INF: HttpHelperQt: logRequestHeaders
+10:34:25 INF: HttpHelperQt: --> Headers:
+10:34:25 INF: HttpHelperQt: User-Agent: x-client-DM
+10:34:25 INF: HttpHelperQt: Content-Type: application/x-www-form-urlencoded
+10:34:25 INF: HttpHelperQt: x-client-SKU: RMSAuth
+10:34:25 INF: HttpHelperQt: x-client-Ver: 0.1
+10:34:25 INF: HttpHelperQt: client-request-id: {79a62e48-87ea-4941-b681-dc3998bc6cc2}
+10:34:25 INF: HttpHelperQt: return-client-request-id: true
+10:34:25 INF: HttpHelperQt: request url:  https://login.windows.net/common/oauth2/token
+10:34:25 INF: HttpHelperQt: request body: resource=https://api.aadrm.com/&refresh_token=AQABAAAAAABnfiG-mA6NTae7CdWW7QfdO8rT0qvPdax_HW70OeqiSeAPjLJn8nb0R1Jt6oD0lWwoMnir_w07MvdMz3uiZZfaqz877X-RRODpFJdBYGRsusTaaOGwtSqaU-gQG7HN8v2FLXKbSW-5UCadUshW26fiAT9dXJ5FuegQrcMb1nYpSyi7t-zJwZwM_Ib6-F9Ow3OEwieeFKrP0Zk_TPB_GwHDSdk_BHb1MH1FqQBXshZhqrk7R4nTJSUAFjFCqa3y-W1ty_L7N_K0-e6LiqUHiC5OnJKKOEkUUBNh815J-iQBma2elnnThMGEUuxL8ZfRt1P_qHNT10UMpKyT28-kE4O3yHmSZRxS2BIoga8vrhTWU2g9XuIAlbwZ0ATHlAXleZLQ6Camgai9ir3ghQTeD-MrhXgqnoo-tbgAOFLuxBcb44LN8BslvOWEYHz2Cf56hUGgMtUcoOeFg5XiHvqWgGO6yltXJovrQT9ZQ-10daN-K6epvNPmBjAqJiRKBBLiHpf-ooVukyLqjb_E6hD7zrW-M6ymffAmYzqYUkqhRRnB4YLjfGZ77HhknEB8OKncF5R1oYHxLkolZ1bdsUSKRQGWOFopoAYdOqu5KHoPdLzE4aCtxdT4MncoIP-Y_PDaN4sJwUjgHda6mbkMY3D5YL6O_uO-NxJp1HW2FvGhT_Wk62-jddQyoibYoukZjnmi4UIzi75HjI6tFgderFivGW3AvCcTbsfcobx8FnpCAFhZ4anjDJqnjU0k0sLA3GpKzeM8gZkuBh6jRzQhtbh_JzAc5Ao9EXLDdDLxANQ_tsTaYmKL03vaap7gmgfug6Iz55UqtYEMUXDKed8ClHUx837S6TT6tPtg9ESoXm64Os436bhKB0f_R1MSUMuR3HwuJKl3eKSV9Ez8JBhpcrdBg5H6KTgsHE5iLFIbIrwbzKpnMeQLqRwq-YhuPdd4uBXQlUErsmo008R-HRzm47XQ0LXHIAA&grant_type=refresh_token&client_id=4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+10:34:25 ERR: HttpHelperQt: error: Error transferring https://login.windows.net/common/oauth2/token - server replied: Bad Request
+10:34:25 INF: AcquireTokenInteractiveHandler: preTokenRequest
+10:34:25 INF: AcquireTokenHandlerBase: preTokenRequest
+10:34:25 INF: AcquireTokenInteractiveHandler: acquireAuthorization
+10:34:25 INF: AcquireTokenInteractiveHandler: sendAuthorizeRequest
+10:34:25 INF: AcquireTokenInteractiveHandler: includeFormsAuthParams
+10:34:25 INF: AcquireTokenInteractiveHandler: createAuthorizationUri
+10:34:25 INF: AcquireTokenInteractiveHandler: createAuthorizationRequest
+10:35:06 INF: AcquireTokenHandlerBase: notifyAfterAccessCache
+10:35:06 INF: FileCache: onAfterAccess
+10:35:06 ERR: AcquireTokenHandlerBase: runAsync(): exception: Canceled by user

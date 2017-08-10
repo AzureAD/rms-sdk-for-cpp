@@ -1,0 +1,61 @@
+11:12:35 INF: AuthenticationContext: AuthenticationContext
+11:12:35 INF: Authenticator: detectAuthorityType
+11:12:35 INF: Authenticator: isAdfsAuthority: '0'
+11:12:35 INF: AuthenticationContext: acquireToken
+11:12:35 INF: AuthenticationContext: acquireTokenCommonAsync
+11:12:35 INF: AuthenticationContext: createWebAuthenticationDialog
+11:12:35 INF: AcquireTokenHandlerBase: AcquireTokenHandlerBase
+11:12:35 INF: AcquireTokenHandlerBase: createCallState
+11:12:35 INF: AcquireTokenHandlerBase: === Token Acquisition started:
+	Authority: https://sts.aadrm.com/_sts/oauth/authorize/
+	Resource: api.aadrm.com
+	ClientId: 4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7
+	CacheType: nullptr
+	Authentication Target: 0
+	
+11:12:35 INF: AcquireTokenInteractiveHandler: AcquireTokenInteractiveHandler
+11:12:35 INF: AcquireTokenHandlerBase: runAsync
+11:12:35 INF: AcquireTokenHandlerBase: preRunAsync
+11:12:35 INF: Authenticator: updateFromTemplateAsync
+11:12:35 INF: AcquireTokenHandlerBase: validateAuthorityType
+11:12:35 INF: AcquireTokenInteractiveHandler: preTokenRequest
+11:12:35 INF: AcquireTokenHandlerBase: preTokenRequest
+11:12:35 INF: AcquireTokenInteractiveHandler: acquireAuthorization
+11:12:35 INF: AcquireTokenInteractiveHandler: sendAuthorizeRequest
+11:12:35 INF: AcquireTokenInteractiveHandler: includeFormsAuthParams
+11:12:35 INF: AcquireTokenInteractiveHandler: createAuthorizationUri
+11:12:35 INF: AcquireTokenInteractiveHandler: createAuthorizationRequest
+11:12:52 INF: OAuth2Response: parseAuthorizeResponse
+11:12:52 INF: AcquireTokenInteractiveHandler: verifyAuthorizationResult
+11:12:52 INF: AcquireTokenHandlerBase: sendTokenRequestAsync
+11:12:52 INF: AcquireTokenHandlerBase: sendHttpMessageAsync
+11:12:52 INF: HttpHelperQt: sendPostRequestAndDeserializeJsonResponseAsync
+11:12:52 INF: HttpHelperQt: createRequest
+11:12:53 INF: HttpHelperQt: jobPost
+11:12:53 INF: HttpHelperQt: deserializeTokenResponse
+11:12:53 INF: HttpHelperQt: logRequestHeaders
+11:12:53 INF: HttpHelperQt: --> Headers:
+11:12:53 INF: HttpHelperQt: User-Agent: x-client-DM
+11:12:53 INF: HttpHelperQt: Content-Type: application/x-www-form-urlencoded
+11:12:53 INF: HttpHelperQt: x-client-SKU: RMSAuth
+11:12:53 INF: HttpHelperQt: x-client-Ver: 0.1
+11:12:53 INF: HttpHelperQt: client-request-id: {d8331afc-2e9d-4bb5-8726-b460e014bd3f}
+11:12:53 INF: HttpHelperQt: return-client-request-id: true
+11:12:53 INF: HttpHelperQt: request url:  https://sts.aadrm.com/_sts/oauth2/token
+11:12:53 INF: HttpHelperQt: request body: resource=api.aadrm.com&grant_type=authorization_code&client_id=4a63455a-cfa1-4ac6-bd2e-0d046cf1c3f7&redirect_uri=https://client.test.app&code=axP_ttozKGt_GTppY31dl6XR45uM_Ewu0FIQQKs6TeF_0R7ycIRs9iQVJ6eqsyyddvdUTQfryGbO9pPX4VVpN5QIRo3paQfOAafXistbeyaWN8ngaquH57y1pPSNXxQIp0UiZlxcn7LszC6nXLCwVnyazc8yc7h1SYv_PopTY49AcpFfNu2jXROA8XZjZW0lgto_1QyBbJkmaXVNhcrXbTA-h6aZDjRoFEkn8IGfZV_1UwYe7T4XfvvusLTs3NNe
+11:12:53 INF: HttpHelperQt: verifyCorrelationIdHeaderInReponse
+11:12:53 INF: HttpHelperQt: deserializeTokenResponse
+11:12:53 INF: OAuth2Response: parseTokenResponse
+11:12:53 INF: OAuth2Response: curTimeUTC: 18:12:53 06.23.17; expiresIn: 36000
+11:12:53 INF: OAuth2Response: tonken expiresOn: 04:12:53 06.24.17 (1498277573)
+11:12:53 INF: OAuth2Response: parseIdToken
+11:12:53 INF: AcquireTokenInteractiveHandler: postTokenRequest
+11:12:53 INF: AcquireTokenHandlerBase: postTokenRequest
+11:12:53 INF: Authenticator: updateTenantId
+11:12:53 INF: AcquireTokenHandlerBase: postRunAsync
+11:12:53 INF: AcquireTokenHandlerBase: === Token Acquisition finished successfully. An access token was retuned:
+	Access Token Hash: Ñ)ìÇ˜¿¹]<sãúë’ÂFó]²[œ1d€wUZh
+	Refresh Token Hash: “þÏòÝªc3õ0P³¬õóA{þt•Á£uï
+	Expiration Time: 04:12:53 06.24.17 (1498277573)
+	User Hash: nullptr
+	
