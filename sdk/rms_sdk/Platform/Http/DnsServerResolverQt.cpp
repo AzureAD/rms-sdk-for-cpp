@@ -7,13 +7,17 @@
  */
 
 #ifdef QTFRAMEWORK
-#include <QDnsLookup>
-#include <QEventLoop>
 #include "DnsServerResolverQt.h"
-#include <QUdpSocket>
-#include <QThread>
 #include "../../Platform/Logger/Logger.h"
 
+#ifdef WIN32
+#include <windows.h>
+#include <windns.h>
+
+#elif POSIX
+
+
+#endif
 using namespace std;
 using namespace rmscore::common;
 using namespace rmscore::platform::logger;
@@ -28,7 +32,46 @@ shared_ptr<IDnsServerResolver>IDnsServerResolver::Create()
 
 std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
 {
-  QDnsLookup dns;
+    #ifdef WIN32
+    PDNS_RECORD dnsRecord;
+    DNS_STATUS dnsStatus = ERROR_SUCCESS;
+    wchar_t *request=NULL;
+    auto size= mbstowcs(request, dnsRequest.c_str(), dnsRequest.length());
+    if(size<dnsRequest.length()){
+        Logger::Hidden("Unable to create request looking up record for %s with %d",
+                       dnsRequest.c_str(),dnsStatus);
+    }
+
+    dnsStatus = DnsQuery(request, DNS_TYPE_SRV, DNS_QUERY_STANDARD, NULL, &dnsRecord, NULL);
+    if(ERROR_SUCCESS != dnsStatus)
+    {
+        Logger::Hidden("DNS Lookup failed looking up record for %s with %d",
+                       dnsRequest.c_str(),dnsStatus);
+        return "";
+    }
+
+    else
+    {
+        if((nullptr != dnsRecord) && (dnsRecord->wType == DNS_TYPE_SRV))
+            {
+                //Return first record
+                char *target=NULL;
+                auto len= wcstombs(target,dnsRecord->Data.SRV.pNameTarget,sizeof(dnsRecord->Data.SRV.pNameTarget));
+                DnsFree(dnsRecord, DnsFreeRecordList);
+                return target ;
+            }
+        else
+            {
+                return "";
+            }
+    }
+
+    #elif POSIX
+
+
+    #endif
+
+ /* QDnsLookup dns;
 
   dns.setType(QDnsLookup::SRV);
   Logger::Hidden("dnsRequest: %s", dnsRequest.c_str());
@@ -51,6 +94,8 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
     return record.target().toStdString();
   }
   return "";
+
+  */
 }
 } // namespace http
 } // namespace platform

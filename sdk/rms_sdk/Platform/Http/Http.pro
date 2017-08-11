@@ -18,7 +18,7 @@ CONFIG(debug, debug|release) {
 
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/
 
-LIBS+=-L$$REPO_ROOT/third_party/lib/ -lcpprest_2_9
+LIBS+=-L$$REPO_ROOT/third_party/lib/ -lcpprest_2_9 -ldnsapi
 
 SOURCES += \
     HttpClientQt.cpp \
