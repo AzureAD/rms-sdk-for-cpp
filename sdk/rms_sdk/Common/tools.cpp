@@ -24,10 +24,8 @@ tm ConvertStdTimeToGmtTm(time_t time) {
   // The thread safe function is gmtime_s on Windows and gmtime_r in POSIX.
   #ifdef WIN32
   gmtime_s(&gmTime, &time);
-  #elif POSIX
+  #elif __linux__
   gmtime_r(&time, &gmTime);
-  #else
-  #error "Compiled on unsupported platform"
   #endif
   return gmTime;
 }

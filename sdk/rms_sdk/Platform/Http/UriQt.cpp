@@ -18,15 +18,25 @@ std::shared_ptr<IUri> IUri::Create(const std::string& uri)
 }
 const std::string UriQt::GetScheme() const
 {
+    #ifdef WIN32
     std::wstring ws(this->pImpl_->scheme());
     std::string scheme(ws.begin(),ws.end());
     return scheme;
+
+    #else
+    return this->pImpl_->scheme();
+    #endif
 }
 const std::string UriQt::GetHost() const
 {
+    #ifdef WIN32
     std::wstring ws(this->pImpl_->host());
-    std::string host(ws.begin(),ws.end());
-    return host;
+    std::string scheme(ws.begin(),ws.end());
+    return scheme;
+
+    #else
+    return this->pImpl_->host();
+    #endif
 }
 int UriQt::GetPort() const
 {
@@ -34,9 +44,14 @@ int UriQt::GetPort() const
 }
 const std::string UriQt::ToString()const
 {
-  std::wstring ws(this->pImpl_->to_string());
-  std::string str(ws.begin(),ws.end());
-  return str;
+    #ifdef WIN32
+    std::wstring ws(this->pImpl_->to_string());
+    std::string scheme(ws.begin(),ws.end());
+    return scheme;
+
+    #else
+    return this->pImpl_->to_string();
+    #endif
 }
 
 }}} // namespace rmscore { namespace platform { namespace http {

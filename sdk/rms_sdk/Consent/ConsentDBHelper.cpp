@@ -24,10 +24,8 @@ bool ConsentDBHelper::Initialize()
 {
     #ifdef WIN32
     const std::string path = (*getenv("HOMEDRIVE") + *getenv("HOMEPATH")+ ("/.ms-ad/"));
-    #elif POSIX
+    #elif __linux__
     const std::string path = (*getenv("HOME")+ ("/.ms-ad/"));
-    #else
-    #error "Compiled on unsupported platform"
     #endif
 
     if (m_init != true)

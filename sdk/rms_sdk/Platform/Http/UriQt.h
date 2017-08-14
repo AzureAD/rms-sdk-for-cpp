@@ -20,8 +20,8 @@ class UriQt : public IUri
 {
 public:
     UriQt(const std::string& uri){
-        web::uri Uri=web::uri::uri(utility::conversions::to_string_t(uri));
-        this->pImpl_= &Uri;
+        //web::uri Uri=web::uri::uri(utility::conversions::to_string_t(uri));
+        this->pImpl_= new web::uri(utility::conversions::to_string_t(uri));
     }
 
     ~UriQt(){if(nullptr != this->pImpl_) delete this->pImpl_;}

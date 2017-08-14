@@ -14,10 +14,13 @@
 #include <windows.h>
 #include <windns.h>
 
-#elif POSIX
-
+#elif __linux__
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <resolv.h>
 
 #endif
+
 using namespace std;
 using namespace rmscore::common;
 using namespace rmscore::platform::logger;
@@ -55,10 +58,10 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
         if((nullptr != dnsRecord) && (dnsRecord->wType == DNS_TYPE_SRV))
             {
                 //Return first record
-                char *target=NULL;
-                auto len= wcstombs(target,dnsRecord->Data.SRV.pNameTarget,sizeof(dnsRecord->Data.SRV.pNameTarget));
+                char *dnsName=NULL;
+                auto len= wcstombs(dnsName,dnsRecord->Data.SRV.pNameTarget,sizeof(dnsRecord->Data.SRV.pNameTarget));
                 DnsFree(dnsRecord, DnsFreeRecordList);
-                return target ;
+                return dnsName ;
             }
         else
             {
@@ -66,36 +69,36 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
             }
     }
 
-    #elif POSIX
+    #elif __linux__
 
+    //Initialize query
 
+    res_init();
+    unsigned char queryResult[1024];
+    int response= res_query(dnsRequest.c_str(),C_IN,ns_t_srv,queryResult,sizeof(queryResult));
+    if(response<0)
+        {
+            Logger::Hidden("DNS Lookup failed looking up record for %s: Insufficient buffer",
+                       dnsRequest.c_str());
+            return "";
+        }
+    else
+        {
+            ns_msg result;
+            char dnsName[1024];
+            ns_initparse(queryResult,response,&result);
+            for(int i=0;i<ns_msg_count(result,ns_s_an);i++)
+                {
+                    ns_rr resourceRecord;
+                    ns_parserr(&result,ns_s_an, i,&resourceRecord);
+                    dn_expand(ns_msg_base(result),ns_msg_end(result),ns_rr_rdata(resourceRecord)+6,dnsName,sizeof(dnsName));
+                    return string(dnsName);
+                }
+
+        }
     #endif
 
- /* QDnsLookup dns;
-
-  dns.setType(QDnsLookup::SRV);
-  Logger::Hidden("dnsRequest: %s", dnsRequest.c_str());
-  dns.setName(dnsRequest.c_str());
-  dns.lookup();
-  QEventLoop loop;
-  QObject::connect(&dns, SIGNAL(finished()), &loop, SLOT(quit()));
-  loop.exec();
-
-  if (dns.error() != QDnsLookup::NoError)
-  {
-    qWarning("DNS lookup failed");
-  }
-  foreach(const QDnsServiceRecord &record, dns.serviceRecords())
-  {
-    Logger::Hidden("QDnsServiceRecord record: %s --> %s",
-                   record.name().toStdString().c_str(),
-                   record.target().toStdString().c_str());
-
-    return record.target().toStdString();
-  }
-  return "";
-
-  */
+    return "";
 }
 } // namespace http
 } // namespace platform

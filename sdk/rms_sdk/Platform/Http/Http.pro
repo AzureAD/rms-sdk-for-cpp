@@ -16,9 +16,10 @@ CONFIG(debug, debug|release) {
 } else {
 }
 
-win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/
+INCLUDEPATH += $$REPO_ROOT/third_party/include/
 
-LIBS+=-L$$REPO_ROOT/third_party/lib/ -lcpprest_2_9 -ldnsapi
+win32:LIBS+=-L$$REPO_ROOT/third_party/lib/ -lcpprest -ldnsapi
+else:LIBS+=  -lcpprest
 
 SOURCES += \
     HttpClientQt.cpp \
@@ -33,3 +34,6 @@ HEADERS += \
     UriQt.h \
     DnsServerResolverQt.h \
     mscertificates.h
+
+DISTFILES += \
+    cert.PEM

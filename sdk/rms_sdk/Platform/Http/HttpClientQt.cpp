@@ -26,15 +26,17 @@ shared_ptr<IHttpClient>IHttpClient::Create() {
 HttpClientQt::HttpClientQt(){}
 HttpClientQt::~HttpClientQt() {}
 
-pplx::task<void> http::HttpClientQt::HttpPostAsync(std::string uri, common::ByteArray &body,web::http::http_headers headers,common::ByteArray &res, http::StatusCode &code )
+pplx::task<void> http::HttpClientQt::HttpPostAsync(std::string url, common::ByteArray &body,web::http::http_headers headers,common::ByteArray &res, http::StatusCode &code )
 {
-    Logger::Info("==> HttpClientQt::POST %s", uri.data());
+    Logger::Info("==> HttpClientQt::POST %s", url.data());
     web::http::http_request request;
 
     request.set_method(web::http::methods::POST);
     std::string reqBody( reinterpret_cast<char const*>(body.data()), static_cast<int>(body.size()) ) ;
     request.set_body(utility::conversions::to_utf8string(reqBody),utf8string("text/plain; charset=utf-8"));
-    web::http::client::http_client client(web::uri::uri(utility::conversions::to_string_t(uri)));
+
+    web::uri* clientUri=new  web::uri(utility::conversions::to_string_t(url));
+    web::http::client::http_client client(*clientUri);
 
 
 
@@ -89,7 +91,16 @@ pplx::task<void> http::HttpClientQt::HttpGetAsync(std::string uri, common::ByteA
     web::http::http_request request;
 
     request.set_method(web::http::methods::GET);
-    web::http::client::http_client client(web::uri::uri(utility::conversions::to_string_t(uri)));
+    web::uri* clientUri=new  web::uri(utility::conversions::to_string_t(uri));
+    //web::http::client::http_client_config config;
+    //config.set_validate_certificates(false);
+
+
+    /*config.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
+            ctx.load_verify_file("cert.PEM");
+    });*/
+    web::http::client::http_client client(*clientUri);
+
 
 
     Logger::Hidden("==> Request Headers:");
