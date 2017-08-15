@@ -19,11 +19,10 @@
 namespace rmscore {
 namespace platform {
 namespace http {
+
 class HttpClientQt : public IHttpClient {
-  //     Q_OBJECT
 
 public:
-
   HttpClientQt();
   ~HttpClientQt();
 
@@ -36,28 +35,25 @@ public:
                           const common::ByteArray          & request,
                           const std::string                & mediaType,
                           common::ByteArray                & response,
-                          std::shared_ptr<std::atomic<bool> >cancelState)
-  override;
-
+                          std::shared_ptr<std::atomic<bool> >cancelState) override;
   virtual StatusCode Get(const std::string                & url,
                          common::ByteArray                & response,
-                         std::shared_ptr<std::atomic<bool> >cancelState)
-  override;
-
+                         std::shared_ptr<std::atomic<bool> >cancelState) override;
   virtual const std::string GetResponseHeader(const std::string& headerName) override;
-
   virtual void              SetAllowUI(bool allow) override;
 
 private:
   pplx::task<void> HttpPostAsync(std::string uri, common::ByteArray& body,
-                                 web::http::http_headers headers,common::ByteArray& response, http::StatusCode& code);
+                                web::http::http_headers headers,common::ByteArray& response, http::StatusCode& code);
   pplx::task<void> HttpGetAsync(std::string uri, common::ByteArray& response,
                                 web::http::http_headers headers, http::StatusCode& code);
   web::http::http_headers replyheaders_;
   web::http::http_headers requestheaders_;
 };
-}
-}
-} // namespace rmscore { namespace platform { namespace http {
+
+}// namespace http
+}// namespace platform
+}// namespace rmscore
+
 
 #endif // _HTTPCLIENTQT_H_

@@ -30,7 +30,7 @@ namespace platform {
 namespace http {
 shared_ptr<IDnsServerResolver>IDnsServerResolver::Create()
 {
-  return make_shared<DnsServerResolverQt>();
+    return make_shared<DnsServerResolverQt>();
 }
 
 std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
@@ -63,16 +63,11 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
                 DnsFree(dnsRecord, DnsFreeRecordList);
                 return dnsName ;
             }
-        else
-            {
-                return "";
-            }
+        else { return "";}
     }
 
-    #elif __linux__
-
+    #else
     //Initialize query
-
     res_init();
     unsigned char queryResult[1024];
     int response= res_query(dnsRequest.c_str(),C_IN,ns_t_srv,queryResult,sizeof(queryResult));
@@ -97,10 +92,9 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
 
         }
     #endif
-
-    return "";
 }
-} // namespace http
-} // namespace platform
-} // namespace rmscore
+
+}// namespace http
+}// namespace platform
+}// namespace rmscore
 #endif // ifdef QTFRAMEWORK

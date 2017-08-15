@@ -14,17 +14,23 @@
 #include <cpprest/base_uri.h>
 #include <cpprest/asyncrt_utils.h>
 
-namespace rmscore { namespace platform { namespace http {
+namespace rmscore {
+namespace platform {
+namespace http {
 
 class UriQt : public IUri
 {
 public:
-    UriQt(const std::string& uri){
-        //web::uri Uri=web::uri::uri(utility::conversions::to_string_t(uri));
+    UriQt(const std::string& uri)
+    {
         this->pImpl_= new web::uri(utility::conversions::to_string_t(uri));
     }
 
-    ~UriQt(){if(nullptr != this->pImpl_) delete this->pImpl_;}
+    ~UriQt()
+    {
+        if(nullptr != this->pImpl_)
+            delete this->pImpl_;
+    }
 
     virtual const std::string GetScheme() const override;
     virtual const std::string GetHost() const override;
@@ -35,7 +41,9 @@ private:
     web::uri* pImpl_;
 };
 
-}}} // namespace rmscore { namespace platform { namespace http {
+}// namespace http
+}// namespace platform
+}// namespace rmscore
 
 #endif // IURIQTIMPL
 
