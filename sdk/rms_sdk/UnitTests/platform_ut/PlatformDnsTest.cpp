@@ -20,4 +20,8 @@ void PlatformDnsTest::testDns(bool enabled)
 {
   if (!enabled) return;
 
+  auto dnsResolver= http::IDnsServerResolver::Create();
+  auto response =dnsResolver->lookup("bing.com");
+  qDebug("lookup response:%s", response.c_str());
+
 }
