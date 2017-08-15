@@ -35,7 +35,9 @@ SOURCES += \
     PlatformJsonArrayTest.cpp \
     PlatformJsonObjectTest.cpp \
     PlatformFileSystemTest.cpp \
-    PlatformFileTest.cpp
+    PlatformFileTest.cpp \
+    PlatformUriTest.cpp \
+    PlatformDnsTest.cpp
 
 HEADERS += \
     PlatformHttpClientTest.h \
@@ -44,4 +46,6 @@ HEADERS += \
     PlatformJsonObjectTest.h \
     PlatformFileSystemTest.h \
     PlatformFileTest.h \
-    TestHelpers.h
+    TestHelpers.h \
+    PlatformDnsTest.h \
+    PlatformUriTest.h
