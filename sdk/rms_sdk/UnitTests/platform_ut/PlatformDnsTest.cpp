@@ -21,7 +21,8 @@ void PlatformDnsTest::testDns(bool enabled)
   if (!enabled) return;
 
   auto dnsResolver= http::IDnsServerResolver::Create();
-  auto response =dnsResolver->lookup("bing.com");
-  qDebug("lookup response:%s", response.c_str());
+  auto response =dnsResolver->lookup("_rmsdisco._http._tcp.microsoft.com");
+  QVERIFY2(response == "api.aadrm.com",
+           "dnsResolver->lookup: DNS response doesn't match existing Service Discovery Record.");
 
 }
