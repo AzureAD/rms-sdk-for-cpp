@@ -6,48 +6,24 @@
  * ======================================================================
  */
 
-#include "PlatformHttpClientTest.h"
+#include "PlatformUriTest.h"
 #include "../../Platform/Logger/Logger.h"
-#include "../../Platform/Http/IHttpClient.h"
+#include "../../Platform/Http/IUri.h"
 #include "../../Common/FrameworkSpecificTypes.h"
 
 using namespace rmscore::platform;
 
-PlatformHttpClientTest::PlatformHttpClientTest()
+PlatformUriTest::PlatformUriTest()
 {}
 
-void PlatformHttpClientTest::testHttpClient(bool enabled)
+void PlatformUriTest::testUri(bool enabled)
 {
   if (!enabled) return;
 
-  auto pclient = http::IHttpClient::Create();
-  rmscore::common::ByteArray response;
-  std::string request("any");
+  auto url = http::IUri::Create("https://api.aadrm.com/my/v1/servicediscovery");
 
-  auto url = "https://api.aadrm.com/my/v1/servicediscovery";
+  auto urlString= url->ToString();
+  QVERIFY2(urlString == "https://api.aadrm.com/my/v1/servicediscovery",
+           "url->ToString: Uri to string doesn't match uri on creation.");
 
-  http::StatusCode status = pclient->Get(
-    url,
-    response,
-    nullptr);
-
-  QVERIFY2(status == http::StatusCode::UNAUTHORIZED,
-           "pclient->Get: Unexpected status code");
-
-  pclient->AddHeader("content-type", "application/x-www-form-urlencoded");
-  status = pclient->Post(
-    url,
-    rmscore::common::ByteArray(request.begin(), request.end()),
-    "any",
-    response,
-    nullptr);
-
-  QByteArray expected = QString(
-    "{\"Message\":\"The authorization token is not well-formed.\"}").toUtf8();
-  QByteArray actual((const char *)response.data(), (int)response.size());
-
-  QCOMPARE(expected, actual);
-
-  QVERIFY2(status == http::StatusCode::UNAUTHORIZED,
-           "pclient->Post: Unexpected status code");
 }
