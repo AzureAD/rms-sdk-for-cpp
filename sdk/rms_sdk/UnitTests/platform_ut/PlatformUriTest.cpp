@@ -26,4 +26,12 @@ void PlatformUriTest::testUri(bool enabled)
   QVERIFY2(urlString == "https://api.aadrm.com/my/v1/servicediscovery",
            "url->ToString: Uri to string doesn't match uri on creation.");
 
+  auto hostString= url->GetHost();
+  auto portString= url->GetPort();
+  auto schemeString= url->GetScheme();
+
+  qDebug(hostString);
+  qDebug(portString);
+  qDebug(schemeString);
+
 }
