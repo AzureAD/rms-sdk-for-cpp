@@ -20,18 +20,22 @@ void PlatformUriTest::testUri(bool enabled)
 {
   if (!enabled) return;
 
-  auto url = http::IUri::Create("https://api.aadrm.com/my/v1/servicediscovery");
+  auto url = http::IUri::Create("https://api.aadrm.com:443/");
 
   auto urlString= url->ToString();
-  QVERIFY2(urlString == "https://api.aadrm.com/my/v1/servicediscovery",
+  QVERIFY2(urlString == "https://api.aadrm.com:443/",
            "url->ToString: Uri to string doesn't match uri on creation.");
 
   auto hostString= url->GetHost();
-  auto portString= url->GetPort();
-  auto schemeString= url->GetScheme();
+  QVERIFY2(hostString == "api.aadrm.com",
+           "url->GetHost: Uri to host doesn't match host on creation.");
 
-  qDebug(hostString);
-  qDebug(portString);
-  qDebug(schemeString);
+  int port= url->GetPort();
+  QVERIFY2(port==443,
+           "url->GetPort: Uri to port doesn't match port on creation.");
+
+  auto schemeString= url->GetScheme();
+  QVERIFY2(schemeString == "https",
+           "url->GetScheme: Uri to scheme doesn't match scheme on creation.");
 
 }

@@ -7,7 +7,9 @@
 */
 
 #include<QCoreApplication>
+#include"PlatformUriTest.h"
 #include"PlatformHttpClientTest.h"
+#include"PlatformDnsTest.h"
 #include"PlatformJsonArrayTest.h"
 #include"PlatformXmlTest.h"
 #include"PlatformJsonObjectTest.h"
