@@ -10,7 +10,6 @@
 #define DNSSERVERRESOLVERQT
 #include "IDnsServerResolver.h"
 
-
 namespace rmscore {
 namespace platform {
 namespace http {

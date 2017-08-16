@@ -91,13 +91,19 @@ pplx::task<void> http::HttpClientQt::HttpGetAsync(std::string uri, common::ByteA
 
     request.set_method(methods::GET);
     web::uri* clientUri=new  web::uri(to_string_t(uri));
-    /*client::http_client_config config;
 
+    #ifdef WIN32
+    web::http::client::http_client client(*clientUri);
+
+    #else
+    client::http_client_config config;
     config.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
             ctx.load_verify_file("cert.PEM");
-    });*/
+            ctx.loadverifyfile("cert1.PEM");
+    });
+    web::http::client::http_client client(*clientUri,config);
 
-    web::http::client::http_client client(*clientUri);
+    #endif
 
     Logger::Hidden("==> Request Headers:");
     http_headers::const_iterator i;

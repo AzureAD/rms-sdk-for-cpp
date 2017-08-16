@@ -38,14 +38,9 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
     #ifdef WIN32
     PDNS_RECORD dnsRecord;
     DNS_STATUS dnsStatus = ERROR_SUCCESS;
-    wchar_t *request=NULL;
-    auto size= mbstowcs(request, dnsRequest.c_str(), dnsRequest.length());
-    if(size<dnsRequest.length()){
-        Logger::Hidden("Unable to create request looking up record for %s with %d",
-                       dnsRequest.c_str(),dnsStatus);
-    }
+    std::wstring request(dnsRequest.begin(),dnsRequest.end());
 
-    dnsStatus = DnsQuery(request, DNS_TYPE_SRV, DNS_QUERY_STANDARD, NULL, &dnsRecord, NULL);
+    dnsStatus = DnsQuery(request.c_str(), DNS_TYPE_SRV, DNS_QUERY_STANDARD, NULL, &dnsRecord, NULL);
     if(ERROR_SUCCESS != dnsStatus)
     {
         Logger::Hidden("DNS Lookup failed looking up record for %s with %d",
@@ -58,8 +53,8 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
         if((nullptr != dnsRecord) && (dnsRecord->wType == DNS_TYPE_SRV))
             {
                 //Return first record
-                char *dnsName=NULL;
-                auto len= wcstombs(dnsName,dnsRecord->Data.SRV.pNameTarget,sizeof(dnsRecord->Data.SRV.pNameTarget));
+                std::wstring wdnsName= dnsRecord->Data.SRV.pNameTarget;
+                std::string dnsName(wdnsName.begin(),wdnsName.end());
                 DnsFree(dnsRecord, DnsFreeRecordList);
                 return dnsName ;
             }
