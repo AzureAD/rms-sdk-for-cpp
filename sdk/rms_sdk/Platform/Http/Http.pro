@@ -36,4 +36,5 @@ HEADERS += \
     mscertificates.h
 
 DISTFILES += \
-    cert.PEM
+    cert.der \
+    certCA.der
