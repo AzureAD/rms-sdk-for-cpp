@@ -17,7 +17,7 @@ public:
     PlatformUriTest();
 
 private Q_SLOTS:
-    void testUri(bool enabled = false);
+    void testUri(bool enabled = true);
 };
 #endif // PLATFORMURITEST
 

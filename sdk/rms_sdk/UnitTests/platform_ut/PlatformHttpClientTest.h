@@ -17,7 +17,7 @@ public:
     PlatformHttpClientTest();
 
 private Q_SLOTS:
-    void testHttpClient(bool enabled = false);
+    void testHttpClient(bool enabled = true);
 };
 #endif // PLATFORMHTTPCLIENTTEST
 
