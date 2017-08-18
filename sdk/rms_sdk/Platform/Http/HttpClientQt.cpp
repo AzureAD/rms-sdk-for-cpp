@@ -39,7 +39,19 @@ pplx::task<void> http::HttpClientQt::HttpPostAsync(std::string url, common::Byte
     std::string reqBody(reinterpret_cast<char const*>(body.data()), static_cast<int>(body.size()));
     request.set_body(to_utf8string(reqBody),utf8string("text/plain; charset=utf-8"));
     web::uri* clientUri=new  web::uri(to_string_t(url));
-    client::http_client client(*clientUri);
+
+    #ifdef WIN32
+    web::http::client::http_client client(*clientUri);
+
+    #else
+    client::http_client_config config;
+    config.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
+        ctx.load_verify_file("cert.PEM");
+        ctx.load_verify_file("certCA.PEM");
+    });
+    web::http::client::http_client client(*clientUri,config);
+
+    #endif
 
     Logger::Hidden("==> Request Headers:");
     http_headers::const_iterator i;
@@ -99,7 +111,7 @@ pplx::task<void> http::HttpClientQt::HttpGetAsync(std::string uri, common::ByteA
     client::http_client_config config;
     config.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
             ctx.load_verify_file("cert.PEM");
-            ctx.loadverifyfile("cert1.PEM");
+            ctx.load_verify_file("certCA.PEM");
     });
     web::http::client::http_client client(*clientUri,config);
 
