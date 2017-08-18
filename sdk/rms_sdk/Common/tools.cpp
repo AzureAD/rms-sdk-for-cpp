@@ -6,7 +6,12 @@
  * ======================================================================
 */
 
-#include <QUuid>
+#ifdef _WIN32
+#include <rpc.h>
+#else
+#include <uuid.h>
+#endif
+
 #include "tools.h"
 
 #define TIME_CONVERSION_MS_TO_100NS 10000
@@ -22,10 +27,10 @@ tm ConvertStdTimeToGmtTm(time_t time) {
   // But that function is not thread safe on all platforms since it uses an internal
   // static buffer.
   // The thread safe function is gmtime_s on Windows and gmtime_r in POSIX.
-  #ifdef WIN32
+  #ifdef _WIN32
   gmtime_s(&gmTime, &time);
-  #elif __linux__
-  gmtime_r(&time, &gmTime);
+  #else
+  gmtime_r(&time, &gmTime);   
   #endif
   return gmTime;
 }
@@ -43,8 +48,7 @@ string GetCurrentGmtAsString(const string& format) {
   return ConvertTmToString(gmTime, format);
 }
 
-std::time_t GetTimeFromString(const std::string& dateTime, const std::string& format)
-{
+std::time_t GetTimeFromString(const std::string& dateTime, const std::string& format) {
   // Create a stream which we will use to parse the string,
   // which we provide to constructor of stream to fill the buffer.
   std::stringstream ss{ dateTime };
@@ -103,29 +107,22 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
 }
 
 
-string GenerateAGuid()
-{
-  return QUuid::createUuid().toString().toStdString();
+string GenerateAGuid(){
 //TODO: Linker error resolve for rpc.h and test for posix(uuid.h)
-/*
-#ifdef WIN32
-    UUID uuid;
-    UuidCreate ( &uuid );
-
-    unsigned char * str;
-    UuidToStringA ( &uuid, &str );
-
-    std::string s( ( char* ) str );
-
-    RpcStringFreeA ( &str );
-#else
-    uuid_t uuid;
-    uuid_generate_random ( uuid );
-    char s[37];
-    uuid_unparse ( uuid, s );
-#endif
-    return s;
-*/
+  #ifdef WIN32
+  UUID uuid;
+  unsigned char *str;
+  UuidCreate(&uuid);
+  UuidToStringA(&uuid,&str);
+  std::string s((char*)str);
+  RpcStringFreeA(&str);
+  #else
+  uuid_t uuid;
+  uuid_generate_random ( uuid );
+  char s[37];
+  uuid_unparse ( uuid, s );
+  #endif
+  return s;
 }
 } // namespace common
 } // namespace rmscore

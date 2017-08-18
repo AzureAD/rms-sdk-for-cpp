@@ -9,11 +9,12 @@
 #ifndef _RMS_LIB_TOOLS_H_
 #define _RMS_LIB_TOOLS_H_
 
-#include "CommonTypes.h"
 #include <ctime>
 #include <string>
 #include <sstream>
 #include <iomanip>
+
+#include "CommonTypes.h"
 
 namespace rmscore {
 namespace common {

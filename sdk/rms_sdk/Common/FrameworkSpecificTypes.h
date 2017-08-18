@@ -8,12 +8,13 @@
 
 #ifndef _RMS_LIB_FRAMEWORKSPESIFIC_H_
 #define _RMS_LIB_FRAMEWORKSPESIFIC_H_
-#include <stdint.h>
 
+#include <stdint.h>
 #include "CommonTypes.h"
 
 namespace rmscore {
 namespace common {
+
 
 } // namespace common
 } // namespace rmscore

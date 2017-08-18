@@ -27,7 +27,7 @@ CONFIG(debug, debug|release) {
     LIBS += -lrmscrypto
 }
 
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32 -ldnsapi
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32 -ldnsapi -lrpcrt4
 else:LIBS  += -lssl -lcrypto
 
 SOURCES += \
