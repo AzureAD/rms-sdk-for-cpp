@@ -13,13 +13,9 @@ QT -= gui
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-} else {
 }
 
-INCLUDEPATH += $$REPO_ROOT/third_party/include/
-
-win32:LIBS+=-L$$REPO_ROOT/third_party/lib/ -lcpprest -ldnsapi
-else:LIBS+=  -lcpprest
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/ -ldnsapi
 
 SOURCES += \
     HttpClientQt.cpp \
@@ -34,7 +30,3 @@ HEADERS += \
     UriQt.h \
     DnsServerResolverQt.h \
     mscertificates.h
-
-DISTFILES += \
-    cert.PEM \
-    certCA.PEM

@@ -7,7 +7,14 @@
  */
 
 #ifdef QTFRAMEWORK
+
 #include "HttpClientQt.h"
+#include <QThread>
+#include <QMutex>
+#include <QEventLoop>
+#include <QCoreApplication>
+#include <QTimer>
+
 #include "../Logger/Logger.h"
 #include "../../ModernAPI/RMSExceptions.h"
 #include "mscertificates.h"
@@ -15,201 +22,274 @@
 
 using namespace std;
 using namespace rmscore::platform::logger;
-using namespace web::http;
-using namespace utility::conversions;
 
 namespace rmscore {
 namespace platform {
 namespace http {
+common::ByteArray ReadAllBytes(QIODevice *from) {
+  common::ByteArray result;
+  auto bytesAvailable = from->bytesAvailable();
 
-shared_ptr<IHttpClient>IHttpClient::Create()
-{
-    return make_shared<HttpClientQt>();
+  if (bytesAvailable > 0) {
+    result.resize(static_cast<size_t>(bytesAvailable));
+    char *buf = reinterpret_cast<char *>(&result[0]);
+    size_t offset = 0;
+    while (bytesAvailable > 0) {
+      auto read = from->read(&buf[offset], bytesAvailable);
+
+      if (read <= 0) break;
+      bytesAvailable -= read;
+      offset += read;
+    }
+  }
+
+  return result;
 }
 
-HttpClientQt::HttpClientQt() {}
+shared_ptr<IHttpClient> doCreate() {
+  static bool initialized = false;
+
+  // add Microsoft certificates to trust list
+  if (!initialized) {
+    QSslConfiguration SslConfiguration(QSslConfiguration::defaultConfiguration());
+
+    QList<QSslCertificate> certificates = SslConfiguration.caCertificates();
+    certificates.append(QSslCertificate::fromData(MicrosoftCertCA));
+    certificates.append(QSslCertificate::fromData(MicrosoftCertSubCA));
+    SslConfiguration.setCaCertificates(certificates);
+    QSslConfiguration::setDefaultConfiguration(SslConfiguration);
+    initialized = true;
+  }
+  return make_shared<HttpClientQt>();
+}
+
+shared_ptr<IHttpClient> IHttpClient::Create() {
+
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if(!QCoreApplication::instance())
+  {
+    int argc = 0;
+    QCoreApplication a(argc, nullptr);
+
+    return doCreate();
+  }
+
+  return doCreate();
+}
+
+HttpClientQt::HttpClientQt() : lastReply_(nullptr) {
+  this->request_.setSslConfiguration(QSslConfiguration::defaultConfiguration());
+}
+
 HttpClientQt::~HttpClientQt() {}
 
-pplx::task<void> http::HttpClientQt::HttpPostAsync(std::string url, common::ByteArray &body,web::http::http_headers headers,common::ByteArray &res, http::StatusCode &code)
-{
-    Logger::Info("==> HttpClientQt::POST %s", url.data());
-    http_request request;
-
-    request.set_method(methods::POST);
-    std::string reqBody(reinterpret_cast<char const*>(body.data()), static_cast<int>(body.size()));
-    request.set_body(to_utf8string(reqBody),utf8string("text/plain; charset=utf-8"));
-    web::uri* clientUri=new  web::uri(to_string_t(url));
-
-    #ifdef WIN32
-    web::http::client::http_client client(*clientUri);
-
-    #else
-    client::http_client_config config;
-    config.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
-        ctx.load_verify_file("cert.PEM");
-        ctx.load_verify_file("certCA.PEM");
-    });
-    web::http::client::http_client client(*clientUri,config);
-
-    #endif
-
-    Logger::Hidden("==> Request Headers:");
-    http_headers::const_iterator i;
-    for(i=headers.begin();i!=headers.end();i++)
-    {
-        request.headers().add(i->first,i->second);
-        Logger::Hidden("%s : %s", i->first, i->second);
-    }
-    Logger::Hidden("==> Request Body: %s", reqBody.c_str());
-
-        try
-        {
-            // Make HTTP request.
-            return client.request(request).then([&code, &res](web::http::http_response response)
-            {
-                try
-                {
-                    code = http::StatusCode(response.status_code());
-                    res = response.extract_vector().get();
-                    Logger::Info("Response StatusCode: %i", code);
-                    Logger::Hidden("--> Response Headers:");
-                    web::http::http_headers::const_iterator i;
-                    for(i=response.headers().begin();i!=response.headers().end();i++)
-                    {
-                        Logger::Hidden("%s : %s", i->first, i->second);
-                    }
-                    Logger::Hidden("--> Response Body:");
-                    Logger::Hidden(string(res.begin(), res.end()));
-                }
-                catch (const http_exception& e)
-                {
-                    Logger::Error("Error: %s",e.what());
-                }
-            });
-        }
-        catch (const std::system_error& e)
-        {
-            Logger::Error("Error: %s",e.what());
-
-            // Return an empty task.
-            return pplx::task_from_result();
-        }
+void HttpClientQt::AddAuthorizationHeader(const string& authToken) {
+  this->AddHeader("Authorization", authToken);
 }
 
-pplx::task<void> http::HttpClientQt::HttpGetAsync(std::string uri, common::ByteArray &res,http_headers headers, http::StatusCode &code )
-{
-    Logger::Info("==> HttpClientQt::POST %s", uri.data());
-    http_request request;
-
-    request.set_method(methods::GET);
-    web::uri* clientUri=new  web::uri(to_string_t(uri));
-
-    #ifdef WIN32
-    web::http::client::http_client client(*clientUri);
-
-    #else
-    client::http_client_config config;
-    config.set_ssl_context_callback([](boost::asio::ssl::context &ctx) {
-            ctx.load_verify_file("cert.PEM");
-            ctx.load_verify_file("certCA.PEM");
-    });
-    web::http::client::http_client client(*clientUri,config);
-
-    #endif
-
-    Logger::Hidden("==> Request Headers:");
-    http_headers::const_iterator i;
-    for( i=headers.begin();i!=headers.end();i++)
-    {
-       request.headers().add(i->first,i->second);
-       Logger::Hidden("%s : %s", i->first, i->second);
-    }
-    try
-    {
-        return client.request(request).then([&code, &res](http_response response)
-        {
-            try
-            {
-                code = http::StatusCode(response.status_code());
-                res = response.extract_vector().get();
-                Logger::Info("Response StatusCode: %i", code);
-                Logger::Hidden("--> Response Headers:");
-                for(web::http::http_headers::const_iterator i=response.headers().begin();i!=response.headers().end();i++)
-                {
-                    Logger::Hidden("%s : %s", i->first, i->second);
-                }
-                Logger::Hidden("--> Response Body:");
-                Logger::Hidden(string(res.begin(), res.end()));
-                }
-                catch (const web::http::http_exception& e)
-                {
-                    Logger::Error("Error: %s",e.what());
-                }
-            });
-        }
-        catch (const std::system_error& e)
-        {
-            Logger::Error("Error: %s",e.what());
-
-            // Return an empty task.
-            return pplx::task_from_result();
-        }
+void HttpClientQt::AddAcceptMediaTypeHeader(const string& mediaType) {
+  this->AddHeader("Accept", mediaType);
 }
 
-void HttpClientQt::AddAuthorizationHeader(const string& authToken)
-{
-    this->AddHeader("Authorization", authToken);
+void HttpClientQt::AddAcceptLanguageHeader(const string& language) {
+  this->AddHeader("Accept-Language", language);
 }
 
-void HttpClientQt::AddAcceptMediaTypeHeader(const string& mediaType)
-{
-    this->AddHeader("Accept", mediaType);
+void HttpClientQt::AddHeader(const string& headerName,
+                             const string& headerValue) {
+  this->request_.setRawHeader(headerName.c_str(), headerValue.c_str());
 }
 
-void HttpClientQt::AddAcceptLanguageHeader(const string& language)
-{
-    this->AddHeader("Accept-Language", language);
-}
-
-void HttpClientQt::AddHeader(const string& headerName,const string& headerValue)
-{
-    http_headers::key_type i=to_string_t(headerName);
-    requestheaders_.add(i, headerValue.c_str());
-}
-
-StatusCode HttpClientQt::Post(const string                     & url,
-                              const common::ByteArray          & request,
-                              const string                     & mediaType,
-                              common::ByteArray                & response,
+StatusCode HttpClientQt::doPost(const string& url,
+                              const common::ByteArray& request,
+                              const string& mediaType,
+                              common::ByteArray& response,
                               std::shared_ptr<std::atomic<bool> >cancelState)
 {
-    StatusCode code;
-    common::ByteArray body= request;
-    this->AddAcceptMediaTypeHeader(mediaType);
-    http::HttpClientQt::HttpPostAsync(url,body,requestheaders_,response,code).wait();
-    return code;
+  Logger::Info("==> PostWithCoreAppContext %s", url.data());
+
+  this->request_.setUrl(QUrl(url.c_str()));
+  this->AddAcceptMediaTypeHeader(mediaType);
+
+  Logger::Hidden("==> Request Headers:");
+  foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
+    QByteArray hdrValue = this->request_.rawHeader(hdrName);
+    Logger::Hidden("%s : %s", hdrName.data(), hdrValue.data());
+  }
+
+  std::string req(request.begin(), request.end());
+  Logger::Hidden("==> Request Body: %s", req.c_str());
+
+  // first abort previous
+
+  lastReply_ = this->manager_.post(
+    this->request_,
+    QByteArray(reinterpret_cast<const char *>(request.data()),
+               static_cast<int>(request.size())));
+
+  QTimer timer;
+  QEventLoop loop;
+  QObject::connect(&timer,     SIGNAL(timeout()),  &loop, SLOT(quit()));
+  QObject::connect(lastReply_, SIGNAL(finished()), &loop, SLOT(quit()));
+  QObject::connect(lastReply_, &QNetworkReply::sslErrors,
+                   [ = ](QList<QSslError>errorList) {
+          for (auto& error : errorList) {
+            Logger::Error("QSslError: %s",
+                          error.errorString().toStdString().c_str());
+            throw exceptions::RMSNetworkException(
+              error.errorString().toStdString(),
+              exceptions::RMSNetworkException::ServerError);
+          }
+        });
+
+  do {
+    timer.start(500);
+    loop.exec();
+
+    // check abandom
+    if ((cancelState != nullptr) && cancelState->load()) {
+      throw exceptions::RMSNetworkException(
+              "Network operation was cancelled by user",
+              exceptions::RMSNetworkException::CancelledByUser);
+    }
+  } while (!timer.isActive() || !lastReply_->isFinished());
+
+  QVariant statusCode = lastReply_->attribute(
+    QNetworkRequest::HttpStatusCodeAttribute);
+  Logger::Info("Response StatusCode: %i", statusCode.toInt());
+
+  Logger::Hidden("--> Response Headers:");
+  foreach(const QNetworkReply::RawHeaderPair & pair,
+          lastReply_->rawHeaderPairs()) {
+    Logger::Hidden("%s : %s", pair.first.data(), pair.second.data());
+  }
+
+  response = ReadAllBytes(lastReply_);
+  Logger::Hidden("--> Response Body:");
+  Logger::Hidden(string(response.begin(), response.end()));
+
+  QNetworkReply::NetworkError error_type = lastReply_->error();
+
+  if (error_type != QNetworkReply::NoError) {
+    Logger::Error(QString("error: %1").arg(
+                    lastReply_->errorString()).toStdString());
+  }
+
+  return StatusCode(statusCode.toInt());
 }
 
-StatusCode HttpClientQt::Get(const string                     & url,
-                             common::ByteArray                & response,
+StatusCode HttpClientQt::Post(const string& url,
+                              const common::ByteArray& request,
+                              const string& mediaType,
+                              common::ByteArray& response,
+                              std::shared_ptr<std::atomic<bool> >cancelState)
+{
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if (!QCoreApplication::instance()) {
+    int argc = 0;
+    QCoreApplication a(argc, nullptr);
+
+    return doPost(url, request, mediaType, response, cancelState);
+  }
+  return doPost(url, request, mediaType, response, cancelState);
+}
+
+StatusCode HttpClientQt::doGet(const string& url,
+                             common::ByteArray& response,
                              std::shared_ptr<std::atomic<bool> >cancelState)
 {
-    StatusCode code;
-    http::HttpClientQt::HttpGetAsync(url,response,requestheaders_,code).wait();
-    return code;
+
+  Logger::Info("==> GetWithCoreAppContext %s", url.data());
+
+  this->request_.setUrl(QUrl(url.c_str()));
+
+  Logger::Hidden("==> Request headers:");
+  foreach(const QByteArray &hdrName, this->request_.rawHeaderList()) {
+    QByteArray hdrValue = this->request_.rawHeader(hdrName);
+    Logger::Hidden("%s : %s", hdrName.data(), hdrValue.data());
+  }
+
+  lastReply_ = this->manager_.get(this->request_);
+  QTimer timer;
+  QEventLoop loop;
+  QObject::connect(&timer,     SIGNAL(timeout()),  &loop, SLOT(quit()));
+  QObject::connect(lastReply_, SIGNAL(finished()), &loop, SLOT(quit()));
+  QObject::connect(lastReply_, &QNetworkReply::sslErrors,
+                   [ = ](QList<QSslError>errorList) {
+          for (auto& error : errorList) {
+            Logger::Error("QSslError: %s",
+                          error.errorString().toStdString().c_str());
+            throw exceptions::RMSNetworkException(
+              error.errorString().toStdString(),
+              exceptions::RMSNetworkException::ServerError);
+          }
+        });
+
+  do {
+    timer.start(500);
+    loop.exec();
+
+    // check abandom
+    if ((cancelState != nullptr) && cancelState->load()) {
+      throw exceptions::RMSNetworkException(
+              "Network operation was cancelled by user",
+              exceptions::RMSNetworkException::CancelledByUser);
+    }
+  } while (!timer.isActive() || !lastReply_->isFinished());
+
+  QVariant statusCode = lastReply_->attribute(
+    QNetworkRequest::HttpStatusCodeAttribute);
+  Logger::Info("Response StatusCode: %i", statusCode.toInt());
+
+  Logger::Hidden("--> Response Headers:");
+  foreach(const QNetworkReply::RawHeaderPair & pair,
+          lastReply_->rawHeaderPairs()) {
+    Logger::Hidden("%s : %s", pair.first.data(), pair.second.data());
+  }
+
+  response = ReadAllBytes(lastReply_);
+  Logger::Hidden("--> Response Body:");
+  Logger::Hidden(string(response.begin(), response.end()));
+
+  QNetworkReply::NetworkError error_type = lastReply_->error();
+
+  if (error_type != QNetworkReply::NoError) {
+    Logger::Error(QString("error: %1").arg(
+                    lastReply_->errorString()).toStdString());
+  }
+
+  return StatusCode(statusCode.toInt());
 }
 
-const string HttpClientQt::GetResponseHeader(const string& headerName)
+StatusCode HttpClientQt::Get(const string& url,
+                             common::ByteArray& response,
+                             std::shared_ptr<std::atomic<bool> >cancelState)
 {
-    http_headers::key_type key= to_string_t(headerName);
-    return replyheaders_.has(key) ? to_utf8string(replyheaders_[key]) : "";
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if (!QCoreApplication::instance()) {
+    int argc = 0;
+    QCoreApplication a(argc, nullptr);
+
+    return doGet(url, response, cancelState);
+  }
+
+  return doGet(url, response, cancelState);
+}
+
+const string HttpClientQt::GetResponseHeader(const string& headerName) {
+  return string(lastReply_->rawHeader(headerName.c_str()).data());
 }
 
 void HttpClientQt::SetAllowUI(bool /* allow*/)
 {
-    throw exceptions::RMSNotFoundException("Not implemented");
+  throw exceptions::RMSNotFoundException("Not implemented");
 }
-
 }
 }
 } // namespace rmscore { namespace platform { namespace http {

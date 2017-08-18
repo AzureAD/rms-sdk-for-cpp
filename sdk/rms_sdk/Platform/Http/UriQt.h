@@ -10,27 +10,15 @@
 #define IURIQTIMPL
 
 #include "IUri.h"
-#include "../../Common/tools.h"
-#include <cpprest/base_uri.h>
-#include <cpprest/asyncrt_utils.h>
+#include "QUrl"
 
-namespace rmscore {
-namespace platform {
-namespace http {
+namespace rmscore { namespace platform { namespace http {
 
 class UriQt : public IUri
 {
 public:
-    UriQt(const std::string& uri)
-    {
-        this->pImpl_= new web::uri(utility::conversions::to_string_t(uri));
-    }
-
-    ~UriQt()
-    {
-        if(nullptr != this->pImpl_)
-            delete this->pImpl_;
-    }
+    UriQt(const std::string& uri){this->pImpl_= new QUrl(uri.c_str());}
+    ~UriQt(){ if(nullptr != this->pImpl_) delete this->pImpl_;}
 
     virtual const std::string GetScheme() const override;
     virtual const std::string GetHost() const override;
@@ -38,13 +26,10 @@ public:
     virtual const std::string ToString()const override;
 
 private:
-    web::uri* pImpl_;
+    QUrl* pImpl_;
 };
 
-}// namespace http
-}// namespace platform
-}// namespace rmscore
+}}} // namespace rmscore { namespace platform { namespace http {
 
 #endif // IURIQTIMPL
-
 

@@ -22,9 +22,8 @@ CONFIG(debug, debug|release) {
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings -lrmscrypto
 }
 
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/ -lcpprest_2_9 -ldnsapi
-else:LIBS  += -lssl -lcrypto -lcpprest -lboost_system -lresolv
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32 -ldnsapi
+else:LIBS  += -lssl -lcrypto -lresolv
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

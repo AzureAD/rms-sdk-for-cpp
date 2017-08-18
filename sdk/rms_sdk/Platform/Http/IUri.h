@@ -12,9 +12,7 @@
 #include <string>
 #include <memory>
 
-namespace rmscore {
-namespace platform {
-namespace http {
+namespace rmscore { namespace platform { namespace http {
 
 class IUri {
 public:
@@ -22,15 +20,13 @@ public:
     virtual const std::string GetHost() const  = 0;
     virtual int GetPort() const  = 0;
     virtual const std::string ToString() const  = 0;
-    virtual ~IUri() {}
+    virtual ~IUri() { }
 
 public:
     static std::shared_ptr<IUri> Create(const std::string& uri);
 };
 
-}// namespace http
-}// namespace platform
-}// namespace rmscore
+}}} // namespace rmscore { namespace platform { namespace http {
 
 #endif // _IURI_H_
 
