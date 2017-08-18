@@ -9,7 +9,7 @@
 #ifdef _WIN32
 #include <rpc.h>
 #else
-#include <uuid.h>
+#include <uuid/uuid.h>
 #endif
 
 #include "tools.h"
@@ -22,7 +22,7 @@ namespace rmscore {
 namespace common {
 
 tm ConvertStdTimeToGmtTm(time_t time) {
-  tm gmTime = { 0 };
+  tm gmTime;
   // gmtime is the standard API in C-runtime that is portable.
   // But that function is not thread safe on all platforms since it uses an internal
   // static buffer.
@@ -68,7 +68,7 @@ uint64_t timeToWinFileTime(const time_t& dateTime) {
   // Definition of FILETIME from MSDN:
   // Contains a 64-bit value representing the number of 100-nanosecond intervals
   // since January 1, 1601 (UTC).
-  struct tm origin = {0};
+  struct tm origin;
   uint64_t seconds;
   origin.tm_hour = 0;   origin.tm_min = 0; origin.tm_sec = 0;
   origin.tm_year = 1601; origin.tm_mon = 1; origin.tm_mday = 1;
