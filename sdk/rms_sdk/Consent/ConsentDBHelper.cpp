@@ -22,10 +22,12 @@ ConsentDBHelper& ConsentDBHelper::GetInstance()
 // Reads the file contents and keep it in in-memory cache
 bool ConsentDBHelper::Initialize()
 {
-    #ifdef WIN32
+    #ifdef _WIN32
     const std::string path = (*getenv("HOMEDRIVE") + *getenv("HOMEPATH")+ ("/.ms-ad/"));
     #elif __linux__
     const std::string path = (*getenv("HOME")+ ("/.ms-ad/"));
+    #else
+    #error Platform not supported.
     #endif
 
     if (m_init != true)

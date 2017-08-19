@@ -70,12 +70,17 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
     }
     else {
         ns_msg result;
-        char dnsName[1024];
+        char dnsName[2048];
         ns_initparse(queryResult,response,&result);
         for (int i=0;i<ns_msg_count(result,ns_s_an);i++) {
              ns_rr resourceRecord;
              ns_parserr(&result,ns_s_an, i,&resourceRecord);
-             dn_expand(ns_msg_base(result),ns_msg_end(result),ns_rr_rdata(resourceRecord)+6,dnsName,sizeof(dnsName));
+             int domainSize= dn_expand(ns_msg_base(result),ns_msg_end(result),ns_rr_rdata(resourceRecord)+6,dnsName,sizeof(dnsName));
+             if (domainSize<0){
+                 Logger::Hidden("DNS Lookup failed looking up record for %s: Insufficient buffer",
+                                dnsRequest.c_str());
+                 return "";
+             }
              return string(dnsName);
         }
 

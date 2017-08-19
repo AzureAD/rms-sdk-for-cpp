@@ -6,12 +6,7 @@
  * ======================================================================
 */
 
-#ifdef _WIN32
-#include <rpc.h>
-#else
-#include <uuid/uuid.h>
-#endif
-
+#include <QUuid>
 #include "tools.h"
 
 #define TIME_CONVERSION_MS_TO_100NS 10000
@@ -29,8 +24,10 @@ tm ConvertStdTimeToGmtTm(time_t time) {
   // The thread safe function is gmtime_s on Windows and gmtime_r in POSIX.
   #ifdef _WIN32
   gmtime_s(&gmTime, &time);
+  #elif __linux__
+  gmtime_r(&time, &gmTime);
   #else
-  gmtime_r(&time, &gmTime);   
+  #error Platform not supported.
   #endif
   return gmTime;
 }
@@ -95,8 +92,7 @@ ByteArray ConvertBytesToBase64(const ByteArray& bytes) {
   return ConvertBytesToBase64(bytes.data(), bytes.size());
 }
 
-ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
-{
+ByteArray ConvertBytesToBase64(const void *bytes, const size_t size) {
   QByteArray ba;
 
   ba.append(reinterpret_cast<const char *>(bytes), static_cast<int>(size));
@@ -107,22 +103,30 @@ ByteArray ConvertBytesToBase64(const void *bytes, const size_t size)
 }
 
 
-string GenerateAGuid(){
-//TODO: Linker error resolve for rpc.h and test for posix(uuid.h)
-  #ifdef WIN32
+string GenerateAGuid(){ 
+  /*TODO:
+
+   #include <rpc.h>
+   #include <uuid/uuid.h>
+
+  #ifdef _WIN32
   UUID uuid;
   unsigned char *str;
   UuidCreate(&uuid);
   UuidToStringA(&uuid,&str);
   std::string s((char*)str);
   RpcStringFreeA(&str);
-  #else
+  #elif __linux__
   uuid_t uuid;
   uuid_generate_random ( uuid );
   char s[37];
   uuid_unparse ( uuid, s );
+  #else
+  #error Platform not supported.
   #endif
   return s;
+  */
+  return QUuid::createUuid().toString().toStdString();
 }
 } // namespace common
 } // namespace rmscore
