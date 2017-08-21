@@ -8,7 +8,15 @@ PDFFileFormat::PDFFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag>& PDFFileFormat::ReadTags() {
+const vector<Tag> PDFFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
+}
+
+string PDFFileFormat::GetOriginalExtension() {
+  throw std::exception("not implemnted");
+}
+
+void PDFFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
   throw std::exception("not implemnted");
 }
 

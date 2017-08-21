@@ -130,6 +130,11 @@ if [ $TEST == 'true' ]; then
   else
     echo "!!! unit tests for rmsplatform not found"
   fi
+  if [ -e "./tests/xmpFileUnitTests$UT_SUFFIX" ]; then
+      ./tests/xmpFileUnitTests$UT_SUFFIX
+  else
+    echo "!!! unit tests for xmpFile not found"
+  fi
 fi
 
 if [ $SAMPLE == 'true' ]; then

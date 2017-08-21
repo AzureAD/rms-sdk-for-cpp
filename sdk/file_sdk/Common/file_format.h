@@ -11,19 +11,19 @@ namespace file {
 class FileFormat : public IFileFormat
 {
 public:
-  virtual string GetOriginalExtension();
+  virtual string GetOriginalExtension() = 0;
 
-  virtual const vector<Tag>& GetTags();
+  virtual const vector<Tag> GetTags();
 
   virtual void SetTags(const vector<Tag>& tags);
 
-  virtual void Commit(shared_ptr<IStream> file, string& newExtension);
+  virtual void Commit(shared_ptr<IStream> file, string& newExtension) = 0;
 
 protected:
   FileFormat(shared_ptr<IStream> file, const string& extension);
 
   // Reads the tags from the file
-  virtual const vector<Tag>& ReadTags() = 0;
+  virtual const vector<Tag> ReadTags() = 0;
 
 protected:
   shared_ptr<IStream> mFile;

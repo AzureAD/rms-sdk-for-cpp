@@ -8,7 +8,15 @@ XMPFileFormat::XMPFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag>& XMPFileFormat::ReadTags() {
+const vector<Tag> XMPFileFormat::ReadTags() {
+  return mTags;
+}
+
+string XMPFileFormat::GetOriginalExtension() {
+  throw std::exception("not implemnted");
+}
+
+void XMPFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
   throw std::exception("not implemnted");
 }
 
