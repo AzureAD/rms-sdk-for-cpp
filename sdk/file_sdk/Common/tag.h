@@ -1,5 +1,5 @@
-#ifndef API_IMPL_TAG_H_
-#define API_IMPL_TAG_H_
+#ifndef TAG_H_
+#define TAG_H_
 
 #include <string>
 #include <vector>

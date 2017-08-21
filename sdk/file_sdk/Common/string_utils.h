@@ -1,5 +1,5 @@
-#ifndef BASE_STRING_UTILS_H_
-#define BASE_STRING_UTILS_H_
+#ifndef STRING_UTILS_H_
+#define STRING_UTILS_H_
 
 #include <memory>
 #include <string>

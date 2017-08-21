@@ -1,5 +1,5 @@
-﻿#ifndef API_IMPL_EXTENDED_PROPERTY_H_
-#define API_IMPL_EXTENDED_PROPERTY_H_
+﻿#ifndef EXTENDED_PROPERTY_H_
+#define EXTENDED_PROPERTY_H_
 
 #include <string>
 
