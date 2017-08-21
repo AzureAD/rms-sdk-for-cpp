@@ -8,7 +8,15 @@ PFileFileFormat::PFileFileFormat(shared_ptr<IStream> file, const string& extensi
 {
 }
 
-const vector<Tag>& PFileFileFormat::ReadTags() {
+const vector<Tag> PFileFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
+}
+
+string PFileFileFormat::GetOriginalExtension() {
+  throw std::exception("not implemnted");
+}
+
+void PFileFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
   throw std::exception("not implemnted");
 }
 

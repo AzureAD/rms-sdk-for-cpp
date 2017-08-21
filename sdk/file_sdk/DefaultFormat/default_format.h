@@ -11,7 +11,9 @@ class DefaultFormat : public FileFormat
 
 public:
   DefaultFormat(shared_ptr<IStream> file, const std::string& extension);
-  const vector<Tag>& ReadTags();
+  const vector<Tag> ReadTags();
+  string GetOriginalExtension();
+  void Commit(shared_ptr<IStream> file, string& newExtension);
 };
 
 } // namespace file

@@ -8,7 +8,15 @@ CompoundFileFormat::CompoundFileFormat(shared_ptr<IStream> file, const std::stri
 {
 }
 
-const vector<Tag>& CompoundFileFormat::ReadTags() {
+const vector<Tag> CompoundFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
+}
+
+string CompoundFileFormat::GetOriginalExtension() {
+  throw std::exception("not implemnted");
+}
+
+void CompoundFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
   throw std::exception("not implemnted");
 }
 

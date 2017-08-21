@@ -8,7 +8,15 @@ OPCFileFormat::OPCFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag>& OPCFileFormat::ReadTags() {
+const vector<Tag> OPCFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
+}
+
+string OPCFileFormat::GetOriginalExtension() {
+  throw std::exception("not implemnted");
+}
+
+void OPCFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
   throw std::exception("not implemnted");
 }
 

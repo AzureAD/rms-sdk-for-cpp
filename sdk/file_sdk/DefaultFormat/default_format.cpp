@@ -8,7 +8,15 @@ DefaultFormat::DefaultFormat(shared_ptr<IStream> file, const std::string& extens
 {
 }
 
-const vector<Tag>& DefaultFormat::ReadTags() {
+const vector<Tag> DefaultFormat::ReadTags() {
+  throw std::exception("not implemnted");
+}
+
+string DefaultFormat::GetOriginalExtension() {
+  throw std::exception("not implemnted");
+}
+
+void DefaultFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
   throw std::exception("not implemnted");
 }
 
