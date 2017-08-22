@@ -3,7 +3,7 @@
 
 #include "ifile_format.h"
 
-namespace mip{
+namespace mip {
 namespace file {
 
 class FileFormat : public IFileFormat
@@ -11,13 +11,21 @@ class FileFormat : public IFileFormat
 public:
   FileFormat(std::shared_ptr<IStream> file,
              const string& extension);
-  string GetOriginalExtension();
 
-  void SetTags(const vector<Tag>& tags);
+  virtual string GetOriginalExtension();
 
-  const vector<Tag>& GetTags();
+  virtual const vector<Tag>& GetTags();
 
-  void Commit(std::shared_ptr<IStream> file, string& extension);
+  virtual void SetTags(const vector<Tag>& tags);
+
+  virtual void Commit(std::shared_ptr<IStream> file, string& newExtension);
+
+private:
+  std::shared_ptr<IStream> mFile;
+
+  string mExtension;
+
+  vector<Tag> mTags;
 };
 
 } //namespace file

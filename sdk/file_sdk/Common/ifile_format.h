@@ -10,28 +10,24 @@ using std::string;
 using std::vector;
 using rmscrypto::api::IStream;
 
-namespace mip{
+namespace mip {
 namespace file {
 
 class IFileFormat
 {
 public:
-
+  // Returns the extension of the plain file if the file is protected
   virtual string GetOriginalExtension() = 0;
 
-  virtual void SetTags(const vector<Tag>& tags) = 0;
-
+  // Returns current tags to the tags form the file if not set
   virtual const vector<Tag>& GetTags() = 0;
 
-  virtual void Commit(std::shared_ptr<IStream> file, string& extension) = 0;
+  // Sets tags for the file and the tags will be applied after calling Commit
+  virtual void SetTags(const vector<Tag>& tags) = 0;
 
-protected:
+  // Saves original file to the output file with tags and protection and sets the new file extension to newExtension parameter
+  virtual void Commit(std::shared_ptr<IStream> file, string& newExtension) = 0;
 
-  string mExtension;
-
-  std::shared_ptr<IStream> mFile;
-
-  vector<Tag> mTags;
 };
 
 } //namespace file

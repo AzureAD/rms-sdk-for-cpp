@@ -5,12 +5,11 @@ TARGET    = modfilecommon
 
 TEMPLATE  = lib
 CONFIG += staticlib warn_on c++11 debug_and_release
-INCLUDEPATH += ../../rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 
 SOURCES += \
     string_utils.cpp \
     tag.cpp \
-    ifile_format.cpp \
     file_format.cpp
 
 HEADERS += \
