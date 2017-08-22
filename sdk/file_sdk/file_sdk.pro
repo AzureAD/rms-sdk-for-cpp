@@ -2,4 +2,10 @@ TEMPLATE = subdirs
 
 SUBDIRS += UnitTests \
     Common \
-    UnitTests
+    XMPFileFormat \
+    UnitTests \
+    CompoundFileFormat \
+    OPCFileFormat \
+    PDFFileFormat \
+    PFileFileFormat \
+    DefaultFormat
