@@ -6,6 +6,7 @@
  * ======================================================================
  */
 
+#include <QMessageBox>
 #include <QFileDialog>
 
 #include <cstdio>
@@ -253,6 +254,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
   ui->setupUi(this);
 
+  ui->lineEdit_clientId->setText("28b05064-105c-418e-bad3-844e786f86d7");
+  ui->lineEdit_clientEmail->setText("max@foxitsoftwareinc.onmicrosoft.com");
+  ui->lineEdit_redirectUrl->setText("com.foxitsoftware.com.phantompdf-for-windows://authorize");
+  ui->ineEdit_certificatesPath->setText("D:\\Code\\rmssdk");
 
   qDebug() << "---- Start! -----";
 }
@@ -324,7 +329,7 @@ void MainWindow::FileAPIEncryptRights(const string &fileIn,
     auto inFile = make_shared<fstream>(
       fileIn, ios_base::in | ios_base::out | ios_base::binary);
 
-    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
                 filename, inFile, newFilename);
@@ -708,7 +713,7 @@ void MainWindow::FileAPIEncrypt(const string &fileIn,
     auto inFile = make_shared<fstream>(
       fileIn, ios_base::in | ios_base::out | ios_base::binary);
 
-    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
                 filename, inFile, newFilename);
@@ -760,7 +765,7 @@ void MainWindow::FileAPIDecrypt(const string &fileIn,
       return;
     }
 
-    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
                 filename, inFile, newFilename);
@@ -871,3 +876,123 @@ void MainWindow::AddLog(const QString& tag, const QString& message) {
   this->ui->textBrowser->insertPlainText("\n");
 }
 
+void MainWindow::PDFFileEncrypt(const string& fileIn,
+                    const string& wrapperIn,
+                    const string& clientId,
+                    const string& redirectUrl,
+                    const string& clientEmail)
+{
+    auto self = shared_from_this();
+    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+    addCertificates();
+
+    // create shared in/out streams
+    auto inFile = make_shared<fstream>(
+      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+
+    std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string newFilename = "";
+    std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
+                filename, inFile, newFilename);
+
+    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
+
+    auto outFile = make_shared<fstream>(
+      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
+
+    rmscore::modernapi::AppDataHashMap signedData;
+
+    auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
+      clientEmail, authUI, launch::deferred, cancelState);
+
+    auto templates = templatesFuture.get();
+
+    size_t pos = self->templatesUI.SelectTemplate(templates);
+
+    rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+                                                     (*templates)[pos], signedData, true);
+    rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
+
+    auto inWrapper = make_shared<fstream>(
+      wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+    obj->SetWrapper(inWrapper);
+    obj->ProtectWithTemplate(ut, pt, outFile, self->cancelState);
+
+    inFile->close();
+    outFile->close();
+
+    AddLog("Success: The file is protected to ", fileOut.c_str());
+}
+
+void MainWindow::on_encryptPDF_clicked()
+{
+    QMessageBox::information(this, "Information", tr("First, select a PDF file to encrypt."));
+
+    string fileIn = SelectFile("Select a PDF file to encrypt");
+
+    QMessageBox::information(this, "Information", tr("Second, select a PDF file as the wrapper doc."));
+
+    string wrapperIn = SelectFile("Select a PDF file as the wrapper doc");
+
+    if (!fileIn.empty() && !wrapperIn.empty()) {
+      PDFFileEncrypt(
+                  fileIn,
+                  wrapperIn,
+                  ui->lineEdit_clientId->text().toStdString(),
+                  ui->lineEdit_redirectUrl->text().toStdString(),
+                  ui->lineEdit_clientEmail->text().toStdString());
+    }
+}
+
+void MainWindow::PDFFileDecrypt(const string& fileIn,
+                    const string& clientId,
+                    const string& redirectUrl,
+                    const string& clientEmail)
+{
+    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+    addCertificates();
+
+    // create shared in/out streams
+    auto inFile = make_shared<fstream>(
+      fileIn, ios_base::in | ios_base::binary);
+
+    if (!inFile->is_open()) {
+      AddLog("ERROR: Failed to open ", fileIn.c_str());
+      return;
+    }
+
+    std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string newFilename = "";
+    std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
+                filename, inFile, newFilename);
+
+    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "UnProtected " + newFilename;
+
+    // create streams
+    auto outFile = make_shared<fstream>(
+      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    AuthCallback auth(clientId, redirectUrl);
+
+    rmscore::fileapi::UnprotectOptions upt (false, true);
+    rmscore::fileapi::UserContext ut (clientEmail, auth, this->consent);
+    obj->Unprotect(ut, upt, outFile, this->cancelState);
+
+    inFile->close();
+    outFile->close();
+
+    AddLog("Success: The file is unprotected to ", fileOut.c_str());
+}
+
+void MainWindow::on_decryptPDF_clicked()
+{
+    string fileIn = SelectFile("Select a PDF file to decrypt");
+
+    if (!fileIn.empty()) {
+      PDFFileDecrypt(
+        fileIn,
+        ui->lineEdit_clientId->text().toStdString(),
+        ui->lineEdit_redirectUrl->text().toStdString(),
+        ui->lineEdit_clientEmail->text().toStdString());
+    }
+}
