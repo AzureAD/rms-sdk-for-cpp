@@ -1,0 +1,77 @@
+/*
+ * ======================================================================
+ * Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
+ * Licensed under the MIT License.
+ * See LICENSE.md in the project root for license information.
+ * ======================================================================
+*/
+
+#include "PDFModuleMgr.h"
+
+namespace rmscore {
+namespace pdfobjectmodel {
+
+static std::unique_ptr<PDFModuleMgr> g_pdfModuleMgr = nullptr;
+
+bool PDFModuleMgr::Initialize()
+{
+    if(g_pdfModuleMgr == nullptr)
+    {
+        g_pdfModuleMgr.reset(new PDFModuleMgrImpl());
+    }
+
+    return true;
+}
+
+PDFModuleMgrImpl::PDFModuleMgrImpl()
+{
+    m_pCodecModule = CCodec_ModuleMgr::Create();
+    CFX_GEModule::Create();
+    CFX_GEModule::Get()->SetCodecModule(m_pCodecModule);
+
+    CPDF_ModuleMgr::Create();
+    CPDF_ModuleMgr::Get()->SetCodecModule(m_pCodecModule);
+    m_pModuleMgr = CPDF_ModuleMgr::Get();
+
+    m_pCusSecHandler = nullptr ;
+
+}
+
+PDFModuleMgrImpl::~PDFModuleMgrImpl()
+{
+    m_pCusSecHandler = nullptr;
+
+    if (m_pModuleMgr != nullptr)
+    {
+        m_pModuleMgr->Destroy();
+        m_pModuleMgr = nullptr;
+    }
+
+    CFX_GEModule::Destroy();
+
+    if (m_pCodecModule != nullptr)
+    {
+        m_pCodecModule->Destroy();
+        m_pCodecModule = nullptr;
+    }
+}
+
+static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param)
+{
+    return (CustomSecurityHandler*)param;
+}
+
+void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filterName, PDFSecurityHandler* securityHander)
+{
+     if(g_pdfModuleMgr != nullptr)
+     {
+         PDFModuleMgrImpl* pMgr = (PDFModuleMgrImpl*)g_pdfModuleMgr.get();
+         //core takes over m_pCusSecHandler
+         pMgr->m_pCusSecHandler = new CustomSecurityHandler(securityHander);
+         pMgr->m_pModuleMgr->RegisterSecurityHandler(filterName.c_str(), CreateCustomerSecurityHandler, pMgr->m_pCusSecHandler);
+
+     }
+}
+
+} // namespace pdfobjectmodel
+} // namespace rmscore

@@ -35,6 +35,7 @@ public:
     virtual bool AppendBlock(const void* pBuf, uint32_t size) = 0;
 };
 
+#define  PDFWRAPPERDOC_TYPE_UNKNOWN -1	/** Unknown. */
 #define  PDFWRAPPERDOC_TYPE_NORMAL	0	/** Normal document. */
 #define  PDFWRAPPERDOC_TYPE_FOXIT	1	/** For Foxit wrapper document. */
 #define  PDFWRAPPERDOC_TYPE_PDF2	2	/** For PDF2.0 wrapper document. */
@@ -43,7 +44,7 @@ class PDFWrapperDoc
 {
 public:
     DLL_PUBLIC_RMS
-    static std::unique_ptr<PDFWrapperDoc> Create(std::shared_ptr<std::istream> inputStream);
+    static std::unique_ptr<PDFWrapperDoc> Create(rmscrypto::api::SharedStream inputStream);
 
     virtual uint32_t GetWrapperType() const = 0;
 
@@ -53,7 +54,7 @@ public:
 
     virtual bool GetPayloadFileName(std::wstring& wsFileName) const = 0;
 
-    virtual bool StartGetPayload(std::shared_ptr<std::istream> outputStream) = 0;
+    virtual bool StartGetPayload(rmscrypto::api::SharedStream outputStream) = 0;
 
     virtual ~PDFWrapperDoc(){}
 
@@ -65,7 +66,8 @@ class PDFUnencryptedWrapperCreator
 {
 public:
     DLL_PUBLIC_RMS
-    static std::unique_ptr<PDFUnencryptedWrapperCreator> Create();
+    static std::unique_ptr<PDFUnencryptedWrapperCreator> Create(
+            rmscrypto::api::SharedStream wrapperDocStream);
 
     virtual void SetPayloadInfo(
             const std::wstring& wsSubType,
@@ -73,9 +75,9 @@ public:
             const std::wstring& wsDescription,
             float fVersion) = 0;
 
-    virtual void SetPayLoad(std::shared_ptr<std::istream> inputStream) = 0;
+    virtual void SetPayLoad(rmscrypto::api::SharedStream inputStream) = 0;
 
-    virtual bool CreateUnencryptedWrapper(std::shared_ptr<std::istream> outputStream) = 0;
+    virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream outputStream) = 0;
 
     virtual ~PDFUnencryptedWrapperCreator(){}
 
