@@ -18,6 +18,7 @@ INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/OfficeProtector
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PDFObjectModel
 
 LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
 
@@ -26,10 +27,12 @@ CONFIG(debug, debug|release) {
     LIBS += -lrmsd -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
     LIBS += -lplatformhttpd -lplatformloggerd -lplatformxmld -lplatformjsond -lplatformfilesystemd -lplatformsettingsd
     LIBS += -lrmscryptod -lmodpoled -lmodprotectedofficefiled
+    LIBS += -lpdfobjectmodeld
 } else {
     LIBS += -lrms -lmodprotectedfile -lmodcore -lmodrestclients -lmodconsent -lmodcommon -lmodjson
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings
     LIBS += -lrmscrypto -lmodpole -lmodprotectedofficefile
+    LIBS += -lpdfobjectmodel
 }
 
 #link third-part library at the end to prevent logger implementation conflict
@@ -40,6 +43,7 @@ else:LIBS  += -lssl -lcrypto
 HEADERS += \
     MetroOfficeProtector.h \
     PFileProtector.h \
+    PDFProtector.h \
     Protector.h \
     FileAPIStructures.h \
     ProtectorSelector.h
@@ -47,6 +51,7 @@ HEADERS += \
 SOURCES += \
     Protector.cpp \
     PFileProtector.cpp \
+    PDFProtector.cpp \
     MetroOfficeProtector.cpp \
     ProtectorSelector.cpp
 

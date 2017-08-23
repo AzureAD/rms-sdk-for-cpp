@@ -27,7 +27,7 @@ enum class ProtectorType {
 class ProtectorSelector
 {
 public:
-    ProtectorSelector(const std::string& fileName);
+    ProtectorSelector(const std::string& filePath);
 
     ProtectorType GetProtectorType();
 

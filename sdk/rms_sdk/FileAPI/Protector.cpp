@@ -10,6 +10,7 @@
 #include <fstream>
 #include "MetroOfficeProtector.h"
 #include "PFileProtector.h"
+#include "PDFProtector.h"
 #include "ProtectorSelector.h"
 #include "RMSExceptions.h"
 #include "UserPolicy.h"
@@ -20,7 +21,7 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace fileapi {
 
-std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
+std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
                                              std::shared_ptr<std::fstream> inputStream,
                                              std::string& outputFileName)
 {
@@ -29,7 +30,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
         throw exceptions::RMSInvalidArgumentException("The input stream is invalid");
     }
 
-    ProtectorSelector protectorSelector(fileName);
+    ProtectorSelector protectorSelector(filePath);
     ProtectorType pType = protectorSelector.GetProtectorType();
     outputFileName = protectorSelector.GetOutputFileName();
     switch (pType)
@@ -47,6 +48,16 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
             std::unique_ptr<Protector> protector(new PFileProtector(
                                                       protectorSelector.GetFileExtension(),
                                                       inputStream));
+            return protector;
+        }
+        break;
+
+        case ProtectorType::PDF:
+        {
+            std::unique_ptr<Protector> protector(new PDFProtector(
+                                                  filePath,
+                                                  protectorSelector.GetFileExtension(),
+                                                  inputStream));
             return protector;
         }
         break;

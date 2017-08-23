@@ -20,7 +20,7 @@ class Protector
 {
 public:
     DLL_PUBLIC_RMS
-    static std::unique_ptr<Protector> Create(const std::string& fileName,
+    static std::unique_ptr<Protector> Create(const std::string& filePath,
                                              std::shared_ptr<std::fstream> inputStream,
                                              std::string& outputFileName);
 

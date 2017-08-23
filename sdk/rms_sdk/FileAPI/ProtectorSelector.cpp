@@ -18,10 +18,11 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace fileapi {
 
-ProtectorSelector::ProtectorSelector(const std::string& fileName)
+ProtectorSelector::ProtectorSelector(const std::string& filePath)
     : m_fileExtension(".pfile"),
       m_pType(ProtectorType::PFILE)
 {
+    std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
     Compute(fileName);
 }
 
@@ -55,7 +56,7 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
         {".jpeg", ProtectorType::PSTAR},{".png", ProtectorType::PSTAR},{".tif", ProtectorType::PSTAR},
         {".tiff", ProtectorType::PSTAR},{".bmp", ProtectorType::PSTAR},{".gif", ProtectorType::PSTAR},
         {".jpe", ProtectorType::PSTAR},{".jfif", ProtectorType::PSTAR},{".jif", ProtectorType::PSTAR},
-        {".pdf", ProtectorType::PSTAR}};
+        {".pdf", ProtectorType::PDF}};
 
     return protectorExtensionsMap;
 }
