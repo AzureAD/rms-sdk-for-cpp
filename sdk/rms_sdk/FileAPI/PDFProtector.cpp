@@ -296,12 +296,17 @@ PDFProtector::PDFProtector(const std::string& originalFilePath,
       m_originalFilePath(originalFilePath)
 {
     PDFModuleMgr::Initialize();
-
     m_pdfCreator = PDFCreator::Create();
+    m_inputWrapperStream = nullptr;
 }
 
 PDFProtector::~PDFProtector()
 {
+}
+
+void PDFProtector::SetWrapper(std::shared_ptr<std::fstream> inputWrapperStream)
+{
+    m_inputWrapperStream = inputWrapperStream;
 }
 
 void PDFProtector::ProtectWithTemplate(const UserContext& userContext,
@@ -381,13 +386,22 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& userContext,
     std::shared_ptr<std::iostream> inputEncryptedIO = m_inputStream;
     auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
 
+    std::unique_ptr<PDFWrapperDoc> pdfWrapperDoc =  PDFWrapperDoc::Create(inputEncrypted);
+    uint32_t wrapperType = pdfWrapperDoc->GetWrapperType();
+    uint32_t payloadSize = pdfWrapperDoc->GetPayLoadSize();
+
+    auto payloadSS = std::make_shared<std::stringstream>();
+    std::shared_ptr<std::iostream> payloadIOS = payloadSS;
+    auto outputPayload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
+    bool bGetPayload = pdfWrapperDoc->StartGetPayload(outputPayload);
+
     std::shared_ptr<std::iostream> outputDecryptedIO = outputStream;
     auto outputDecrypted = rmscrypto::api::CreateStreamFromStdStream(outputDecryptedIO);
 
     std::string filterName = "MicrosoftIRMServices";
     PDFSecurityHandlerImpl securityHander(this, userContext, options, cancelState);
     m_pdfCreator->UnprotectCustomEncryptedFile(
-                inputEncrypted,
+                outputPayload,
                 filterName,
                 &securityHander,
                 outputDecrypted);
@@ -513,12 +527,13 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
     }
 
-    std::shared_ptr<std::iostream> outputIO = outputStream;
-
     auto publishingLicense = m_userPolicy->SerializedPolicy();
 
-    std::string filterName = "MicrosoftIRMServices";
-    auto outputEncrypted = rmscrypto::api::CreateStreamFromStdStream(outputIO);
+    auto encryptedSS = std::make_shared<std::stringstream>();
+    std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
+    auto outputEncrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
+
+    std::string filterName = PDF_PROTECTOR_FILTER_NAME;
     PDFCryptoHandlerImpl cryptoHander(this);
     m_pdfCreator->CreateCustomEncryptedFile(
                 m_originalFilePath,
@@ -526,6 +541,27 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
                 publishingLicense,
                 &cryptoHander,
                 outputEncrypted);
+
+    if(!m_inputWrapperStream)
+    {
+        Logger::Error("Not set the input wrapper stream.");
+        throw exceptions::RMSInvalidArgumentException("Not set the input wrapper stream.");
+        return;
+    }
+    std::shared_ptr<std::iostream> inputWrapperIO = m_inputWrapperStream;
+    auto inputWrapper = rmscrypto::api::CreateStreamFromStdStream(inputWrapperIO);
+    m_pdfWrapperCreator = PDFUnencryptedWrapperCreator::Create(inputWrapper);
+    m_pdfWrapperCreator->SetPayloadInfo(
+                PDF_PROTECTOR_WRAPPER_SUBTYPE,
+                PDF_PROTECTOR_WRAPPER_FILENAME,
+                PDF_PROTECTOR_WRAPPER_DES,
+                PDF_PROTECTOR_WRAPPER_VERSION);
+    m_pdfWrapperCreator->SetPayLoad(outputEncrypted);
+
+    std::shared_ptr<std::iostream> outputIO = outputStream;
+    auto outputWrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
+    bool bCreate = m_pdfWrapperCreator->CreateUnencryptedWrapper(outputWrapper);
+
     return;
     //end test
     //end test
@@ -548,16 +584,6 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
     fileContentAddPre[0] = ((char*)&originalFileSize)[3];
     memcpy(fileContentAddPre + 4, fileContent, originalFileSize);
 
-    /*MemoryReadStreamBuf inputStreamBuf(fileContent, contentSize);
-    std::shared_ptr<std::istream> inputIStream =
-            std::make_shared<std::istream>(&inputStreamBuf);
-            */
-
-    /*MemoryWriteStreamBuf outputStreamBuf(contentSize);
-    std::shared_ptr<std::iostream> outputIStream =
-            std::make_shared<std::iostream>(&outputStreamBuf);
-            */
-
     //write publishing license
     std::string plPath = "C:\\Users\\foxit-dev\\Desktop\\PL.txt";
     auto outPLFile = std::make_shared<std::fstream>(
@@ -576,20 +602,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
     auto nSize = outputSharedStream->Size();
     std::vector<uint8_t> encryptedData = outputSharedStream->Read(nSize);
 
-    //std::string encryptedData = sstream->str();
-    //auto encryptedDataLen = encryptedData.length();
     outputIO->seekp(std::ios::beg);
-    //outputIO->write(encryptedData.c_str(), encryptedDataLen);
     outputIO->write(reinterpret_cast<const char*>(&encryptedData[0]), nSize);
-
-    /*uint8_t *pbBuffer = nullptr;
-    int64_t cbBuffer = protectedStream->Size();
-    pbBuffer = new uint8_t[cbBuffer];
-    memset(pbBuffer, 0, cbBuffer);
-    protectedStream->Seek(std::ios::beg);
-    protectedStream->Read(pbBuffer, cbBuffer);
-    outputIO->write(reinterpret_cast<const char*>(pbBuffer), cbBuffer);
-    delete [] pbBuffer;*/
 
     delete [] fileContent;
     delete [] fileContentAddPre;

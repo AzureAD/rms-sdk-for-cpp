@@ -21,53 +21,7 @@ using namespace rmscore::pdfobjectmodel;
 namespace rmscore {
 namespace fileapi {
 
-class MemoryWriteStreamBuf: public std::streambuf
-{
-public:
-    MemoryWriteStreamBuf(uint32_t bufferSize)
-    {
-        m_pBuffer = new char[bufferSize];
-        m_bufferSize = bufferSize;
-        setg(m_pBuffer, m_pBuffer, m_pBuffer + m_bufferSize);
-        setp(m_pBuffer, m_pBuffer + m_bufferSize);
-    }
-
-    virtual ~MemoryWriteStreamBuf()
-    {
-        if(nullptr != m_pBuffer)
-        {
-            delete [] m_pBuffer;
-            m_pBuffer = nullptr;
-        }
-    }
-
-public:
-    char* m_pBuffer;
-    uint32_t m_bufferSize;
-};
-
-class MemoryReadStreamBuf: public std::streambuf
-{
-public:
-    MemoryReadStreamBuf(std::shared_ptr<char> pBuffer, uint32_t bufferSize)
-        : m_bufferSize(bufferSize)
-    {
-        m_pBuffer = pBuffer.get();
-        setg(m_pBuffer, m_pBuffer, m_pBuffer + m_bufferSize);
-        setp(m_pBuffer, m_pBuffer + m_bufferSize);
-    }
-
-    virtual ~MemoryReadStreamBuf()
-    {
-
-    }
-
-public:
-    char* m_pBuffer;
-    uint32_t m_bufferSize;
-};
-
-#define MIN_RAW_SIZE 1//64 * 1024 * 1024
+#define MIN_RAW_SIZE 64 * 1024 * 1024
 
 class PDFProtector;
 class PDFCryptoHandlerImpl : public PDFCryptoHandler
@@ -129,7 +83,14 @@ private:
     std::shared_ptr<std::atomic<bool>> m_cancelState;
 };
 
-class PDFProtector : public Protector
+
+#define PDF_PROTECTOR_FILTER_NAME       "MicrosoftIRMServices"
+#define PDF_PROTECTOR_WRAPPER_SUBTYPE   L"MicrosoftIRMServices"
+#define PDF_PROTECTOR_WRAPPER_FILENAME  L"MicrosoftIRMServices Protected PDF.pdf"
+#define PDF_PROTECTOR_WRAPPER_DES       L"This embedded file is encrypted using MicrosoftIRMServices filter"
+#define PDF_PROTECTOR_WRAPPER_VERSION   2
+
+class PDFProtector : public ProtectorWithWrapper
 {
 public:
     PDFProtector(const std::string& originalFilePath,
@@ -137,6 +98,8 @@ public:
                  std::shared_ptr<std::fstream> inputStream);
 
     ~PDFProtector();
+
+    void SetWrapper(std::shared_ptr<std::fstream> inputWrapperStream) override;
 
     void ProtectWithTemplate(const UserContext& userContext,
                              const ProtectWithTemplateOptions& options,
@@ -182,7 +145,9 @@ private:
     uint32_t m_blockSize;
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 
+    std::shared_ptr<std::fstream> m_inputWrapperStream;
     std::unique_ptr<PDFCreator> m_pdfCreator;
+    std::unique_ptr<PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
 };
 
 } // namespace fileapi

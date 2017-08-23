@@ -48,6 +48,16 @@ protected:
     {}
 };
 
+class ProtectorWithWrapper : public Protector
+{
+public:
+    DLL_PUBLIC_RMS
+    static std::unique_ptr<ProtectorWithWrapper> Create(const std::string& filePath,
+                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::string& outputFileName);
+    virtual void SetWrapper(std::shared_ptr<std::fstream> inputWrapperStream) = 0;
+};
+
 } // namespace fileapi
 } // namespace rmscore
 

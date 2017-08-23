@@ -71,5 +71,38 @@ std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
     }
 }
 
+std::unique_ptr<ProtectorWithWrapper> ProtectorWithWrapper::Create(const std::string& filePath,
+                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::string& outputFileName)
+{
+    if (!inputStream->is_open())
+    {
+        throw exceptions::RMSInvalidArgumentException("The input stream is invalid");
+    }
+
+    ProtectorSelector protectorSelector(filePath);
+    ProtectorType pType = protectorSelector.GetProtectorType();
+    outputFileName = protectorSelector.GetOutputFileName();
+    switch (pType)
+    {
+        case ProtectorType::PDF:
+        {
+            std::unique_ptr<ProtectorWithWrapper> protector(new PDFProtector(
+                                                  filePath,
+                                                  protectorSelector.GetFileExtension(),
+                                                  inputStream));
+            return protector;
+        }
+        break;
+
+        default:
+        {
+            throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
+                                                "");
+        }
+        break;
+    }
+}
+
 } // namespace fileapi
 } // namespace rmscore
