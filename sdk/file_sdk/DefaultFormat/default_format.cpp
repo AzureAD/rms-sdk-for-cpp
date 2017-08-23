@@ -8,8 +8,8 @@ DefaultFormat::DefaultFormat(shared_ptr<IStream> file, const std::string& extens
 {
 }
 
-const vector<Tag> DefaultFormat::ReadTags() {
-  return vector<Tag>();
+const vector<Tag>& DefaultFormat::ReadTags() {
+  throw std::exception("not implemnted");
 }
 
 } // namespace file

@@ -8,9 +8,8 @@ PFileFileFormat::PFileFileFormat(shared_ptr<IStream> file, const string& extensi
 {
 }
 
-const vector<Tag> PFileFileFormat::ReadTags() {
-  vector<Tag> tmp;
-  return tmp;
+const vector<Tag>& PFileFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
 }
 
 } // namespace file

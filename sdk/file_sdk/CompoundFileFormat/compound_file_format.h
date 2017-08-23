@@ -8,9 +8,10 @@ namespace file {
 
 class CompoundFileFormat : public FileFormat
 {
+
 public:
   CompoundFileFormat(shared_ptr<IStream> file, const string& extension);
-  const vector<Tag> ReadTags();
+  const vector<Tag>& ReadTags();
 };
 
 } // namespace file

@@ -23,7 +23,7 @@ protected:
   FileFormat(shared_ptr<IStream> file, const string& extension);
 
   // Reads the tags from the file
-  virtual const vector<Tag> ReadTags() = 0;
+  virtual const vector<Tag>& ReadTags() = 0;
 
 protected:
   shared_ptr<IStream> mFile;

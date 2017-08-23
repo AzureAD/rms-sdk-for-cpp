@@ -14,7 +14,8 @@ namespace file {
 
 class FileFormatFactory {
 private:
-    FileFormatFactory();
+  FileFormatFactory();
+  static bool in_array(const string &value, const vector<string> &array);
 
 public:
   static std::shared_ptr<IFileFormat> Create(std::shared_ptr<IStream> fileStream, const string& extension);

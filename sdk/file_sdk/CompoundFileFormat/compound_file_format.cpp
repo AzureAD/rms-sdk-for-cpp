@@ -8,8 +8,8 @@ CompoundFileFormat::CompoundFileFormat(shared_ptr<IStream> file, const std::stri
 {
 }
 
-const vector<Tag> CompoundFileFormat::ReadTags() {
-  return vector<Tag>();
+const vector<Tag>& CompoundFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
 }
 
 } // namespace file

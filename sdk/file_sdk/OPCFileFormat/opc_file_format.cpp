@@ -8,8 +8,8 @@ OPCFileFormat::OPCFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag> OPCFileFormat::ReadTags() {
-  return vector<Tag>();
+const vector<Tag>& OPCFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
 }
 
 } // namespace file

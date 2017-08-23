@@ -8,8 +8,8 @@ PDFFileFormat::PDFFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag> PDFFileFormat::ReadTags() {
-  return vector<Tag>();
+const vector<Tag>& PDFFileFormat::ReadTags() {
+  throw std::exception("not implemnted");
 }
 
 } // namespace file

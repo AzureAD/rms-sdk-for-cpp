@@ -1,7 +1,6 @@
 #include "file_format_factory.h"
 #include <algorithm>
 #include <vector>
-#include <RMSExceptions.h>
 #include "file_format.h"
 #include "XMPFileFormat/xmp_file_format.h"
 #include "CompoundFileFormat/compound_file_format.h"
@@ -25,10 +24,6 @@ static const vector<string> kCompoundFileExtentions {".doc", ".doc", ".xls", "xl
 static const vector<string> kOPCFileExtentions {".docx", ".docm", ".dotm", ".dotx", ".xlsx", ".xltx", ".xltm", ".xlsm", ".xlsb", ".pptx", ".ppsx", ".pptm", ".ppsm", ".potx", ".potm",  ".vsdx", ".vsdm", ".vssx", ".vssm", ".vstx", ".vstm", ".xps", ".oxps", ".dwfx"};
 static const vector<string> kPDFExtentions {".pdf"};
 static const vector<string> kPfileExtentions {".pfile", ".ppdf", ".ptxt", ".pxml", ".pjpg", ".pjpeg", ".ppng", ".ptif", ".ptiff", ".pbmp", ".pgif", ".pjpe", ".pjfif", ".pjt"};
-
-bool in_array(const string &value, const vector<string> &array) {
-    return std::find(array.begin(), array.end(), value) != array.end();
-}
 }  // namespace
 
 namespace mip {
@@ -38,39 +33,37 @@ FileFormatFactory::FileFormatFactory()
 {
 }
 
-std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> fileStream, const string& extension) {
+// static
+bool FileFormatFactory::in_array(const std::string &value, const vector<std::string> &array) {
+    return std::find(array.begin(), array.end(), value) != array.end();
+}
 
-  if (extension.empty())
-  {
+// static
+std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> fileStream, const string& extension) {
+  if (extension.empty()) {
     // TODO: add log
-    throw rmscore::exceptions::RMSInvalidArgumentException("The extention is empty");
+    throw std::invalid_argument("The extention is empty");
   }
 
   std::string finalExtention = extension;
-  if(extension.find_last_of('.') == string::npos)
-  {
+  if(extension.find_last_of('.') == string::npos) {
     // TODO: add log
     finalExtention.insert(finalExtention.begin(), '.');
   }
 
-  if (in_array(finalExtention, kXMPExtentions))
-  {
+  if (in_array(finalExtention, kXMPExtentions)) {
     return std::make_shared<XMPFileFormat>(fileStream, finalExtention);
   }
-  else if (in_array(finalExtention, kCompoundFileExtentions))
-  {
+  else if (in_array(finalExtention, kCompoundFileExtentions)) {
     return std::make_shared<CompoundFileFormat>(fileStream, finalExtention);
   }
-  else if (in_array(finalExtention, kOPCFileExtentions))
-  {
+  else if (in_array(finalExtention, kOPCFileExtentions)) {
     return std::make_shared<OPCFileFormat>(fileStream, finalExtention);
   }
-  else if (in_array(finalExtention, kPDFExtentions))
-  {
+  else if (in_array(finalExtention, kPDFExtentions)) {
     return std::make_shared<PDFFileFormat>(fileStream, finalExtention);
   }
-  else if (in_array(finalExtention, kPfileExtentions))
-  {
+  else if (in_array(finalExtention, kPfileExtentions)) {
     return std::make_shared<PFileFileFormat>(fileStream, finalExtention);
   }
 
