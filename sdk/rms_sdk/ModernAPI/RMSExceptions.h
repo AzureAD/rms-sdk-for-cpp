@@ -39,6 +39,7 @@ public:
     RightsError,
     MetroOfficeFileError,
     NotSupported,
+    PDFFileError
   };
 
   RMSException(const ExceptionTypes type,
@@ -216,6 +217,33 @@ public:
     : RMSLogicException(PFileError, message), reason_(reason) {}
 
   virtual ~RMSPFileException() _NOEXCEPT {}
+
+  virtual Reason reason() const _NOEXCEPT {
+    return reason_;
+  }
+
+private:
+
+  Reason reason_; // additional reason for this error
+};
+
+class RMSPDFFileException : public RMSLogicException {
+public:
+
+  enum Reason {
+    NotValidFile = 0,
+    CorruptFile,
+    AlreadyProtected,
+    CannotAcquirePolicy
+  };
+
+  RMSPDFFileException(const std::string& message, Reason reason) _NOEXCEPT
+    : RMSLogicException(PFileError, message), reason_(reason) {}
+
+  RMSPDFFileException(const char *const& message, Reason reason) _NOEXCEPT
+    : RMSLogicException(PFileError, message), reason_(reason) {}
+
+  virtual ~RMSPDFFileException() _NOEXCEPT {}
 
   virtual Reason reason() const _NOEXCEPT {
     return reason_;

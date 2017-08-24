@@ -26,8 +26,6 @@ bool PDFModuleMgr::Initialize()
 PDFModuleMgrImpl::PDFModuleMgrImpl()
 {
     m_pCodecModule = CCodec_ModuleMgr::Create();
-    CFX_GEModule::Create();
-    CFX_GEModule::Get()->SetCodecModule(m_pCodecModule);
 
     CPDF_ModuleMgr::Create();
     CPDF_ModuleMgr::Get()->SetCodecModule(m_pCodecModule);
@@ -46,8 +44,6 @@ PDFModuleMgrImpl::~PDFModuleMgrImpl()
         m_pModuleMgr->Destroy();
         m_pModuleMgr = nullptr;
     }
-
-    CFX_GEModule::Destroy();
 
     if (m_pCodecModule != nullptr)
     {

@@ -50,6 +50,7 @@ private:
     FileStreamImpl* m_wrapperFileStream;
     CPDF_Parser m_pdfParser;
     IPDF_Wrapper20Creator* m_pPDFWrapper20Creator;
+    //IPDF_UnencryptedWrapperCreator* m_pPDFWrapper20Creator;
     FileStreamImpl* m_payloadFileStream;
 };
 

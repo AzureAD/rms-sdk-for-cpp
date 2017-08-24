@@ -916,13 +916,43 @@ void MainWindow::PDFFileEncrypt(const string& fileIn,
 
     auto inWrapper = make_shared<fstream>(
       wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
-    obj->SetWrapper(inWrapper);
-    obj->ProtectWithTemplate(ut, pt, outFile, self->cancelState);
+
+    bool bResult = true;
+    std::string errMsg;
+    try
+    {
+        obj->SetWrapper(inWrapper);
+        obj->ProtectWithTemplate(ut, pt, outFile, self->cancelState);
+    }
+    catch (const rmsauth::Exception& e)
+    {
+        bResult = false;
+        errMsg = e.error().c_str();
+    }
+    catch (const rmscore::exceptions::RMSException& e)
+    {
+        bResult = false;
+        errMsg = e.what();
+    }
+    catch (const rmscore::exceptions::RMSPDFFileException& e)
+    {
+        bResult = false;
+        errMsg = e.what();
+    }
+
+    if(bResult)
+    {
+        AddLog("Success: The file is protected to ", fileOut.c_str());
+    }
+    else
+    {
+        AddLog("Error: ", errMsg.c_str());
+        outFile->close();
+        remove(fileOut.c_str());
+    }
 
     inFile->close();
     outFile->close();
-
-    AddLog("Success: The file is protected to ", fileOut.c_str());
 }
 
 void MainWindow::on_encryptPDF_clicked()

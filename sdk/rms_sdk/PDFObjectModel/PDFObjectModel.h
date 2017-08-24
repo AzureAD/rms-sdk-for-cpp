@@ -37,8 +37,8 @@ public:
 
 #define  PDFWRAPPERDOC_TYPE_UNKNOWN -1	/** Unknown. */
 #define  PDFWRAPPERDOC_TYPE_NORMAL	0	/** Normal document. */
-#define  PDFWRAPPERDOC_TYPE_FOXIT	1	/** For Foxit wrapper document. */
-#define  PDFWRAPPERDOC_TYPE_PDF2	2	/** For PDF2.0 wrapper document. */
+#define  PDFWRAPPERDOC_TYPE_IRMV1	1	/** For IRM V1 wrapper document. */
+#define  PDFWRAPPERDOC_TYPE_IRMV2	2	/** For IRM V2 wrapper document. */
 
 class PDFWrapperDoc
 {

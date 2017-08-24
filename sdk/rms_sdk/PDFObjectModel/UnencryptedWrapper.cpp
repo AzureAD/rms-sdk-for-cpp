@@ -87,8 +87,8 @@ bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream outputStrea
 {
     if(!m_wrapperDoc) return false;
     FileStreamImpl outputFileStream(outputStream);
-    bool bGet = m_wrapperDoc->StartGetPayload(&outputFileStream);
-    return bGet;
+    m_wrapperDoc->StartGetPayload(&outputFileStream);
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,6 +110,7 @@ PDFUnencryptedWrapperCreatorImpl::PDFUnencryptedWrapperCreatorImpl(rmscrypto::ap
     {
         CPDF_Document* pDoc = m_pdfParser.GetDocument();
         m_pPDFWrapper20Creator = FPDF_Wrapper20Creator_Create(pDoc);
+        //m_pPDFWrapper20Creator = FPDF_UnencryptedWrapperCreator_Create(pDoc);
     }
 }
 
@@ -166,8 +167,8 @@ bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(rmscrypto::api::
 {
     if(!m_pPDFWrapper20Creator) return false;
     FileStreamImpl outputFileStream(outputStream);
-    bool bCreate = m_pPDFWrapper20Creator->Create(&outputFileStream);
-    return bCreate;
+    m_pPDFWrapper20Creator->Create(&outputFileStream);
+    return true;
 }
 
 } // namespace pdfobjectmodel

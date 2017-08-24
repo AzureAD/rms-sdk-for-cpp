@@ -261,8 +261,8 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishingLicense, uint32_t p
     if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
     {
         Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
-        throw exceptions::RMSPFileException("The file is corrupt",
-                                            exceptions::RMSPFileException::CorruptFile);
+        throw exceptions::RMSPDFFileException("The file may be corrupt or the user may have no righs.",
+                                            exceptions::RMSPDFFileException::CannotAcquirePolicy);
         return false;
     }
 
@@ -324,8 +324,9 @@ void PDFProtector::ProtectWithTemplate(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSPFileException("File is already protected",
-                                            exceptions::RMSPFileException::AlreadyProtected);
+        throw exceptions::RMSPDFFileException("File is already protected",
+                                            exceptions::RMSPDFFileException::AlreadyProtected);
+        return;
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -355,8 +356,8 @@ void PDFProtector::ProtectWithCustomRights(const UserContext& userContext,
     if (IsProtected())
     {
         Logger::Error("File is already protected");
-        throw exceptions::RMSPFileException("File is already protected",
-                                            exceptions::RMSPFileException::AlreadyProtected);
+        throw exceptions::RMSPDFFileException("File is already protected",
+                                            exceptions::RMSPDFFileException::AlreadyProtected);
     }
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
@@ -381,6 +382,7 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& userContext,
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
+        return rmscore::fileapi::UnprotectResult::FAILURE;
     }
 
     std::shared_ptr<std::iostream> inputEncryptedIO = m_inputStream;
@@ -389,6 +391,18 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& userContext,
     std::unique_ptr<PDFWrapperDoc> pdfWrapperDoc =  PDFWrapperDoc::Create(inputEncrypted);
     uint32_t wrapperType = pdfWrapperDoc->GetWrapperType();
     uint32_t payloadSize = pdfWrapperDoc->GetPayLoadSize();
+    std::wstring wsGraphicFilter;
+    float fVersion = 0;
+    pdfWrapperDoc->GetCryptographicFilter(wsGraphicFilter, fVersion);
+    if((wrapperType != PDFWRAPPERDOC_TYPE_IRMV1 && wrapperType != PDFWRAPPERDOC_TYPE_IRMV2)
+            || (payloadSize <= 0)
+            || wsGraphicFilter.compare(PDF_PROTECTOR_WRAPPER_SUBTYPE) != 0)
+    {
+        Logger::Error("It is not a valid RMS-protected file.");
+        throw exceptions::RMSPDFFileException("It is not a valid RMS-protected file.",
+                                            exceptions::RMSPDFFileException::NotValidFile);
+        return rmscore::fileapi::UnprotectResult::FAILURE;
+    }
 
     auto payloadSS = std::make_shared<std::stringstream>();
     std::shared_ptr<std::iostream> payloadIOS = payloadSS;
@@ -398,123 +412,46 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& userContext,
     std::shared_ptr<std::iostream> outputDecryptedIO = outputStream;
     auto outputDecrypted = rmscrypto::api::CreateStreamFromStdStream(outputDecryptedIO);
 
-    std::string filterName = "MicrosoftIRMServices";
+    std::string filterName = PDF_PROTECTOR_FILTER_NAME;
     PDFSecurityHandlerImpl securityHander(this, userContext, options, cancelState);
-    m_pdfCreator->UnprotectCustomEncryptedFile(
+    uint32_t result = m_pdfCreator->UnprotectCustomEncryptedFile(
                 outputPayload,
                 filterName,
                 &securityHander,
                 outputDecrypted);
-    return rmscore::fileapi::UnprotectResult::SUCCESS;
-    //end test
-    //end test
-    //end test
-
-    modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
-                modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
-                modernapi::PolicyAcquisitionOptions::POL_None;
-    auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
-    if (options.useCache)
+    if(PDFCREATOR_ERR_SUCCESS != result)
     {
-        cacheMask = static_cast<modernapi::ResponseCacheFlags>(modernapi::RESPONSE_CACHE_INMEMORY|
-                                                               modernapi::RESPONSE_CACHE_ONDISK |
-                                                               modernapi::RESPONSE_CACHE_CRYPTED);
+        Logger::Error("Failed to decrypt the file. The file may be corrupted.");
+        throw exceptions::RMSPDFFileException("Failed to decrypt the file. The file may be corrupted.",
+                                            exceptions::RMSPDFFileException::CorruptFile);
+        return rmscore::fileapi::UnprotectResult::FAILURE;
     }
-
-    //get publishing license
-    std::string plPath = "C:\\Users\\foxit-dev\\Desktop\\PL.txt";
-    auto inPLFile = std::make_shared<std::fstream>(
-      plPath, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    inPLFile->seekg(0, std::ios::end);
-    uint64_t plSize = inPLFile->tellg();
-    inPLFile->seekg(0, std::ios::beg);
-    std::vector<unsigned char> publishingLicense(plSize);
-    inPLFile->read(reinterpret_cast<char*>(&publishingLicense[0]), plSize);
-    inPLFile->close();
-
-    auto policyRequest = modernapi::UserPolicy::Acquire(publishingLicense,
-                                                        userContext.userId,
-                                                        userContext.authenticationCallback,
-                                                        &userContext.consentCallback,
-                                                        policyAcquisitionOptions,
-                                                        cacheMask,
-                                                        cancelState);
-    if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success)
-    {
-        Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
-        throw exceptions::RMSPFileException("The file is corrupt",
-                                            exceptions::RMSPFileException::CorruptFile);
-    }
-
-    m_userPolicy = policyRequest->Policy;
-    if (m_userPolicy.get() == nullptr)
-    {
-        Logger::Error("User Policy acquisition failed");
-        throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
-    }
-
-    //std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    //auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
-
-    m_inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = m_inputStream->tellg();
-
-    //just test. read content from original file.
-    uint64_t contentSize = originalFileSize;
-    char* fileContent = new char[contentSize];
-    m_inputStream->seekg(std::ios::beg);
-    m_inputStream->read(fileContent, contentSize);
-
-    auto sstream = std::make_shared<std::stringstream>();
-    sstream->write(fileContent, contentSize);
-    std::shared_ptr<std::iostream> protectedIOS = sstream;
-
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(protectedIOS);
-    auto protectedStream = CreateProtectedStream(inputSharedStream, contentSize);
-
-    std::shared_ptr<std::stringstream> outputSS = std::make_shared<std::stringstream>();
-    std::shared_ptr<std::iostream> outputIOS = outputSS;
-    auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(protectedIOS);
-
-    DecryptStream(outputSharedStream, protectedStream, originalFileSize);
-
-    outputSharedStream->Seek(std::ios::beg);
-    auto nSize = outputSharedStream->Size();
-    std::vector<uint8_t> decryptedData = outputSharedStream->Read(nSize);
-
-    char bufDestSize[4];
-    memset(bufDestSize, 0, 4 * sizeof(char));
-    bufDestSize[0] = decryptedData[3];
-    bufDestSize[1] = decryptedData[2];
-    bufDestSize[2] = decryptedData[1];
-    bufDestSize[3] = decryptedData[0];
-    uint64_t dwTotalDestSize = 0;
-    memcpy(&dwTotalDestSize, bufDestSize, 4);
-
-    outputStream->seekp(std::ios::beg);
-    outputStream->write(reinterpret_cast<const char*>(&decryptedData[0] + 4), dwTotalDestSize);
-
-    delete [] fileContent;
 
     Logger::Hidden("+PDFProtector::UnProtect");
-    return (UnprotectResult)policyRequest->Status;
+    return rmscore::fileapi::UnprotectResult::SUCCESS;
 }
 
 bool PDFProtector::IsProtected() const
 {
     Logger::Hidden("+PDFProtector::IsProtected");
-    std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
-    try
+
+    std::shared_ptr<std::iostream> inputEncryptedIO = m_inputStream;
+    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+
+    std::unique_ptr<PDFWrapperDoc> pdfWrapperDoc =  PDFWrapperDoc::Create(inputEncrypted);
+    uint32_t wrapperType = pdfWrapperDoc->GetWrapperType();
+    uint32_t payloadSize = pdfWrapperDoc->GetPayLoadSize();
+    std::wstring wsGraphicFilter;
+    float fVersion = 0;
+    pdfWrapperDoc->GetCryptographicFilter(wsGraphicFilter, fVersion);
+    if((wrapperType != PDFWRAPPERDOC_TYPE_IRMV1 && wrapperType != PDFWRAPPERDOC_TYPE_IRMV2)
+            || (payloadSize <= 0)
+            || wsGraphicFilter.compare(PDF_PROTECTOR_WRAPPER_SUBTYPE) != 0)
     {
         return false;
     }
-    catch (exceptions::RMSException&)
-    {
-      Logger::Hidden("-PDFProtector::IsProtected");
-      return false;
-    }
 
+    Logger::Hidden("The document is protected with rms.");
     Logger::Hidden("-PDFProtector::IsProtected");
     return true;
 }
@@ -535,12 +472,19 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
 
     std::string filterName = PDF_PROTECTOR_FILTER_NAME;
     PDFCryptoHandlerImpl cryptoHander(this);
-    m_pdfCreator->CreateCustomEncryptedFile(
+    uint32_t result = m_pdfCreator->CreateCustomEncryptedFile(
                 m_originalFilePath,
                 filterName,
                 publishingLicense,
                 &cryptoHander,
                 outputEncrypted);
+    if(PDFCREATOR_ERR_SUCCESS != result)
+    {
+        Logger::Error("Failed to encrypt the file. The file may be corrupted.");
+        throw exceptions::RMSPDFFileException("Failed to encrypt the file. The file may be corrupted.",
+                                            exceptions::RMSPDFFileException::CorruptFile);
+        return;
+    }
 
     if(!m_inputWrapperStream)
     {
@@ -560,53 +504,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
 
     std::shared_ptr<std::iostream> outputIO = outputStream;
     auto outputWrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-    bool bCreate = m_pdfWrapperCreator->CreateUnencryptedWrapper(outputWrapper);
-
-    return;
-    //end test
-    //end test
-    //end test
-
-    m_inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = m_inputStream->tellg();
-
-    //just test. read content from original file.
-    uint64_t contentSize = originalFileSize;
-    char* fileContent = new char[contentSize];
-    m_inputStream->seekg(std::ios::beg);
-    m_inputStream->read(fileContent, contentSize);
-
-    uint64_t contentSizeAddPre = originalFileSize + 4;
-    char* fileContentAddPre = new char[contentSizeAddPre];
-    fileContentAddPre[3] = ((char*)&originalFileSize)[0];
-    fileContentAddPre[2] = ((char*)&originalFileSize)[1];
-    fileContentAddPre[1] = ((char*)&originalFileSize)[2];
-    fileContentAddPre[0] = ((char*)&originalFileSize)[3];
-    memcpy(fileContentAddPre + 4, fileContent, originalFileSize);
-
-    //write publishing license
-    std::string plPath = "C:\\Users\\foxit-dev\\Desktop\\PL.txt";
-    auto outPLFile = std::make_shared<std::fstream>(
-      plPath, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-    outPLFile->write(reinterpret_cast<const char*>(&publishingLicense[0]), publishingLicense.size());
-    outPLFile->close();
-
-    auto sstream = std::make_shared<std::stringstream>();
-    std::shared_ptr<std::iostream> outputIOS = sstream;
-
-    auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputIOS);
-    auto protectedStream = CreateProtectedStream(outputSharedStream, contentSize);
-    EncryptStream(fileContentAddPre, contentSizeAddPre, protectedStream, true);
-
-    outputSharedStream->Seek(std::ios::beg);
-    auto nSize = outputSharedStream->Size();
-    std::vector<uint8_t> encryptedData = outputSharedStream->Read(nSize);
-
-    outputIO->seekp(std::ios::beg);
-    outputIO->write(reinterpret_cast<const char*>(&encryptedData[0]), nSize);
-
-    delete [] fileContent;
-    delete [] fileContentAddPre;
+    m_pdfWrapperCreator->CreateUnencryptedWrapper(outputWrapper);
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PDFProtector::CreateProtectedStream(
@@ -614,11 +512,11 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PDFProtector::CreateP
         uint64_t contentSize)
 {
     auto protectionPolicy = m_userPolicy->GetImpl();
-    if (protectionPolicy->GetCipherMode() == rmscrypto::api::CipherMode::CIPHER_MODE_ECB)
+    /*if (protectionPolicy->GetCipherMode() == rmscrypto::api::CipherMode::CIPHER_MODE_ECB)
     {
         // Older versions of the SDK ignored ECB cipher mode when encrypting pfile format.
         protectionPolicy->ReinitilizeCryptoProvider(rmscrypto::api::CipherMode::CIPHER_MODE_CBC4K);
-    }
+    }*/
 
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
@@ -658,30 +556,19 @@ void PDFProtector::EncryptStream(
     uint64_t totalSize = isECB? ((contentSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
                                 contentSize;
 
-    //int index = 0;
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-
-        /*uint64_t toProcess = 9;
-        if(index == 1)
-        {
-            toProcess = 10;
-        }
-        index ++;*/
         uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
-        //stdInputStream->seekg(offsetRead);
-        //stdInputStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
-        memcpy(reinterpret_cast<char *>(&buffer[0]), pBuffer + offsetRead, toProcess);
+       memcpy(reinterpret_cast<char *>(&buffer[0]), pBuffer + offsetRead, toProcess);
 
         auto written = pStream->WriteAsync(
                     buffer.data(), toProcess, offsetWrite, std::launch::deferred).get();
 
-        uint64_t size1 = pStream->Size();
         if (written != toProcess)
         {
           throw exceptions::RMSStreamException("Error while writing data");
@@ -691,7 +578,6 @@ void PDFProtector::EncryptStream(
     if(bFinish)
     {
         pStream->Flush();
-        uint64_t size2 = pStream->Size();
     }
 }
 
