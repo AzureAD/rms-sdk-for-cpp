@@ -11,7 +11,6 @@
 
 #include <vector>
 #include <stdint.h>
-#include "FrameworkSpecificTypes.h"
 #include "../Platform/Http/IUri.h"
 
 namespace rmscore {

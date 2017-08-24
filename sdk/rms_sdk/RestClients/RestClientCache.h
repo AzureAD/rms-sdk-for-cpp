@@ -10,6 +10,7 @@
 #define _RMS_LIB_RESTCLIENTCACHE_H_
 
 #include "IRestClientCache.h"
+#include "../Common/tools.h"
 #include <mutex>
 
 namespace rmscore {
@@ -78,7 +79,7 @@ private:
     bool               useHash);
 
   // parses the expiry time from the filename
-  static common::DateTime GetExpiryTimeFromFileName(
+  static std::time_t GetExpiryTimeFromFileName(
     const std::string& cacheName,
     const std::string& fileName);
 
