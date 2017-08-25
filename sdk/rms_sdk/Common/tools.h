@@ -33,7 +33,7 @@ std::string GetCurrentGmtAsString(const std::string& format);
 
 std::time_t GetTimeFromString(const std::string& dateTime, const std::string& format);
 
-uint64_t    timeToWinFileTime(const time_t &dateTime);
+uint64_t    TimeToWinFileTime(const time_t &dateTime);
 ByteArray   ConvertBase64ToBytes(const ByteArray& base64str);
 ByteArray   ConvertBytesToBase64(const ByteArray& bytes);
 ByteArray   ConvertBytesToBase64(const void  *bytes,

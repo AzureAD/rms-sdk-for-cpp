@@ -491,8 +491,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
   const size_t   cbPublishLicense,
   const string   requester)
 {
-  s_cachedProtectionPoliciesMutex.lock();
-
+  std::lock_guard<std::mutex> lock(s_cachedProtectionPoliciesMutex);
   if (pbPublishLicense == nullptr) {
     throw exceptions::RMSNullPointerException("NULL pointer exception");
   }
@@ -547,7 +546,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
 void ProtectionPolicy::AddProtectionPolicyToCache(
   shared_ptr<ProtectionPolicy>pProtectionPolicy)
 {
-  s_cachedProtectionPoliciesMutex.lock();
+  std::lock_guard<std::mutex> lock(s_cachedProtectionPoliciesMutex);
 
   if (nullptr ==
       s_pCachedProtectionPolicies) s_pCachedProtectionPolicies =

@@ -21,6 +21,11 @@ using namespace rmscore::platform::json;
 using namespace rmscore::common;
 using namespace rmscore::restclients;
 
+namespace {
+  // The current serialized time format: 2017-01-01T12:12:12Z.(precision in seconds).
+  string kDataTimeFormat = "%FT%TZ";
+} // namepspace
+
 namespace rmscore {
 namespace json {
 ByteArray JsonSerializer::SerializeUsageRestrictionsRequest(
@@ -174,9 +179,8 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
   {
 
       std::time_t validUntil = std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil);
-      struct tm t= ConvertStdTimeToGmtTm(validUntil);
-      pPolicyJson->SetNamedString("LicenseValidUntil",ConvertTmToString(t,"%FT%TZ"));
-
+      struct tm t = ConvertStdTimeToGmtTm(validUntil);
+      pPolicyJson->SetNamedString("LicenseValidUntil", ConvertTmToString(t, kDataTimeFormat));
   }
 
   // the appdata should look like this:
@@ -369,7 +373,7 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
         response.contentValidUntil += 'Z';
     }
 
-    std::time_t validUntil= GetTimeFromString(response.contentValidUntil,"%FT%TZ");
+    std::time_t validUntil= GetTimeFromString(response.contentValidUntil, kDataTimeFormat);
     response.ftContentValidUntil = std::chrono::system_clock::from_time_t(validUntil);
   }
   else
@@ -379,7 +383,7 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
 
   if (!response.licenseValidUntil.empty())
   {
-    std::time_t validUntil= GetTimeFromString(response.licenseValidUntil,"%FT%TZ");
+    std::time_t validUntil= GetTimeFromString(response.licenseValidUntil, kDataTimeFormat);
     response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(validUntil);
   }
   else

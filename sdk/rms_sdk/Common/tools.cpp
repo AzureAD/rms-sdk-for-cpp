@@ -9,7 +9,7 @@
 #include <QUuid>
 #include "tools.h"
 
-#define TIME_CONVERSION_MS_TO_100NS 10000
+#define CONVERT_SECOND_TO_100NS(sec) 10000000LL * sec
 #define MAX_TIME_STRING_BUF_SIZE 100
 using namespace std;
 
@@ -61,19 +61,20 @@ std::time_t GetTimeFromString(const std::string& dateTime, const std::string& fo
   return std::mktime(&dt);
 }
 
-uint64_t timeToWinFileTime(const time_t& dateTime) {
+uint64_t TimeToWinFileTime(const time_t& dateTime) {
   // Definition of FILETIME from MSDN:
   // Contains a 64-bit value representing the number of 100-nanosecond intervals
   // since January 1, 1601 (UTC).
-  struct tm origin;
+  struct tm origin = {0};
   uint64_t seconds;
-  origin.tm_hour = 0;   origin.tm_min = 0; origin.tm_sec = 0;
-  origin.tm_year = 1601; origin.tm_mon = 1; origin.tm_mday = 1;
-  seconds = difftime(dateTime,mktime(&origin));
+  origin.tm_year = 1601;
+  origin.tm_mon = 1;
+  origin.tm_mday = 1;
+  seconds = difftime(dateTime, mktime(&origin));
 
   // Get offset - note we need 100-nanosecond intervals, hence we multiply by
   // 10000.
-  return TIME_CONVERSION_MS_TO_100NS *TIME_CONVERSION_MS_TO_100NS* seconds;
+  return CONVERT_SECOND_TO_100NS(seconds);
 }
 
 ByteArray ConvertBase64ToBytes(const ByteArray& base64str) {
