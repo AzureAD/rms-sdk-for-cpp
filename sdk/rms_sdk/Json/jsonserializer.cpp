@@ -24,7 +24,7 @@ using namespace rmscore::restclients;
 namespace {
   // The current serialized time format: 2017-01-01T12:12:12Z.(precision in seconds).
   string kDataTimeFormat = "%FT%TZ";
-} // namepspace
+} // namespace
 
 namespace rmscore {
 namespace json {
