@@ -25,18 +25,18 @@ CONFIG(debug, debug|release) {
 }
 
 HEADERS += \
-    DataSpaces.h \
-    IDataSpaces.h \
-    MetroOfficeProtector.h \
-    MsoOfficeProtector.h \
-    StreamConstants.h \
-    OfficeUtils.h
+    data_spaces.h \
+    idata_spaces.h \
+    metro_office_protector.h \
+    mso_office_protector.h \
+    office_utils.h \
+    stream_constants.h
 
 SOURCES += \
-    DataSpaces.cpp \
-    MetroOfficeProtector.cpp \
-    MsoOfficeProtector.cpp \
-    OfficeUtils.cpp
+    data_spaces.cpp \
+    metro_office_protector.cpp \
+    mso_office_protector.cpp \
+    office_utils.cpp
 
 unix {
     CONFIG += link_pkgconfig

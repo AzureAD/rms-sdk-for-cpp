@@ -18,17 +18,12 @@ using namespace rmscore::common;
 namespace rmscore {
 namespace officeprotector {
 
-class IDataSpaces
-{
+class IDataSpaces {
 public:
-    virtual ~IDataSpaces() {}
-
-    virtual void WriteDataSpaces(GsfOutfile* stg,
-                                 const ByteArray& publishingLicense) = 0;
-    virtual void ReadDataSpaces(GsfInfile* stg,
-                                ByteArray& publishingLicense) = 0;
-
-    static std::shared_ptr<IDataSpaces> Create(bool isMetro);
+  virtual ~IDataSpaces() {}
+  virtual void WriteDataSpaces(GsfOutfile* stg, const ByteArray& publishingLicense) = 0;
+  virtual void ReadDataSpaces(GsfInfile* stg, ByteArray& publishingLicense) = 0;
+  static std::shared_ptr<IDataSpaces> Create(bool isMetro);
 };
 
 } // namespace officeprotector

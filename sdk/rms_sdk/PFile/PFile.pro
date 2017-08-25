@@ -22,13 +22,13 @@ CONFIG(debug, debug|release) {
 SOURCES +=  PfileHeader.cpp \
             PfileHeaderReader.cpp \
             PfileHeaderWriter.cpp \
-            PFileProtector.cpp \
-            Utils.cpp
+    utils.cpp \
+    pfile_protector.cpp
 
 HEADERS +=  IPfileHeaderReader.h \
             IPfileHeaderWriter.h \
             PfileHeader.h \
             PfileHeaderReader.h \
             PfileHeaderWriter.h \
-            PFileProtector.h \
-            Utils.h
+    utils.h \
+    pfile_protector.h

@@ -41,13 +41,13 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -
 else:LIBS  += -lssl -lcrypto
 
 HEADERS += \
-    Protector.h \
-    FileAPIStructures.h \
-    ProtectorSelector.h
+    protector.h \
+    file_api_structures.h \
+    protector_selector.h
 
 SOURCES += \
-    Protector.cpp \
-    ProtectorSelector.cpp
+    protector.cpp \
+    protector_selector.cpp
 
 unix {
     contains(QMAKE_HOST.arch, x86_64) {

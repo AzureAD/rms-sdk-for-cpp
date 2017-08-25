@@ -10,7 +10,7 @@
 #define RMS_SDK_FILE_API_PROTECTOR_H
 
 #include <string>
-#include "FileAPIStructures.h"
+#include "file_api_structures.h"
 #include "ModernAPIExport.h"
 
 namespace rmscore {

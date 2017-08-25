@@ -6,12 +6,12 @@
  * ======================================================================
 */
 
-#include "Protector.h"
+#include "protector.h"
 #include <fstream>
-#include "MetroOfficeProtector.h"
-#include "MsoOfficeProtector.h"
-#include "PFileProtector.h"
-#include "ProtectorSelector.h"
+#include "metro_office_protector.h"
+#include "mso_office_protector.h"
+#include "pfile_protector.h"
+#include "protector_selector.h"
 #include "RMSExceptions.h"
 #include "UserPolicy.h"
 #include "../Platform/Logger/Logger.h"

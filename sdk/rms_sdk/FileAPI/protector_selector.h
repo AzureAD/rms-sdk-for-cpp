@@ -31,7 +31,7 @@ public:
 
     ProtectorType GetProtectorType();
 
-    std::string GetFileExtension();
+    std::string GetCurrentFileExtension();
 
     std::string GetOutputFileName();
 
@@ -42,7 +42,7 @@ private:
 
     void Compute(const std::string& fileName);
 
-    std::string m_fileExtension;
+    std::string m_currentFileExtension;
     std::string m_newFileName;
     ProtectorType m_pType;
 };

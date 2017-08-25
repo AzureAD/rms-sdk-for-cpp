@@ -6,7 +6,7 @@
  * ======================================================================
 */
 
-#include "ProtectorSelector.h"
+#include "protector_selector.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -19,8 +19,7 @@ namespace rmscore {
 namespace fileapi {
 
 ProtectorSelector::ProtectorSelector(const std::string& fileName)
-    : m_fileExtension(".pfile"),
-      m_pType(ProtectorType::PFILE)
+    : m_pType(ProtectorType::PFILE)
 {
     Compute(fileName);
 }
@@ -30,9 +29,9 @@ ProtectorType ProtectorSelector::GetProtectorType()
     return m_pType;
 }
 
-std::string ProtectorSelector::GetFileExtension()
+std::string ProtectorSelector::GetCurrentFileExtension()
 {
-    return m_fileExtension;
+    return m_currentFileExtension;
 }
 
 std::string ProtectorSelector::GetOutputFileName()
@@ -57,7 +56,8 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
         {".jpe", ProtectorType::PSTAR},{".jfif", ProtectorType::PSTAR},{".jif", ProtectorType::PSTAR},
         {".pdf", ProtectorType::PSTAR}, {".doc", ProtectorType::MSO},{".dot", ProtectorType::MSO},
         {".xla", ProtectorType::MSO},{".xls", ProtectorType::MSO},{".xlt", ProtectorType::MSO},
-        {".pps", ProtectorType::MSO},{".ppt", ProtectorType::MSO},{".pot", ProtectorType::MSO}};
+        {".pps", ProtectorType::MSO},{".ppt", ProtectorType::MSO},{".pot", ProtectorType::MSO},
+        {".pfile", ProtectorType::PFILE}};
 
     return protectorExtensionsMap;
 }
@@ -85,25 +85,18 @@ void ProtectorSelector::Compute(const std::string& fileName)
 
     std::string ext = fileName.substr(pos);
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-    if (ext == ".pfile")
-    {
-        m_newFileName = fileName.substr(0, pos);
-        return;
-    }
+    m_currentFileExtension = ext;
 
-    ProtectorType pType = ProtectorType::PFILE;
-    auto protectorExtensionsMap = GetProtectorExtensionsMap();
-
-    if(protectorExtensionsMap.find(ext) != protectorExtensionsMap.end())  //Key present
+    auto& protectorExtensionsMap = GetProtectorExtensionsMap();
+    auto it = protectorExtensionsMap.find(ext);
+    if (it != protectorExtensionsMap.end())  //Key present
     {
-        pType = protectorExtensionsMap[ext];
+        m_pType = it->second;
     }
 
     if (pType != ProtectorType::PFILE && pType != ProtectorType::PSTAR)   //Native protector
     {
-        m_pType = pType;
         m_newFileName = fileName;
-        m_fileExtension = ext;
         return;
     }
 
@@ -118,7 +111,7 @@ void ProtectorSelector::Compute(const std::string& fileName)
     else if (ppos != std::string::npos) // Possible PStar extension unprotection
     {
         auto extension = "." + ext.substr(ppos + 1);
-        if(protectorExtensionsMap.find(extension) != protectorExtensionsMap.end() &&
+        if (protectorExtensionsMap.find(extension) != protectorExtensionsMap.end() &&
                 protectorExtensionsMap[extension] == ProtectorType::PSTAR)
         {
             m_pType = ProtectorType::PSTAR;
