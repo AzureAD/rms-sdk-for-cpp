@@ -10,6 +10,9 @@
 #define RMS_SDK_OFFICE_PROTECTOR_DATASPACES_H
 
 #include "IDataSpaces.h"
+#include <memory>
+#include <string>
+#include <gsf/gsf.h>
 #include "../Common/CommonTypes.h"
 
 using namespace rmscore::common;
@@ -17,6 +20,9 @@ using namespace rmscore::common;
 namespace rmscore {
 namespace officeprotector {
 
+/* DataSpaces contains the transform process. It contains the version, license etc
+ * For more information, go to https://msdn.microsoft.com/en-us/library/aa767782(v=vs.85).aspx
+ */
 class DataSpaces : public IDataSpaces
 {
 public:

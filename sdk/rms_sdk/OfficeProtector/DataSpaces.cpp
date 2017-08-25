@@ -10,7 +10,7 @@
 #include <algorithm>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Logger/Logger.h"
-#include "Utils.h"
+#include "OfficeUtils.h"
 
 using namespace rmscore::common;
 using namespace rmscore::platform::logger;
@@ -189,7 +189,7 @@ void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content)
     uint16_t writerMajor  = 1;
     uint16_t writerMinor  = 0;
 
-    WriteWideStringEntry(stm, content);
+    officeutils::WriteWideStringEntry(stm, content);
     gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&readerMajor));
     gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&readerMinor));
     gsf_output_write(stm, sizeof(uint16_t), reinterpret_cast<const uint8_t*>(&updaterMajor));
@@ -220,7 +220,7 @@ void DataSpaces::ReadAndVerifyVersion(GsfInput* stm,
     uint16_t writerMajorRead  = 0;
     uint16_t writerMinorRead  = 0;
 
-    ReadWideStringEntry(stm, contentRead);
+    officeutils::ReadWideStringEntry(stm, contentRead);
     gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&readerMajorRead));
     gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&readerMinorRead));
     gsf_input_read(stm, sizeof(uint16_t), reinterpret_cast<uint8_t*>(&updaterMajorRead));
@@ -258,17 +258,17 @@ void DataSpaces::WriteDataSpaceMap(GsfOutput *stm)
                      reinterpret_cast<const uint8_t*>(&dsmh.entryCount));
 
     dsmeh.entryLen = sizeof(dsmeh) + sizeof(uint32_t) +
-                        (m_isMetro ? FourByteAlignedWideStringLength(metroContent) +
-                                     FourByteAlignedWideStringLength(metroDataSpace)
-                                   : FourByteAlignedWideStringLength(drmContent) +
-                                     FourByteAlignedWideStringLength(drmDataSpace));
+                        (m_isMetro ? officeutils::FourByteAlignedWideStringLength(metroContent) +
+                                     officeutils::FourByteAlignedWideStringLength(metroDataSpace)
+                                   : officeutils::FourByteAlignedWideStringLength(drmContent) +
+                                     officeutils::FourByteAlignedWideStringLength(drmDataSpace));
     dsmeh.componentCount = 1;
 
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dsmeh.entryLen));
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dsmeh.componentCount));
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&refVar));
-    WriteWideStringEntry(stm, m_isMetro ? metroContent : drmContent);
-    WriteWideStringEntry(stm, m_isMetro ? metroDataSpace : drmDataSpace);
+    officeutils::WriteWideStringEntry(stm, m_isMetro ? metroContent : drmContent);
+    officeutils::WriteWideStringEntry(stm, m_isMetro ? metroDataSpace : drmDataSpace);
 }
 
 void DataSpaces::WriteDrmDataSpace(GsfOutput* stm)
@@ -286,7 +286,7 @@ void DataSpaces::WriteDrmDataSpace(GsfOutput* stm)
 
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dth.headerLen));
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dth.txCount));
-    WriteWideStringEntry(stm, m_isMetro ? metroTransform : drmTransform);
+    officeutils::WriteWideStringEntry(stm, m_isMetro ? metroTransform : drmTransform);
 }
 
 void DataSpaces::WriteTxInfo(GsfOutput *stm,
@@ -301,12 +301,12 @@ void DataSpaces::WriteTxInfo(GsfOutput *stm,
     }
 
     DRMTransformInfo dti;
-    dti.headerLen = sizeof(dti) + FourByteAlignedWideStringLength(txClassName);
+    dti.headerLen = sizeof(dti) + officeutils::FourByteAlignedWideStringLength(txClassName);
     dti.txClassType = 1;
 
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dti.headerLen));
     gsf_output_write(stm, sizeof(uint32_t), reinterpret_cast<const uint8_t*>(&dti.txClassType));
-    WriteWideStringEntry(stm, txClassName);
+    officeutils::WriteWideStringEntry(stm, txClassName);
     WriteVersion(stm, featureName);
 }
 
@@ -322,7 +322,8 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
     }
 
     DRMTransformInfo dtiExpected;
-    dtiExpected.headerLen = sizeof(dtiExpected) + FourByteAlignedWideStringLength(txClassNameExpected);
+    dtiExpected.headerLen = sizeof(dtiExpected) +
+            officeutils::FourByteAlignedWideStringLength(txClassNameExpected);
     dtiExpected.txClassType = 1;
 
     DRMTransformInfo dtiRead;
@@ -338,7 +339,7 @@ void DataSpaces::ReadTxInfo(GsfInput* stm,
     }
 
     std::string txClassNameRead;
-    ReadWideStringEntry(stm, txClassNameRead);
+    officeutils::ReadWideStringEntry(stm, txClassNameRead);
     if (txClassNameRead.compare(txClassNameExpected) != 0)
     {
         Logger::Error("Transform Class mismatch", txClassNameRead);
@@ -367,13 +368,13 @@ void DataSpaces::WritePrimary(GsfOutput* stm,
     {
         std::u16string pl_utf16(reinterpret_cast<const char16_t*>(publishingLicense.data()),
                                 (publishingLicense.size()+1)/2);
-        auto pl_utf8 = utf16_to_utf8(pl_utf16);
+        auto pl_utf8 = officeutils::utf16_to_utf8(pl_utf16);
         uint32_t publishingLicenseLen = pl_utf8.length();
         gsf_output_write(stm, sizeof(uint32_t),
                          reinterpret_cast<const uint8_t*>(&publishingLicenseLen));
         gsf_output_write(stm, publishingLicenseLen,
                          reinterpret_cast<const uint8_t*>(pl_utf8.data()));
-        AlignOutputAtFourBytes(stm, publishingLicenseLen);
+        officeutils::AlignOutputAtFourBytes(stm, publishingLicenseLen);
     }
 }
 
@@ -403,12 +404,12 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense)
         std::vector<uint8_t> pl(publishingLicenseLen);
         gsf_input_read(stm, publishingLicenseLen, &pl[0]);
         std::string pl_utf8((char*)pl.data(), pl.size());
-        auto pl_utf16 = utf8_to_utf16(pl_utf8);
+        auto pl_utf16 = officeutils::utf8_to_utf16(pl_utf8);
         publishingLicense.clear();
         publishingLicense.assign(reinterpret_cast<const unsigned char*>(pl_utf16.data()),
                                  reinterpret_cast<const unsigned char*>(pl_utf16.data()) +
                                  pl_utf16.size() * 2);
-        AlignInputAtFourBytes(stm, publishingLicenseLen);
+        officeutils::AlignInputAtFourBytes(stm, publishingLicenseLen);
     }
 }
 

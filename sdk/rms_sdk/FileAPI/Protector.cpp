@@ -17,6 +17,8 @@
 #include "../Platform/Logger/Logger.h"
 
 using namespace rmscore::platform::logger;
+using namespace rmscore::pfile;
+using namespace rmscore::officeprotector;
 
 namespace rmscore {
 namespace fileapi {
@@ -53,8 +55,8 @@ std::unique_ptr<Protector> Protector::Create(const std::string& fileName,
         case ProtectorType::PSTAR:
         {
             std::unique_ptr<Protector> protector(new PFileProtector(
-                                                      protectorSelector.GetFileExtension(),
-                                                      inputStream));
+                                                     protectorSelector.GetCurrentFileExtension(),
+                                                     inputStream));
             return protector;
         }        
 

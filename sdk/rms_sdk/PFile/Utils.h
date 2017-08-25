@@ -6,18 +6,19 @@
  * ======================================================================
  */
 
-#ifndef RMS_SDK_FILEAPI_OFFICEUTILS_H
-#define RMS_SDK_FILEAPI_OFFICEUTILS_H
+#ifndef RMS_SDK_PFILE_OFFICEUTILS_H
+#define RMS_SDK_PFILE_OFFICEUTILS_H
 
 #include <cstdio>
+#include <iostream>
 #include <string>
 #include "FileAPIStructures.h"
 #include "UserPolicy.h"
-#include <gsf/gsf.h>
 
 namespace rmscore {
-namespace fileapi {
+namespace utils {
 
+using namespace rmscore::fileapi;
 // 1 GB is the max size of a file we can encrypt
 static const uint64_t MAX_FILE_SIZE_FOR_ENCRYPT = 1ul << 30;
 // 3 GB is the max size of a file we can decrypt
@@ -25,23 +26,55 @@ static const uint64_t MAX_FILE_SIZE_FOR_DECRYPT = 3ul << 30;
 static const uint64_t BUF_SIZE_BYTES = 4096;
 typedef std::string tempFileName;
 
-void WriteStreamHeader(GsfOutput* stm, const uint64_t& contentLength);
-
-void ReadStreamHeader(GsfInput* stm, uint64_t& contentLength);
-
+/*!
+ * \brief Uses 'cryptoOptions' and 'allowAuditedExtraction' params to create enum value
+ * \param allowAuditedExtraction
+ * \param cryptoOptions
+ * \return
+ */
 modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
         const bool& allowAuditedExtraction,
         CryptoOptions cryptoOptions);
 
+/*!
+ * \brief Opens file with 'filename' and copies the contents as binary to 'stream'
+ * \param fileName
+ * \param stream
+ */
 void CopyFromFileToOstream(std::string fileName, std::ostream* stream);
 
+/*!
+ * \brief Creates a file with name 'tempFileName' and copies contents from 'stream' as binary.
+ * \param stream
+ * \param tempFileName
+ * \param inputFileSize The size of the stream pointed to by 'stream'
+ */
 void CopyFromIstreamToFile(std::istream *stream, const std::string& tempFileName,
                            uint64_t inputFileSize);
 
+/*!
+ * \brief Creates a name for a temporary file by concatenating 'filename' with a random number
+ * \param fileName
+ * \return
+ */
 std::string CreateTemporaryFileName(const std::string& fileName);
 
+/*!
+ * \brief Calculates the size of the stream pointed to by 'stream' and throws if it is more than
+ *        'maxFileSize'
+ * \param stream
+ * \param maxFileSize
+ * \return
+ */
 uint64_t ValidateAndGetFileSize(std::istream* stream, uint64_t maxFileSize);
 
+/*!
+ * \brief Calculates the size of the stream pointed to by 'file' and throws if it is more than
+ *        'maxFileSize'
+ * \param stream
+ * \param maxFileSize
+ * \return
+ */
 uint64_t ValidateAndGetFileSize(FILE* file, uint64_t maxFileSize);
 
 struct FILE_deleter
@@ -60,7 +93,7 @@ struct tempFile_deleter
     }
 };
 
-} // namespace fileapi
+} // namespace utils
 } // namespace rmscore
 
-#endif // RMS_SDK_FILEAPI_OFFICEUTILS_H
+#endif // RMS_SDK_PFILE_OFFICEUTILS_H

@@ -6,7 +6,7 @@
  * ======================================================================
  */
 
-#include "OfficeUtils.h"
+#include "Utils.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -21,31 +21,7 @@ using namespace rmscore::platform::logger;
 using namespace rmscore::common;
 
 namespace rmscore {
-namespace fileapi {
-
-void WriteStreamHeader(GsfOutput* stm, const uint64_t& contentLength)
-{
-    if ( stm == nullptr)
-    {
-        Logger::Error("Invalid arguments provided for writing stream header");
-        throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::StreamError,
-                                            "Error in writing to stream");
-    }
-    gsf_output_seek(stm, 0, G_SEEK_SET);
-    gsf_output_write(stm, sizeof(uint64_t), reinterpret_cast<const uint8_t*>(&contentLength));
-}
-
-void ReadStreamHeader(GsfInput* stm, uint64_t& contentLength)
-{
-    if ( stm == nullptr)
-    {
-        Logger::Error("Invalid arguments provided for reading stream header");
-        throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::StreamError,
-                                            "Error in reading from stream");
-    }
-    gsf_input_seek(stm, 0, G_SEEK_SET);
-    gsf_input_read(stm, sizeof(uint64_t), reinterpret_cast<uint8_t*>(&contentLength));
-}
+namespace utils {
 
 modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
         const bool& allowAuditedExtraction,
@@ -151,5 +127,5 @@ uint64_t ValidateAndGetFileSize(FILE* file, uint64_t maxFileSize)
     return fileSize;
 }
 
-} // namespace fileapi
+} // namespace utils
 } // namespace rmscore

@@ -17,10 +17,13 @@
 #include "BlockBasedProtectedStream.h"
 #include "FileAPIStructures.h"
 #include "UserPolicy.h"
+#include "../PFile/Utils.h"
 #include <gsf/gsf.h>
 
+using namespace rmscore::fileapi;
+
 namespace rmscore {
-namespace fileapi {
+namespace officeprotector {
 
 class MsoOfficeProtector : public Protector
 {
@@ -88,6 +91,6 @@ private:
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 };
 
-} // namespace fileapi
+} // namespace officeprotector
 } // namespace rmscore
 #endif // RMS_SDK_FILE_API_MSOOFFICEPROTECTOR_H

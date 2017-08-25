@@ -6,17 +6,22 @@
  * ======================================================================
 */
 
-#ifndef RMS_SDK_FILE_API_PFILEPROTECTOR_H
-#define RMS_SDK_FILE_API_PFILEPROTECTOR_H
+#ifndef RMS_SDK_PFILE_PFILEPROTECTOR_H
+#define RMS_SDK_PFILE_PFILEPROTECTOR_H
 
-#include "Protector.h"
+#include <iostream>
+#include <memory>
+#include <string>
 #include "BlockBasedProtectedStream.h"
 #include "FileAPIStructures.h"
+#include "Protector.h"
 #include "UserPolicy.h"
 #include "PfileHeader.h"
 
+using namespace rmscore::fileapi;
+
 namespace rmscore {
-namespace fileapi {
+namespace pfile {
 
 class PFileProtector : public Protector
 {
@@ -64,18 +69,14 @@ private:
     std::shared_ptr<rmscore::pfile::PfileHeader> ReadHeader(
             const rmscrypto::api::SharedStream& stream) const;
 
-    modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
-            const bool& allowAuditedExtraction,
-            CryptoOptions cryptoOptions);
-
     std::string m_originalFileExtension;
     std::shared_ptr<std::istream> m_inputStream;
     uint32_t m_blockSize;
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 };
 
-} // namespace fileapi
+} // namespace pfile
 } // namespace rmscore
 
-#endif // RMS_SDK_FILE_API_PFILEPROTECTOR_H
+#endif // RMS_SDK_PFILE_PFILEPROTECTOR_H
 

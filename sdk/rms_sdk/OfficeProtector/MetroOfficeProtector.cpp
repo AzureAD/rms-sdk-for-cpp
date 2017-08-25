@@ -17,7 +17,7 @@
 #include "CryptoAPI.h"
 #include "RMSExceptions.h"
 #include "OfficeUtils.h"
-#include "../OfficeProtector/DataSpaces.h"
+#include "DataSpaces.h"
 #include "../Common/CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../Platform/Logger/Logger.h"
@@ -32,7 +32,7 @@ const char metroContent[]        = "EncryptedPackage";
 } // namespace
 
 namespace rmscore {
-namespace fileapi {
+namespace officeprotector {
 
 MetroOfficeProtector::MetroOfficeProtector(std::string fileName,
                                            std::shared_ptr<std::istream> inputStream)
@@ -66,8 +66,9 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+    auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
                                                                        userContext.userId,
@@ -75,13 +76,13 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        userPolicyCreationOptions,
                                                                        options.signedAppData,
                                                                        cancelState);
-    std::string outputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
+    std::string outputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> outputTempFile(&outputTempFileName);
     try
     {
         //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
         ProtectInternal(outputTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileName, outputStream.get());
+        utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -111,8 +112,9 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+    auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
                 const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
@@ -120,13 +122,13 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
                 userContext.authenticationCallback,
                 userPolicyCreationOptions,
                 cancelState);
-    std::string outputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
+    std::string outputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> outputTempFile(&outputTempFileName);
     try
     {
         //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
         ProtectInternal(outputTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileName, outputStream.get());
+        utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -148,10 +150,11 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_DECRYPT);
     auto result = UnprotectResult::NORIGHTS;
-    std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
+    std::string inputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> inputTempFile(&inputTempFileName);
     try
     {
         result = UnprotectInternal(userContext, options, outputStream, inputTempFileName,
@@ -173,7 +176,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
                                                         uint64_t inputFileSize,
                                                         std::shared_ptr<std::atomic<bool>> cancelState)
 {
-    CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
+    utils::CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
     std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg;
     try
     {
@@ -240,7 +243,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     }
 
     std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> metroStream(
-                gsf_infile_child_by_name(stg.get(), metroContent));   
+                gsf_infile_child_by_name(stg.get(), metroContent));
     if (metroStream == nullptr)
     {
         Logger::Error("Stream containing encrypted data not present");
@@ -250,7 +253,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
     }
 
     uint64_t originalFileSize = 0;
-    ReadStreamHeader(metroStream.get(), originalFileSize);
+    officeutils::ReadStreamHeader(metroStream.get(), originalFileSize);
     DecryptStream(outputStream, metroStream.get(), originalFileSize);
     return (UnprotectResult)policyRequest->Status;
 }
@@ -258,7 +261,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(const UserContext& userC
 bool MetroOfficeProtector::IsProtectedInternal(std::string inputTempFileName,
                                                uint64_t inputFileSize) const
 {
-    CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
+    utils::CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
     try
     {
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
@@ -289,9 +292,10 @@ bool MetroOfficeProtector::IsProtectedInternal(std::string inputTempFileName,
 bool MetroOfficeProtector::IsProtected() const
 {
     Logger::Hidden("+MetroOfficeProtector::IsProtected");
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
-    std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_DECRYPT);
+    std::string inputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> inputTempFile(&inputTempFileName);
     bool isProtected = IsProtectedInternal(inputTempFileName, inputFileSize);
     Logger::Hidden("-MetroOfficeProtector::IsProtected");
     return isProtected;
@@ -320,8 +324,8 @@ void MetroOfficeProtector::ProtectInternal(std::string outputTempFileName,
     }
 
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> metroStream(
-                gsf_outfile_new_child(stg.get(), metroContent, false));    
-    WriteStreamHeader(metroStream.get(), originalFileSize);
+                gsf_outfile_new_child(stg.get(), metroContent, false));
+    officeutils::WriteStreamHeader(metroStream.get(), originalFileSize);
 
     EncryptStream(metroStream.get(), originalFileSize);
 }
@@ -345,7 +349,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
+    std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
     uint64_t totalSize = isECB? ((inputFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
@@ -353,7 +357,7 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
-        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
         readPosition  += toProcess;
 
         auto sstream = std::make_shared<std::stringstream>();
@@ -383,7 +387,7 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
+    std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = (uint64_t)gsf_input_size(metroStream) - sizeof(uint64_t);
@@ -391,8 +395,8 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(BUF_SIZE_BYTES, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(utils::BUF_SIZE_BYTES, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -414,5 +418,5 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::ostream>& st
     stdStream->flush();
 }
 
-} // namespace fileapi
+} // namespace officeprotector
 } // namespace rmscore

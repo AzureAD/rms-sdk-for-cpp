@@ -12,6 +12,8 @@ QT       += core
 QT 	     -= gui
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/FileAPI
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgthread-2.0-0 -llibiconv-2 -llibintl-8 -lliblzma-5 -llibpcre-1
@@ -24,12 +26,17 @@ CONFIG(debug, debug|release) {
 
 HEADERS += \
     DataSpaces.h \
-    Utils.h \
-    IDataSpaces.h
+    IDataSpaces.h \
+    MetroOfficeProtector.h \
+    MsoOfficeProtector.h \
+    StreamConstants.h \
+    OfficeUtils.h
 
 SOURCES += \
     DataSpaces.cpp \
-    Utils.cpp
+    MetroOfficeProtector.cpp \
+    MsoOfficeProtector.cpp \
+    OfficeUtils.cpp
 
 unix {
     CONFIG += link_pkgconfig

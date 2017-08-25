@@ -13,10 +13,10 @@ QMAKE_CFLAGS_WARN_ON += -W4
 QT       += core xml xmlpatterns widgets network
 QT 	     -= gui
 
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Pole
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/OfficeProtector
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 
 LIBS        += -L$$REPO_ROOT/bin/ -L$$REPO_ROOT/bin/rms/ -L$$REPO_ROOT/bin/rms/platform/
@@ -41,22 +41,13 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -
 else:LIBS  += -lssl -lcrypto
 
 HEADERS += \
-    MetroOfficeProtector.h \
-    PFileProtector.h \
     Protector.h \
     FileAPIStructures.h \
-    ProtectorSelector.h \
-    MsoOfficeProtector.h \
-    OfficeUtils.h \
-    TemplateConstants.h
+    ProtectorSelector.h
 
 SOURCES += \
     Protector.cpp \
-    PFileProtector.cpp \
-    MetroOfficeProtector.cpp \
-    ProtectorSelector.cpp \
-    MsoOfficeProtector.cpp \
-    OfficeUtils.cpp
+    ProtectorSelector.cpp
 
 unix {
     contains(QMAKE_HOST.arch, x86_64) {

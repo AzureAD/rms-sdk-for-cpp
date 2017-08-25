@@ -9,8 +9,9 @@
 #ifndef RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 #define RMS_SDK_OFFICE_PROTECTOR_IDATASPACES_H
 
-#include "../Common/CommonTypes.h"
+#include <memory>
 #include <gsf/gsf.h>
+#include "../Common/CommonTypes.h"
 
 using namespace rmscore::common;
 

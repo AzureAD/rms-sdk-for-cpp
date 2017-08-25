@@ -16,7 +16,7 @@
 #include "PfileHeader.h"
 #include "PfileHeaderReader.h"
 #include "PfileHeaderWriter.h"
-#include "OfficeUtils.h"
+#include "Utils.h"
 #include "../Common//CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../Platform/Logger/Logger.h"
@@ -24,7 +24,7 @@
 using namespace rmscore::platform::logger;
 
 namespace rmscore {
-namespace fileapi {
+namespace pfile {
 
 PFileProtector::PFileProtector(const std::string& originalFileExtension,
                                std::shared_ptr<std::istream> inputStream)
@@ -57,8 +57,9 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
                     exceptions::RMSPFileException::Reason::AlreadyProtected);
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+    auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
                                                                        userContext.userId,
@@ -90,8 +91,9 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
                     exceptions::RMSPFileException::Reason::AlreadyProtected);
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+    auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
                 const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
@@ -115,7 +117,7 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
+    utils::ValidateAndGetFileSize(m_inputStream.get(), utils::MAX_FILE_SIZE_FOR_ENCRYPT);
     auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(m_inputStream);
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
     try
@@ -232,7 +234,7 @@ void PFileProtector::EncryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t inputFileSize)
 {
-    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
+    std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
@@ -242,7 +244,7 @@ void PFileProtector::EncryptStream(
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -256,7 +258,7 @@ void PFileProtector::EncryptStream(
         {
           throw exceptions::RMSStreamException("Error while writing data");
         }
-    }    
+    }
     pStream->Flush();
 }
 
@@ -265,7 +267,7 @@ void PFileProtector::DecryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {
-    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
+    std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = pStream->Size();
@@ -273,8 +275,8 @@ void PFileProtector::DecryptStream(
     {
         uint64_t offsetRead  = readPosition;
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(BUF_SIZE_BYTES, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(utils::BUF_SIZE_BYTES, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -334,21 +336,5 @@ std::shared_ptr<pfile::PfileHeader> PFileProtector::ReadHeader(
     return header;
 }
 
-modernapi::UserPolicyCreationOptions PFileProtector::ConvertToUserPolicyCreationOptions(
-        const bool& allowAuditedExtraction,
-        CryptoOptions cryptoOptions)
-{
-    auto userPolicyCreationOptions = allowAuditedExtraction ?
-                modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
-                modernapi::UserPolicyCreationOptions::USER_None;
-    if (cryptoOptions == CryptoOptions::AES128_ECB )
-    {
-        userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(
-                    userPolicyCreationOptions |
-                    modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
-    }
-    return userPolicyCreationOptions;
-}
-
-} // namespace fileapi
+} // namespace pfile
 } // namespace rmscore

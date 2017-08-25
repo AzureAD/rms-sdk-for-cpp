@@ -17,7 +17,7 @@
 #include "CryptoAPI.h"
 #include "RMSExceptions.h"
 #include "OfficeUtils.h"
-#include "TemplateConstants.h"
+#include "StreamConstants.h"
 #include "../OfficeProtector/DataSpaces.h"
 #include "../Common/CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
@@ -33,7 +33,7 @@ const char drmContent[] = "\11DRMContent";
 } // namespace
 
 namespace rmscore {
-namespace fileapi {
+namespace officeprotector {
 
 MsoOfficeProtector::MsoOfficeProtector(const std::string& fileName,
                                        std::shared_ptr<std::istream> inputStream)
@@ -67,8 +67,9 @@ void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+    auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
                                                                        userContext.userId,
@@ -76,17 +77,17 @@ void MsoOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        userPolicyCreationOptions,
                                                                        options.signedAppData,
                                                                        cancelState);
-    std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::string outputTempFileName = CreateTemporaryFileName("output");
-    std::string drmTempFileName = CreateTemporaryFileName("drm");
-    std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> drmTempFile(&drmTempFileName);
+    std::string inputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::string outputTempFileName = utils::CreateTemporaryFileName("output");
+    std::string drmTempFileName = utils::CreateTemporaryFileName("drm");
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> inputTempFile(&inputTempFileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> outputTempFile(&outputTempFileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> drmTempFile(&drmTempFileName);
     try
     {
         //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
         ProtectInternal(inputTempFileName, outputTempFileName, drmTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileName, outputStream.get());
+        utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -116,8 +117,9 @@ void MsoOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
                     exceptions::RMSOfficeFileException::Reason::AlreadyProtected);
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-    auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+    auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
     m_userPolicy = modernapi::UserPolicy::Create(
                 const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
@@ -126,17 +128,17 @@ void MsoOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
                 userPolicyCreationOptions,
                 cancelState);
 
-    std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::string outputTempFileName = CreateTemporaryFileName("output");
-    std::string drmTempFileName = CreateTemporaryFileName("drm");
-    std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> drmTempFile(&drmTempFileName);
+    std::string inputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::string outputTempFileName = utils::CreateTemporaryFileName("output");
+    std::string drmTempFileName = utils::CreateTemporaryFileName("drm");
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> inputTempFile(&inputTempFileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> outputTempFile(&outputTempFileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> drmTempFile(&drmTempFileName);
     try
     {
         //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
         ProtectInternal(inputTempFileName, outputTempFileName, drmTempFileName, inputFileSize);
-        CopyFromFileToOstream(outputTempFileName, outputStream.get());
+        utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
     }
     catch (std::exception&)
     {
@@ -158,20 +160,21 @@ UnprotectResult MsoOfficeProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_DECRYPT);
     auto result = UnprotectResult::NORIGHTS;
-    std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::string outputTempFileName = CreateTemporaryFileName("output");
-    std::string drmTempFileName = CreateTemporaryFileName("drm");
-    std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> outputTempFile(&outputTempFileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> drmTempFile(&drmTempFileName);
+    std::string inputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::string outputTempFileName = utils::CreateTemporaryFileName("output");
+    std::string drmTempFileName = utils::CreateTemporaryFileName("drm");
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> inputTempFile(&inputTempFileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> outputTempFile(&outputTempFileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> drmTempFile(&drmTempFileName);
     try
     {
         //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
         result = UnprotectInternal(userContext, options, inputTempFileName, outputTempFileName,
                                    drmTempFileName,inputFileSize, cancelState);
-        CopyFromFileToOstream(outputTempFileName, outputStream.get());
+        utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
 
     }
     catch (std::exception&)
@@ -186,9 +189,10 @@ UnprotectResult MsoOfficeProtector::Unprotect(const UserContext& userContext,
 bool MsoOfficeProtector::IsProtected() const
 {
     Logger::Hidden("+MsoOfficeProtector::IsProtected");
-    auto inputFileSize = ValidateAndGetFileSize(m_inputStream.get(), MAX_FILE_SIZE_FOR_DECRYPT);
-    std::string inputTempFileName = CreateTemporaryFileName(m_fileName);
-    std::unique_ptr<tempFileName, tempFile_deleter> inputTempFile(&inputTempFileName);
+    auto inputFileSize = utils::ValidateAndGetFileSize(m_inputStream.get(),
+                                                       utils::MAX_FILE_SIZE_FOR_DECRYPT);
+    std::string inputTempFileName = utils::CreateTemporaryFileName(m_fileName);
+    std::unique_ptr<utils::tempFileName, utils::tempFile_deleter> inputTempFile(&inputTempFileName);
     bool isProtected = IsProtectedInternal(inputTempFileName, inputFileSize);
     Logger::Hidden("-MsoOfficeProtector::IsProtected");
     return isProtected;
@@ -205,7 +209,7 @@ void MsoOfficeProtector::ProtectInternal(const std::string& inputTempFileName,
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
     }
 
-    CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
+    utils::CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
     std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> inputStg;
     try
     {
@@ -281,9 +285,10 @@ void MsoOfficeProtector::ProtectInternal(const std::string& inputTempFileName,
     {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> drmEncryptedStream(
                     gsf_outfile_new_child(outputStg.get(), drmContent, false));
-        std::unique_ptr<FILE, FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "r+b"));
-        auto drmContentSize = ValidateAndGetFileSize(drmTempFileStream.get(), MAX_FILE_SIZE_FOR_ENCRYPT);
-        WriteStreamHeader(drmEncryptedStream.get(), drmContentSize);        
+        std::unique_ptr<FILE, utils::FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "r+b"));
+        auto drmContentSize = utils::ValidateAndGetFileSize(drmTempFileStream.get(),
+                                                            utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+        officeutils::WriteStreamHeader(drmEncryptedStream.get(), drmContentSize);
         EncryptStream(drmTempFileStream.get(), drmEncryptedStream.get(), drmContentSize);
     }
 }
@@ -296,7 +301,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
                                                       uint64_t inputFileSize,
                                                       std::shared_ptr<std::atomic<bool>> cancelState)
 {
-    CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
+    utils::CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
     std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> inputStg;
     try
     {
@@ -367,7 +372,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
     std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> outputStg(
                 gsf_outfile_msole_new(gsfOutputStdIO.get()));
     {
-        std::unique_ptr<FILE, FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "w+b"));
+        std::unique_ptr<FILE, utils::FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "w+b"));
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> drmEncryptedStream(
                     gsf_infile_child_by_name(inputStg.get(), drmContent));
         if(drmEncryptedStream.get() == nullptr)
@@ -379,7 +384,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
         }
 
         uint64_t originalFileSize = 0;
-        ReadStreamHeader(drmEncryptedStream.get(), originalFileSize);
+        officeutils::ReadStreamHeader(drmEncryptedStream.get(), originalFileSize);
         DecryptStream(drmTempFileStream.get(), drmEncryptedStream.get(), originalFileSize);
         auto num_children = gsf_infile_num_children(inputStg.get());
         auto storageElementsList = GetStorageElementsList();
@@ -412,7 +417,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(const UserContext& userCon
 bool MsoOfficeProtector::IsProtectedInternal(const std::string& inputTempFileName,
                                              uint64_t inputFileSize) const
 {
-    CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
+    utils::CopyFromIstreamToFile(m_inputStream.get(), inputTempFileName, inputFileSize);
     try
     {
         std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
@@ -460,7 +465,7 @@ void MsoOfficeProtector::EncryptStream(FILE* drmStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
+    std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
     uint64_t totalSize = isECB? ((inputFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
@@ -468,7 +473,7 @@ void MsoOfficeProtector::EncryptStream(FILE* drmStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetRead  = readPosition;
-        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
         readPosition  += toProcess;
 
         auto sstream = std::make_shared<std::stringstream>();
@@ -498,7 +503,7 @@ void MsoOfficeProtector::DecryptStream(FILE* drmStream,
 {
     auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
     m_blockSize = cryptoProvider->GetBlockSize();
-    std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
+    std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
     uint64_t readPosition  = 0;
     uint64_t writePosition = 0;
     uint64_t totalSize = (uint64_t)gsf_input_size(drmEncryptedStream) - sizeof(uint64_t);
@@ -506,8 +511,8 @@ void MsoOfficeProtector::DecryptStream(FILE* drmStream,
     while(totalSize - readPosition > 0)
     {
         uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(BUF_SIZE_BYTES, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(BUF_SIZE_BYTES, originalFileSize - readPosition);
+        uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
+        uint64_t originalRemaining = std::min(utils::BUF_SIZE_BYTES, originalFileSize - readPosition);
         readPosition  += toProcess;
         writePosition += toProcess;
 
@@ -647,5 +652,5 @@ const std::map<std::string, uint32_t>& MsoOfficeProtector::GetIdentifierMap()
     return identifierMap;
 }
 
-} // namespace fileapi
+} // namespace officeprotector
 } // namespace rmscore

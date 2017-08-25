@@ -6,11 +6,16 @@
  * ======================================================================
  */
 
-#ifndef RMS_SDK_FILEAPI_TEMPLATECONSTANTS_H
-#define RMS_SDK_FILEAPI_TEMPLATECONSTANTS_H
+#ifndef RMS_SDK_FILEAPI_STREAM_CONSTANTS_H
+#define RMS_SDK_FILEAPI_STREAM_CONSTANTS_H
 
 namespace rmscore {
 namespace fileapi {
+
+/*
+ * This file contains constants used for displaying message in protected file when it is opened in
+ * non enlightened viewers. These are basically hex values of the stream data.
+ */
 
 const unsigned char Table[] =
    {0xFE, 0x05, 0x15, 0x00, 0x12, 0x00, 0x01, 0x00, 0x73, 0x01, 0x0F, 0x00, 0x07, 0x00, 0x00, 0x00,
@@ -4294,4 +4299,4 @@ const unsigned char PowerPointDocument[] =
 } // namespace fileapi
 } // namespace rmscore
 
-#endif // RMS_SDK_FILEAPI_TEMPLATECONSTANTS_H
+#endif // RMS_SDK_FILEAPI_STREAM_CONSTANTS_H

@@ -6,7 +6,7 @@
  * ======================================================================
 */
 
-#include "Utils.h"
+#include "OfficeUtils.h"
 #include <codecvt>
 #include <locale>
 #include "../Platform/Logger/Logger.h"
@@ -15,7 +15,7 @@
 using namespace rmscore::platform::logger;
 
 namespace rmscore {
-namespace officeprotector {
+namespace officeutils {
 
 // Known issue with Visual C++. Please refer
 // https://connect.microsoft.com/VisualStudio/feedback/details/1348277/link-error-when-using-std-codecvt-utf8-utf16-char16-t
@@ -54,7 +54,6 @@ std::u16string utf8_to_utf16(const std::string& utf8_string)
 
 #endif
 
-// Writes a string to a stream after converting it to a wide string.
 void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
 {
     if (stm == nullptr || entry.empty())
@@ -71,7 +70,6 @@ void WriteWideStringEntry(GsfOutput *stm, const std::string& entry)
     AlignOutputAtFourBytes(stm, entry_utf16_len);
 }
 
-// Reads a wide string and converts it to a string.
 void ReadWideStringEntry(GsfInput *stm, std::string& entry)
 {
     if (stm == nullptr)
@@ -97,7 +95,6 @@ void ReadWideStringEntry(GsfInput *stm, std::string& entry)
     AlignInputAtFourBytes(stm, entry_utf16_len);
 }
 
-// calculates length of bytes written/read in WriteWideStringEntry()/ReadWideStringEntry()
 uint32_t FourByteAlignedWideStringLength(const std::string& entry)
 {
     size_t len = sizeof(uint32_t) + (entry.length() << 1);
@@ -140,5 +137,29 @@ void AlignInputAtFourBytes(GsfInput *stm, uint32_t contentLength)
     gsf_input_seek(stm, pos + alignCount, G_SEEK_SET);
 }
 
-} // namespace officeprotector
+void WriteStreamHeader(GsfOutput* stm, const uint64_t& contentLength)
+{
+    if ( stm == nullptr)
+    {
+        Logger::Error("Invalid arguments provided for writing stream header");
+        throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::StreamError,
+                                            "Error in writing to stream");
+    }
+    gsf_output_seek(stm, 0, G_SEEK_SET);
+    gsf_output_write(stm, sizeof(uint64_t), reinterpret_cast<const uint8_t*>(&contentLength));
+}
+
+void ReadStreamHeader(GsfInput* stm, uint64_t& contentLength)
+{
+    if ( stm == nullptr)
+    {
+        Logger::Error("Invalid arguments provided for reading stream header");
+        throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::StreamError,
+                                            "Error in reading from stream");
+    }
+    gsf_input_seek(stm, 0, G_SEEK_SET);
+    gsf_input_read(stm, sizeof(uint64_t), reinterpret_cast<uint8_t*>(&contentLength));
+}
+
+} // namespace officeutils
 } // namespace rmscore

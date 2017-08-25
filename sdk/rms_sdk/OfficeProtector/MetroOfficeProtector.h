@@ -6,18 +6,21 @@
  * ======================================================================
 */
 
-#ifndef RMS_SDK_FILE_API_METROOFFICEPROTECTOR_H
-#define RMS_SDK_FILE_API_METROOFFICEPROTECTOR_H
+#ifndef RMS_SDK_OFFICE_PROTECTOR_METROOFFICEPROTECTOR_H
+#define RMS_SDK_OFFICE_PROTECTOR_METROOFFICEPROTECTOR_H
 
 #include <cstdio>
 #include "Protector.h"
 #include "BlockBasedProtectedStream.h"
 #include "FileAPIStructures.h"
 #include "UserPolicy.h"
+#include "../PFile/Utils.h"
 #include <gsf/gsf.h>
 
+using namespace rmscore::fileapi;
+
 namespace rmscore {
-namespace fileapi {
+namespace officeprotector {
 
 class MetroOfficeProtector : public Protector
 {
@@ -45,6 +48,14 @@ public:
     bool IsProtected() const override;
 
 private:
+
+    /*!
+     * \brief ProtectInternal
+     *
+     *
+     * \param outputTempFileName
+     * \param inputFileSize
+     */
     void ProtectInternal(std::string outputTempFileName, uint64_t inputFileSize);
 
     UnprotectResult UnprotectInternal(const UserContext& userContext,
@@ -72,11 +83,11 @@ private:
     std::string m_fileName;
     std::shared_ptr<std::istream> m_inputStream;
     uint32_t m_blockSize;
-    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;    
+    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 };
 
-} // namespace fileapi
+} // namespace officeprotector
 } // namespace rmscore
 
-#endif // RMS_SDK_FILE_API_METROOFFICEPROTECTOR_H
+#endif // RMS_SDK_OFFICE_PROTECTOR_METROOFFICEPROTECTOR_H
 
