@@ -96,5 +96,42 @@ FX_BOOL FileStreamImpl::Flush()
     return bFlush;
 }
 
+void Utility::UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End)
+{
+    UTF16* pTempUTF16 = pUTF16Start;
+    UTF8* pTempUTF8 = pUTF8Start;
+
+    while (pTempUTF16 < pUTF16End)
+    {
+        if (*pTempUTF16 <= UTF8_ONE_END
+            && pTempUTF8 + 1 < pUTF8End)
+        {
+            //0000 - 007F  0xxxxxxx
+            *pTempUTF8++ = (UTF8)*pTempUTF16;
+        }
+        else if(*pTempUTF16 >= UTF8_TWO_START && *pTempUTF16 <= UTF8_TWO_END
+            && pTempUTF8 + 2 < pUTF8End)
+        {
+            //0080 - 07FF 110xxxxx 10xxxxxx
+            *pTempUTF8++ = (*pTempUTF16 >> 6) | 0xC0;
+            *pTempUTF8++ = (*pTempUTF16 & 0x3F) | 0x80;
+        }
+        else if(*pTempUTF16 >= UTF8_THREE_START && *pTempUTF16 <= UTF8_THREE_END
+            && pTempUTF8 + 3 < pUTF8End)
+        {
+            //0800 - FFFF 1110xxxx 10xxxxxx 10xxxxxx
+            *pTempUTF8++ = (*pTempUTF16 >> 12) | 0xE0;
+            *pTempUTF8++ = ((*pTempUTF16 >> 6) & 0x3F) | 0x80;
+            *pTempUTF8++ = (*pTempUTF16 & 0x3F) | 0x80;
+        }
+        else
+        {
+            break;
+        }
+        pTempUTF16++;
+    }
+    *pTempUTF8 = 0;
+}
+
 } // namespace pdfobjectmodel
 } // namespace rmscore

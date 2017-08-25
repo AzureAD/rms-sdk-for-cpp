@@ -239,6 +239,7 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishingLicense, uint32_t p
 {
     std::vector<uint8_t> vecPL(plSize);
     memcpy(reinterpret_cast<uint8_t *>(&vecPL[0]), publishingLicense, plSize);
+    //vecPL.push_back('\0');
 
     modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = m_options.offlineOnly?
                 modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :

@@ -8,6 +8,11 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
+#define IRMV1_WRAPPER_DICTIONARY            "Wrapper"
+#define IRMV1_WRAPPER_DICTIONARY_TYPE       "Type"
+#define IRMV1_WRAPPER_DICTIONARY_VERSION    "Version"
+#define IRMV1_WRAPPER_DICTIONARY_OFFSET     "WrapperOffset"
+
 class PDFWrapperDocImpl : public PDFWrapperDoc
 {
 public:
@@ -20,6 +25,7 @@ public:
 
 	virtual uint32_t GetPayLoadSize() const;
 
+    //this is just for IRM V2.
     virtual bool GetPayloadFileName(std::wstring& wsFileName) const;
 
     virtual bool StartGetPayload(rmscrypto::api::SharedStream outputStream);
@@ -27,7 +33,14 @@ public:
 private:
     FileStreamImpl* m_wrapperFileStream;
     CPDF_Parser m_pdfParser;
+    //this is just for IRM V2. we have to parse IRM V1 self.
     CPDF_WrapperDoc* m_wrapperDoc;
+
+    uint32_t m_wrapperType;
+    std::wstring m_wsGraphicFilter;
+    float m_fVersion;
+    uint32_t m_payloadSize;
+    std::wstring m_wsFileName;
 };
 
 class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator

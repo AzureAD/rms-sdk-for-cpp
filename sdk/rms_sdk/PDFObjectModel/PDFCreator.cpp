@@ -252,6 +252,44 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pParser, CPDF_Dictionary* pEn
     }
 
     CFX_ByteString bsPL = pEncryptDict->GetString("PublishingLicense");
+
+    FX_INT32 irmVersion = pEncryptDict->GetInteger("MicrosoftIRMVersion");
+    if(irmVersion <= 1)
+    {
+        CFX_ByteString bsPLDecoded;
+        CFX_Base64Decoder base64Decoder;
+        uint32_t lengthDecoded = base64Decoder.Decode(bsPL, bsPLDecoded);
+
+        FX_LPBYTE dest_buf = nullptr;
+        FX_DWORD dest_size = 0;
+        FlateDecode((FX_LPCBYTE)bsPLDecoded, lengthDecoded, dest_buf, dest_size);
+
+        bsPL.Empty();
+        if (dest_buf[0] == 0xef && dest_buf[1] == 0xbb && dest_buf[2] == 0xbf)
+        {
+            bsPL.Load(dest_buf, dest_size);
+            CFX_WideString wsPL = bsPL.UTF8Decode();
+            bsPL.Load((FX_LPCBYTE)(FX_LPCWSTR)wsPL, wsPL.GetLength() * 2);
+        }
+        else
+        {
+            FX_DWORD sizeUTF8 = dest_size + 3;
+            FX_LPBYTE pUTF8Bytes = new FX_BYTE[sizeUTF8];
+            memset(pUTF8Bytes, 0, sizeof(FX_BYTE) * (sizeUTF8));
+            pUTF8Bytes[0] = 0xef;
+            pUTF8Bytes[1] = 0xbb;
+            pUTF8Bytes[2] = 0xbf;
+
+            Utility::UTF16ToUTF8((UTF16*)dest_buf, (UTF16*)(dest_buf + dest_size),
+            pUTF8Bytes + 3, pUTF8Bytes + dest_size + 3);
+
+            bsPL.Load(pUTF8Bytes, sizeUTF8);
+            delete [] pUTF8Bytes;
+        }
+
+        FX_Free(dest_buf);
+   }
+
     if(m_pPDFSecHandler)
     {
         uint32_t plSize = bsPL.GetLength();

@@ -47,6 +47,24 @@ private:
     rmscrypto::api::SharedStream m_sharedIOStream;
 };
 
+#define UTF8_ONE_START      (0xOOO1)
+#define UTF8_ONE_END        (0x007F)
+#define UTF8_TWO_START      (0x0080)
+#define UTF8_TWO_END        (0x07FF)
+#define UTF8_THREE_START    (0x0800)
+#define UTF8_THREE_END      (0xFFFF)
+
+typedef unsigned long   UTF32;  /* at least 32 bits */
+typedef unsigned short  UTF16;  /* at least 16 bits */
+typedef unsigned char   UTF8;   /* typically 8 bits */
+typedef unsigned int    INT;
+
+class Utility
+{
+public:
+    static void UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End);
+};
+
 } // namespace pdfobjectmodel
 } // namespace rmscore
 
