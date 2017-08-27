@@ -39,7 +39,7 @@ bool FileFormatFactory::in_array(const std::string &value, const vector<std::str
 }
 
 // static
-std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> fileStream, const string& extension) {
+std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> stream, const string& extension) {
   if (extension.empty()) {
     // TODO: add log
     throw std::invalid_argument("The extention is empty");
@@ -52,22 +52,22 @@ std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> 
   }
 
   if (in_array(finalExtention, kXMPExtentions)) {
-    return std::make_shared<XMPFileFormat>(fileStream, finalExtention);
+    return std::make_shared<XMPFileFormat>(stream, finalExtention);
   }
   else if (in_array(finalExtention, kCompoundFileExtentions)) {
-    return std::make_shared<CompoundFileFormat>(fileStream, finalExtention);
+    return std::make_shared<CompoundFileFormat>(stream, finalExtention);
   }
   else if (in_array(finalExtention, kOPCFileExtentions)) {
-    return std::make_shared<OPCFileFormat>(fileStream, finalExtention);
+    return std::make_shared<OPCFileFormat>(stream, finalExtention);
   }
   else if (in_array(finalExtention, kPDFExtentions)) {
-    return std::make_shared<PDFFileFormat>(fileStream, finalExtention);
+    return std::make_shared<PDFFileFormat>(stream, finalExtention);
   }
   else if (in_array(finalExtention, kPfileExtentions)) {
-    return std::make_shared<PFileFileFormat>(fileStream, finalExtention);
+    return std::make_shared<PFileFileFormat>(stream, finalExtention);
   }
 
-  return std::make_shared<DefaultFormat>(fileStream, finalExtention);
+  return std::make_shared<DefaultFormat>(stream, finalExtention);
 }
 
 } // namespace file
