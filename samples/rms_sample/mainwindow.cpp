@@ -1006,7 +1006,23 @@ void MainWindow::PDFFileDecrypt(const string& fileIn,
 
     rmscore::fileapi::UnprotectOptions upt (false, true);
     rmscore::fileapi::UserContext ut (clientEmail, auth, this->consent);
-    obj->Unprotect(ut, upt, outFile, this->cancelState);
+
+    bool bResult = true;
+    std::string errMsg;
+    try
+    {
+        obj->Unprotect(ut, upt, outFile, this->cancelState);
+    }
+    catch (const rmsauth::Exception& e)
+    {
+        bResult = false;
+        errMsg = e.error().c_str();
+    }
+    catch (const rmscore::exceptions::RMSException& e)
+    {
+        bResult = false;
+        errMsg = e.what();
+    }
 
     inFile->close();
     outFile->close();

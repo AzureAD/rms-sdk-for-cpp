@@ -241,6 +241,14 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishingLicense, uint32_t p
     memcpy(reinterpret_cast<uint8_t *>(&vecPL[0]), publishingLicense, plSize);
     //vecPL.push_back('\0');
 
+    //testing code, save publishing license
+   /*std::string plPath = "C:\\Users\\foxit-dev\\Desktop\\PL.txt";
+   auto outPLFile = std::make_shared<std::fstream>(
+     plPath, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+   outPLFile->write(reinterpret_cast<const char*>(publishingLicense), plSize);
+   outPLFile->close();
+   */
+
     modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = m_options.offlineOnly?
                 modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
                 modernapi::PolicyAcquisitionOptions::POL_None;

@@ -269,7 +269,13 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pParser, CPDF_Dictionary* pEn
         {
             bsPL.Load(dest_buf, dest_size);
             CFX_WideString wsPL = bsPL.UTF8Decode();
-            bsPL.Load((FX_LPCBYTE)(FX_LPCWSTR)wsPL, wsPL.GetLength() * 2);
+            CFX_ByteString bsPLTemp(((FX_LPCBYTE)(FX_LPCWSTR)wsPL), wsPL.GetLength() * 2);
+            if(bsPLTemp.GetAt(0) == 0xff && bsPLTemp.GetAt(1) == 0xfe)
+            {
+                bsPLTemp.Delete(0, 2);
+            }
+
+            bsPL = bsPLTemp;
         }
         else
         {
