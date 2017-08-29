@@ -7,9 +7,6 @@
 */
 
 #include "data_spaces.h"
-#include <algorithm>
-#include <memory>
-#include <string>
 #include <gsf/gsf.h>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Logger/Logger.h"

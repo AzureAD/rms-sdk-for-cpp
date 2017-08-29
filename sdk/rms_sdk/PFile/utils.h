@@ -6,8 +6,8 @@
  * ======================================================================
  */
 
-#ifndef RMS_SDK_PFILE_OFFICEUTILS_H
-#define RMS_SDK_PFILE_OFFICEUTILS_H
+#ifndef RMS_SDK_PFILE_UTILS_H
+#define RMS_SDK_PFILE_UTILS_H
 
 #include <cstdio>
 #include <iostream>
@@ -34,7 +34,7 @@ typedef std::string TempFileName;
  * \param cryptoOptions
  * \return
  */
-modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
+modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForPfile(
     const bool& allowAuditedExtraction,
     CryptoOptions cryptoOptions);
 
@@ -96,4 +96,4 @@ struct TempFile_deleter {
 } // namespace utils
 } // namespace rmscore
 
-#endif // RMS_SDK_PFILE_OFFICEUTILS_H
+#endif // RMS_SDK_PFILE_UTILS_H

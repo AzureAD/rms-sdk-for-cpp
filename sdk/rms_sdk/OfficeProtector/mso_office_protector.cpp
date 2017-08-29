@@ -7,18 +7,10 @@
 */
 
 #include "mso_office_protector.h"
-#include <algorithm>
-#include <cstdio>
-#include <fstream>
 #include <sstream>
-#include <cstdlib>
 #include <vector>
-#include <gsf/gsf.h>
-#include "BlockBasedProtectedStream.h"
 #include "CryptoAPI.h"
-#include "file_api_structures.h"
 #include "RMSExceptions.h"
-#include "UserPolicy.h"
 #include "../Common/CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../PFile/utils.h"
@@ -69,7 +61,7 @@ void MsoOfficeProtector::ProtectWithTemplate(
   auto inputFileSize = utils::ValidateAndGetFileSize(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_ENCRYPT);
-  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
+  auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
@@ -86,7 +78,6 @@ void MsoOfficeProtector::ProtectWithTemplate(
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> drmTempFile(&drmTempFileName);
   try {
-    //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
     ProtectInternal(inputTempFileName, outputTempFileName, drmTempFileName, inputFileSize);
     utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
   } catch (std::exception&) {
@@ -116,7 +107,7 @@ void MsoOfficeProtector::ProtectWithCustomRights(
   auto inputFileSize = utils::ValidateAndGetFileSize(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_ENCRYPT);
-  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
+  auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
   mUserPolicy = modernapi::UserPolicy::Create(
@@ -132,7 +123,6 @@ void MsoOfficeProtector::ProtectWithCustomRights(
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> drmTempFile(&drmTempFileName);
   try {
-    //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
     ProtectInternal(inputTempFileName, outputTempFileName, drmTempFileName, inputFileSize);
     utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
   } catch (std::exception&) {
@@ -163,7 +153,6 @@ UnprotectResult MsoOfficeProtector::Unprotect(
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> drmTempFile(&drmTempFileName);
   try {
-    //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
     result = UnprotectInternal(
           userContext,
           options,

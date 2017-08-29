@@ -10,7 +10,7 @@
 #define RMS_SDK_OFFICE_PROTECTOR_METROOFFICEPROTECTOR_H
 
 #include "protector.h"
-#include <cstdio>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <gsf/gsf.h>

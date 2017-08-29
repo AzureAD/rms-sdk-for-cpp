@@ -6,14 +6,18 @@
  * ======================================================================
  */
 
-#ifndef RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
-#define RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
+#ifndef RMS_SDK_OFFICE_PROTECTOR_OFFICEUTILS_H
+#define RMS_SDK_OFFICE_PROTECTOR_OFFICEUTILS_H
 
 #include <string>
 #include <gsf/gsf.h>
+#include "file_api_structures.h"
+#include "UserPolicy.h"
 
 namespace rmscore {
 namespace officeutils {
+
+using namespace rmscore::fileapi;
 
 /*!
  * \brief Converts 'entry' to UTF16 and writes it to the stream pointed by 'stm'. After that,
@@ -39,7 +43,8 @@ void ReadWideStringEntry(GsfInput* stm, std::string& entry);
 uint32_t FourByteAlignedWideStringLength(const std::string& entry);
 
 /*!
- * \brief Aligns the stream pointed to by 'stm' to 4 byte length by writing null characters to the stream.
+ * \brief Aligns the stream pointed to by 'stm' to 4 byte length by writing null characters to the
+ * stream.
  * \param stm
  * \param contentLength
  */
@@ -67,20 +72,31 @@ std::string utf16_to_utf8(const std::u16string& utf16_string);
 std::u16string utf8_to_utf16(const std::string& utf8_string);
 
 /*!
- * \brief Writes the header of the encryped stream. Currently just contains the length of the unencrypted data.
+ * \brief Writes the header of the encryped stream. Currently just contains the length of the
+ * unencrypted data.
  * \param stm
  * \param contentLength
  */
 void WriteStreamHeader(GsfOutput* stm, const uint64_t& contentLength);
 
 /*!
- * \brief Reads the header of the encryped stream. Currently just contains the length of the unencrypted data.
+ * \brief Reads the header of the encryped stream. Currently just contains the length of the
+ * unencrypted data.
  * \param stm
  * \param contentLength
  */
 void ReadStreamHeader(GsfInput* stm, uint64_t& contentLength);
 
+/*!
+ * \brief Uses 'cryptoOptions' and 'allowAuditedExtraction' params to create enum value
+ * \param allowAuditedExtraction
+ * \param cryptoOptions
+ * \return
+ */
+modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForOffice(
+    const bool& allowAuditedExtraction,
+    CryptoOptions cryptoOptions);
 } // namespace officeutils
 } // namespace rmscore
 
-#endif // RMS_SDK_OFFICE_PROTECTOR_IRMUTILS_H
+#endif // RMS_SDK_OFFICE_PROTECTOR_OFFICEUTILS_H

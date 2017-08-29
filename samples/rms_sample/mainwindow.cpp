@@ -26,8 +26,8 @@
 #include "consentlistdialog.h"
 #include "rightsdialog.h"
 #include "mainwindow.h"
-#include "FileAPI/Protector.h"
-#include "FileAPI/FileAPIStructures.h"
+#include "FileAPI/protector.h"
+#include "FileAPI/file_api_structures.h"
 
 using namespace std;
 using namespace rmsauth;

@@ -7,18 +7,10 @@
 */
 
 #include "metro_office_protector.h"
-#include <algorithm>
-#include <cstdio>
-#include <fstream>
 #include <sstream>
-#include <cstdlib>
 #include <vector>
-#include <gsf/gsf.h>
-#include "BlockBasedProtectedStream.h"
 #include "CryptoAPI.h"
-#include "file_api_structures.h"
 #include "RMSExceptions.h"
-#include "UserPolicy.h"
 #include "../Common/CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../PFile/utils.h"
@@ -67,7 +59,7 @@ void MetroOfficeProtector::ProtectWithTemplate(
   auto inputFileSize = utils::ValidateAndGetFileSize(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_ENCRYPT);
-  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
+  auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
@@ -80,7 +72,6 @@ void MetroOfficeProtector::ProtectWithTemplate(
   std::string outputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   try {
-    //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
     ProtectInternal(outputTempFileName, inputFileSize);
     utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
   } catch (std::exception&) {
@@ -110,7 +101,7 @@ void MetroOfficeProtector::ProtectWithCustomRights(
   auto inputFileSize = utils::ValidateAndGetFileSize(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_ENCRYPT);
-  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
+  auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
   mUserPolicy = modernapi::UserPolicy::Create(
@@ -122,7 +113,6 @@ void MetroOfficeProtector::ProtectWithCustomRights(
   std::string outputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   try {
-    //std::unique_ptr<FILE, FILE_deleter> outputTempFileStream(fopen(outputTempFileName.c_str(), "w+b"));
     ProtectInternal(outputTempFileName, inputFileSize);
     utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
   } catch (std::exception&) {
@@ -223,8 +213,9 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
   }
 
   if (!mUserPolicy->DoesUseDeprecatedAlgorithms()) {
-    throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
-                                        "CBC Decryption with Office files is not yet supported");
+    throw exceptions::RMSLogicException(
+          exceptions::RMSException::ErrorTypes::NotSupported,
+          "CBC Decryption with Office files is not yet supported");
   }
   std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> metroStream(
         gsf_infile_child_by_name(stg.get(), kMetroContent));

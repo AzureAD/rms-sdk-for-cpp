@@ -7,11 +7,8 @@
  */
 
 #include "utils.h"
-#include <algorithm>
-#include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <iostream>
 #include <vector>
 #include "RMSExceptions.h"
 #include "../Common/CommonTypes.h"
@@ -23,21 +20,20 @@ using namespace rmscore::common;
 namespace rmscore {
 namespace utils {
 
-modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
+modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForPfile(
         const bool& allowAuditedExtraction,
         CryptoOptions cryptoOptions) {
   auto userPolicyCreationOptions = allowAuditedExtraction ?
         modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
         modernapi::UserPolicyCreationOptions::USER_None;
-  if (cryptoOptions == CryptoOptions::AUTO ||
-      cryptoOptions == CryptoOptions::AES128_ECB) {
+  if (cryptoOptions == CryptoOptions::AES128_ECB) {
     userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(
           userPolicyCreationOptions |
           modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
   } else {      //temporary until we have CBC for office files
-    throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
-                                        "CBC Encryption with Office files is not yet"
-                                        "supported");
+    throw exceptions::RMSLogicException(
+          exceptions::RMSException::ErrorTypes::NotSupported,
+          "CBC Encryption with Office files is not yet supported");
   }
   return userPolicyCreationOptions;
 }
@@ -91,9 +87,9 @@ uint64_t ValidateAndGetFileSize(std::istream* stream, uint64_t maxFileSize) {
   stream->seekg(0);
   if (maxFileSize < fileSize) {
     Logger::Error("Input file too large");
-    throw exceptions::RMSLogicException(exceptions::RMSLogicException::ErrorTypes::NotSupported,
-                                        "The file is too large. The limit is 1GB for encryption"
-                                        "and 3GB for decryption");
+    throw exceptions::RMSLogicException(
+          exceptions::RMSLogicException::ErrorTypes::NotSupported,
+          "The file is too large. The limit is 1GB for encryption and 3GB for decryption");
   }
   return fileSize;
 }
@@ -104,9 +100,9 @@ uint64_t ValidateAndGetFileSize(FILE* file, uint64_t maxFileSize) {
   rewind(file);
   if (maxFileSize < fileSize) {
     Logger::Error("Input file too large");
-    throw exceptions::RMSLogicException(exceptions::RMSLogicException::ErrorTypes::NotSupported,
-                                        "The file is too large. The limit is 1GB for encryption"
-                                        "and 3GB for decryption");
+    throw exceptions::RMSLogicException(
+          exceptions::RMSLogicException::ErrorTypes::NotSupported,
+          "The file is too large. The limit is 1GB for encryption and 3GB for decryption");
   }
   return fileSize;
 }

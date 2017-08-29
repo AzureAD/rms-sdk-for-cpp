@@ -10,7 +10,7 @@
 #include <codecvt>
 #include <locale>
 #include "../Platform/Logger/Logger.h"
-#include "../ModernAPI/RMSExceptions.h"
+#include "RMSExceptions.h"
 
 using namespace rmscore::platform::logger;
 
@@ -132,11 +132,30 @@ void ReadStreamHeader(GsfInput* stm, uint64_t& contentLength)
 {
   if (stm == nullptr) {
     Logger::Error("Invalid arguments provided for reading stream header");
-    throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::StreamError,
-                                        "Error in reading from stream");
+    throw exceptions::RMSLogicException(
+          exceptions::RMSException::ErrorTypes::StreamError,
+          "Error in reading from stream");
   }
   gsf_input_seek(stm, 0, G_SEEK_SET);
   gsf_input_read(stm, sizeof(uint64_t), reinterpret_cast<uint8_t*>(&contentLength));
+}
+
+modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForOffice(
+    const bool& allowAuditedExtraction,
+    CryptoOptions cryptoOptions) {
+  auto userPolicyCreationOptions = allowAuditedExtraction ?
+        modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
+        modernapi::UserPolicyCreationOptions::USER_None;
+  if (cryptoOptions == CryptoOptions::AUTO || cryptoOptions == CryptoOptions::AES128_ECB) {
+    userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(
+          userPolicyCreationOptions |
+          modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
+  } else {      //temporary until we have CBC for office files
+    throw exceptions::RMSLogicException(
+          exceptions::RMSException::ErrorTypes::NotSupported,
+          "CBC Encryption with Office files is not yet supported");
+  }
+  return userPolicyCreationOptions;
 }
 
 } // namespace officeutils

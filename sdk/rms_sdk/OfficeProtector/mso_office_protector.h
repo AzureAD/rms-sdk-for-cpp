@@ -11,6 +11,7 @@
 
 #include "protector.h"
 #include <cstdio>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>

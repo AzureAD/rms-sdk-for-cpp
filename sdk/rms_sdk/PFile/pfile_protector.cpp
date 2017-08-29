@@ -59,7 +59,7 @@ void PFileProtector::ProtectWithTemplate(
   auto inputFileSize = utils::ValidateAndGetFileSize(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_ENCRYPT);
-  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
+  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptionsForPfile(
         options.allowAuditedExtraction,
         options.cryptoOptions);
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
@@ -93,7 +93,7 @@ void PFileProtector::ProtectWithCustomRights(
   auto inputFileSize = utils::ValidateAndGetFileSize(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_ENCRYPT);
-  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptions(
+  auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptionsForPfile(
         options.allowAuditedExtraction,
         options.cryptoOptions);
   mUserPolicy = modernapi::UserPolicy::Create(
