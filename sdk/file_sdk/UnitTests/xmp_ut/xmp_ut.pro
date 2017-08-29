@@ -20,7 +20,7 @@ CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS +=  -lrmsd -lmodxmpfiled -lmodfilecommond
 } else {
-    LIBS +=  -lrms -lmodxmpfiles -lmodfilecommon
+    LIBS +=  -lrms -lmodxmpfile -lmodfilecommon
 }
 
 SOURCES += xmp_file_tests.cpp
