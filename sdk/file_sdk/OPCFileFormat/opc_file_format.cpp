@@ -8,8 +8,12 @@ OPCFileFormat::OPCFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag>& OPCFileFormat::ReadTags() {
-  throw std::exception("not implemnted");
+const vector<Tag> OPCFileFormat::ReadTags() {
+  throw std::runtime_error("not implemented");
+}
+
+void OPCFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+  throw std::runtime_error("not implemented");
 }
 
 } // namespace file

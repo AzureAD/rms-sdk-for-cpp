@@ -8,8 +8,12 @@ CompoundFileFormat::CompoundFileFormat(shared_ptr<IStream> file, const std::stri
 {
 }
 
-const vector<Tag>& CompoundFileFormat::ReadTags() {
-  throw std::exception("not implemnted");
+const vector<Tag> CompoundFileFormat::ReadTags() {
+  throw std::runtime_error("not implemented");
+}
+
+void CompoundFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+  throw std::runtime_error("not implemented");
 }
 
 } // namespace file

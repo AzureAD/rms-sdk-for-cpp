@@ -8,8 +8,12 @@ XMPFileFormat::XMPFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag>& XMPFileFormat::ReadTags() {
-  throw std::exception("not implemnted");
+const vector<Tag> XMPFileFormat::ReadTags() {
+  return mTags;
+}
+
+void XMPFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+  throw std::runtime_error("not implemented");
 }
 
 } // namespace file

@@ -8,8 +8,12 @@ PDFFileFormat::PDFFileFormat(shared_ptr<IStream> file, const string& extension)
 {
 }
 
-const vector<Tag>& PDFFileFormat::ReadTags() {
-  throw std::exception("not implemnted");
+const vector<Tag> PDFFileFormat::ReadTags() {
+  throw std::runtime_error("not implemented");
+}
+
+void PDFFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+  throw std::runtime_error("not implemented");
 }
 
 } // namespace file

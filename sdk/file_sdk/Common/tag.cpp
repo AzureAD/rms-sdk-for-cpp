@@ -1,6 +1,5 @@
 #include "tag.h"
 #include <regex>
-#include "string_utils.h"
 
 using std::pair;
 using std::string;
@@ -12,6 +11,26 @@ static const string kExtendedPrefix = "Extended";
 }  // namespace
 
 namespace mip {
+
+static bool TryParseBool(const string& str, bool& result) {
+  // Perf nit: We do not need a new string that is lower case. We can do
+  // a case insensitive comparison with "true" or "false". That has two (nit)
+  // perf benefits: another string is not allocated, time complexity is always
+  // O(1) since parsing will only do maximum 5 comparisions ("false").
+  // TODO: Find a portable way to do case insensitive comparison.
+  string s(str);
+  transform(s.begin(), s.end(), s.begin(), ::tolower);
+  // Currently we do not ignore leading and trailing whitespace.
+  // Add that if needed, potentially controlled by a flag passed to the function.
+  if  (s == "true") {
+    result = true;
+    return true;
+  } else if (s == "false") {
+    result = false;
+    return true;
+  }
+  return false;
+}
 
 // static
 const string& Tag::GetMetaDataPrefix() {
@@ -182,7 +201,7 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
   for (size_t i = 0; i < labelsIds.size(); i++) {
     string labelId = labelsIds[i];
     bool isEnabled = false;
-    base::TryParseBool(GetDataForKey(properties, GenerateLabelKey(labelId, "Enabled")), isEnabled);
+    TryParseBool(GetDataForKey(properties, GenerateLabelKey(labelId, "Enabled")), isEnabled);
     vector<string> ids;
     ids.push_back("Ref");
 
@@ -213,9 +232,9 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
     for (size_t j = 0; j < properties.size(); j++) {
       pair<string, string> data = properties[j];
       string id = data.first;
-
+      string replace = "";
       if (id.compare(methodKey) != 0 && id.find(extendedPropertyPrefix) != string::npos) {
-        string vendorAndKey = regex_replace(id, std::regex(extendedPropertyPrefix), "");
+        string vendorAndKey = regex_replace(id, std::regex(extendedPropertyPrefix), replace);
         size_t index = vendorAndKey.find_first_of("_");
         string vendor = vendorAndKey.substr(0, index);
         string key = vendorAndKey.substr(0, index + 1);

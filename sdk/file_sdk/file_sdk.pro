@@ -9,3 +9,5 @@ SUBDIRS += UnitTests \
     PDFFileFormat \
     PFileFileFormat \
     DefaultFormat
+
+UnitTests.depends   = Common XMPFileFormat

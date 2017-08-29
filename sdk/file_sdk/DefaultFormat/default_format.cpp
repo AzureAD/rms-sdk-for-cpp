@@ -8,8 +8,12 @@ DefaultFormat::DefaultFormat(shared_ptr<IStream> file, const std::string& extens
 {
 }
 
-const vector<Tag>& DefaultFormat::ReadTags() {
-  throw std::exception("not implemnted");
+const vector<Tag> DefaultFormat::ReadTags() {
+  throw std::runtime_error("not implemented");
+}
+
+void DefaultFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+  throw std::runtime_error("not implemented");
 }
 
 } // namespace file
