@@ -13,11 +13,11 @@ const vector<Tag> XMPFileFormat::ReadTags() {
 }
 
 string XMPFileFormat::GetOriginalExtension() {
-  throw std::exception("not implemnted");
+  return mExtension;
 }
 
 void XMPFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
-  throw std::exception("not implemnted");
+  throw std::exception("not implemented");
 }
 
 } // namespace file

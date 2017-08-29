@@ -9,15 +9,15 @@ DefaultFormat::DefaultFormat(shared_ptr<IStream> file, const std::string& extens
 }
 
 const vector<Tag> DefaultFormat::ReadTags() {
-  throw std::exception("not implemnted");
+  throw std::exception("not implemented");
 }
 
 string DefaultFormat::GetOriginalExtension() {
-  throw std::exception("not implemnted");
+  return mExtension;
 }
 
 void DefaultFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
-  throw std::exception("not implemnted");
+  throw std::exception("not implemented");
 }
 
 } // namespace file
