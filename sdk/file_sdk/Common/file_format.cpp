@@ -21,6 +21,10 @@ const vector<Tag> mip::file::FileFormat::GetTags() {
   return mTags;
 }
 
+string mip::file::FileFormat::GetOriginalExtension() {
+  return mExtension;
+}
+
 void mip::file::FileFormat::SetTags(const vector<mip::Tag>&tags) {
   mTags = tags;
   mHasTags = true;

@@ -11,7 +11,7 @@ namespace file {
 class FileFormat : public IFileFormat
 {
 public:
-  virtual string GetOriginalExtension() = 0;
+  virtual string GetOriginalExtension();
 
   virtual const vector<Tag> GetTags();
 
