@@ -14,7 +14,3 @@ SOURCES += compound_file_format.cpp
 
 HEADERS += compound_file_format.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}

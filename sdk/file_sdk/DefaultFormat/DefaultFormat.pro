@@ -15,8 +15,3 @@ CONFIG(debug, debug|release) {
 SOURCES += default_format.cpp
 
 HEADERS += default_format.h
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}

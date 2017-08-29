@@ -13,8 +13,3 @@ CONFIG(debug, debug|release) {
 SOURCES += pdf_file_format.cpp
 
 HEADERS += pdf_file_format.h
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}

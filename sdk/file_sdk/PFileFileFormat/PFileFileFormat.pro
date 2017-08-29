@@ -13,8 +13,3 @@ CONFIG(debug, debug|release) {
 SOURCES += pfile_file_format.cpp
 
 HEADERS += pfile_file_format.h
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}

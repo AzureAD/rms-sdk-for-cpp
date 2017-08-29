@@ -11,7 +11,6 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES += \
-    string_utils.cpp \
     tag.cpp \
     file_format.cpp \
     file_format_factory.cpp
@@ -20,14 +19,9 @@ SOURCES += \
 HEADERS += \
     extended_property.h \
     macros.h \
-    string_utils.h \
     tag.h \
     ifile_format.h \
     file_format.h \
     file_format_factory.h
     file_format_factory.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
