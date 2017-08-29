@@ -14,5 +14,6 @@ cd tests
 ./rmsauthUnitTests -xunitxml >> rmsUnitTestResults.txt
 ./rmsplatformUnitTests -xunitxml >> rmsUnitTestResults.txt
 ./RestClientsUnitTests -xunitxml >> rmsUnitTestResults.txt
+./xmpFileUnitTests -xunitxml >> rmsUnitTestResults.txt
 cd ../../tools
 powershell ./Rms_Sdk_For_Cpp_UTResults_Parser.ps1
