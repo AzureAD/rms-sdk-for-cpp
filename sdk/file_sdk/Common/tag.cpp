@@ -234,7 +234,7 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
       string id = data.first;
 
       if (id.compare(methodKey) != 0 && id.find(extendedPropertyPrefix) != string::npos) {
-        string vendorAndKey = regex_replace(id, std::regex(extendedPropertyPrefix), "");
+        string vendorAndKey = regex_replace(id.c_str(), std::regex(extendedPropertyPrefix), "");
         size_t index = vendorAndKey.find_first_of("_");
         string vendor = vendorAndKey.substr(0, index);
         string key = vendorAndKey.substr(0, index + 1);
