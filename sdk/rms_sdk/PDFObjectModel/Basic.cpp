@@ -133,5 +133,28 @@ void Utility::UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start
     *pTempUTF8 = 0;
 }
 
+void Utility::UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length)
+{
+    int nUCS4Size = wsUCS4.GetLength() * sizeof(wchar_t);
+    FX_LPBYTE pUCS4Temp = (FX_LPBYTE)(FX_LPCWSTR)wsUCS4;
+
+    *dwUCS2Length = nUCS4Size / 2;
+    *ppUCS2 = new FX_BYTE[*dwUCS2Length + 2];
+    memset(*ppUCS2, 0, sizeof(FX_BYTE) * (*dwUCS2Length + 2));
+    int j = 0, nIndex = 0;
+    for(int i = 0; i < nUCS4Size; i++)
+    {
+        memcpy(*ppUCS2 + j, pUCS4Temp + i, sizeof(FX_BYTE));
+        j++;
+        nIndex++;
+        if(nIndex == 2)
+        {
+            nIndex = 0;
+            i += 2;
+        }
+    }
+}
+
+
 } // namespace pdfobjectmodel
 } // namespace rmscore

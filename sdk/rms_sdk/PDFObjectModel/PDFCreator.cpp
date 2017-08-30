@@ -269,7 +269,26 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pParser, CPDF_Dictionary* pEn
         {
             bsPL.Load(dest_buf, dest_size);
             CFX_WideString wsPL = bsPL.UTF8Decode();
-            CFX_ByteString bsPLTemp(((FX_LPCBYTE)(FX_LPCWSTR)wsPL), wsPL.GetLength() * 2);
+
+            CFX_ByteString bsPLTemp;
+            uint8_t sizeWChar = sizeof(wchar_t);
+            if(sizeWChar == 4)
+            {
+                FX_LPBYTE pUCS2 = nullptr;
+                FX_DWORD dwUCS2Length = 0;;
+                Utility::UCS4ToUCS2(wsPL, &pUCS2, &dwUCS2Length);
+                bsPLTemp.Load(pUCS2, dwUCS2Length);
+                if(pUCS2 != nullptr)
+                {
+                    delete [] pUCS2;
+                    pUCS2 = nullptr;
+                }
+            }
+            else
+            {
+                bsPLTemp.Load(((FX_LPCBYTE)(FX_LPCWSTR)wsPL), wsPL.GetLength() * sizeof(wchar_t));
+            }
+
             if(bsPLTemp.GetAt(0) == 0xff && bsPLTemp.GetAt(1) == 0xfe)
             {
                 bsPLTemp.Delete(0, 2);

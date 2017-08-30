@@ -254,10 +254,19 @@ MainWindow::MainWindow(QWidget *parent)
 {
   ui->setupUi(this);
 
+#ifdef Q_OS_LINUX
+  ui->lineEdit_clientId->setText("f3295a1c-bcfe-4430-80bf-1c0a5636e8e8");
+  ui->lineEdit_clientEmail->setText("max@foxitsoftwareinc.onmicrosoft.com");
+  ui->lineEdit_redirectUrl->setText("com.foxitsoftware.com.reader-for-linux://authorize");
+  ui->ineEdit_certificatesPath->setText("/home/Cert");
+#endif
+
+#ifdef Q_OS_WIN32
   ui->lineEdit_clientId->setText("28b05064-105c-418e-bad3-844e786f86d7");
   ui->lineEdit_clientEmail->setText("max@foxitsoftwareinc.onmicrosoft.com");
   ui->lineEdit_redirectUrl->setText("com.foxitsoftware.com.phantompdf-for-windows://authorize");
   ui->ineEdit_certificatesPath->setText("D:\\Code\\rmssdk");
+#endif
 
   qDebug() << "---- Start! -----";
 }
@@ -1024,10 +1033,19 @@ void MainWindow::PDFFileDecrypt(const string& fileIn,
         errMsg = e.what();
     }
 
-    inFile->close();
-    outFile->close();
+    if(bResult)
+    {
+        AddLog("Success: The file is unprotected to ", fileOut.c_str());
+    }
+    else
+    {
+        AddLog("Error: ", errMsg.c_str());
+        outFile->close();
+        remove(fileOut.c_str());
+    }
 
-    AddLog("Success: The file is unprotected to ", fileOut.c_str());
+    inFile->close();
+    outFile->close();    
 }
 
 void MainWindow::on_decryptPDF_clicked()
