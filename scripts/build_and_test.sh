@@ -135,6 +135,11 @@ if [ $TEST == 'true' ]; then
   else
     echo "!!! unit tests for xmpFile not found"
   fi
+  if [ -e "./tests/commonUnitTests$UT_SUFFIX" ]; then
+      ./tests/commonUnitTests$UT_SUFFIX
+  else
+    echo "!!! unit tests for xmpFile not found"
+  fi
 fi
 
 if [ $SAMPLE == 'true' ]; then

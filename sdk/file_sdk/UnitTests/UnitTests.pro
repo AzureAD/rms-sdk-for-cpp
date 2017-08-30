@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    xmp_ut
-
+    xmp_ut \
+    common_ut
