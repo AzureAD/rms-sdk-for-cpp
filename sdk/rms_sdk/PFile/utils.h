@@ -32,7 +32,7 @@ typedef std::string TempFileName;
  * \brief Uses 'cryptoOptions' and 'allowAuditedExtraction' params to create enum value
  * \param allowAuditedExtraction
  * \param cryptoOptions
- * \return
+ * \return An enum which has the required user policy creation options
  */
 modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForPfile(
     const bool& allowAuditedExtraction,
@@ -59,7 +59,7 @@ void CopyFromIstreamToFile(
 /*!
  * \brief Creates a name for a temporary file by concatenating 'filename' with a random number
  * \param fileName
- * \return
+ * \return A random string which is used as the name of the temporary file
  */
 std::string CreateTemporaryFileName(const std::string& fileName);
 
@@ -68,7 +68,7 @@ std::string CreateTemporaryFileName(const std::string& fileName);
  *        'maxFileSize'
  * \param stream
  * \param maxFileSize
- * \return
+ * \return The size of the stream
  */
 uint64_t ValidateAndGetFileSize(std::istream* stream, uint64_t maxFileSize);
 
@@ -77,7 +77,7 @@ uint64_t ValidateAndGetFileSize(std::istream* stream, uint64_t maxFileSize);
  *        'maxFileSize'
  * \param stream
  * \param maxFileSize
- * \return
+ * \return The size of the stream
  */
 uint64_t ValidateAndGetFileSize(FILE* file, uint64_t maxFileSize);
 

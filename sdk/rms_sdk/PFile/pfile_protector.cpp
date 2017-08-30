@@ -7,19 +7,11 @@
 */
 
 #include "pfile_protector.h"
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <string>
 #include <vector>
-#include "BlockBasedProtectedStream.h"
 #include "CryptoAPI.h"
-#include "file_api_structures.h"
 #include "RMSExceptions.h"
-#include "PfileHeader.h"
 #include "PfileHeaderReader.h"
 #include "PfileHeaderWriter.h"
-#include "UserPolicy.h"
 #include "../Common//CommonTypes.h"
 #include "../Core/ProtectionPolicy.h"
 #include "../Platform/Logger/Logger.h"
@@ -50,6 +42,7 @@ void PFileProtector::ProtectWithTemplate(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
 
+  // Check if the file is protected first. This is done by checking presence of license in the file.
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSPFileException(
@@ -62,6 +55,7 @@ void PFileProtector::ProtectWithTemplate(
   auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptionsForPfile(
         options.allowAuditedExtraction,
         options.cryptoOptions);
+  // Create User Policy
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
         options.templateDescriptor,
         userContext.userId,
@@ -84,6 +78,7 @@ void PFileProtector::ProtectWithCustomRights(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
 
+  // Check if the file is protected first. This is done by checking presence of license in the file.
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSPFileException(
@@ -96,6 +91,7 @@ void PFileProtector::ProtectWithCustomRights(
   auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptionsForPfile(
         options.allowAuditedExtraction,
         options.cryptoOptions);
+  // Create User Policy
   mUserPolicy = modernapi::UserPolicy::Create(
         const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
         userContext.userId,
@@ -117,15 +113,19 @@ UnprotectResult PFileProtector::Unprotect(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
   utils::ValidateAndGetFileSize(mInputStream.get(), utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+  // Wraps a std stream into rmscrypto::api::IStream. This is later used to create protected
+  // stream and read protected data from that stream.
   auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(mInputStream);
   std::shared_ptr<pfile::PfileHeader> header = nullptr;
   try {
+    // Read header from PFile. If this operation fails, then file is either not protected or has
+    // been corrupted.
     header =  ReadHeader(inputSharedStream);
   } catch (exceptions::RMSException&) {
     Logger::Hidden("Failed to read header");
     Logger::Hidden("-PFileProtector::UnProtect");
     throw;
-  }
+  }  
   modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options.offlineOnly?
         modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
         modernapi::PolicyAcquisitionOptions::POL_None;
@@ -136,6 +136,7 @@ UnprotectResult PFileProtector::Unprotect(
           modernapi::RESPONSE_CACHE_ONDISK |
           modernapi::RESPONSE_CACHE_CRYPTED);
   }
+  // Acquire User Policy
   auto policyRequest = modernapi::UserPolicy::Acquire(
         header->GetPublishingLicense(),
         userContext.userId,
@@ -155,6 +156,7 @@ UnprotectResult PFileProtector::Unprotect(
     Logger::Error("User Policy acquisition failed");
     throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
   }
+  // Create protected stream from rmscrypto::api::SharedStream to read encrypted data
   auto protectedStream = CreateProtectedStream(inputSharedStream, header);
   DecryptStream(outputStream, protectedStream, header->GetOriginalFileSize());
   Logger::Hidden("+PFileProtector::UnProtect");
@@ -165,6 +167,8 @@ bool PFileProtector::IsProtected() const {
   Logger::Hidden("+PFileProtector::IsProtected");
   auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(mInputStream);
   try {
+    // If header is successfully read, then it means the file is protected. Else it is not protected
+    // or has been corrupted .
     ReadHeader(inputSharedStream);
   } catch (exceptions::RMSException&) {
     Logger::Hidden("-PFileProtector::IsProtected");
@@ -181,9 +185,12 @@ void PFileProtector::ProtectInternal(
     Logger::Error("User Policy creation failed");
     throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
   }
+  // Wraps a std stream into rmscrypto::api::IStream. This is later used to create protected
+  // stream and write protected data into that stream.
   auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputStream);
-  //Write Header
+  // Write Header
   auto header = WriteHeader(outputSharedStream, inputFileSize);
+  // Create protected stream from rmscrypto::api::SharedStream to write encrypted data
   auto protectedStream = CreateProtectedStream(outputSharedStream, header);
   EncryptStream(protectedStream, inputFileSize);
 }
@@ -199,7 +206,7 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::Creat
   }
   auto cryptoProvider = mUserPolicy->GetImpl()->GetCryptoProvider();
   mBlockSize = cryptoProvider->GetBlockSize();
-  // Cache block size to be 512 for cbc512, 4096 for cbc4k and ecb
+  // Cache block size to be 512 for CBC512, 4096 for CBC4K and ECB.
   uint64_t protectedStreamBlockSize = mBlockSize == 512 ? 512 : 4096;
   auto contentStartPosition = header->GetContentStartPosition();
   auto backingStreamImpl = stream->Clone();
@@ -220,6 +227,7 @@ void PFileProtector::EncryptStream(
   bool isECB = mUserPolicy->DoesUseDeprecatedAlgorithms();
   uint64_t totalSize = isECB? ((inputFileSize + mBlockSize - 1) & ~(mBlockSize - 1)) :
                               inputFileSize;
+  // Encrypt data in chunks of 4K bytes.
   while (totalSize - readPosition > 0) {
     uint64_t offsetRead  = readPosition;
     uint64_t offsetWrite = writePosition;
@@ -249,6 +257,7 @@ void PFileProtector::DecryptStream(
   uint64_t readPosition  = 0;
   uint64_t writePosition = 0;
   uint64_t totalSize = pStream->Size();
+  // Decrypt data in chunks of 4K bytes.
   while (totalSize - readPosition > 0) {
     uint64_t offsetRead  = readPosition;
     uint64_t offsetWrite = writePosition;

@@ -50,25 +50,63 @@ public:
   bool IsProtected() const override;
 
 private:
+  /*!
+   * \brief Creates protected stream from output stream. Writes the header, protects and writes the
+   * content as binary from the input stream.
+   * \param outputStream
+   * \param inputFileSize Size of the input stream.
+   */
   void ProtectInternal(const std::shared_ptr<std::ostream>& outputStream, uint64_t inputFileSize);
 
+  /*!
+   * \brief Wraps a rmscrypto::api::SharedStream into a protected stream. The 'Write' method for this
+   * stream encrypts the data and then writes to the underlying stream. The 'Read' method decrypts the
+   * data from the underlying stream.
+   * \param stream
+   * \param header
+   * \return A shared pointer to the protected stream
+   */
   std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
       const rmscrypto::api::SharedStream& stream,
       const std::shared_ptr<pfile::PfileHeader>& header);
 
+  /*!
+   * \brief Protects data from input stream in chunks and writes to 'pStream'. This stream encrypts
+   * data and then writes to the underlying stream.
+   * \param pStream
+   * \param inputFileSize
+   */
   void EncryptStream(
       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
       uint64_t inputFileSize);
 
+  /*!
+   * \brief Reads data from 'pStream' in chunks and writes to the 'stdStream'. The 'Read' method
+   * for 'pStream' decrypts the data and then returns it.
+   * \param stdStream
+   * \param pStream
+   * \param originalFileSize
+   */
   void DecryptStream(
       const std::shared_ptr<std::ostream>& stdStream,
       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
       uint64_t originalFileSize);
 
+  /*!
+   * \brief Creates and writes the PFile header
+   * \param stream
+   * \param originalFileSize
+   * \return A shared pointer to the PFileHeader object created and written
+   */
   std::shared_ptr<rmscore::pfile::PfileHeader> WriteHeader(
       const rmscrypto::api::SharedStream& stream,
       uint64_t originalFileSize);
 
+  /*!
+   * \brief Reads and returns the PFile header
+   * \param stream
+   * \return A shared pointer to a PFileHeader object created after reading the header from stream
+   */
   std::shared_ptr<rmscore::pfile::PfileHeader> ReadHeader(
       const rmscrypto::api::SharedStream& stream) const;
 

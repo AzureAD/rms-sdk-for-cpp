@@ -11,6 +11,7 @@
 
 #include <string>
 #include <gsf/gsf.h>
+#include "BlockBasedProtectedStream.h"
 #include "file_api_structures.h"
 #include "UserPolicy.h"
 
@@ -59,15 +60,15 @@ void AlignInputAtFourBytes(GsfInput* stm, uint32_t contentLength);
 
 /*!
  * \brief Converts a UTF16 encoded string to a UTF8 encoded string
- * \param utf16_string
- * \return
+ * \param utf16_string the input string in UTF16 encoding
+ * \return The UTF8 encoded string
  */
 std::string utf16_to_utf8(const std::u16string& utf16_string);
 
 /*!
  * \brief Converts a UTF8 encoded string to a UTF16 encoded string
- * \param utf16_string
- * \return
+ * \param utf16_string The input string in UTF8 encoding
+ * \return UTF16 encoded string
  */
 std::u16string utf8_to_utf16(const std::string& utf8_string);
 
@@ -91,11 +92,35 @@ void ReadStreamHeader(GsfInput* stm, uint64_t& contentLength);
  * \brief Uses 'cryptoOptions' and 'allowAuditedExtraction' params to create enum value
  * \param allowAuditedExtraction
  * \param cryptoOptions
- * \return
+ * \return An enum which has the required user policy creation options
  */
 modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForOffice(
     const bool& allowAuditedExtraction,
     CryptoOptions cryptoOptions);
+
+/*!
+ * \brief CreateProtectedStream
+ * \param stream The Shared Stream which is wrapped into a protected stream
+ * \param streamSize
+ * \param cryptoProvider
+ * \return A shared pointer to the protected stream.
+ */
+std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
+    const rmscrypto::api::SharedStream& stream,
+    uint64_t streamSize,
+    std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider);
+
+/*!
+ * \brief Tries to open the input stream as a Compound File and read the publishing license. If the
+ * license is successfully read, the file is protected.
+ * \param inputTempFileName
+ * \param inputFileSize
+ * \return
+ */
+bool IsProtectedInternal(
+    std::istream* inputStream,
+    std::string inputTempFileName,
+    uint64_t inputFileSize);
 } // namespace officeutils
 } // namespace rmscore
 

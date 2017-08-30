@@ -26,7 +26,6 @@ CONFIG(debug, debug|release) {
 
 HEADERS += \
     data_spaces.h \
-    idata_spaces.h \
     metro_office_protector.h \
     mso_office_protector.h \
     office_utils.h \

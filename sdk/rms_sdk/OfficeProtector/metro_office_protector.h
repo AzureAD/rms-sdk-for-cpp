@@ -51,14 +51,26 @@ public:
 
 private:
   /*!
-   * \brief ProtectInternal
-   *
-   *
+   * \brief Creates a Compound File on the temporary file. Writes the publishing license and other
+   * components of DataSpaces storage. Then encrypts the input stream in chunks and writes to a
+   * stream created in the Compound File.
    * \param outputTempFileName
    * \param inputFileSize
    */
   void ProtectInternal(std::string outputTempFileName, uint64_t inputFileSize);
 
+  /*!
+   * \brief Opens the input stream as a Compound File, reads publishing license and acquires User
+   * Policy. Then decrypts the encrypted data present in the Compound File and writes to the
+   * output stream.
+   * \param userContext
+   * \param options
+   * \param outputStream
+   * \param inputTempFileName
+   * \param inputFileSize
+   * \param cancelState
+   * \return The result of the Unprotect operation as an enum value
+   */
   UnprotectResult UnprotectInternal(
       const UserContext& userContext,
       const UnprotectOptions& options,
@@ -67,16 +79,19 @@ private:
       uint64_t inputFileSize,
       std::shared_ptr<std::atomic<bool>> cancelState);
 
-  bool IsProtectedInternal(std::string inputTempFileName, uint64_t inputFileSize) const;
-
-
-  std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
-      const rmscrypto::api::SharedStream& stream,
-      uint64_t streamSize,
-      std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider);
-
+  /*!
+   * \brief Encrypts data in chunks of 4K bytes.
+   * \param metroStream The output stream to which encrypted data is written.
+   * \param inputFileSize The size of the input stream.
+   */
   void EncryptStream(GsfOutput* metroStream, uint64_t inputFileSize);
 
+  /*!
+   * \brief Decrypts data in chunks of 4K bytes.
+   * \param stdStream The output stream to which the decrypted data is written.
+   * \param metroStream The input stream which is encrypted.
+   * \param originalFileSize The size of the decrypted data found in the stream header.
+   */
   void DecryptStream(
       const std::shared_ptr<std::ostream>& stdStream,
       GsfInput* metroStream,

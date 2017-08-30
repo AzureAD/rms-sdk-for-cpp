@@ -52,12 +52,39 @@ public:
   bool IsProtected() const override;
 
 private:
+
+  /*!
+   * \brief Copies the input stream into a temporary file with name 'inputTempFileName' to open as
+   * a Compound File. Creates Compound Files on the output file 'outputTempFileName' and temporary
+   * files 'drmTempFileName'. Some part of the input file is copied as it is to the output Compound
+   * File and some is copied to the drm Compound File. Then the the drm Compound File is encrypted
+   * as binary and written to a stream inside output Compound File.
+   * \param inputTempFileName
+   * \param outputTempFileName
+   * \param drmTempFileName
+   * \param inputFileSize
+   */
   void ProtectInternal(
       const std::string& inputTempFileName,
       const std::string& outputTempFileName,
       const std::string& drmTempFileName,
       uint64_t inputFileSize);
 
+  /*!
+   * \brief Copies the input stream into a temporary file with name 'inputTempFileName' to open as
+   * a Compound File. Creates Compound File on the output file 'outputTempFileName'.Some part of the
+   * input file which is not encrypted is copied as it is to the output Compound File.
+   * The encrypted stream is decrypted and written to the temporary file 'drmTempFileName'. Then this
+   * file is opened as a Compound File and all streams/storages are copied to the output Compound file.
+   * \param userContext
+   * \param options
+   * \param inputTempFileName
+   * \param outputTempFileName
+   * \param drmTempFileName
+   * \param inputFileSize
+   * \param cancelState
+   * \return
+   */
   UnprotectResult UnprotectInternal(
       const UserContext& userContext,
       const UnprotectOptions& options,
@@ -67,25 +94,57 @@ private:
       uint64_t inputFileSize,
       std::shared_ptr<std::atomic<bool>> cancelState);
 
-  bool IsProtectedInternal(const std::string& inputTempFileName, uint64_t inputFileSize) const;
-
-  std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
-      const rmscrypto::api::SharedStream& stream,
-      uint64_t streamSize,
-      std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider);
-
+  /*!
+   * \brief Encrypts data in chunks of 4K bytes.
+   * \param drmStream The input stream which is encrypted as binary.
+   * \param drmEncryptedStream The output stream to which encrypted data is written.
+   * \param inputFileSize The size of the input stream.
+   */
   void EncryptStream(FILE* drmStream, GsfOutput* drmEncryptedStream, uint64_t inputFileSize);
 
+  /*!
+   * \brief Decrypts data in chunks of 4K bytes.
+   * \param drmStream The output stream to which the decrypted data is written.
+   * \param drmEncryptedStream The input stream which is encrypted.
+   * \param originalFileSize The size of the decrypted data found in the stream header.
+   */
   void DecryptStream(FILE* drmStream, GsfInput* drmEncryptedStream, uint64_t originalFileSize);
 
+  /*!
+   * \brief Recursively copies all streams and storages in src to dest.
+   * \param src
+   * \param dest
+   * \return
+   */
   bool CopyStorage(GsfInfile* src, GsfOutfile* dest);
 
+  /*!
+   * \brief Copies all contents of src to dest.
+   * \param src
+   * \param dest
+   * \return
+   */
   bool CopyStream(GsfInput* src, GsfOutput* dest);
 
+  /*!
+   * \brief Creates streams to display an appropriate message in non enlightened applications.
+   * \param dest The output file Compound File
+   * \param identifier An index which identifies which type of office file and what streams need to copied.
+   */
   void CopyTemplate(GsfOutfile* dest, uint32_t identifier);
 
+  /*!
+   * \brief Creates a vector of all storages/streams in the input which don't need to be
+   * encrypted and can be copied to output as is.
+   * \return
+   */
   const std::vector<std::string>& GetStorageElementsList();
 
+  /*!
+   * \brief Creates a map where the key is a string which uniquely identifies whether it
+   * is a Word, Powerpoint or Excel file. The value is just an index to be used in the calling function.
+   * \return
+   */
   const std::map<std::string, uint32_t>& GetIdentifierMap();
 
   std::string mFileName;

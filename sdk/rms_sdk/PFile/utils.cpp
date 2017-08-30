@@ -27,10 +27,12 @@ modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForPfile(
         modernapi::UserPolicyCreationOptions::USER_AllowAuditedExtraction :
         modernapi::UserPolicyCreationOptions::USER_None;
   if (cryptoOptions == CryptoOptions::AES128_ECB) {
+    // Default option for pfiles is CBC
     userPolicyCreationOptions = static_cast<modernapi::UserPolicyCreationOptions>(
           userPolicyCreationOptions |
           modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
-  } else {      //temporary until we have CBC for office files
+  } else {
+    // temporary until we have CBC for office files
     throw exceptions::RMSLogicException(
           exceptions::RMSException::ErrorTypes::NotSupported,
           "CBC Encryption with Office files is not yet supported");
@@ -46,6 +48,7 @@ void CopyFromFileToOstream(std::string fileName, std::ostream* stream) {
   stream->seekp(0);
   std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
   auto count = fileSize;
+  // Copy in chunks of size BUF_SIZE_BYTES (4K)
   while (count > BUF_SIZE_BYTES) {
     fread(&buffer[0], BUF_SIZE_BYTES, 1, file.get());
     stream->write(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE_BYTES);
@@ -65,6 +68,7 @@ void CopyFromIstreamToFile(
   fseek(tempFile.get(), 0L, SEEK_SET);
   std::vector<uint8_t> buffer(BUF_SIZE_BYTES);
   auto count = inputFileSize;
+  // Copy in chunks of size BUF_SIZE_BYTES (4K)
   while (count > BUF_SIZE_BYTES) {
     stream->read(reinterpret_cast<char *>(&buffer[0]), BUF_SIZE_BYTES);
     fwrite(reinterpret_cast<const char*>(buffer.data()), BUF_SIZE_BYTES, 1, tempFile.get());

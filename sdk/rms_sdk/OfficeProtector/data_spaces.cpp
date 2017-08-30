@@ -121,7 +121,7 @@ void DataSpaces::WriteDataSpaces(GsfOutfile* stg, const ByteArray& publishingLic
   WritePrimary(primaryStm.get(), publishingLicense);
 }
 
-void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense) {
+void DataSpaces::ReadDataSpaces(GsfInfile* stg, ByteArray& publishingLicense) {
   if (stg == nullptr) {
     Logger::Error("Invalid arguments provided for reading dataspaces.");
     throw exceptions::RMSOfficeFileException(
@@ -137,6 +137,7 @@ void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense) {
         gsf_infile_child_by_name(
           reinterpret_cast<GsfInfile*>(transformInfoStg.get()),
           kPasswordTransform));
+  // Presence of password transform means file is not protected by RMS.
   if (passwordTransformStg) {
     Logger::Error("The file has been protected using non RMS technologies");
     throw exceptions::RMSOfficeFileException(
@@ -161,7 +162,7 @@ void DataSpaces::ReadDataSpaces(GsfInfile *stg, ByteArray& publishingLicense) {
   ReadPrimary(primaryStm.get(), publishingLicense);
 }
 
-void DataSpaces::WriteVersion(GsfOutput *stm, const std::string& content) {
+void DataSpaces::WriteVersion(GsfOutput* stm, const std::string& content) {
   if (stm == nullptr || content.empty()) {
     Logger::Error("Invalid arguments provided for writing version");
     throw exceptions::RMSOfficeFileException(
@@ -221,7 +222,7 @@ void DataSpaces::ReadAndVerifyVersion(GsfInput* stm, const std::string& contentE
   }
 }
 
-void DataSpaces::WriteDataSpaceMap(GsfOutput *stm) {
+void DataSpaces::WriteDataSpaceMap(GsfOutput* stm) {
   DataSpaceMapHeader dsmh;
   DataSpaceMapEntryHeader dsmeh;
   uint32_t refVar = 0;
@@ -264,7 +265,7 @@ void DataSpaces::WriteDrmDataSpace(GsfOutput* stm) {
 }
 
 void DataSpaces::WriteTxInfo(
-    GsfOutput *stm,
+    GsfOutput* stm,
     const std::string& txClassName,
     const std::string& featureName) {
   if (stm == nullptr || txClassName.empty() || featureName.empty()) {
@@ -341,7 +342,7 @@ void DataSpaces::WritePrimary(GsfOutput* stm, const ByteArray& publishingLicense
   }
 }
 
-void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense) {
+void DataSpaces::ReadPrimary(GsfInput* stm, ByteArray& publishingLicense) {
   if (stm == nullptr) {
     Logger::Error("Invalid arguments provided for reading Primary stream");
     throw exceptions::RMSOfficeFileException(
@@ -349,6 +350,7 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense) {
           exceptions::RMSOfficeFileException::Reason::Unknown);
   }
   uint32_t headerLenRead = 0;
+  // Read and verify information about transformation used.
   ReadTxInfo(stm, kDrmTransformClass, kDrmTransformFeature);
   gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&headerLenRead));
   headerLenRead -= sizeof(headerLenRead);
@@ -359,10 +361,12 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense) {
           exceptions::RMSOfficeFileException::Reason::CorruptFile);
   }
   uint32_t publishingLicenseLen = 0;
+  // Read length of the publishing license.
   gsf_input_read(stm, sizeof(uint32_t), reinterpret_cast<uint8_t*>(&publishingLicenseLen));
   if (mDoesUseDeprecatedAlgorithm) {
     std::vector<uint8_t> pl(publishingLicenseLen);
     gsf_input_read(stm, publishingLicenseLen, &pl[0]);
+    // Create string from the vector. This is in UTF8.
     std::string pl_utf8((char*)pl.data(), pl.size());
     auto pl_utf16 = officeutils::utf8_to_utf16(pl_utf8);
     publishingLicense.clear();
@@ -371,11 +375,6 @@ void DataSpaces::ReadPrimary(GsfInput *stm, ByteArray& publishingLicense) {
           reinterpret_cast<const unsigned char*>(pl_utf16.data()) +  pl_utf16.size() * 2);
     officeutils::AlignInputAtFourBytes(stm, publishingLicenseLen);
   }
-}
-
-std::shared_ptr<IDataSpaces>IDataSpaces::Create(bool isMetro) {
-  Logger::Hidden("DataSpaces::Create");
-  return std::make_shared<DataSpaces>(isMetro);
 }
 
 } // namespace officeprotector

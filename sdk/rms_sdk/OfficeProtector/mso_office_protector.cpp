@@ -51,6 +51,7 @@ void MsoOfficeProtector::ProtectWithTemplate(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
 
+  // Check if the file is protected first. This is done by checking presence of license in the file.
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSOfficeFileException(
@@ -64,6 +65,7 @@ void MsoOfficeProtector::ProtectWithTemplate(
   auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
+  // Create User Policy
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
         options.templateDescriptor,
         userContext.userId,
@@ -71,9 +73,13 @@ void MsoOfficeProtector::ProtectWithTemplate(
         userPolicyCreationOptions,
         options.signedAppData,
         cancelState);
+  // Creating and using temporary file to store encrypted content and license. This is done since
+  // LibGsf doesn't support C++ iostreams. We need 3 temporary files - for input, output and for
+  // storing drm content as a separate compound file.
   std::string inputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::string outputTempFileName = utils::CreateTemporaryFileName("output");
   std::string drmTempFileName = utils::CreateTemporaryFileName("drm");
+  // The custom deleters will delete the temporary files once the unique ptrs to the names go out of scope.
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> inputTempFile(&inputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> drmTempFile(&drmTempFileName);
@@ -98,6 +104,7 @@ void MsoOfficeProtector::ProtectWithCustomRights(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
 
+  // Check if the file is protected first. This is done by checking presence of license in the file.
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSOfficeFileException(
@@ -110,15 +117,20 @@ void MsoOfficeProtector::ProtectWithCustomRights(
   auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
+  // Create User Policy
   mUserPolicy = modernapi::UserPolicy::Create(
         const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
         userContext.userId,
         userContext.authenticationCallback,
         userPolicyCreationOptions,
         cancelState);
+  // Creating and using temporary file to store encrypted content and license. This is done since
+  // LibGsf doesn't support C++ iostreams. We need 3 temporary files - for input, output and for
+  // storing drm content as a separate compound file.
   std::string inputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::string outputTempFileName = utils::CreateTemporaryFileName("output");
   std::string drmTempFileName = utils::CreateTemporaryFileName("drm");
+  // The custom deleters will delete the temporary files once the unique ptrs to the names go out of scope.
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> inputTempFile(&inputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> drmTempFile(&drmTempFileName);
@@ -146,9 +158,13 @@ UnprotectResult MsoOfficeProtector::Unprotect(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_DECRYPT);
   auto result = UnprotectResult::NORIGHTS;
+  // Creating and using temporary file to store encrypted content and license. This is done since
+  // LibGsf doesn't support C++ iostreams. We need 3 temporary files - for input, output and for
+  // storing drm content as a separate compound file.
   std::string inputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::string outputTempFileName = utils::CreateTemporaryFileName("output");
   std::string drmTempFileName = utils::CreateTemporaryFileName("drm");
+  // The custom deleters will delete the temporary files once the unique ptrs to the names go out of scope.
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> inputTempFile(&inputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> drmTempFile(&drmTempFileName);
@@ -177,7 +193,10 @@ bool MsoOfficeProtector::IsProtected() const {
         utils::MAX_FILE_SIZE_FOR_DECRYPT);
   std::string inputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> inputTempFile(&inputTempFileName);
-  bool isProtected = IsProtectedInternal(inputTempFileName, inputFileSize);
+  bool isProtected = officeutils::IsProtectedInternal(
+        mInputStream.get(),
+        inputTempFileName,
+        inputFileSize);
   Logger::Hidden("-MsoOfficeProtector::IsProtected");
   return isProtected;
 }
@@ -191,6 +210,8 @@ void MsoOfficeProtector::ProtectInternal(
     Logger::Error("User Policy creation failed");
     throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
   }
+  // Copy from input stream to a temporary file. This file is opened as a Compound File through
+  // LibGsf.
   utils::CopyFromIstreamToFile(mInputStream.get(), inputTempFileName, inputFileSize);
   std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> inputStg;
   try {
@@ -203,6 +224,7 @@ void MsoOfficeProtector::ProtectInternal(
           "The file is invalid",
           exceptions::RMSOfficeFileException::Reason::NotOfficeFile);
   }
+  // For storages, number of children are >0 and for streams, number of children are -1
   auto num_children = gsf_infile_num_children(inputStg.get());
   if (num_children < 0) {
     Logger::Hidden("Empty storage. Nothing to protect");
@@ -210,16 +232,22 @@ void MsoOfficeProtector::ProtectInternal(
           "The file is invalid",
           exceptions::RMSOfficeFileException::Reason::NotOfficeFile);
   }
+  // The file is partially protected. The streams that don't need to be protected are copied as it
+  // is to the output Compound File. The ones that need to be protected are copied to another
+  // temporary Compound File. Then this file is opened as binary, protected and the protected
+  // content is copied to the output Compound File.
   std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
         gsf_output_stdio_new(outputTempFileName.c_str(), nullptr));
   std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> outputStg(
         gsf_outfile_msole_new(gsfOutputStdIO.get()));
   {
+    // Create the temporary Compound File which will hold the streams that need to be protected.
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfDrmStdIO(
           gsf_output_stdio_new(drmTempFileName.c_str(), nullptr));
 
     std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> drmStg(
           gsf_outfile_msole_new(gsfDrmStdIO.get()));
+    // This is a list of the streams/storages that don't need to be protected.
     auto storageElementsList = GetStorageElementsList();
     auto identifierMap = GetIdentifierMap();
     for (int i = 0; i < num_children; i++)
@@ -228,16 +256,20 @@ void MsoOfficeProtector::ProtectInternal(
             gsf_infile_child_by_index(inputStg.get(), i));
       std::string childName = gsf_input_name(inputChild.get());
       auto num_children_child = gsf_infile_num_children(GSF_INFILE(inputChild.get()));
+      // Some template streams are copied to the protected file. This is done to display an
+      // appropriate message in non enlightened applications.
       if (identifierMap.find(childName) != identifierMap.end()) {
         CopyTemplate(outputStg.get(), identifierMap[childName]);
       }
 
       if (std::find(storageElementsList.begin(), storageElementsList.end(), childName) !=
           storageElementsList.end()) {
+        // Copy to the output Compound File as it is
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> outputChild(
               gsf_outfile_new_child(outputStg.get(), childName.c_str(), num_children_child > 0));
         auto result = CopyStorage(GSF_INFILE(inputChild.get()), GSF_OUTFILE(outputChild.get()));
       } else {
+        // Copy to the temporary Compound File.
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> drmChild(
               gsf_outfile_new_child(drmStg.get(), childName.c_str(), num_children_child > 0));
         auto result = CopyStorage(GSF_INFILE(inputChild.get()), GSF_OUTFILE(drmChild.get()));
@@ -245,7 +277,7 @@ void MsoOfficeProtector::ProtectInternal(
     }
   }
   {
-    //Write Dataspaces
+    // Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
           false,
           mUserPolicy->DoesUseDeprecatedAlgorithms());
@@ -253,8 +285,10 @@ void MsoOfficeProtector::ProtectInternal(
     dataSpaces->WriteDataSpaces(outputStg.get(), publishingLicense);
   }
   {
+    // Create a stream which will hold the encrypted content
     std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> drmEncryptedStream(
           gsf_outfile_new_child(outputStg.get(), kDrmContent, false));
+    // Open the temporary Compound File, which has streams/storages to be protected, as binary.
     std::unique_ptr<FILE, utils::FILE_deleter> drmTempFileStream(fopen(drmTempFileName.c_str(), "r+b"));
     auto drmContentSize = utils::ValidateAndGetFileSize(
           drmTempFileStream.get(),
@@ -272,6 +306,8 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(
     const std::string& drmTempFileName,
     uint64_t inputFileSize,
     std::shared_ptr<std::atomic<bool>> cancelState) {
+  // Copy from input stream to a temporary file. This file is opened as a Compound File through
+  // LibGsf.
   utils::CopyFromIstreamToFile(mInputStream.get(), inputTempFileName, inputFileSize);
   std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> inputStg;
   try {
@@ -286,6 +322,8 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(
   }
   ByteArray publishingLicense;
   try {
+    // Read the license from the protected file. If this fails, either the file is not protected
+    // or has been corrupted.
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(false, true);
     dataSpaces->ReadDataSpaces(inputStg.get(), publishingLicense);
   } catch (std::exception&) {
@@ -302,6 +340,7 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(
           modernapi::RESPONSE_CACHE_ONDISK |
           modernapi::RESPONSE_CACHE_CRYPTED);
   }
+  // Acquire User Policy
   auto policyRequest = modernapi::UserPolicy::Acquire(
         publishingLicense,
         userContext.userId,
@@ -326,6 +365,10 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(
     throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
                                         "CBC Decryption with Office files is not yet supported");
   }
+  // The file is partially protected. The storages/streams that aren't protected are copied as it is
+  // to the output Compound File. The ones that are protected are a part of the '\11DRMContent'
+  // stream. This stream is decrypted and copied to another temporary Compound File. Then this file
+  // is opened as a Compound File, and all storages/streams are copied to the output Compound File.
   std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> gsfOutputStdIO(
         gsf_output_stdio_new(outputTempFileName.c_str(), nullptr));
   std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> outputStg(
@@ -342,8 +385,10 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(
     }
     uint64_t originalFileSize = 0;
     officeutils::ReadStreamHeader(drmEncryptedStream.get(), originalFileSize);
+    // Decrypt the encrypted stream and copy it to the temporary Compound File.
     DecryptStream(drmTempFileStream.get(), drmEncryptedStream.get(), originalFileSize);
     auto num_children = gsf_infile_num_children(inputStg.get());
+    // This is a list of the streams/storages that aren't protected and will be copied as it is.
     auto storageElementsList = GetStorageElementsList();
     for (int i = 0; i < num_children; i++) {
       std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> inputChild(
@@ -359,51 +404,14 @@ UnprotectResult MsoOfficeProtector::UnprotectInternal(
       }
     }
   }
+  // Open the temporary file as a Compound File and copy all storages/streams to the output
+  // Compound File
   std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfDrmStdIO(
         gsf_input_stdio_new(drmTempFileName.c_str(), nullptr));
   std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> drmStg(
         gsf_infile_msole_new(gsfDrmStdIO.get(), nullptr));
   CopyStorage(drmStg.get(), outputStg.get());
   return (UnprotectResult)policyRequest->Status;
-}
-
-bool MsoOfficeProtector::IsProtectedInternal(
-    const std::string& inputTempFileName,
-    uint64_t inputFileSize) const {
-  utils::CopyFromIstreamToFile(mInputStream.get(), inputTempFileName, inputFileSize);
-  try {
-    std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
-          gsf_input_stdio_new(inputTempFileName.c_str(), nullptr));
-    std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg(
-          gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
-    auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(false);
-    ByteArray publishingLicense;
-    dataSpaces->ReadDataSpaces(stg.get(), publishingLicense);
-  } catch (std::exception& e) {
-    if (static_cast<exceptions::RMSException&>(e).error() ==
-        static_cast<int>(exceptions::RMSException::ErrorTypes::OfficeFileError) &&
-        (static_cast<exceptions::RMSOfficeFileException&>(e).reason() ==
-         exceptions::RMSOfficeFileException::Reason::NonRMSProtected)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
-
-std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> MsoOfficeProtector::CreateProtectedStream(
-    const rmscrypto::api::SharedStream& stream,
-    uint64_t streamSize,
-    std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider) {
-  // Cache block size to be 512 for cbc512, 4096 for cbc4k and ecb
-  uint64_t protectedStreamBlockSize = cryptoProvider->GetBlockSize() == 512 ? 512 : 4096;
-  return rmscrypto::api::BlockBasedProtectedStream::Create(
-        cryptoProvider,
-        stream,
-        0,
-        streamSize,
-        protectedStreamBlockSize);
 }
 
 void MsoOfficeProtector::EncryptStream(
@@ -415,6 +423,8 @@ void MsoOfficeProtector::EncryptStream(
   std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
   uint64_t readPosition  = 0;
   bool isECB = mUserPolicy->DoesUseDeprecatedAlgorithms();
+  // Total size represents the size of the encrypted content. in case of ECB, padding is added in
+  // the end to round the size up to the block size.
   uint64_t totalSize = isECB? ((inputFileSize + mBlockSize - 1) & ~(mBlockSize - 1)) :
                               inputFileSize;
   while (totalSize - readPosition > 0) {
@@ -422,15 +432,19 @@ void MsoOfficeProtector::EncryptStream(
     uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
     readPosition  += toProcess;
 
+    // Using String Streams since the underlying protection APIs use streams instead of buffers.
+    // Hence we create string streams and create protected stream from it.
+    // TODO: modify this logic once we have buffer based APIs.
     auto sstream = std::make_shared<std::stringstream>();
     std::shared_ptr<std::iostream> iosstream = sstream;
     auto sharedStringStream = rmscrypto::api::CreateStreamFromStdStream(iosstream);
-    auto pStream = CreateProtectedStream(sharedStringStream, 0, cryptoProvider);
+    auto pStream = officeutils::CreateProtectedStream(sharedStringStream, 0, cryptoProvider);
 
     fseek(drmStream, offsetRead, SEEK_SET);
     fread(&buffer[0], toProcess, 1, drmStream);
     pStream->WriteAsync(buffer.data(), toProcess, 0, std::launch::deferred).get();
     pStream->FlushAsync(std::launch::deferred).get();
+    // get the encrypted content as a string from the string stream.
     std::string encryptedData = sstream->str();
     auto encryptedDataLen = encryptedData.length();
     gsf_output_write(
@@ -449,6 +463,8 @@ void MsoOfficeProtector::DecryptStream(
   std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
   uint64_t readPosition  = 0;
   uint64_t writePosition = 0;
+  // Total size is the size of the encrypted content. The size of the unencrypted content is
+  // written in the stream header.
   uint64_t totalSize = (uint64_t)gsf_input_size(drmEncryptedStream) - sizeof(uint64_t);
   while (totalSize - readPosition > 0) {
     uint64_t offsetWrite = writePosition;
@@ -459,15 +475,23 @@ void MsoOfficeProtector::DecryptStream(
 
     gsf_input_read(drmEncryptedStream, toProcess, &buffer[0]);
     std::string encryptedData(reinterpret_cast<const char *>(buffer.data()), toProcess);
+    // Using String Streams since the underlying protection APIs use streams instead of buffers.
+    // Hence we create string stream with encrypted content and create protected stream from it
+    // to read.
+    // TODO: modify this logic once we have buffer based APIs.
     auto sstream = std::make_shared<std::stringstream>();
     sstream->str(encryptedData);
     std::shared_ptr<std::iostream> iosstream = sstream;
     auto sharedStringStream = rmscrypto::api::CreateStreamFromStdStream(iosstream);
-    auto pStream = CreateProtectedStream(sharedStringStream, encryptedData.length(), cryptoProvider);
+    auto pStream = officeutils::CreateProtectedStream(
+          sharedStringStream,
+          encryptedData.length(),
+          cryptoProvider);
     pStream->ReadAsync(&buffer[0], toProcess, 0, std::launch::deferred).get();
 
     fseek(drmStream, offsetWrite, SEEK_SET);
-    fwrite(reinterpret_cast<const char *>(buffer.data()), toProcess, 1, drmStream );
+    // Write to standard output stream.
+    fwrite(reinterpret_cast<const char *>(buffer.data()), originalRemaining, 1, drmStream );
   }
   fflush(drmStream);
 }
@@ -476,9 +500,10 @@ bool MsoOfficeProtector::CopyStorage(GsfInfile *src, GsfOutfile *dest) {
   if (src == nullptr || dest == nullptr) {
     return false;
   }
+  // For storages, number of children are >0 and for streams, number of children are -1
   auto childCount = gsf_infile_num_children(src);
   if (childCount == -1) {
-    //It's a stream
+    // It's a stream
     return CopyStream(GSF_INPUT(src), GSF_OUTPUT(dest));
   }
   bool result = true;
@@ -517,6 +542,7 @@ void MsoOfficeProtector::CopyTemplate(GsfOutfile* dest, uint32_t identifier) {
   }
   switch (identifier) {
     case 0: {
+    // Word File
       {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> tableStream(
               gsf_outfile_new_child(dest, "1Table", false));
@@ -530,6 +556,7 @@ void MsoOfficeProtector::CopyTemplate(GsfOutfile* dest, uint32_t identifier) {
       break;
     }
     case 1: {
+    // PowerPoint File
       {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> tableStream(
               gsf_outfile_new_child(dest, "Current User", false));
@@ -543,6 +570,7 @@ void MsoOfficeProtector::CopyTemplate(GsfOutfile* dest, uint32_t identifier) {
       break;
     }
     case 2: {
+    // Excel File
       {
         std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> tableStream(
               gsf_outfile_new_child(dest, "Workbook", false));

@@ -50,6 +50,7 @@ void MetroOfficeProtector::ProtectWithTemplate(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
 
+  // Check if the file is protected first. This is done by checking presence of license in the file.
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSOfficeFileException(
@@ -62,6 +63,7 @@ void MetroOfficeProtector::ProtectWithTemplate(
   auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
+  // Create User Policy
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
         options.templateDescriptor,
         userContext.userId,
@@ -69,10 +71,14 @@ void MetroOfficeProtector::ProtectWithTemplate(
         userPolicyCreationOptions,
         options.signedAppData,
         cancelState);
+  // Creating and using temporary file to store encrypted content and license. This is done since
+  // LibGsf doesn't support C++ iostreams.
   std::string outputTempFileName = utils::CreateTemporaryFileName(mFileName);
+  // The custom deleter deletes the temporary file once the unique ptr to its name goes out of scope.
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   try {
     ProtectInternal(outputTempFileName, inputFileSize);
+    // Copy contents of the temporary file to the output stream provided.
     utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
   } catch (std::exception&) {
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
@@ -92,6 +98,7 @@ void MetroOfficeProtector::ProtectWithCustomRights(
     throw exceptions::RMSStreamException("Output stream invalid");
   }
 
+  // Check if the file is protected first. This is done by checking presence of license in the file.
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSOfficeFileException(
@@ -104,16 +111,21 @@ void MetroOfficeProtector::ProtectWithCustomRights(
   auto userPolicyCreationOptions = officeutils::ConvertToUserPolicyCreationOptionsForOffice(
         options.allowAuditedExtraction,
         options.cryptoOptions);
+  // Create User Policy
   mUserPolicy = modernapi::UserPolicy::Create(
         const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
         userContext.userId,
         userContext.authenticationCallback,
         userPolicyCreationOptions,
         cancelState);
+  // Creating and using temporary file to store encrypted content and license. This is done since
+  // LibGsf doesn't support C++ iostreams.
   std::string outputTempFileName = utils::CreateTemporaryFileName(mFileName);
+  // The custom deleter deletes the temporary file once the unique ptr to its name goes out of scope.
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> outputTempFile(&outputTempFileName);
   try {
     ProtectInternal(outputTempFileName, inputFileSize);
+    // Copy contents of the temporary file to the output stream provided.
     utils::CopyFromFileToOstream(outputTempFileName, outputStream.get());
   } catch (std::exception&) {
     Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
@@ -137,6 +149,8 @@ UnprotectResult MetroOfficeProtector::Unprotect(
         mInputStream.get(),
         utils::MAX_FILE_SIZE_FOR_DECRYPT);
   auto result = UnprotectResult::NORIGHTS;
+  // Creating and using temporary file to store the input encrypted file. This is done since
+  // LibGsf doesn't support C++ iostreams.
   std::string inputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> inputTempFile(&inputTempFileName);
   try {
@@ -162,6 +176,8 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
     std::string inputTempFileName,
     uint64_t inputFileSize,
     std::shared_ptr<std::atomic<bool>> cancelState) {
+  // Copy from input file (which is encrypted) to a temporary file. This file will then be opened as
+  // a Compound File through LibGsf
   utils::CopyFromIstreamToFile(mInputStream.get(), inputTempFileName, inputFileSize);
   std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg;
   try {
@@ -176,6 +192,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
   }
   ByteArray publishingLicense;
   try {
+    // Read the license from the encrypted file.
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true, true);
     dataSpaces->ReadDataSpaces(stg.get(), publishingLicense);
   } catch (std::exception&) {
@@ -192,6 +209,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
           modernapi::RESPONSE_CACHE_ONDISK |
           modernapi::RESPONSE_CACHE_CRYPTED);
   }
+  // Acquire User Policy
   auto policyRequest = modernapi::UserPolicy::Acquire(
         publishingLicense,
         userContext.userId,
@@ -217,6 +235,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
           exceptions::RMSException::ErrorTypes::NotSupported,
           "CBC Decryption with Office files is not yet supported");
   }
+  // This stream contains the entire file encrypted as binary.
   std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> metroStream(
         gsf_infile_child_by_name(stg.get(), kMetroContent));
   if (metroStream == nullptr) {
@@ -231,31 +250,6 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
   return (UnprotectResult)policyRequest->Status;
 }
 
-bool MetroOfficeProtector::IsProtectedInternal(
-    std::string inputTempFileName,
-    uint64_t inputFileSize) const {
-  utils::CopyFromIstreamToFile(mInputStream.get(), inputTempFileName, inputFileSize);
-  try {
-    std::unique_ptr<GsfInput, officeprotector::GsfInput_deleter> gsfInputStdIO(
-          gsf_input_stdio_new(inputTempFileName.c_str(), nullptr));
-    std::unique_ptr<GsfInfile, officeprotector::GsfInfile_deleter> stg(
-          gsf_infile_msole_new(gsfInputStdIO.get(), nullptr));
-    auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
-    ByteArray publishingLicense;
-    dataSpaces->ReadDataSpaces(stg.get(), publishingLicense);
-  } catch (std::exception& e) {
-    if (static_cast<exceptions::RMSException&>(e).error() ==
-        static_cast<int>(exceptions::RMSException::ErrorTypes::OfficeFileError) &&
-        (static_cast<exceptions::RMSOfficeFileException&>(e).reason() ==
-         exceptions::RMSOfficeFileException::Reason::NonRMSProtected)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
-
 bool MetroOfficeProtector::IsProtected() const {
   Logger::Hidden("+MetroOfficeProtector::IsProtected");
   auto inputFileSize = utils::ValidateAndGetFileSize(
@@ -263,7 +257,10 @@ bool MetroOfficeProtector::IsProtected() const {
         utils::MAX_FILE_SIZE_FOR_DECRYPT);
   std::string inputTempFileName = utils::CreateTemporaryFileName(mFileName);
   std::unique_ptr<utils::TempFileName, utils::TempFile_deleter> inputTempFile(&inputTempFileName);
-  bool isProtected = IsProtectedInternal(inputTempFileName, inputFileSize);
+  bool isProtected = officeutils::IsProtectedInternal(
+        mInputStream.get(),
+        inputTempFileName,
+        inputFileSize);
   Logger::Hidden("-MetroOfficeProtector::IsProtected");
   return isProtected;
 }
@@ -280,30 +277,18 @@ void MetroOfficeProtector::ProtectInternal(
   std::unique_ptr<GsfOutfile, officeprotector::GsfOutfile_deleter> stg(
         gsf_outfile_msole_new(gsfOutputStdIO.get()));
   {
-    //Write Dataspaces
+    // Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
-          true, mUserPolicy->DoesUseDeprecatedAlgorithms());
+          true,
+          mUserPolicy->DoesUseDeprecatedAlgorithms());
     auto publishingLicense = mUserPolicy->SerializedPolicy();
     dataSpaces->WriteDataSpaces(stg.get(), publishingLicense);
   }
   std::unique_ptr<GsfOutput, officeprotector::GsfOutput_deleter> metroStream(
         gsf_outfile_new_child(stg.get(), kMetroContent, false));
-  officeutils::WriteStreamHeader(metroStream.get(), originalFileSize);
+  // Stream header currently contains only the size of the unencrypted content.
+  officeutils::WriteStreamHeader(metroStream.get(), originalFileSize);  
   EncryptStream(metroStream.get(), originalFileSize);
-}
-
-std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> MetroOfficeProtector::CreateProtectedStream(
-    const rmscrypto::api::SharedStream& stream,
-    uint64_t streamSize,
-    std::shared_ptr<rmscrypto::api::ICryptoProvider> cryptoProvider) {
-  // Cache block size to be 512 for cbc512, 4096 for cbc4k and ecb
-  uint64_t protectedStreamBlockSize = cryptoProvider->GetBlockSize() == 512 ? 512 : 4096;
-  return rmscrypto::api::BlockBasedProtectedStream::Create(
-        cryptoProvider,
-        stream,
-        0,
-        streamSize,
-        protectedStreamBlockSize);
 }
 
 void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream, uint64_t inputFileSize) {
@@ -312,21 +297,28 @@ void MetroOfficeProtector::EncryptStream(GsfOutput* metroStream, uint64_t inputF
   std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
   uint64_t readPosition  = 0;
   bool isECB = mUserPolicy->DoesUseDeprecatedAlgorithms();
+  // Total size represents the size of the encrypted content. in case of ECB, padding is added in
+  // the end to round the size up to the block size.
   uint64_t totalSize = isECB? ((inputFileSize + mBlockSize - 1) & ~(mBlockSize - 1)) : inputFileSize;
+  // Encrypt data in chunks of 4K bytes.
   while (totalSize - readPosition > 0) {
     uint64_t offsetRead  = readPosition;
     uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
     readPosition  += toProcess;
 
+    // Using String Streams since the underlying protection APIs use streams instead of buffers.
+    // Hence we create string streams and create protected stream from it.
+    // TODO: modify this logic once we have buffer based APIs.
     auto sstream = std::make_shared<std::stringstream>();
     std::shared_ptr<std::iostream> iosstream = sstream;
     auto sharedStringStream = rmscrypto::api::CreateStreamFromStdStream(iosstream);
-    auto pStream = CreateProtectedStream(sharedStringStream, 0, cryptoProvider);
+    auto pStream = officeutils::CreateProtectedStream(sharedStringStream, 0, cryptoProvider);
 
     mInputStream->seekg(offsetRead);
     mInputStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
     pStream->WriteAsync(buffer.data(), toProcess, 0, std::launch::deferred).get();
     pStream->FlushAsync(std::launch::deferred).get();
+    // get the encrypted content as a string from the string stream.
     std::string encryptedData = sstream->str();
     auto encryptedDataLen = encryptedData.length();
     gsf_output_write(
@@ -345,7 +337,10 @@ void MetroOfficeProtector::DecryptStream(
   std::vector<uint8_t> buffer(utils::BUF_SIZE_BYTES);
   uint64_t readPosition  = 0;
   uint64_t writePosition = 0;
+  // Total size is the size of the encrypted content. The size of the unencrypted content is
+  // written in the stream header.
   uint64_t totalSize = (uint64_t)gsf_input_size(metroStream) - sizeof(uint64_t);
+  // Decrypt data in chunks of 4K bytes.
   while (totalSize - readPosition > 0) {
     uint64_t offsetWrite = writePosition;
     uint64_t toProcess   = std::min(utils::BUF_SIZE_BYTES, totalSize - readPosition);
@@ -355,14 +350,22 @@ void MetroOfficeProtector::DecryptStream(
 
     gsf_input_read(metroStream, toProcess, &buffer[0]);
     std::string encryptedData(reinterpret_cast<const char *>(buffer.data()), toProcess);
+    // Using String Streams since the underlying protection APIs use streams instead of buffers.
+    // Hence we create string stream with encrypted content and create protected stream from it
+    // to read.
+    // TODO: modify this logic once we have buffer based APIs.
     auto sstream = std::make_shared<std::stringstream>();
     sstream->str(encryptedData);
     std::shared_ptr<std::iostream> iosstream = sstream;
     auto sharedStringStream = rmscrypto::api::CreateStreamFromStdStream(iosstream);
-    auto pStream = CreateProtectedStream(sharedStringStream, encryptedData.length(), cryptoProvider);
+    auto pStream = officeutils::CreateProtectedStream(
+          sharedStringStream,
+          encryptedData.length(),
+          cryptoProvider);
     pStream->ReadAsync(&buffer[0], toProcess, 0, std::launch::deferred).get();
 
     stdStream->seekp(offsetWrite);
+    // Write to standard output stream.
     stdStream->write(reinterpret_cast<const char *>(buffer.data()), originalRemaining);
   }
   stdStream->flush();

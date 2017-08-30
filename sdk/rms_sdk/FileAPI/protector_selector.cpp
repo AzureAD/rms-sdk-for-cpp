@@ -33,6 +33,7 @@ std::string ProtectorSelector::GetOutputFileName() {
 }
 
 std::map<std::string, std::pair<ProtectorType, std::string>> ProtectorSelector::Init() {
+  // Map of file extension to a pair of appropriate protector type and new file extension.
   static std::map<std::string, std::pair<ProtectorType, std::string>> protectorExtensionsMap = {
     {".docm", std::make_pair(ProtectorType::OPC, ".docm")},
     {".docx", std::make_pair(ProtectorType::OPC, ".docx")},

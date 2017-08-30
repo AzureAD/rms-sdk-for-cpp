@@ -14,7 +14,7 @@ namespace fileapi {
 
 /*
  * This file contains constants used for displaying message in protected file when it is opened in
- * non enlightened viewers. These are basically hex values of the stream data.
+ * non enlightened viewers like Google Docs etc. These are basically hex values of the stream data.
  */
 
 const unsigned char kTable[] = {
