@@ -28,7 +28,7 @@ public:
   CommonTests();
 
 private Q_SLOTS:
-  void Create_StreamIsNull_ThrowInvlidArgument();
+  void Create_StreamIsNull_ThrowInvalidArgument();
   void Create_NoExtension_ThrowInvalidArgument();
   void Create_ExtenstionWithoutDot_AddsDot();
   void Create_XMPExtenstion_ReturnXMPFormat();
@@ -117,6 +117,7 @@ private Q_SLOTS:
     QTest::addColumn<std::string>("extenstion");
 
     QTest::newRow(".pfile") << std::string(".pfile");
+    QTest::newRow(".xxx.pfile") << std::string(".xxx.pfile");
     QTest::newRow(".ppdf") << std::string(".ppdf");
     QTest::newRow(".ptxt") << std::string(".ptxt");
     QTest::newRow(".pxml") << std::string(".pxml");
@@ -139,7 +140,7 @@ CommonTests::CommonTests()
 {
 }
 
-void CommonTests::Create_StreamIsNull_ThrowInvlidArgument()
+void CommonTests::Create_StreamIsNull_ThrowInvalidArgument()
 {
   QVERIFY_EXCEPTION_THROWN(FileFormatFactory::Create(nullptr, ""), std::invalid_argument);
 }
