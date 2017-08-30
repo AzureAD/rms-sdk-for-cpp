@@ -77,7 +77,7 @@ void ProtectorSelector::Compute(const std::string& fileName)
     auto pos = fileName.find_last_of('.');
     if (pos == std::string::npos)
     {
-        Logger::Error("Invalid filename provided.", fileName);
+        Logger::Error("Invalid filename provided.", fileName.c_str());
         throw exceptions::RMSInvalidArgumentException(
                     "Full filename with extension needed. Filename provided: " + fileName);
     }

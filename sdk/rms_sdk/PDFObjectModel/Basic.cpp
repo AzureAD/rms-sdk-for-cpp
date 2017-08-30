@@ -92,7 +92,7 @@ FX_BOOL FileStreamImpl::WriteBlock(const void* buffer, FX_FILESIZE offset, size_
 
 FX_BOOL FileStreamImpl::Flush()
 {
-    BOOL bFlush = m_sharedIOStream->Flush();
+    bool bFlush = m_sharedIOStream->Flush();
     return bFlush;
 }
 

@@ -235,7 +235,7 @@ void DataSpaces::ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm,
     if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
             updaterMajorRead != updaterMajorExpected || writerMajorRead != writerMajorExpected)
     {
-        Logger::Error("Major Version mismatch", contentRead, readerMajorRead,
+        Logger::Error("Major Version mismatch", contentRead.c_str(), readerMajorRead,
                       updaterMajorRead, writerMajorRead);
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
@@ -340,7 +340,7 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
     if(dtiRead.headerLen != dtiExpected.headerLen || dtiRead.txClassType != dtiExpected.txClassType)
     {
         Logger::Error("DRMTransformInfo mismatch",
-                      std::to_string(dtiRead.headerLen), std::to_string(dtiRead.txClassType));
+                      std::to_string(dtiRead.headerLen).c_str(), std::to_string(dtiRead.txClassType).c_str());
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
@@ -350,7 +350,7 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
     ReadWideStringEntry(stm, txClassNameRead);
     if(txClassNameRead.compare(txClassNameExpected) != 0)
     {
-        Logger::Error("Transform Class mismatch", txClassNameRead);
+        Logger::Error("Transform Class mismatch", txClassNameRead.c_str());
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
@@ -410,7 +410,7 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
     headerLenRead -= sizeof(headerLenRead);
     if(headerLenRead != 0)
     {
-        Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead));
+        Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead).c_str());
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
