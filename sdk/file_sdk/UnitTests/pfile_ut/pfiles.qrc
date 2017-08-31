@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/files">
+        <file>pfiles/text.ptxt</file>
+        <file>taged_pfiles/text.ptxt</file>
+    </qresource>
+</RCC>
