@@ -24,4 +24,5 @@ rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
 rmsplatformUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 RestClientsUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 xmpFileUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
+commonUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 cd ..

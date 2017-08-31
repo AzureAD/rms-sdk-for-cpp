@@ -11,7 +11,6 @@ class XMPFileFormat : public FileFormat
 public:
   XMPFileFormat(shared_ptr<IStream> file, const std::string& extension);
   const vector<Tag> ReadTags();
-  string GetOriginalExtension();
   void Commit(shared_ptr<IStream> file, string& newExtension);
 };
 

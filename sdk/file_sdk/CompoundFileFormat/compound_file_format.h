@@ -12,7 +12,6 @@ class CompoundFileFormat : public FileFormat
 public:
   CompoundFileFormat(shared_ptr<IStream> file, const string& extension);
   const vector<Tag> ReadTags();
-  string GetOriginalExtension();
   void Commit(shared_ptr<IStream> file, string& newExtension);
 };
 

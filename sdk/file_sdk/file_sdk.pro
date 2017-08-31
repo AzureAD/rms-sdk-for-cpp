@@ -10,4 +10,4 @@ SUBDIRS += UnitTests \
     PFileFileFormat \
     DefaultFormat
 
-UnitTests.depends   = Common XMPFileFormat
+UnitTests.depends   = Common XMPFileFormat CompoundFileFormat DefaultFormat OPCFileFormat PDFFileFormat PFileFileFormat
