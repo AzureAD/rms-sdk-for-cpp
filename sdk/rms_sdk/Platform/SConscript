@@ -5,7 +5,6 @@ Import('rms_env bins')
 rms_env.Append(CCFLAGS=Split('-DQTFRAMEWORK'))
 rms_env.Append(CXXFLAGS=Split('-DQTFRAMEWORK'))
 
-# rms_platform_common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)
 rms_platform_filesystem_lib = rms_env.SConscript('Filesystem/SConscript', duplicate=0)
 rms_platform_http_lib = rms_env.SConscript('Http/SConscript', duplicate=0)
 rms_platform_json_lib = rms_env.SConscript('Json/SConscript', duplicate=0)
@@ -22,7 +21,6 @@ Export("""
   rms_platform_xml_lib
 """)
 
-# Install('#' + bins + '/sdk/rms_sdk', rms_platform_common_lib)
 Install('#' + bins + '/sdk/rms_sdk', rms_platform_filesystem_lib)
 Install('#' + bins + '/sdk/rms_sdk', rms_platform_http_lib)
 Install('#' + bins + '/sdk/rms_sdk', rms_platform_json_lib)

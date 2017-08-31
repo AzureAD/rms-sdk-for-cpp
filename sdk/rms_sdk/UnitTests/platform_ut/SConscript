@@ -1,6 +1,5 @@
 from build_config import *
 
-# platform_common_lib
 Import("""
     rms_env
     crypto_lib
@@ -21,7 +20,6 @@ Import("""
     googletest_lib
 """)
 
-# rms_env = rms_env.Clone()
 src_files = Glob('*.cpp')
 src_files += Glob('debug/*.cpp')
 

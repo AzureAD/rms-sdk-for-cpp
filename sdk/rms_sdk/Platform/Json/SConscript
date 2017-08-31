@@ -2,8 +2,6 @@ from build_config import *
 
 Import('rms_env qt_lib_path')
 
-# rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
-
 src_files = Glob('*.cpp')
 
 rms_env.Replace(CCFLAGS=Split('-DUNICODE -DWIN64 -DQTFRAMEWORK'))

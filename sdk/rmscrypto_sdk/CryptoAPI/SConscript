@@ -12,9 +12,6 @@ Import("""
 
 cryptoapi_env = crypto_platform_env.Clone();
 
-# cryptoapi_env.Append(CCFLAGS='-DUNICODE')
-# cryptoapi_env.Append(CXXFLAGS='-DUNICODE')
-
 src_files = Glob('*.cpp')
 
 libs = [
@@ -27,13 +24,10 @@ libs = [
 
 if platform == 'win32':
   cryptoapi_env.Append(CPPPATH='#third_party/include')
-  # cryptoapi_env.Append(CPPDEFINES = ['QT_CORE_LIB'])
   cryptoapi_env.Append(CPPDEFINES=['RMS_CRYPTO_LIBRARY'])
-  # cryptoapi_env.Append(CPPDEFINES=['QT_PLUGIN'])
   cryptoapi_env.Replace(LINKFLAGS=Split('/DEBUG /SUBSYSTEM:WINDOWS'))
   cryptoapi_env.Replace(CCFLAGS=Split('-DUNICODE -DWIN64 -DQT_PLUGIN -DQT_CORE_LIB'))
   cryptoapi_env.Replace(CXXFLAGS=Split('-DUNICODE -DWIN64 -DQT_PLUGIN -DQT_CORE_LIB'))
-
   cryptoapi_env.Replace(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
   cryptoapi_env.Replace(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -44458 -wd4577 -GR -EHsc'))
   lib_path = [

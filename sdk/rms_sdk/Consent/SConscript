@@ -2,8 +2,6 @@ from build_config import *
 
 Import('rms_env')
 
-print "Consent"
-
 src_files = Glob('*.cpp')
 
 consent_lib = rms_env.Library(target = "consent", source = src_files)

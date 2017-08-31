@@ -4,7 +4,6 @@ Import('rms_env bins')
 
 rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
 
-print "rms_sdk"
 platform_libs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
 common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)
@@ -47,5 +46,3 @@ Install('#' + bins + '/sdk/rms_sdk', rms_platform_ut)
 rest_clients_ut = rms_env.SConscript('UnitTests/rest_clients_ut/SConscript', duplicate=0)
 Export('rest_clients_ut')
 Install('#' + bins + '/sdk/rms_sdk', rest_clients_ut)
-
-# Install('#' + bins + '/sdk/rms_sdk', rms_unittests_lib)
