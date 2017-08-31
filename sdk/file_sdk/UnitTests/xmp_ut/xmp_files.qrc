@@ -1,16 +1,20 @@
 <RCC>
-    <qresource prefix="/files">
-        <file>xmp_labeled/Labeled.dng</file>
-        <file>xmp_labeled/Labeled.gif</file>
-        <file>xmp_labeled/Labeled.jfi</file>
-        <file>xmp_labeled/Labeled.jfif</file>
-        <file>xmp_labeled/Labeled.jif</file>
-        <file>xmp_labeled/Labeled.jpe</file>
-        <file>xmp_labeled/Labeled.jpeg</file>
-        <file>xmp_labeled/Labeled.jpg</file>
-        <file>xmp_labeled/Labeled.png</file>
-        <file>xmp_labeled/Labeled.psd</file>
-        <file>xmp_labeled/Labeled.tif</file>
-        <file>xmp_labeled/Labeled.tiff</file>
+    <qresource prefix="/">
+        <file>xmp_labeled_manual/Labeled.jfi</file>
+        <file>xmp_labeled_manual/Labeled.jfif</file>
+        <file>xmp_labeled_manual/Labeled.jif</file>
+        <file>xmp_labeled_manual/Labeled.jpe</file>
+        <file>xmp_labeled_manual/Labeled.jpeg</file>
+        <file>xmp_labeled_manual/Labeled.jpg</file>
+        <file>xmp_labeled_manual/Labeled.png</file>
+        <file>xmp_labeled_manual/Labeled.psd</file>
+        <file>xmp_labeled_manual/Labeled.tif</file>
+        <file>xmp_labeled_manual/Labeled.tiff</file>
+        <file>xmp_labeled_automatic/Labeled.jfif</file>
+        <file>xmp_labeled_automatic/Labeled.jpe</file>
+        <file>xmp_labeled_automatic/Labeled.jpeg</file>
+        <file>xmp_labeled_automatic/Labeled.jpg</file>
+        <file>xmp_labeled_automatic/Labeled.png</file>
+        <file>xmp_labeled_automatic/Labeled.psd</file>
     </qresource>
 </RCC>
