@@ -12,15 +12,15 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH = $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext
 
-LIBS                  +=  -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/file
+LIBS +=  -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/crypto -L$$REPO_ROOT/bin/rms  -L$$REPO_ROOT/third_party/lib/xmp -L$$REPO_ROOT/bin/file
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -lrmsd -lmodxmpfiled -lmodfilecommond
+    LIBS +=  -lrmscryptod -lrmsd -lmodxmpfiled -lmodfilecommond -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
-    LIBS +=  -lrms -lmodxmpfile -lmodfilecommon
+    LIBS +=  -lrmscrypto -lrms -lmodxmpfile -lmodfilecommon -lXMPCoreStatic -lXMPFilesStatic
 }
 
 SOURCES += xmp_file_tests.cpp
