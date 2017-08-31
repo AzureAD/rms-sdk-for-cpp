@@ -1,0 +1,8 @@
+from build_config import *
+
+Import('env')
+
+src_files = Glob('*.cpp')
+
+platform_common_lib = env.Library(target = "rms_platform_common", source = src_files)
+Return('platform_common_lib')

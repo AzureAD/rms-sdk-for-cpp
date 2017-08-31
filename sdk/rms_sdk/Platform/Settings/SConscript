@@ -1,0 +1,23 @@
+from build_config import *
+
+Import('rms_env qt_lib_path')
+
+# rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+
+src_files = Glob('*.cpp')
+
+rms_env.Replace(CCFLAGS=Split('-DRMS_CRYPTO_LIBRARY -DUNICODE -DWIN64 -DQTFRAMEWORK -DQT_NETWORK_LIB -DQT_CORE_LIB'))
+rms_env.Replace(CXXFLAGS=Split('-DRMS_CRYPTO_LIBRARY -DUNICODE -DWIN64 -DQTFRAMEWORK -DQT_NETWORK_LIB -DQT_CORE_LIB'))
+rms_env.Replace(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
+rms_env.Replace(CXXFLAGS=Split('-c -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -O2 -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -GR -EHsc'))
+
+rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+libs = [
+  'Qt5Cored',
+  'Qt5Networkd',
+]
+
+platform_settings_lib = rms_env.Library(target = "rms_platform_settings", source = src_files, LIBS = libs, LIBPATH=qt_lib_path)
+Export('platform_settings_lib')
+Return('platform_settings_lib')

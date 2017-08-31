@@ -1,0 +1,9 @@
+from build_config import *
+
+Import('rms_env')
+
+src_files = Glob('*.cpp')
+rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+restclients_lib = rms_env.Library(target = "restclients", source = src_files)
+Return('restclients_lib')

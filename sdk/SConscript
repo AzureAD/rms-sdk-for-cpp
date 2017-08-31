@@ -1,0 +1,21 @@
+from build_config import *
+
+Import('env bins')
+
+variant_dir = '#' +  bins + '/sdk'
+
+rmscrypto_env = env.Clone()
+rms_env = env.Clone()
+
+rmscrypto_env.Append(CPPDEFINES =['QT_CORE_LIB'])
+rmscrypto_env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
+rmscrypto_env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc'))
+
+Export('rmscrypto_env rms_env')
+
+# rmsauth_sdk_lib = env.SConscript('#sdk/rmsauth_sdk/SConscript' ,duplicate=0)
+rmscrypto_sdk_lib = rmscrypto_env.SConscript('#sdk/rmscrypto_sdk/SConscript', variant_dir = variant_dir + '/rmscrypto_sdk', duplicate=0)
+rms_sdk_lib = rms_env.SConscript('#sdk/rms_sdk/SConscript', variant_dir = variant_dir + '/rms_sdk', duplicate=0)
+
+# Return('rms_sdk_lib, rmsauth_sdk_lib, rmscrypto_sdk_lib')
+# Return('rms_sdk_lib')

@@ -1,0 +1,17 @@
+from build_config import *
+
+Import('rms_env platform qt_lib_path')
+
+# rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+
+src_files = Glob('*.cpp')
+src_files += Glob('debug/*.obj')
+
+if platform == 'win32':
+  libs = [
+      'Qt5Cored',
+      'Qt5Networkd',
+  ]
+
+platform_http_lib = rms_env.Library(target = "rms_platform_http", source = src_files, LIBS=libs, LIBPATH=qt_lib_path)
+Return('platform_http_lib')

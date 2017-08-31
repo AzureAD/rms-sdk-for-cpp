@@ -1,0 +1,70 @@
+from build_config import *
+
+Import("""
+    rms_env
+    platform
+    common_lib
+    consent_lib
+    core_lib
+    json_lib
+    qt_lib_path
+    pfile_lib
+    rms_platform_filesystem_lib
+    rms_platform_http_lib
+    rms_platform_json_lib
+    rms_platform_logger_lib
+    rms_platform_settings_lib
+    rms_platform_xml_lib
+    restclients_lib
+    googletest_lib
+    crypto_lib
+    crypto_api_lib
+""")
+
+rms_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
+rms_env.Replace(CCFLAGS=Split('-DUNICODE -DWIN64 -DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB'))
+rms_env.Replace(CXXFLAGS=Split('-DUNICODE -DWIN64 -DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB'))
+
+rms_env.Replace(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -w44456 -w44457 -w44458 -W3'))
+rms_env.Replace(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc'))
+
+
+src_files = Glob('*.cpp')
+rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+libs = [
+  pfile_lib,
+  core_lib,
+  crypto_lib,
+  rms_platform_filesystem_lib,
+  rms_platform_http_lib,
+  rms_platform_json_lib,
+  rms_platform_logger_lib,
+  rms_platform_settings_lib,
+  rms_platform_xml_lib,
+  crypto_api_lib,
+  googletest_lib,
+]
+
+if platform == 'win32':
+  libs += [
+      'libeay32',
+      'ssleay32',
+      'Qt5Cored',
+      'Qt5Testd',
+      'Qt5Widgetsd',
+      'Qt5Guid',
+      'advapi32',
+      'gdi32',
+      'user32',
+  ]
+  lib_path = [
+    qt_lib_path,
+    '#third_party/lib/eay',
+  ]
+else:
+  libs += 'ssl'
+  libs += 'crypto'
+
+modernapi_lib = rms_env.Library(target = "modernapi", source = src_files, LIBS=libs, LIBPATH=lib_path)
+Return('modernapi_lib')

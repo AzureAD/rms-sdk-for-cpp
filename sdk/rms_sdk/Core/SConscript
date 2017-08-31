@@ -1,0 +1,13 @@
+from build_config import *
+
+Import('rms_env qt_lib_path')
+print "Core"
+
+src_files = Glob('*.cpp')
+
+libs = [
+  'Qt5Cored',
+]
+
+core_lib = rms_env.Library(target = "core", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
+Return('core_lib')

@@ -1,0 +1,28 @@
+from build_config import *
+
+Import('rmscrypto_env bins')
+
+crypto_platform_env = rmscrypto_env.Clone()
+
+crypto_platform_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+# crypto_platform_env.Append(CCFLAGS = Split('-DUNICODE -DWIN64'))
+# crypto_platform_env.Append(CPPDEFINES = ['DLL_PUBLIC_CRYPTO'])
+
+Export('crypto_platform_env')
+
+crypto_platform_crypto_lib = crypto_platform_env.SConscript('Crypto/SConscript', duplicate=0)
+crypto_platform_keystorage_lib = crypto_platform_env.SConscript('KeyStorage/SConscript', duplicate=0)
+crypto_platform_logger_lib = crypto_platform_env.SConscript('Logger/SConscript', duplicate=0)
+crypto_platform_settings_lib = crypto_platform_env.SConscript('Settings/SConscript', duplicate=0)
+
+Export("""
+  crypto_platform_crypto_lib
+  crypto_platform_keystorage_lib
+  crypto_platform_logger_lib
+  crypto_platform_settings_lib
+""")
+
+Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_crypto_lib)
+Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_keystorage_lib)
+Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_logger_lib)
+Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_settings_lib)

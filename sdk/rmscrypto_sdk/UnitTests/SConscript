@@ -1,0 +1,86 @@
+from build_config import *
+
+Import("""
+    crypto_lib
+    crypto_platform_keystorage_lib
+    crypto_platform_crypto_lib
+    crypto_platform_logger_lib
+    crypto_platform_settings_lib
+    crypto_api_lib
+    qt_lib_path
+    lib_suffix
+    platform
+    rmscrypto_env
+""")
+
+src_files = Glob('*.cpp')
+src_files += Glob('debug/*.cpp')
+
+libs = [
+    crypto_lib,
+    crypto_platform_crypto_lib,
+    crypto_platform_keystorage_lib,
+    crypto_platform_logger_lib,
+    crypto_platform_settings_lib,
+    crypto_api_lib,
+    'Qt5Core' + lib_suffix,
+    'Qt5Test' + lib_suffix,
+    'Qt5Widgets' + lib_suffix,
+    'Qt5Gui' + lib_suffix,
+    'crypto',
+    'crypto_platform_crypto',
+    'crypto_platform_settings',
+    'crypto_platform_keystorage',
+    'crypto_platform_logger',
+    'crypto_api',
+] 
+lib_path = [
+    qt_lib_path,
+    '#bin/Debug/amd64/sdk',
+    '#bin/Debug/amd64/sdk/rmscrypto_sdk',
+]
+
+rmscrypto_ut_env =  rmscrypto_env.Clone()
+srcdir = "\\\"E:/rms-sdk-for-cpp/sdk/rmscrypto_sdk/UnitTests/\\\""
+rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+rmscrypto_ut_env.Append(CCFLAGS=Split('-DUNICODE -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
+rmscrypto_ut_env.Append(CXXFLAGS=Split('-DUNICODE -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
+rmscrypto_ut_env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
+rmscrypto_ut_env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc'))
+
+if platform == 'win32':
+  print rmscrypto_ut_env['CPPPATH']  
+  rmscrypto_ut_env.Append(CPPPATH='#third_party/include')
+#   rmscrypto_ut_env.Append(CPPDEFINES=Split('QT_CORE_LIB QT_WIDGETS_LIB QT_GUI_LIB QT_TESTLIB_LIB'))
+#   rmscrypto_ut_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DEBUG /SUBSYSTEM:CONSOLE'))
+#   rmscrypto_ut_env.Append(CPPPATH='E:/rms-sdk-for-cpp/third_party/include')
+#   rmscrypto_ut_env.Append(CCFLAGS=Split('-DQ_COMPILER_INITIALIZER_LISTS -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
+#   rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQ_COMPILER_INITIALIZER_LISTS -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
+  libs += [
+    'libeay32',
+    'ssleay32',
+    'Advapi32',
+    'Gdi32',
+    'User32',
+  ]
+  lib_path += ['#third_party/lib/eay']
+elif platform == '__linux__':
+  rmscrypto_ut_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  rmscrypto_ut_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  rmscrypto_ut_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  libs +=[
+      'ssl'
+      'crypto'
+      'secret-1'
+      'glib-2.0'
+  ]
+elif platform == 'darwin':
+  libs +=[
+      'ssl'
+      'crypto'
+  ]
+
+rmscrypto_ut_obj = rmscrypto_ut_env.Object(source = src_files)
+unittests_lib = rmscrypto_ut_env.Program(target = "unittests", source=[rmscrypto_ut_obj], LIBS = [libs], LIBPATH=lib_path)
+Return('unittests_lib')

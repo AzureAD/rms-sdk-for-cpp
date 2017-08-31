@@ -1,11 +1,11 @@
-Import('env')
+Import('rms_env')
 
 src_files = Split("""
 	src/gmock-all.cc
 """)
-env.Append(CPPPATH='#src/external/googlemock')
-env.Append(CPPPATH='#src/external/googletest')
-env.Append(CPPPATH='#src/external/googlemock/include')
-env.Append(CPPPATH='#src/external/googletest/include')
-googlemock_lib = env.Library(target = "googlemock", source = src_files)
+rms_env.Append(CPPPATH='#src/external/googlemock')
+rms_env.Append(CPPPATH='#src/external/googletest')
+rms_env.Append(CPPPATH='#src/external/googlemock/include')
+rms_env.Append(CPPPATH='#src/external/googletest/include')
+googlemock_lib = rms_env.Library(target = "googlemock", source = src_files)
 Return('googlemock_lib')

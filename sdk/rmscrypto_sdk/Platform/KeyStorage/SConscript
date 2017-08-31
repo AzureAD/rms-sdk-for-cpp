@@ -1,0 +1,43 @@
+from build_config import *
+
+Import("""
+    crypto_platform_env
+    lib_suffix
+    qt_lib_path
+    platform
+""")
+
+src_files = ['base64.cpp']
+
+libs = ['Qt5Core' + lib_suffix]
+
+for key in ['INCLUDE','LIB']:
+    if os.environ.has_key(key):
+        crypto_platform_env.Prepend(ENV = {key.upper():os.environ[key]})
+
+if platform == 'win32':
+  crypto_platform_env.Append(CPPPATH='#sdk/rmscrypto_sdk/')
+  crypto_platform_env.Append(CCFLAGS=Split('-DUNICODE'))
+  crypto_platform_env.Append(CXXFLAGS=Split('-DUNICODE'))
+  src_files += [
+      'KeyStorageWindows.cpp',
+      'sqlite3.c',
+      'StorageAccessWindows.cpp',
+  ]
+elif platform == '__linux__':
+  # CONFIG += link_pkgconfig
+  # PKGCONFIG += glib-2.0
+  crypto_platform_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  crypto_platform_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  crypto_platform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  src_files += ['KeyStoragePosix.cpp']  
+elif platform == 'darwin':
+  src_files += ['KeyStorageOSX.cpp']
+
+# unix {
+#     target.path = /usr/lib
+#     INSTALLS += target
+# }
+
+crypto_platform_keystorage_lib = crypto_platform_env.Library(target = "crypto_platform_keystorage", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
+Return('crypto_platform_keystorage_lib')

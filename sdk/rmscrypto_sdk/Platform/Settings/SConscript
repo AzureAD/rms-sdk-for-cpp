@@ -1,0 +1,19 @@
+from build_config import *
+
+Import("""
+    crypto_platform_env
+    lib_suffix
+    qt_lib_path
+""")
+
+crypto_platform_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+
+src_files = Glob('*.cpp')
+
+libs = [
+  'Qt5Core' + lib_suffix,
+  'Qt5Network' + lib_suffix,
+]
+
+crypto_platform_settings_lib = crypto_platform_env.Library(target = "crypto_platform_settings", source = src_files, LIBS = libs, LIBPATH=qt_lib_path)
+Return('crypto_platform_settings_lib')

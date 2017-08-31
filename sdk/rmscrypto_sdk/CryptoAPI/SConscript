@@ -1,0 +1,77 @@
+Import("""
+    crypto_lib
+    crypto_platform_crypto_lib
+    crypto_platform_env
+    crypto_platform_keystorage_lib
+    crypto_platform_logger_lib
+    crypto_platform_settings_lib
+    lib_suffix
+    qt_lib_path
+    platform
+""")
+
+cryptoapi_env = crypto_platform_env.Clone();
+
+# cryptoapi_env.Append(CCFLAGS='-DUNICODE')
+# cryptoapi_env.Append(CXXFLAGS='-DUNICODE')
+
+src_files = Glob('*.cpp')
+
+libs = [
+  crypto_lib,
+  crypto_platform_keystorage_lib,
+  crypto_platform_crypto_lib,
+  crypto_platform_logger_lib,
+  crypto_platform_settings_lib,
+]
+
+if platform == 'win32':
+  cryptoapi_env.Append(CPPPATH='#third_party/include')
+  # cryptoapi_env.Append(CPPDEFINES = ['QT_CORE_LIB'])
+  cryptoapi_env.Append(CPPDEFINES=['RMS_CRYPTO_LIBRARY'])
+  # cryptoapi_env.Append(CPPDEFINES=['QT_PLUGIN'])
+  cryptoapi_env.Replace(LINKFLAGS=Split('/DEBUG /SUBSYSTEM:WINDOWS'))
+  cryptoapi_env.Replace(CCFLAGS=Split('-DUNICODE -DWIN64 -DQT_PLUGIN -DQT_CORE_LIB'))
+  cryptoapi_env.Replace(CXXFLAGS=Split('-DUNICODE -DWIN64 -DQT_PLUGIN -DQT_CORE_LIB'))
+
+  cryptoapi_env.Replace(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
+  cryptoapi_env.Replace(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -44458 -wd4577 -GR -EHsc'))
+  lib_path = [
+      qt_lib_path, 
+      '#third_party/lib/eay',
+  ]
+  libs += [
+      'Qt5Core' + lib_suffix,
+      'libeay32',
+      'ssleay32',
+      'Advapi32',
+      'Gdi32',
+      'User32',
+      'legacy_stdio_definitions',
+  ]
+elif platform == '__linux__':
+  cryptoapi_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  cryptoapi_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  cryptoapi_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  libs += [
+      'ssl'
+      'crypto'
+      'secret-1'
+      'glib-2.0'
+  ]
+elif platform == 'darwin':
+  libs += 'ssl'
+  libs += 'crypto'
+
+# unix {
+#     contains(QMAKE_HOST.arch, x86_64) {
+#         target.path = /usr/lib64
+#         INSTALLS += target
+#     } else {
+#         target.path += /usr/lib
+#         INSTALLS += target
+#     }
+# }
+
+crypto_api_lib = cryptoapi_env.Library(target = "crypto_api", source = src_files, LIBS = libs, LIBPATH = lib_path)
+Return('crypto_api_lib')

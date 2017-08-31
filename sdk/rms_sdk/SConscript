@@ -1,0 +1,51 @@
+from build_config import *
+
+Import('rms_env bins')
+
+rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+
+print "rms_sdk"
+platform_libs = rms_env.SConscript('Platform/SConscript', duplicate=0)
+
+common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)
+Export('common_lib')
+
+consent_lib = rms_env.SConscript('Consent/SConscript', duplicate=0)
+Export('consent_lib')
+
+core_lib = rms_env.SConscript('Core/SConscript', duplicate=0)
+Export('core_lib')
+
+googletest_lib = rms_env.SConscript('GoogleTest/SConscript', duplicate=0)
+Export('googletest_lib')
+
+json_lib = rms_env.SConscript('Json/SConscript', duplicate=0)
+Export('json_lib')
+
+pfile_lib = rms_env.SConscript('PFile/SConscript', duplicate=0)
+Export('pfile_lib')
+
+restclients_lib = rms_env.SConscript('RestClients/SConscript', duplicate=0)
+Export('restclients_lib')
+
+Install('#' + bins + '/sdk/rms_sdk', common_lib)
+Install('#' + bins + '/sdk/rms_sdk', consent_lib)
+Install('#' + bins + '/sdk/rms_sdk', core_lib)
+Install('#' + bins + '/sdk/rms_sdk', googletest_lib)
+Install('#' + bins + '/sdk/rms_sdk', json_lib)
+Install('#' + bins + '/sdk/rms_sdk', pfile_lib)
+Install('#' + bins + '/sdk/rms_sdk', restclients_lib)
+
+modernapi_lib = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
+Export('modernapi_lib')
+Install('#' + bins + '/sdk/rms_sdk', modernapi_lib)
+
+rms_platform_ut = rms_env.SConscript('UnitTests/platform_ut/SConscript', duplicate=0)
+Export('rms_platform_ut')
+Install('#' + bins + '/sdk/rms_sdk', rms_platform_ut)
+
+rest_clients_ut = rms_env.SConscript('UnitTests/rest_clients_ut/SConscript', duplicate=0)
+Export('rest_clients_ut')
+Install('#' + bins + '/sdk/rms_sdk', rest_clients_ut)
+
+# Install('#' + bins + '/sdk/rms_sdk', rms_unittests_lib)
