@@ -64,6 +64,13 @@ bool PDFCryptoHandlerImpl::DecryptFinish(void* context, PDFBinaryBuf* dest_buf)
 {
     m_dataToDecrypted->seekg(0, std::ios::end);
     uint64_t count = m_dataToDecrypted->tellg();
+    if(count <= 0)
+    {
+        m_objnum = 0;
+        m_dataToDecrypted.reset();
+        m_dataToDecrypted = nullptr;
+        return true;
+    }
 
     std::shared_ptr<std::iostream> protectedIOS = m_dataToDecrypted;
     auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(protectedIOS);
