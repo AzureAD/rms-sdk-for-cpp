@@ -891,45 +891,49 @@ void MainWindow::PDFFileEncrypt(const string& fileIn,
                     const string& redirectUrl,
                     const string& clientEmail)
 {
-    auto self = shared_from_this();
-    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
-    addCertificates();
-
-    // create shared in/out streams
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
-
-    std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
-    std::string newFilename = "";
-    std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
-                filename, inFile, newFilename);
-
-    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
-
-    auto outFile = make_shared<fstream>(
-      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
-    AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
-
-    rmscore::modernapi::AppDataHashMap signedData;
-
-    auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
-      clientEmail, authUI, launch::deferred, cancelState);
-
-    auto templates = templatesFuture.get();
-
-    size_t pos = self->templatesUI.SelectTemplate(templates);
-
-    rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
-                                                     (*templates)[pos], signedData, true);
-    rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
-
-    auto inWrapper = make_shared<fstream>(
-      wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+    std::shared_ptr<std::fstream> inFile = nullptr;
+    std::shared_ptr<std::fstream> outFile = nullptr;
+    string fileOut;
 
     bool bResult = true;
     std::string errMsg;
     try
     {
+        auto self = shared_from_this();
+        // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+        addCertificates();
+
+        // create shared in/out streams
+        inFile = make_shared<fstream>(
+          fileIn, ios_base::in | ios_base::out | ios_base::binary);
+
+        std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
+        std::string newFilename = "";
+        std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
+                    filename, inFile, newFilename);
+
+        fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
+
+        outFile = make_shared<fstream>(
+          fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+        AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
+
+        rmscore::modernapi::AppDataHashMap signedData;
+
+        auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
+          clientEmail, authUI, launch::deferred, cancelState);
+
+        auto templates = templatesFuture.get();
+
+        size_t pos = self->templatesUI.SelectTemplate(templates);
+
+        rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+                                                         (*templates)[pos], signedData, true);
+        rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
+
+        auto inWrapper = make_shared<fstream>(
+          wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+
         obj->SetWrapper(inWrapper);
         obj->ProtectWithTemplate(ut, pt, outFile, self->cancelState);
     }
@@ -956,12 +960,12 @@ void MainWindow::PDFFileEncrypt(const string& fileIn,
     else
     {
         AddLog("Error: ", errMsg.c_str());
-        outFile->close();
+        if(outFile) outFile->close();
         remove(fileOut.c_str());
     }
 
-    inFile->close();
-    outFile->close();
+    if(inFile) inFile->close();
+    if(outFile) outFile->close();
 }
 
 void MainWindow::on_encryptPDF_clicked()

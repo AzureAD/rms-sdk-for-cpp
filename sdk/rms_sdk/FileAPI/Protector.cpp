@@ -98,7 +98,7 @@ std::unique_ptr<ProtectorWithWrapper> ProtectorWithWrapper::Create(const std::st
         default:
         {
             throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
-                                                "");
+                                                "This file format is not supported.");
         }
         break;
     }
