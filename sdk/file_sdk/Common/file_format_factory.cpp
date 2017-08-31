@@ -55,10 +55,8 @@ std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> 
   if(pos == string::npos) {
     // TODO: add log
     finalExtention.insert(finalExtention.begin(), '.');
-    pos = finalExtention.find_last_of('.');
   }
-
-  if (pos != 0) {
+  else if (pos != 0) { // if the extention has more then 1 dot
     finalExtention = finalExtention.substr(pos);
   }
 

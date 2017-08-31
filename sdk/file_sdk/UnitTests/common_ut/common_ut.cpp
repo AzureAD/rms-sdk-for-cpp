@@ -36,7 +36,7 @@ private Q_SLOTS:
     QTest::addColumn<std::string>("result");
 
     QTest::newRow("docx") << std::string("docx") << std::string(".docx");
-    //QTest::newRow("xxx.pfile") << std::string("xxx.pfile") << std::string(".pfile"); // get original extention of pfile is not impl yet
+    QTest::newRow("xxx.pfile") << std::string("xxx.pfile") << std::string(".xxx");
   }
 
   void Create_XMPExtension_ReturnXMPFormat();
@@ -155,6 +155,10 @@ void CommonTests::Create_NoExtension_ThrowInvalidArgument() {
 void CommonTests::Create_ExtensionWithoutDot_AddsDot() {
   QFETCH(std::string, extension);
   QFETCH(std::string, result);
+
+  if (extension == std::string("xxx.pfile")) {
+    QSKIP("get original extention of pfile is not impl yet");
+  }
 
   auto stream = std::make_shared<IStreamMock>();
   auto fileFormat = FileFormatFactory::Create(stream, extension);
