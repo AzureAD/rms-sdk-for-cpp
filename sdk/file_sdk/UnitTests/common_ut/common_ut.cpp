@@ -30,11 +30,18 @@ public:
 private Q_SLOTS:
   void Create_StreamIsNull_ThrowInvalidArgument();
   void Create_NoExtension_ThrowInvalidArgument();
-  void Create_ExtenstionWithoutDot_AddsDot();
-  void Create_XMPExtenstion_ReturnXMPFormat();
-  void Create_XMPExtenstion_ReturnXMPFormat_data()
-  {
-    QTest::addColumn<std::string>("extenstion");
+  void Create_ExtensionWithoutDot_AddsDot();
+  void Create_ExtensionWithoutDot_AddsDot_data(){
+    QTest::addColumn<std::string>("extension");
+    QTest::addColumn<std::string>("result");
+
+    QTest::newRow("docx") << std::string("docx") << std::string(".docx");
+    //QTest::newRow("xxx.pfile") << std::string("xxx.pfile") << std::string(".pfile"); // get original extention of pfile is not impl yet
+  }
+
+  void Create_XMPExtension_ReturnXMPFormat();
+  void Create_XMPExtension_ReturnXMPFormat_data() {
+    QTest::addColumn<std::string>("extension");
 
     QTest::newRow(".jpg") << std::string(".jpg");
     QTest::newRow(".jpeg") << std::string(".jpeg");
@@ -50,10 +57,9 @@ private Q_SLOTS:
     QTest::newRow(".psd") << std::string(".psd");
   }
 
-  void Create_CompoundFileExtenstion_ReturnCompoundFileFormat();
-  void Create_CompoundFileExtenstion_ReturnCompoundFileFormat_data()
-  {
-    QTest::addColumn<std::string>("extenstion");
+  void Create_CompoundFileExtension_ReturnCompoundFileFormat();
+  void Create_CompoundFileExtension_ReturnCompoundFileFormat_data() {
+    QTest::addColumn<std::string>("extension");
 
     QTest::newRow(".doc") << std::string(".doc");
     QTest::newRow(".xls") << std::string(".xls");
@@ -72,10 +78,9 @@ private Q_SLOTS:
     QTest::newRow(".mpt") << std::string(".mpt");
   }
 
-  void Create_OPCFileExtenstion_ReturnOPCFileFormat();
-  void Create_OPCFileExtenstion_ReturnOPCFileFormat_data()
-  {
-    QTest::addColumn<std::string>("extenstion");
+  void Create_OPCFileExtension_ReturnOPCFileFormat();
+  void Create_OPCFileExtension_ReturnOPCFileFormat_data() {
+    QTest::addColumn<std::string>("extension");
 
     QTest::newRow(".docx") << std::string(".docx");
     QTest::newRow(".docm") << std::string(".docm");
@@ -103,18 +108,16 @@ private Q_SLOTS:
     QTest::newRow(".dwfx") << std::string(".dwfx");
   }
 
-  void Create_PDFFileExtenstion_ReturnPDFFileFormat();
-  void Create_PDFFileExtenstion_ReturnPDFFileFormat_data()
-  {
-    QTest::addColumn<std::string>("extenstion");
+  void Create_PDFFileExtension_ReturnPDFFileFormat();
+  void Create_PDFFileExtension_ReturnPDFFileFormat_data() {
+    QTest::addColumn<std::string>("extension");
 
     QTest::newRow(".pdf") << std::string(".pdf");
   }
 
-  void Create_PFileFileExtenstion_ReturnPFileFileFormat();
-  void Create_PFileFileExtenstion_ReturnPFileFileFormat_data()
-  {
-    QTest::addColumn<std::string>("extenstion");
+  void Create_PFileFileExtension_ReturnPFileFileFormat();
+  void Create_PFileFileExtension_ReturnPFileFileFormat_data() {
+    QTest::addColumn<std::string>("extension");
 
     QTest::newRow(".pfile") << std::string(".pfile");
     QTest::newRow(".xxx.pfile") << std::string(".xxx.pfile");
@@ -133,77 +136,70 @@ private Q_SLOTS:
     QTest::newRow(".pjt") << std::string(".pjt");
   }
 
-  void Create_UknonwExtenstion_ReturnPFileFileFormat();
+  void Create_UknonwExtension_ReturnPFileFileFormat();
 };
 
 CommonTests::CommonTests()
 {
 }
 
-void CommonTests::Create_StreamIsNull_ThrowInvalidArgument()
-{
+void CommonTests::Create_StreamIsNull_ThrowInvalidArgument() {
   QVERIFY_EXCEPTION_THROWN(FileFormatFactory::Create(nullptr, ""), std::invalid_argument);
 }
 
-void CommonTests::Create_NoExtension_ThrowInvalidArgument()
-{
+void CommonTests::Create_NoExtension_ThrowInvalidArgument() {
   auto stream = std::make_shared<IStreamMock>();
   QVERIFY_EXCEPTION_THROWN(FileFormatFactory::Create(stream, ""), std::invalid_argument);
 }
 
-void CommonTests::Create_ExtenstionWithoutDot_AddsDot()
-{
-  string extenstion ("docx");
+void CommonTests::Create_ExtensionWithoutDot_AddsDot() {
+  QFETCH(std::string, extension);
+  QFETCH(std::string, result);
+
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
-  QVERIFY2(fileFormat->GetOriginalExtension() == ".docx", "didn't add . to the extension");
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
+  QVERIFY2(fileFormat->GetOriginalExtension() == result, "didn't add . to the extension");
 }
 
-void CommonTests::Create_XMPExtenstion_ReturnXMPFormat()
-{
-  QFETCH(std::string, extenstion);
+void CommonTests::Create_XMPExtension_ReturnXMPFormat() {
+  QFETCH(std::string, extension);
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
   QVERIFY2(dynamic_cast<XMPFileFormat*>(fileFormat.get()) != NULL, "is not XMPFileFormat");
 }
 
-void CommonTests::Create_CompoundFileExtenstion_ReturnCompoundFileFormat()
-{
-  QFETCH(std::string, extenstion);
+void CommonTests::Create_CompoundFileExtension_ReturnCompoundFileFormat() {
+  QFETCH(std::string, extension);
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
   QVERIFY2(dynamic_cast<CompoundFileFormat*>(fileFormat.get()) != NULL, "is not CompoundFileFormat");
 }
 
-void CommonTests::Create_OPCFileExtenstion_ReturnOPCFileFormat()
-{
-  QFETCH(std::string, extenstion);
+void CommonTests::Create_OPCFileExtension_ReturnOPCFileFormat() {
+  QFETCH(std::string, extension);
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
   QVERIFY2(dynamic_cast<OPCFileFormat*>(fileFormat.get()) != NULL, "is not OPCFileFormat");
 }
 
-void CommonTests::Create_PDFFileExtenstion_ReturnPDFFileFormat()
-{
-  QFETCH(std::string, extenstion);
+void CommonTests::Create_PDFFileExtension_ReturnPDFFileFormat() {
+  QFETCH(std::string, extension);
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
   QVERIFY2(dynamic_cast<PDFFileFormat*>(fileFormat.get()) != NULL, "is not PDFFileFormat");
 }
 
-void CommonTests::Create_PFileFileExtenstion_ReturnPFileFileFormat()
-{
-  QFETCH(std::string, extenstion);
+void CommonTests::Create_PFileFileExtension_ReturnPFileFileFormat() {
+  QFETCH(std::string, extension);
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
   QVERIFY2(dynamic_cast<PFileFileFormat*>(fileFormat.get()) != NULL, "is not PFileFileFormat");
 }
 
-void CommonTests::Create_UknonwExtenstion_ReturnPFileFileFormat()
-{
-  std::string extenstion (".blabla");
+void CommonTests::Create_UknonwExtension_ReturnPFileFileFormat() {
+  std::string extension (".blabla");
   auto stream = std::make_shared<IStreamMock>();
-  auto fileFormat = FileFormatFactory::Create(stream, extenstion);
+  auto fileFormat = FileFormatFactory::Create(stream, extension);
   QVERIFY2(dynamic_cast<DefaultFormat*>(fileFormat.get()) != NULL, "is not DefaultFormat");
 }
 

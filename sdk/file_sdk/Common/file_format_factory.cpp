@@ -51,9 +51,15 @@ std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> 
   }
 
   std::string finalExtention = extension;
-  if(extension.find_last_of('.') == string::npos) {
+  auto pos = extension.find_last_of('.');
+  if(pos == string::npos) {
     // TODO: add log
     finalExtention.insert(finalExtention.begin(), '.');
+    pos = finalExtention.find_last_of('.');
+  }
+
+  if (pos != 0) {
+    finalExtention = finalExtention.substr(pos);
   }
 
   if (in_array(finalExtention, kXMPExtentions)) {
