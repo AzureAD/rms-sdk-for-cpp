@@ -290,6 +290,15 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishingLicense, uint32_t p
         return false;
     }
 
+    std::string ownerId = userPolicy->Owner();
+    if(m_userContext.userId.compare(ownerId) != 0)
+    {
+        Logger::Error("Only the owner has the right to unprotect the document.");
+        throw exceptions::RMSException(exceptions::RMSException::ExceptionTypes::LogicError,
+                                       exceptions::RMSException::ErrorTypes::RightsError,
+                                       "Only the owner has the right to unprotect the document.");
+    }
+
     m_pPDFProtector->SetUserPolicy(userPolicy);
 
     return true;
