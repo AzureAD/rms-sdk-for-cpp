@@ -1,6 +1,7 @@
 from build_config import *
 
 Import("""
+    configuration
     crypto_lib
     crypto_platform_keystorage_lib
     crypto_platform_crypto_lib
@@ -34,16 +35,18 @@ lib_path = [
 
 rmscrypto_ut_env =  rmscrypto_env.Clone()
 srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
-print srcdir
 
 rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
-rmscrypto_ut_env.Append(CCFLAGS=Split('-DUNICODE -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
-rmscrypto_ut_env.Append(CXXFLAGS=Split('-DUNICODE -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
-rmscrypto_ut_env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
-rmscrypto_ut_env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc'))
+rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
+rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
 
 if platform == 'win32':
+  rmscrypto_ut_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  if configuration == 'debug':
+    rmscrypto_ut_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+    rmscrypto_ut_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
   rmscrypto_ut_env.Append(CPPPATH='#third_party/include')
   libs += [
     'libeay32',

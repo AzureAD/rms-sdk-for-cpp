@@ -151,8 +151,12 @@ env.Append(CPPPATH = include_search_path + qt_include_search_path)
 
 if platform == 'win32':
   env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
-  env.Append(CPPPATH = qt_bin_dir) 
-  if msvc12:
+  env.Append(CPPPATH = qt_bin_dir)
+  env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -W3 -w44456 -w44457 -w44458 \
+      -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
+  env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc \
+      -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
+if msvc12:
     env.Append(CPPDEFINES = ['MSVC12'])
 
 configuration = ''
@@ -161,24 +165,25 @@ if isRelease:
   env.Append(CPPDEFINES = ['NDEBUG'])
   
   if platform == 'win32':
-    env.Append(CCFLAGS='/MD')
-    env.Append(LINKFLAGS=Split('/RELEASE /OPT:REF /OPT:ICF /INCREMENTAL:NO'))
-    env.Append(CCFLAGS=Split('-c -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc -DUNICODE -DWIN32 -DRMS_CRYPTO_LIBRARY -DQT_NO_DEBUG -DQT_PLUGIN -DQT_CORE_LIB -DNDEBUG'))
-    env.Append(CXXFLAGS=Split('-c -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc -DUNICODE -DWIN32 -DRMS_CRYPTO_LIBRARY -DQT_NO_DEBUG -DQT_PLUGIN -DQT_CORE_LIB -DNDEBUG'))
     env.Append(LINKFLAGS='/NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
+    env.Append(CCFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
+    env.Append(CXXFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG')) # not including -DRMS_CRYPTO_LIBRARY
+    # env.Append(LINKFLAGS='/NOLOGO /RELEASE /OPT:REF /OPT:ICF /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
 else:    
   configuration = 'debug'
   env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
+
   if platform == 'win32':
-    env.Append(CCFLAGS='/MDd')
     env.Append(LINKFLAGS='/NOLOGO')
+    env.Append(CCFLAGS=Split('-c -Zi -MDd'))
+    env.Append(CXXFLAGS=Split('-c -Zi -MDd')) # not including -DRMS_CRYPTO_LIBRARY
 
 bins = env['BUILDROOT'] + "/" + configuration + "/" + target_arch
 lib_suffix = ''
 if configuration == 'debug':
   lib_suffix = 'd'
 
-Export('arch_suffix bins env lib_suffix qt_lib_path target_name platform')
+Export('arch_suffix bins configuration env lib_suffix qt_lib_path target_name platform')
 
 if samples:
   env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)

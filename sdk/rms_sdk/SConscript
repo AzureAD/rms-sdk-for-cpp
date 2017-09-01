@@ -2,8 +2,6 @@ from build_config import *
 
 Import('rms_env bins')
 
-rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
-
 platform_libs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
 common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)

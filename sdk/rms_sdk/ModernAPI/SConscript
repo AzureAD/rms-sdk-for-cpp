@@ -1,6 +1,7 @@
 from build_config import *
 
 Import("""
+    configuration
     lib_suffix
     pfile_lib
     platform
@@ -26,12 +27,8 @@ Import("""
 """)
 
 rms_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
-rms_env.Replace(CCFLAGS=Split('-DUNICODE -DWIN64 -DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB'))
-rms_env.Replace(CXXFLAGS=Split('-DUNICODE -DWIN64 -DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB'))
-
-rms_env.Replace(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -w44456 -w44457 -w44458 -W3'))
-rms_env.Replace(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc'))
-
+rms_env.Append(CCFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+rms_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
 
 src_files = Glob('*.cpp')
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
@@ -51,6 +48,12 @@ libs = [
 ]
 
 if platform == 'win32':
+  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:WINDOWS'))
+  if configuration == 'debug':
+      rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+      rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+
   libs += [
       'Qt5Core' + lib_suffix,
       'Qt5Test' + lib_suffix,

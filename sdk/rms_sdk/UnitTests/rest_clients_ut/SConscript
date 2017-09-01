@@ -1,6 +1,7 @@
 from build_config import *
 
 Import("""
+    configuration
     lib_suffix
     qt_lib_path
     platform
@@ -35,11 +36,12 @@ rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 srcdir = Dir('.').srcnode().abspath.replace('\\','/')
 
 if platform == 'win32':
-  rms_env.Replace(CCFLAGS=Split('-DSRCDIR=\\\"'+srcdir+'/\\\" -DUNICODE -DWIN64 -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
-  rms_env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
-  rms_env.Replace(CXXFLAGS=Split('-DUNICODE -DWIN64 -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB'))
-  rms_env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -EHsc'))
-  rms_env.Replace(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DEBUG /SUBSYSTEM:CONSOLE'))
+  rms_env.Append(CCFLAGS=Split('-DSRCDIR=\\\"'+srcdir+'/\\\"'))
+  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  if configuration == 'debug':
+    rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+    rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
 
 lib_path = [
     qt_lib_path,

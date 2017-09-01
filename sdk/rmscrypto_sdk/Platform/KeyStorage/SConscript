@@ -17,8 +17,6 @@ for key in ['INCLUDE','LIB']:
 
 if platform == 'win32':
   crypto_platform_env.Append(CPPPATH='#sdk/rmscrypto_sdk/')
-  crypto_platform_env.Append(CCFLAGS=Split('-DUNICODE'))
-  crypto_platform_env.Append(CXXFLAGS=Split('-DUNICODE'))
   src_files += [
       'KeyStorageWindows.cpp',
       'sqlite3.c',
