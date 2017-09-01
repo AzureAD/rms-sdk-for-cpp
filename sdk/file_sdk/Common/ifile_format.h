@@ -20,7 +20,7 @@ public:
   virtual string GetOriginalExtension() = 0;
 
   // Returns current tags to the tags form the file if not set
-  virtual const vector<Tag>& GetTags() = 0;
+  virtual const vector<Tag> GetTags() = 0;
 
   // Sets tags for the file and the tags will be applied after calling Commit
   virtual void SetTags(const vector<Tag>& tags) = 0;

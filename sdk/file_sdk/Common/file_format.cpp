@@ -12,13 +12,17 @@ FileFormat::FileFormat(
     mHasTags(false) {
 }
 
-const vector<mip::Tag>& mip::file::FileFormat::GetTags() {
+const vector<Tag> mip::file::FileFormat::GetTags() {
   if (!mHasTags) {
     mTags = ReadTags();
     mHasTags = true;
   }
 
   return mTags;
+}
+
+string mip::file::FileFormat::GetOriginalExtension() {
+  return mExtension;
 }
 
 void mip::file::FileFormat::SetTags(const vector<mip::Tag>&tags) {

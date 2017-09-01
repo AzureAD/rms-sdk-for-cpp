@@ -12,6 +12,6 @@ struct ExtendedProperty
   std::string value;
 };
 
-}
+} // namespace mip
 
 #endif //API_IMPL_EXTENDED_PROPERTY_H_
