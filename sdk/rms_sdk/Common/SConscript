@@ -1,8 +1,4 @@
-from build_config import *
-
 Import('rms_env qt_lib_path')
-
-print "Common"
 
 src_files = Glob('*.cpp')
 
@@ -13,5 +9,5 @@ lib_path = [
   qt_lib_path,
 ]
 
-common_lib = rms_env.Library(target = "common", source = src_files, LIBS=libs, LIBPATH=lib_path)
+common_lib = rms_env.Library(target = "common", source = src_files, LIBS = libs, LIBPATH = lib_path)
 Return('common_lib')

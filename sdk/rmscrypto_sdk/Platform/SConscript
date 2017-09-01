@@ -5,8 +5,6 @@ Import('rmscrypto_env bins')
 crypto_platform_env = rmscrypto_env.Clone()
 
 crypto_platform_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
-# crypto_platform_env.Append(CCFLAGS = Split('-DUNICODE -DWIN64'))
-# crypto_platform_env.Append(CPPDEFINES = ['DLL_PUBLIC_CRYPTO'])
 
 Export('crypto_platform_env')
 

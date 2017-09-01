@@ -39,5 +39,6 @@ elif platform == 'darwin':
 #     INSTALLS += target
 # }
 
-crypto_platform_keystorage_lib = crypto_platform_env.Library(target = "crypto_platform_keystorage", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
+crypto_platform_keystorage_lib = crypto_platform_env.Library(target = "crypto_platform_keystorage", \
+    source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
 Return('crypto_platform_keystorage_lib')

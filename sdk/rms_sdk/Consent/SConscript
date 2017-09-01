@@ -1,5 +1,3 @@
-from build_config import *
-
 Import('rms_env')
 
 src_files = Glob('*.cpp')

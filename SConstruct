@@ -89,8 +89,20 @@ qt_dir = 'C:/Qt/5.7/' + msvc_path + arch_suffix
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
+qt_include_search_path = [
+    qt_inc_dir,
+    qt_inc_dir + '/QtCore',
+    qt_inc_dir + '/QtTest',
+    qt_inc_dir + '/QtWidgets',
+    qt_inc_dir + '/QtGui',
+    qt_inc_dir + '/QtANGLE',
+    qt_inc_dir + '/QtNetwork',
+    qt_inc_dir + '/QtXml',
+    qt_inc_dir + '/QtXmlPatterns',
+    qt_dir + '/mkspecs/win32-msvc2015',
+]
 
-print qt_lib_path
+print "Qt directory: ", qt_dir
 
 env = Environment(BUILDROOT=build_base_dir, MSVC_VERSION=msvc_version, TARGET_ARCH=target_arch)
 #--------------------------------------------------------------
@@ -135,31 +147,13 @@ if 'dump' in ARGUMENTS:
       footer = prefix + ' - end' )
 #---------------------------------------------------------------
 #run ParseConfig(env, <command>, <option>) to personalize the env
-env.Append(CPPPATH = include_search_path)
-
-# env.Append(CPPDEFINES = Split('RMS_SDK_IMPLEMENTATION UNICODE'))
-# env.Append(CPPDEFINES = ['UNICODE'])
-# env.Append(CPPDEFINES = ['QT_BUILD_CORE_LIB'])
+env.Append(CPPPATH = include_search_path + qt_include_search_path)
 
 if platform == 'win32':
-  # env.Append(CCFLAGS=Split('/EHsc /DELPP_THREAD_SAFE /Zi /Fd${TARGET}.pdb'))
-  # env.Append(LINKFLAGS='/DEBUG')
-  # env.Append(CPPDEFINES = ['-D' + win_def])
-  # env.Append(CPPDEFINES = Split('WIN32 WIN64'))
   env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
   env.Append(CPPPATH = qt_bin_dir) 
   if msvc12:
     env.Append(CPPDEFINES = ['MSVC12'])
-# elif  platform == 'darwin':
-#   env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME']=1
-#   env.Append(CPPDEFINES = ['POSIX'])
-#   env.Replace(CC='clang')
-#   env.Replace(CPP='clang')
-#   env.Replace(CXX='clang++')
-#   env.Replace(LINK='clang++')
-#   env.Append(CXXFLAGS=Split('-mmacosx-version-min=' + osx_version + ' -std=c++11 -stdlib=libc++ -arch '+ target_arch))
-#   env.Append(CCFLAGS=Split('-mmacosx-version-min=' + osx_version + ' -DELPP_THREAD_SAFE -arch '+ target_arch))
-#   env.Append(LINKFLAGS=Split('-mmacosx-version-min=' + osx_version + ' -arch '+ target_arch))
 
 configuration = ''
 if isRelease:
@@ -172,24 +166,17 @@ if isRelease:
     env.Append(CCFLAGS=Split('-c -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc -DUNICODE -DWIN32 -DRMS_CRYPTO_LIBRARY -DQT_NO_DEBUG -DQT_PLUGIN -DQT_CORE_LIB -DNDEBUG'))
     env.Append(CXXFLAGS=Split('-c -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc -DUNICODE -DWIN32 -DRMS_CRYPTO_LIBRARY -DQT_NO_DEBUG -DQT_PLUGIN -DQT_CORE_LIB -DNDEBUG'))
     env.Append(LINKFLAGS='/NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
-  # elif platform == 'darwin':
-  #   env.Append(CCFLAGS=osx_release_ccflags)
 else:    
   configuration = 'debug'
   env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
   if platform == 'win32':
     env.Append(CCFLAGS='/MDd')
-    # env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
-    # env.Append(CXXFLAGS=Split('-c -nologo -W3 -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc'))
     env.Append(LINKFLAGS='/NOLOGO')
-  # elif platform == 'darwin':
-  # env.Append(CXXFLAGS='-DDBG_ENABLED')
 
 bins = env['BUILDROOT'] + "/" + configuration + "/" + target_arch
 lib_suffix = ''
 if configuration == 'debug':
   lib_suffix = 'd'
-
 
 Export('arch_suffix bins env lib_suffix qt_lib_path target_name platform')
 

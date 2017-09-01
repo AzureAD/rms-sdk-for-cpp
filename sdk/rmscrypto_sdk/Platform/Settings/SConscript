@@ -15,5 +15,6 @@ libs = [
   'Qt5Network' + lib_suffix,
 ]
 
-crypto_platform_settings_lib = crypto_platform_env.Library(target = "crypto_platform_settings", source = src_files, LIBS = libs, LIBPATH=qt_lib_path)
+crypto_platform_settings_lib = crypto_platform_env.Library(target = "crypto_platform_settings", \
+    source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
 Return('crypto_platform_settings_lib')

@@ -1,17 +1,16 @@
-from build_config import *
-
-Import('rms_env qt_lib_path')
+Import('rms_env qt_lib_path lib_suffix')
 
 src_files = Glob('*.cpp')
 
 rms_env.Replace(CCFLAGS=Split('-DUNICODE -DWIN64 -DQTFRAMEWORK'))
 rms_env.Replace(CXXFLAGS=Split('-DUNICODE -DWIN64 -DQTFRAMEWORK'))
-rms_env.Replace(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
-rms_env.Replace(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577'))
+rms_env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zi -MDd -W3 -w44456 -w44457 -w44458'))
+rms_env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577'))
 
 libs = [
-  'Qt5Cored',
+  'Qt5Core' + lib_suffix,
 ]
 
-platform_logger_lib = rms_env.Library(target = "rms_platform_logger", source = src_files, LIBS=libs, LIBPATH = qt_lib_path)
+platform_logger_lib = rms_env.Library(target = "rms_platform_logger", \
+    source = src_files, LIBS=libs, LIBPATH = qt_lib_path)
 Return('platform_logger_lib')

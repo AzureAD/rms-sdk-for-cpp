@@ -8,22 +8,7 @@ include_search_path = [
     '#third_party',
     '#googletest',
     '#googletest/include',
-    'C:/Qt/5.7/msvc2015_64/include',
-    'C:/Qt/5.7/msvc2015_64/include/QtCore',
-    'C:/Qt/5.7/msvc2015_64/include/QtTest',
-    'C:/Qt/5.7/msvc2015_64/include/QtWidgets',
-    'C:/Qt/5.7/msvc2015_64/include/QtGui',
-    'C:/Qt/5.7/msvc2015_64/include/QtANGLE',
-    'C:/Qt/5.7/msvc2015_64/include/QtNetwork',
-    'C:/Qt/5.7/msvc2015_64/include/QtXml',
-    'C:/Qt/5.7/msvc2015_64/include/QtXmlPatterns',
-    'C:/Qt/5.7/msvc2015_64/mkspecs/win32-msvc2015',
 ]
-
-# qt_dir = 'C:/Qt/5.7/msvc2015_64'
-# qt_inc_dir = 'C:/Qt/5.7/msvc2015_64/include'
-# qt_bin_dir = 'C:/Qt/5.7/msvc2015_64/bin'
-# qt_lib_path = 'C:/Qt/5.7/msvc2015_64/lib'
 
 build_base_dir = 'bin'
 target_name = 'mip_upe_sdk'

@@ -1,14 +1,21 @@
 from build_config import *
 
 Import("""
-    rms_env
+    lib_suffix
+    pfile_lib
     platform
+    qt_lib_path
+    rms_env
+""")
+
+Import("""
     common_lib
     consent_lib
     core_lib
+    crypto_lib
+    crypto_api_lib
+    googletest_lib
     json_lib
-    qt_lib_path
-    pfile_lib
     rms_platform_filesystem_lib
     rms_platform_http_lib
     rms_platform_json_lib
@@ -16,9 +23,6 @@ Import("""
     rms_platform_settings_lib
     rms_platform_xml_lib
     restclients_lib
-    googletest_lib
-    crypto_lib
-    crypto_api_lib
 """)
 
 rms_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
@@ -33,30 +37,29 @@ src_files = Glob('*.cpp')
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 libs = [
-  pfile_lib,
   core_lib,
+  crypto_api_lib,
   crypto_lib,
+  googletest_lib,
+  pfile_lib,
   rms_platform_filesystem_lib,
   rms_platform_http_lib,
   rms_platform_json_lib,
   rms_platform_logger_lib,
   rms_platform_settings_lib,
   rms_platform_xml_lib,
-  crypto_api_lib,
-  googletest_lib,
 ]
 
 if platform == 'win32':
   libs += [
+      'Qt5Core' + lib_suffix,
+      'Qt5Test' + lib_suffix,
+      'Qt5Widgets' + lib_suffix,
       'libeay32',
       'ssleay32',
-      'Qt5Cored',
-      'Qt5Testd',
-      'Qt5Widgetsd',
-      'Qt5Guid',
-      'advapi32',
-      'gdi32',
-      'user32',
+      'Advapi32',
+      'Gdi32',
+      'User32',
   ]
   lib_path = [
     qt_lib_path,
@@ -66,5 +69,5 @@ else:
   libs += 'ssl'
   libs += 'crypto'
 
-modernapi_lib = rms_env.Library(target = "modernapi", source = src_files, LIBS=libs, LIBPATH=lib_path)
+modernapi_lib = rms_env.Library(target = "modernapi", source = src_files, LIBS = libs, LIBPATH = lib_path)
 Return('modernapi_lib')

@@ -13,9 +13,5 @@ rmscrypto_env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -
 
 Export('rmscrypto_env rms_env')
 
-# rmsauth_sdk_lib = env.SConscript('#sdk/rmsauth_sdk/SConscript' ,duplicate=0)
 rmscrypto_sdk_lib = rmscrypto_env.SConscript('#sdk/rmscrypto_sdk/SConscript', variant_dir = variant_dir + '/rmscrypto_sdk', duplicate=0)
 rms_sdk_lib = rms_env.SConscript('#sdk/rms_sdk/SConscript', variant_dir = variant_dir + '/rms_sdk', duplicate=0)
-
-# Return('rms_sdk_lib, rmsauth_sdk_lib, rmscrypto_sdk_lib')
-# Return('rms_sdk_lib')
