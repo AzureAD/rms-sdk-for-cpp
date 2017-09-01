@@ -48,13 +48,31 @@ protected:
     {}
 };
 
+/**
+ * @brief This class is for the type of protector that wraps up the encrypted document
+ * with the wrapper document. It extends the ability to set the wrapper document.
+ */
 class ProtectorWithWrapper : public Protector
 {
 public:
+    /**
+     * @brief Creates the protector to protect or unprotect a document.
+     * @param[in] filePath          The input file path to be protected. The extension name determines which type of protector to be selected.
+     * @param[in] inputStream       The protector will read the original document data from the input file stream.
+     * @param[out] outputFileName   It receives the file name of the protected document.
+     * @return The protector to protect or unprotect a document.
+     */
     DLL_PUBLIC_RMS
     static std::unique_ptr<ProtectorWithWrapper> Create(const std::string& filePath,
                                              std::shared_ptr<std::fstream> inputStream,
                                              std::string& outputFileName);
+
+    /**
+     * @brief Sets the wrapper document to wrap up the encrypted document.
+     * If the wrapper document is invalid, ProtectWithTemplate will fail and throw an exception.
+     * @param[in] inputWrapperStream    The protector will read the wrapper document data from the input file stream.
+     * @return void.
+     */
     virtual void SetWrapper(std::shared_ptr<std::fstream> inputWrapperStream) = 0;
 };
 
