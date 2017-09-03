@@ -2,5 +2,7 @@
     <qresource prefix="/files">
         <file>pfiles/text.ptxt</file>
         <file>taged_pfiles/text.ptxt</file>
+        <file>pfiles/Drawing.vsd.pfile</file>
+        <file>taged_pfiles/Drawing.vsd.pfile</file>
     </qresource>
 </RCC>
