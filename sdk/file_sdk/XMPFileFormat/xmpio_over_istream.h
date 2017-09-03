@@ -1,5 +1,5 @@
-#ifndef XMP_STREAM_H
-#define XMP_STREAM_H
+#ifndef XMPIO_OVER_ISTREAM_H
+#define XMPIO_OVER_ISTREAM_H
 
 #include <IStream.h>
 #include <XMP_IO.hpp>
@@ -14,14 +14,14 @@ using std::make_shared;
 namespace mip {
 namespace file {
 
-class XMPStream : public XMP_IO
+class XMPIOOverIStream : public XMP_IO
 {
 public:
-  XMPStream(std::shared_ptr<IStream> stream) {
+  XMPIOOverIStream(std::shared_ptr<IStream> stream) {
     mBaseStream = stream;
   }
 
-  ~XMPStream() override {
+  ~XMPIOOverIStream() override {
     if (mTemp != nullptr)
       delete mTemp;
   }
@@ -78,7 +78,7 @@ public:
     auto stream = rmscrypto::api::CreateStreamFromStdStream(static_pointer_cast<std::iostream>(
                                                               backingStdStream));
     auto streamAdapter = static_pointer_cast<IStream>(stream);
-    mTemp = new XMPStream(streamAdapter);
+    mTemp = new XMPIOOverIStream(streamAdapter);
     return mTemp;
   }
 
@@ -96,11 +96,11 @@ public:
   }
 
 private:
-  XMPStream* mTemp = nullptr;
+  XMPIOOverIStream* mTemp = nullptr;
   std::shared_ptr<IStream> mBaseStream;
 };
 
 } // namespace file
 } // namespace mip
 
-#endif // XMP_STREAM_H
+#endif // XMPIO_OVER_ISTREAM_H

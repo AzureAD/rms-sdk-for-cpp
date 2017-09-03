@@ -9,14 +9,20 @@
 namespace mip {
 namespace file {
 
+class XMPHelper;
+
 class XMPFileFormat : public FileFormat
 {
 public:
   XMPFileFormat(shared_ptr<IStream> file, const std::string& extension);
   const vector<Tag> ReadTags();
   void Commit(shared_ptr<IStream> file, string& newExtension);
+
+private:
+  XMPHelper& mXMPHelper;
 };
 
 } // namespace file
 } // namespace mip
+
 #endif // XMP_FILE_FORMAT_H
