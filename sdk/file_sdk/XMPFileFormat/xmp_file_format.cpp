@@ -23,7 +23,7 @@ const vector<Tag> XMPFileFormat::ReadTags() {
   return mXMPHelper.GetTags(mFile);
 }
 
-void XMPFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+void XMPFileFormat::Commit(shared_ptr<IStream> file, string& /*newExtension*/) {
   throw std::runtime_error("not implemented");
 }
 

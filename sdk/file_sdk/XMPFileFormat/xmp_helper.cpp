@@ -1,10 +1,10 @@
 #include "xmp_helper.h"
 
-static bool mInitialized = false;
-static std::mutex mInitMutex;
-
 namespace mip {
 namespace file {
+
+bool XMPHelper::mInitialized = false;
+std::mutex XMPHelper::mInitMutex;
 
 string XMPHelper::GetStringByKey(const SXMPMeta& metadata,const string &labelsItemPath, const XMP_StringPtr fieldName, const XMP_StringPtr alternativeFieldName, const XMP_StringPtr oldestFieldName) {
   std::string path;
@@ -16,7 +16,7 @@ string XMPHelper::GetStringByKey(const SXMPMeta& metadata,const string &labelsIt
     metadata.GetProperty(kMsipNamespace, path.c_str(), &value, 0);
   }
 
-  if(value.empty() && oldestFieldName != nullptr) {
+  if (value.empty() && oldestFieldName != nullptr) {
     SXMPUtils::ComposeStructFieldPath(kMsipNamespace, labelsItemPath.c_str(), kMsipLabelNamespace, oldestFieldName, &path);
     metadata.GetProperty(kMsipNamespace, path.c_str(), &value, 0);
   }
@@ -100,7 +100,8 @@ void XMPHelper::Initialize() {
   if (mInitialized)
     return;
 
-  mInitMutex.lock();
+  std::lock_guard<std::mutex> lock(mInitMutex);
+
   if (mInitialized)
     return;
 
@@ -116,7 +117,6 @@ void XMPHelper::Initialize() {
   SXMPMeta::RegisterNamespace(kMsipLabelExtendedNamespace, "msip-label-extended", &actualPrefix);
 
   mInitialized = true;
-  mInitMutex.unlock();
 }
 
 const vector<Tag> XMPHelper::GetTags(shared_ptr<IStream> fileStream) {

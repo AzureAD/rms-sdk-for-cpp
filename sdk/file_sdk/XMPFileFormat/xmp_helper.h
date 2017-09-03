@@ -30,14 +30,17 @@ namespace file {
 class XMPHelper {
 
 public:
+  static string GetStringByKey(const SXMPMeta& metadata, const string &labelsItemPath, const XMP_StringPtr fieldName, const XMP_StringPtr alternativeFieldName, const XMP_StringPtr oldestFieldName = nullptr);
 
-static string GetStringByKey(const SXMPMeta& metadata, const string &labelsItemPath, const XMP_StringPtr fieldName, const XMP_StringPtr alternativeFieldName, const XMP_StringPtr oldestFieldName = nullptr);
+  static vector<Tag> Deserialize(const SXMPMeta& metadata);
 
-vector<Tag> Deserialize(const SXMPMeta& metadata);
+  static void Initialize();
 
-static void Initialize();
+  static const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
 
-const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
+private:
+  static bool mInitialized;
+  static std::mutex mInitMutex;
 
 };
 

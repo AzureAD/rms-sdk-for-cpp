@@ -54,8 +54,7 @@ string Tag::GetBackwardCompatibleKey(
 string Tag::GetDataForKey(const vector<pair<string, string>>& properties, const string& key) {
   for (size_t i = 0; i < properties.size(); i++) {
     const pair<string, string>& data = properties[i];
-    const string& id = data.first;
-    if (id == key) {
+    if (data.first == key) {
       return data.second;
     }
   }
@@ -128,6 +127,7 @@ bool Tag::operator== (const Tag& other) const {
       mLabelName == other.mLabelName &&
       mLabelParentId == other.mLabelParentId &&
       mEnabled == other.mEnabled &&
+      mMethod == other.mMethod &&
       mOwner == other.mOwner &&
       mSetTime == other.mSetTime &&
       mSiteId == other.mSiteId;

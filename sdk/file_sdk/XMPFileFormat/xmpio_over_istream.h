@@ -17,83 +17,25 @@ namespace file {
 class XMPIOOverIStream : public XMP_IO
 {
 public:
-  XMPIOOverIStream(std::shared_ptr<IStream> stream) {
-    mBaseStream = stream;
-  }
+  XMPIOOverIStream(std::shared_ptr<IStream> stream);
 
-  ~XMPIOOverIStream() override {
-    if (mTemp != nullptr)
-      delete mTemp;
-  }
+  ~XMPIOOverIStream() override;
 
-  XMP_Uns32 Read(void* buffer, XMP_Uns32 count, bool readAll = false) override {
-    if (buffer == nullptr)
-      throw new XMP_Error(kXMPErr_BadParam, "Buffer is null");
+  XMP_Uns32 Read(void* buffer, XMP_Uns32 count, bool readAll = false) override;
 
-    auto readCount = mBaseStream->Read(static_cast<uint8_t*>(buffer), count);
-    if(readAll && (XMP_Uns32)readCount < count)
-      throw new XMP_Error(kXMPErr_BadParam, "readCount is lower than expected");
+  void Write(const void* buffer, XMP_Uns32 count) override;
 
-    return (XMP_Uns32)readCount;
-  }
+  XMP_Int64 Seek(XMP_Int64 offset, SeekMode mode) override;
 
-  void Write(const void* buffer, XMP_Uns32 count) override {
+  XMP_Int64 Length() override;
 
-    if (buffer == nullptr)
-      throw new XMP_Error(kXMPErr_BadParam, "Buffer is null");
+  void Truncate(XMP_Int64 length) override;
 
-    mBaseStream->Write(static_cast<const uint8_t*>(buffer), (int64_t)count);
-  }
+  XMP_IO* DeriveTemp() override;
 
-  XMP_Int64 Seek(XMP_Int64 offset, SeekMode mode) override {
+  void AbsorbTemp() override;
 
-    switch(mode) {
-    case SeekMode::kXMP_SeekFromStart: {
-        mBaseStream->Seek((uint64_t)offset);
-        break;
-      }
-      case SeekMode::kXMP_SeekFromCurrent: {
-        mBaseStream->Seek(offset + mBaseStream->Position());
-        break;
-      }
-      case SeekMode::kXMP_SeekFromEnd: {
-        mBaseStream->Seek(mBaseStream->Size() + offset);
-        break;
-      }
-    }
-
-    return  mBaseStream->Position();
-  }
-
-  XMP_Int64 Length() override {
-    return mBaseStream->Size();
-  }
-
-  void Truncate(XMP_Int64 length) override  {
-    mBaseStream->Size((uint64_t)length);
-  }
-
-  XMP_IO* DeriveTemp() override  {
-    auto backingStdStream = make_shared<std::stringstream>(std::ios::in | std::ios::out | std::ios::binary);
-    auto stream = rmscrypto::api::CreateStreamFromStdStream(static_pointer_cast<std::iostream>(
-                                                              backingStdStream));
-    auto streamAdapter = static_pointer_cast<IStream>(stream);
-    mTemp = new XMPIOOverIStream(streamAdapter);
-    return mTemp;
-  }
-
-  void AbsorbTemp() override {
-    mBaseStream->Seek(0);
-    mTemp->mBaseStream->Seek(0);
-    mTemp->mBaseStream = mTemp->mBaseStream->Clone();
-    mTemp->mBaseStream->Size(mTemp->mBaseStream->Size());
- }
-
-  void DeleteTemp() override {
-    if(mTemp)
-      delete mTemp;
-    mTemp = nullptr;
-  }
+  void DeleteTemp() override;
 
 private:
   XMPIOOverIStream* mTemp = nullptr;
