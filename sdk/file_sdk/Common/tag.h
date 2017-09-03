@@ -38,6 +38,10 @@ public:
       const std::string& siteId = "Local",
       const std::vector<ExtendedProperty>& extendedProperties = std::vector<ExtendedProperty>());
 
+  Tag(const Tag& tag);
+
+  Tag& operator=(const Tag& other);
+
   bool operator== (const Tag& other) const;
   std::vector<std::pair<std::string, std::string>> ToProperties() const;
   const std::string& GetLabelId() const { return mLabelId; }
@@ -47,6 +51,7 @@ public:
   const bool GetEnabled() const { return mEnabled; }
   const std::string& GetSiteId() const { return mSiteId; }
   const std::string& GetSetTime() const { return mSetTime; }
+  const Method GetMethod() const { return mMethod; }
   const std::vector<ExtendedProperty>& GetExtendedProperties() const { return mExtendedProperties; }
 
 private:

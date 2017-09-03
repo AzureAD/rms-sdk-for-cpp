@@ -13,22 +13,8 @@ using std::make_shared;
 using mip::file::XMPFileFormat;
 using mip::Tag;
 
-class Xmp_Tests : public QObject
-{
-  Q_OBJECT
-
-public:
-  Xmp_Tests();
-
-private Q_SLOTS:
-  void GetTags_FileWithAutomaticTag_ReturnCorrectTag();
-  void GetTags_FileWithManualTag_ReturnCorrectTag();
-};
-
-Xmp_Tests::Xmp_Tests() {
-}
-
-bool VerifyTags(Tag tag1, Tag tag2) {
+namespace {
+static bool VerifyTags(Tag tag1, Tag tag2) {
   if (tag1.GetExtendedProperties().size() != tag2.GetExtendedProperties().size())
     return false;
 
@@ -47,6 +33,22 @@ bool VerifyTags(Tag tag1, Tag tag2) {
       tag1.GetEnabled() == tag2.GetEnabled() &&
       tag1.GetOwner() == tag2.GetOwner() &&
       tag1.GetSiteId() == tag2.GetSiteId();
+}
+}
+
+class Xmp_Tests : public QObject
+{
+  Q_OBJECT
+
+public:
+  Xmp_Tests();
+
+private Q_SLOTS:
+  void GetTags_FileWithAutomaticTag_ReturnCorrectTag();
+  void GetTags_FileWithManualTag_ReturnCorrectTag();
+};
+
+Xmp_Tests::Xmp_Tests() {
 }
 
 void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
@@ -105,6 +107,8 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
       QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
       mip::Tag tag = tags[0];
       QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
+
+      QVERIFY2(tag.GetSetTime().find("2017-08-30") == 0, "SetTime is different than expected");
     }
     else
       QFAIL("Failed to copy file");

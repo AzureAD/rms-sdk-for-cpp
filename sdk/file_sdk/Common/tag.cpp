@@ -13,6 +13,8 @@ static const string kExtendedPrefix = "Extended";
 
 namespace mip {
 
+string kMethodArray[] = {"None", "Manual", "Automatic"};
+
 // static
 const string& Tag::GetMetaDataPrefix() {
   return kMetaDataPrefix;
@@ -30,10 +32,10 @@ string Tag::GenerateExtendedKey(const string& id, const string& vendor, const st
 
 // static
 string Tag::GetBackwardCompatibleKey(
-  const vector<pair<string, string>>& properties,
-  const string& id,
-  const string& key,
-  const vector<string>& backwardCompatibleKeys) {
+    const vector<pair<string, string>>& properties,
+    const string& id,
+    const string& key,
+    const vector<string>& backwardCompatibleKeys) {
   string keyLabel = GenerateLabelKey(id, key);
   string value = GetDataForKey(properties, keyLabel);
 
@@ -44,7 +46,7 @@ string Tag::GetBackwardCompatibleKey(
     keyLabel = GenerateLabelKey(id, backwardCompatibleKeys[i]);
     value = GetDataForKey(properties, keyLabel);
     if (!value.empty())
-      return GetDataForKey(properties, GenerateLabelKey(id, backwardCompatibleKeys[i]));
+      return value;
   }
 
   return "";
@@ -54,7 +56,7 @@ string Tag::GetBackwardCompatibleKey(
 string Tag::GetDataForKey(const vector<pair<string, string>>& properties, const string& key) {
   for (size_t i = 0; i < properties.size(); i++) {
     const pair<string, string>& data = properties[i];
-    if (data.first == key) {
+    if (EqualsIgnoreCase(data.first, key)) {
       return data.second;
     }
   }
@@ -110,6 +112,45 @@ Tag::Tag(
   }
 }
 
+Tag::Tag(const Tag& tag)
+{
+  mLabelId = tag.GetLabelId();
+  mLabelName = tag.GetLabelName();
+  mLabelParentId = tag.GetLabelParentId();
+  mEnabled = tag.GetEnabled();
+  mMethod = tag.GetMethod();
+  mOwner = tag.GetOwner();
+  mSetTime = tag.GetSetTime();
+  mSiteId = tag.GetSiteId();
+
+  auto properties = tag.GetExtendedProperties();
+  for (size_t i = 0; i < properties.size(); i++) {
+    mExtendedProperties.push_back(properties[i]);
+  }
+}
+
+Tag&Tag::operator=(const Tag& tag)
+{
+  if (this == &tag)
+    return *this;
+
+  mLabelId = tag.GetLabelId();
+  mLabelName = tag.GetLabelName();
+  mLabelParentId = tag.GetLabelParentId();
+  mEnabled = tag.GetEnabled();
+  mMethod = tag.GetMethod();
+  mOwner = tag.GetOwner();
+  mSetTime = tag.GetSetTime();
+  mSiteId = tag.GetSiteId();
+
+  auto properties = tag.GetExtendedProperties();
+  for (size_t i = 0; i < properties.size(); i++) {
+    mExtendedProperties.push_back(properties[i]);
+  }
+
+  return *this;
+}
+
 bool Tag::operator== (const Tag& other) const {
   if (mExtendedProperties.size() != other.mExtendedProperties.size())
     return false;
@@ -137,16 +178,14 @@ vector<pair<string, string>> Tag::ToProperties() const {
   vector<pair<string, string>> result;
   string id = mLabelId;
   result.push_back(pair<string, string>(
-      GenerateLabelKey(id, "Enabled"), mEnabled ? "true" : "false"));
+                     GenerateLabelKey(id, "Enabled"), mEnabled ? "true" : "false"));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "SiteId"), mSiteId));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Owner"), mOwner));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "SetDate"), mSetTime));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Name"), mLabelName));
 
   Method method = mMethod;
-  // TODO: This array can be a global static
-  string methodArray[] = {"None", "Manual", "Automatic"};
-  string methodAsString = methodArray[static_cast<size_t>(method)];
+  string methodAsString = kMethodArray[static_cast<size_t>(method)];
 
   result.push_back(pair<string, string>(GenerateExtendedKey(id, "MSFT", "Method"), methodAsString));
   if (!mLabelParentId.empty())
@@ -179,18 +218,15 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
     string labelId = labelsIds[i];
     bool isEnabled = false;
     TryParseBool(GetDataForKey(properties, GenerateLabelKey(labelId, "Enabled")), isEnabled);
-    vector<string> ids;
-    ids.push_back("Ref");
+
+    vector<string> ids = {"Ref"};
 
     string siteId = GetBackwardCompatibleKey(properties, labelId, "SiteId", ids);
 
-    ids.clear();
-    ids.push_back("AssignedBy");
-    ids.push_back("SetBy");
+    ids = { "AssignedBy", "SetBy" };
     string owner = GetBackwardCompatibleKey(properties, labelId, "Owner", ids);
 
-    ids.clear();
-    ids.push_back("DateCreated");
+    ids = { "DateCreated" };
     string setDate = GetBackwardCompatibleKey(properties, labelId, "SetDate", ids);
 
     string name = GetDataForKey(properties, GenerateLabelKey(labelId, "Name"));
@@ -212,8 +248,11 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
       if (id.compare(methodKey) != 0 && id.find(extendedPropertyPrefix) != string::npos) {
         string vendorAndKey = regex_replace(id, std::regex(extendedPropertyPrefix), replace);
         size_t index = vendorAndKey.find_first_of("_");
+        if(index == string::npos)
+          continue;
+
         string vendor = vendorAndKey.substr(0, index);
-        string key = vendorAndKey.substr(0, index + 1);
+        string key = vendorAndKey.substr(index + 1);
         ExtendedProperty extendedProperty;
         extendedProperty.vendor = vendor;
         extendedProperty.key = key;

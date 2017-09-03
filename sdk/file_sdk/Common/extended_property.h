@@ -10,6 +10,13 @@ struct ExtendedProperty
   std::string vendor;
   std::string key;
   std::string value;
+
+  bool operator==(const ExtendedProperty& property)
+  {
+    return key == property.key &&
+           value == property.value &&
+           vendor == property.vendor;
+  }
 };
 
 } // namespace mip
