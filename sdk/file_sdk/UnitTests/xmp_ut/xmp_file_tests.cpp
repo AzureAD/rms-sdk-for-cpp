@@ -70,6 +70,8 @@ void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
       mip::Tag tag = tags[0];
       QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
     }
+    else
+      QFAIL("Failed to copy file");
   }
 }
 
@@ -99,10 +101,13 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
 
       XMPFileFormat xmpFileFormat(stream, extension);
       auto tags = xmpFileFormat.GetTags();
+
       QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
       mip::Tag tag = tags[0];
       QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
     }
+    else
+      QFAIL("Failed to copy file");
   }
 }
 

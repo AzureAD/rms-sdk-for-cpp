@@ -47,7 +47,7 @@ public:
   const bool GetEnabled() const { return mEnabled; }
   const std::string& GetSiteId() const { return mSiteId; }
   const std::string& GetSetTime() const { return mSetTime; }
-  const std::vector<ExtendedProperty> GetExtendedProperties() const { return mExtendedProperties; }
+  const std::vector<ExtendedProperty>& GetExtendedProperties() const { return mExtendedProperties; }
 
 private:
   // TODO: Add tests for these methods.

@@ -20,7 +20,8 @@ CONFIG(debug, debug|release) {
     LIBS +=  -lrms  -lmodfilecommon -lXMPCoreStatic -lXMPFilesStatic
 }
 SOURCES += xmp_file_format.cpp \
-    xmp_helper.cpp
+    xmp_helper.cpp \
+    xmpio_over_istream.cpp
 
 HEADERS += xmp_file_format.h \
     xmpio_over_istream.h \
