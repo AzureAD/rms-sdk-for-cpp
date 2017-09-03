@@ -46,12 +46,11 @@ bool VerifyTags(Tag tag1, Tag tag2) {
       tag1.GetLabelParentId() == tag2.GetLabelParentId() &&
       tag1.GetEnabled() == tag2.GetEnabled() &&
       tag1.GetOwner() == tag2.GetOwner() &&
-      tag1.GetApplicationName() == tag2.GetApplicationName() &&
       tag1.GetSiteId() == tag2.GetSiteId();
 }
 
 void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "", "", "vakuras@microsoft.com", true, "", "", mip::Method::MANUAL, "https://rmsibizaapidf.trafficmanager.net/api/72f988bf-86f1-41af-91ab-2d7cd011db47");
+  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "https://rmsibizaapidf.trafficmanager.net/api/72f988bf-86f1-41af-91ab-2d7cd011db47");
 
   QTemporaryDir tempDir;
   tempDir.autoRemove();
@@ -82,7 +81,7 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
   property.value = "Automatic";
   properties.push_back(property);
 
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", "Microsoft Azure Information Protection", mip::Method::NONE, "72f988bf-86f1-41af-91ab-2d7cd011db47", properties);
+  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", mip::Method::NONE, "72f988bf-86f1-41af-91ab-2d7cd011db47", properties);
 
   QTemporaryDir tempDir;
   tempDir.autoRemove();

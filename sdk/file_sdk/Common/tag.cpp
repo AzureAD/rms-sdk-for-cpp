@@ -89,7 +89,6 @@ Tag::Tag(
     const string& owner,
     bool enabled,
     const string& setTime,
-    const string& applicationName,
     const Method& method,
     const string& siteId,
     const vector<ExtendedProperty>& extendedProperties)
@@ -100,8 +99,7 @@ Tag::Tag(
     mEnabled(enabled),
     mSiteId(siteId),
     mMethod(method),
-    mSetTime(setTime),
-    mApplicationName(applicationName) {
+    mSetTime(setTime) {
   for (size_t i = 0; i < extendedProperties.size(); i++) {
     if (extendedProperties[i].key.length() > 255)
       throw std::length_error("Extended property key cannot be greater than 255");
@@ -131,7 +129,6 @@ bool Tag::operator== (const Tag& other) const {
       mLabelParentId == other.mLabelParentId &&
       mEnabled == other.mEnabled &&
       mOwner == other.mOwner &&
-      mApplicationName == other.mApplicationName &&
       mSetTime == other.mSetTime &&
       mSiteId == other.mSiteId;
 }
@@ -145,7 +142,6 @@ vector<pair<string, string>> Tag::ToProperties() const {
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Owner"), mOwner));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "SetDate"), mSetTime));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Name"), mLabelName));
-  result.push_back(pair<string, string>(GenerateLabelKey(id, "Application"), mApplicationName));
 
   Method method = mMethod;
   // TODO: This array can be a global static
@@ -198,7 +194,6 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
     string setDate = GetBackwardCompatibleKey(properties, labelId, "SetDate", ids);
 
     string name = GetDataForKey(properties, GenerateLabelKey(labelId, "Name"));
-    string application = GetDataForKey(properties, GenerateLabelKey(labelId, "Application"));
     string parentId = GetDataForKey(properties, GenerateLabelKey(labelId, "Parent"));
     string methodKey = GenerateExtendedKey(labelId, "MSFT", "Method");
     string methodAsString = GetDataForKey(properties, methodKey);
@@ -227,8 +222,7 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
       }
     }
 
-    Tag tag(labelId, name, parentId, owner, isEnabled, setDate,
-            application, method, siteId, extendedProperties);
+    Tag tag(labelId, name, parentId, owner, isEnabled, setDate, method, siteId, extendedProperties);
     result.push_back(tag);
   }
 

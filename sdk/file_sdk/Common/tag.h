@@ -34,7 +34,6 @@ public:
       const std::string& owner,
       bool enabled,
       const std::string& setTime,
-      const std::string& applicationName,
       const Method& method = Method::NONE,
       const std::string& siteId = "Local",
       const std::vector<ExtendedProperty>& extendedProperties = std::vector<ExtendedProperty>());
@@ -48,7 +47,6 @@ public:
   const bool GetEnabled() const { return mEnabled; }
   const std::string& GetSiteId() const { return mSiteId; }
   const std::string& GetSetTime() const { return mSetTime; }
-  const std::string& GetApplicationName() const { return mApplicationName; }
   const std::vector<ExtendedProperty> GetExtendedProperties() const { return mExtendedProperties; }
 
 private:
@@ -71,7 +69,6 @@ private:
   std::string mSiteId;
   Method mMethod;
   std::string mSetTime;
-  std::string mApplicationName;
   std::vector<ExtendedProperty> mExtendedProperties;
 };
 
