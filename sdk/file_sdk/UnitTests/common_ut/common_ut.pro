@@ -21,7 +21,7 @@ CONFIG(debug, debug|release) {
     LIBS +=  -lrmscryptod -lrmsd -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled
     win32:LIBS += -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
-    LIBS +=  -lrmscryptod -lrms -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile
+    LIBS +=  -lrmscrypto -lrms -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile
     win32:LIBS += -lXMPCoreStatic -lXMPFilesStatic
 }
 
