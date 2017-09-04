@@ -1,0 +1,80 @@
+
+#include <gsf/gsf.h>
+#include <gsf/gsf-input-stdio.h>
+#include <gsf/gsf-utils.h>
+#include <gsf/gsf-infile.h>
+#include <gsf/gsf-infile-zip.h>
+#include <glib/gmessages.h>
+#include <stdio.h>
+#include "zipapi.h"
+#undef signals
+
+    void ls_R (GsfInput *input)
+    {
+        GsfInput* docProps = gsf_infile_child_by_name(GSF_INFILE(input),"docProps");
+        GsfInput* custom = GSF_INPUT(gsf_infile_child_by_name(GSF_INFILE(docProps),"custom.xml"));
+        guint8* data = new guint8[1902];
+        g_warning ("%c '%s' %" GSF_OFF_T_FORMAT "\n",
+            (false ? 'd' : ' '),
+            gsf_input_name (GSF_INPUT (custom)),
+            gsf_input_size (GSF_INPUT (custom)));
+            int size = gsf_input_size(custom);
+          gsf_input_read(custom,size, data);
+          GsfInfileStdio* aaa =  GSF_INFILE_STDIO(custom);
+          
+           int i= 0;
+          /*int i;
+        gboolean is_dir = GSF_IS_INFILE (input) &&
+            (gsf_infile_num_children (GSF_INFILE (input)) >= 0);
+
+        g_warning ("%c '%s' %" GSF_OFF_T_FORMAT "\n",
+            (is_dir ? 'd' : ' '),
+            gsf_input_name (GSF_INPUT (input)),
+            gsf_input_size (GSF_INPUT (input)));
+
+        if (!is_dir)
+            return;
+
+        g_warning ("{");
+        for (i = 0 ; i < gsf_infile_num_children (GSF_INFILE (input)) ; i++)
+            ls_R (gsf_infile_child_by_index (GSF_INFILE (input), i));
+        g_warning ("}");*/
+    }
+
+    int ZipApi::Impl(char const * filePath)
+    {
+        gsf_init ();
+
+       GsfInput  *input;
+        GsfInfile *infile;
+        GError    *err = NULL;
+        int i;
+
+            input = gsf_input_stdio_new (filePath, &err);
+            if (input == NULL) {
+
+                g_return_val_if_fail (err != NULL, 1);
+
+                g_warning ("'%s' error: %s", filePath, err->message);
+                g_error_free (err);
+                err = NULL;
+                return 0;
+            }
+
+            infile = gsf_infile_zip_new (input, &err);
+            if (infile == NULL) {
+
+                g_return_val_if_fail (err != NULL, 1);
+
+                g_warning ("'%s' Not a Zip file: %s", filePath, err->message);
+                g_error_free (err);
+                err = NULL;
+                return 0;
+            }
+
+            ls_R (GSF_INPUT (infile));
+            g_object_unref (G_OBJECT (infile));
+            g_object_unref (G_OBJECT (input));
+        gsf_shutdown();
+        return 0;
+    }
