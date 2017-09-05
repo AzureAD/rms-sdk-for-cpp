@@ -27,11 +27,11 @@ namespace restclients
 
 namespace {
     const string EXTRANET_XPATH =
-        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='Extranet-License-Acquisition-URL']/ADDRESS[@type='URL']/text()/string()";
     const string INTRANET_XPATH =
-        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()";
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/DISTRIBUTIONPOINT/OBJECT[@type='License-Acquisition-URL']/ADDRESS[@type='URL']/text()/string()";
     const string SLC_XPATH =
-        "/Root/XrML/BODY[@type='Microsoft Rights Label']/ISSUEDPRINCIPALS/PRINCIPAL/PUBLICKEY/PARAMETER[@name='modulus']/VALUE/text()";
+        "/Root/XrML/BODY[@type='Microsoft Rights Label']/ISSUEDPRINCIPALS/PRINCIPAL/PUBLICKEY/PARAMETER[@name='modulus']/VALUE/text()/string()";
 }
 
 const uint8_t BOM_UTF8[] = {0xef, 0xbb, 0xbf};

@@ -28,6 +28,9 @@ docs/html/
 *.vcxproj
 *.vcxproj.user
 *.sln
+!/wrapper/**/*.filters
+!/wrapper/**/*.vcxproj
+!/wrapper/**/*.sln
 
 *.exe
 .DS_Store

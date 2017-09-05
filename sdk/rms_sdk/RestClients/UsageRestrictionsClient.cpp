@@ -84,7 +84,7 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
 
   //if we receive 401 here, that probably means the CA flow should be triggered. In this case, we will keep taking the challenge from the 401
   //and re-raising the auth callback until the user cancels or produces a token of sufficient authority 
-  while (httpRequestResult.status != StatusCode::UNAUTHORIZED)
+  while (httpRequestResult.status == StatusCode::UNAUTHORIZED)
   {
 	  AuthenticationChallenge challenge = AuthenticationHandler::ParseChallengeHeader(httpRequestResult.header, endUserLicenseUrl);
 

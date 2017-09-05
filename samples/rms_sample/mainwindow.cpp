@@ -69,7 +69,7 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap)
                                            ap->UserId())
                                      : authContext.acquireToken(ap->Resource(),
                                            clientId_,
-                                           redirectUrl_m,
+                                           redirectUrl_,
                                            PromptBehavior::Auto,
                                            ap->UserId(),
                                            ap->Claims());

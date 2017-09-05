@@ -49,6 +49,7 @@ class DLL_PUBLIC_RMS ProtectedFileStream : public rmscrypto::api::IStream
 public:
 
     virtual ~ProtectedFileStream();
+
     virtual std::shared_future<int64_t> ReadAsync(uint8_t* pbBuffer,
                                                   int64_t cbBuffer,
                                                   int64_t cbOffset,

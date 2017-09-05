@@ -39,7 +39,8 @@ SOURCES += \
     CustomProtectedStream.cpp \
     ext/QTStreamImpl.cpp \
     HttpHelper.cpp \
-    IRMSEnvironment.cpp
+    IRMSEnvironment.cpp \
+    FastPFileConverter.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -66,7 +67,8 @@ HEADERS += \
     ModernAPIExport.h \
     CacheControl.h \
     RMSExceptions.h \
-    IRMSEnvironment.h
+    IRMSEnvironment.h \
+    FastPFileConverter.h
 
 
 unix {
