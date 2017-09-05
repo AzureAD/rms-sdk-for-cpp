@@ -10,4 +10,4 @@ rms_env = env.Clone()
 Export('rmscrypto_env rms_env')
 
 rmscrypto_sdk_lib = rmscrypto_env.SConscript('#sdk/rmscrypto_sdk/SConscript', variant_dir = variant_dir + '/rmscrypto_sdk', duplicate=0)
-# rms_sdk_lib = rms_env.SConscript('#sdk/rms_sdk/SConscript', variant_dir = variant_dir + '/rms_sdk', duplicate=0)
+rms_sdk_lib = rms_env.SConscript('#sdk/rms_sdk/SConscript', variant_dir = variant_dir + '/rms_sdk', duplicate=0)

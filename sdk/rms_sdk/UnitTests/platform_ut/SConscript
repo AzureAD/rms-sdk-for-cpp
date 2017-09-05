@@ -10,12 +10,6 @@ Import("""
 """)
 
 Import("""    
-    crypto_lib
-    crypto_api_lib
-    crypto_platform_keystorage_lib
-    crypto_platform_crypto_lib
-    crypto_platform_logger_lib
-    crypto_platform_settings_lib
     googletest_lib
     modernapi_lib
     rms_platform_filesystem_lib
@@ -34,12 +28,12 @@ rmsplatform_env = rms_env.Clone()
 rmsplatform_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
-print "BBBB: ", srcdir
+rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 
 if platform == 'win32':
   rmsplatform_env.Append(CPPPATH='#third_party/include')
   rmsplatform_env.Append(CPPPATH='#googletest/include')
-  rmsplatform_env.Append(CCFLAGS=Split('-DSRCDIR='+srcdir+' -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
+  rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
   rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
   if configuration == 'debug':
     rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
@@ -51,12 +45,6 @@ elif platform == '__linux__':
   rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
 
 libs = [
-      crypto_api_lib,
-      crypto_lib,
-      crypto_platform_keystorage_lib,
-      crypto_platform_crypto_lib,
-      crypto_platform_logger_lib,
-      crypto_platform_settings_lib,   
       googletest_lib,
       modernapi_lib,
       rms_platform_filesystem_lib,
@@ -64,12 +52,14 @@ libs = [
       rms_platform_json_lib,
       rms_platform_logger_lib,
       rms_platform_settings_lib,
-      rms_platform_xml_lib,      
+      rms_platform_xml_lib,
+      'rmscrypto',     
 ]
 if platform == 'win32':
   lib_path = [
       qt_lib_path, 
       '#third_party/lib/eay',
+      '#bin/debug/amd64/sdk/rmscrypto_sdk',
   ]
   rmsplatform_env.Replace(LIBPATH=lib_path)
   libs += [

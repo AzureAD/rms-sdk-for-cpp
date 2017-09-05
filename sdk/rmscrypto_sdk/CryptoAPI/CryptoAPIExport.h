@@ -38,7 +38,7 @@
 
 
 #ifdef _WIN32
-
+  #define DLL_LOCAL_CRYPTO 
   #ifdef RMS_CRYPTO_LIBRARY
     #define DLL_PUBLIC_CRYPTO __declspec(dllexport)
   #else

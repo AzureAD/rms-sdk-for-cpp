@@ -13,8 +13,6 @@ Import("""
     common_lib
     consent_lib
     core_lib
-    crypto_lib
-    crypto_api_lib
     googletest_lib
     json_lib
     rms_platform_filesystem_lib
@@ -26,17 +24,18 @@ Import("""
     restclients_lib
 """)
 
-rms_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
-rms_env.Append(CCFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
-rms_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+modernapi_env = rms_env.Clone()
+
+modernapi_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
+
+modernapi_env.Append(CCFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+modernapi_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
 
 src_files = Glob('*.cpp')
-rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+modernapi_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 libs = [
   core_lib,
-  crypto_api_lib,
-  crypto_lib,
   googletest_lib,
   pfile_lib,
   rms_platform_filesystem_lib,
@@ -48,16 +47,17 @@ libs = [
 ]
 
 if platform == 'win32':
-  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
+  modernapi_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
   if configuration == 'debug':
-      rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+      modernapi_env.Append(LINKFLAGS=Split('/DEBUG'))
   elif configuration == 'release':
-      rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+      modernapi_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
 
   libs += [
       'Qt5Core' + lib_suffix,
       'Qt5Test' + lib_suffix,
       'Qt5Widgets' + lib_suffix,
+      'rmscrypto',
       'libeay32',
       'ssleay32',
       'Advapi32',
@@ -67,11 +67,12 @@ if platform == 'win32':
   lib_path = [
     qt_lib_path,
     '#third_party/lib/eay',
+    '#bin/debug/amd64/sdk/rmscrypto_sdk',
   ]
 else:
   libs += 'ssl'
   libs += 'crypto'
 
-modernapi_obj_files = create_objs(rms_env, src_files)
-modernapi_lib = rms_env.Library(target = "modernapi", source = modernapi_obj_files, LIBS = libs, LIBPATH = lib_path)
+modernapi_obj_files = create_objs(modernapi_env, src_files)
+modernapi_lib = modernapi_env.Library(target = "modernapi", source = modernapi_obj_files, LIBS = libs, LIBPATH = lib_path)
 Return('modernapi_lib modernapi_obj_files')

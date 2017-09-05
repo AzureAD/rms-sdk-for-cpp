@@ -2,6 +2,8 @@ from build_config import *
 
 Import('rms_env bins')
 
+# rms_env.Append(CPPDEFINES = ['RMS_CRYPTO_LIBRARY'])
+
 platform_libs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
 common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)
@@ -37,9 +39,9 @@ Install('#' + bins + '/sdk/rms_sdk', restclients_lib)
 Export('modernapi_lib modernapi_obj_files')
 Install('#' + bins + '/sdk/rms_sdk', modernapi_lib)
 
-rms_lib = rms_env.SConscript('shared_lib/SConscript', duplicate=0)
-Export('rms_lib')
-Install('#' + bins + '/sdk/rms_sdk', rms_lib)
+# rms_lib = rms_env.SConscript('shared_lib/SConscript', duplicate=0)
+# Export('rms_lib')
+# Install('#' + bins + '/sdk/rms_sdk', rms_lib)
 
 rms_platform_ut = rms_env.SConscript('UnitTests/platform_ut/SConscript', duplicate=0)
 Export('rms_platform_ut')
