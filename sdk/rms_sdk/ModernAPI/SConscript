@@ -1,4 +1,4 @@
-from build_config import *
+from build_config import create_objs
 
 Import("""
     configuration
@@ -48,7 +48,7 @@ libs = [
 ]
 
 if platform == 'win32':
-  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:WINDOWS'))
+  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
   if configuration == 'debug':
       rms_env.Append(LINKFLAGS=Split('/DEBUG'))
   elif configuration == 'release':
@@ -72,5 +72,6 @@ else:
   libs += 'ssl'
   libs += 'crypto'
 
-modernapi_lib = rms_env.Library(target = "modernapi", source = src_files, LIBS = libs, LIBPATH = lib_path)
-Return('modernapi_lib')
+modernapi_obj_files = create_objs(rms_env, src_files)
+modernapi_lib = rms_env.Library(target = "modernapi", source = modernapi_obj_files, LIBS = libs, LIBPATH = lib_path)
+Return('modernapi_lib modernapi_obj_files')
