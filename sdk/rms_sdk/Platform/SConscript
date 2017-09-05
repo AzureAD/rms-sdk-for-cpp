@@ -19,10 +19,3 @@ Export("""
   rms_platform_settings_lib
   rms_platform_xml_lib
 """)
-
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_filesystem_lib)
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_http_lib)
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_json_lib)
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_logger_lib)
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_settings_lib)
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_xml_lib)

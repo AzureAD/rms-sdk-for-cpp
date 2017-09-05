@@ -2,8 +2,6 @@ from build_config import *
 
 Import('rms_env bins')
 
-# rms_env.Append(CPPDEFINES = ['RMS_CRYPTO_LIBRARY'])
-
 platform_libs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
 common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)
@@ -27,17 +25,9 @@ Export('pfile_lib')
 restclients_lib = rms_env.SConscript('RestClients/SConscript', duplicate=0)
 Export('restclients_lib')
 
-Install('#' + bins + '/sdk/rms_sdk', common_lib)
-Install('#' + bins + '/sdk/rms_sdk', consent_lib)
-Install('#' + bins + '/sdk/rms_sdk', core_lib)
-Install('#' + bins + '/sdk/rms_sdk', googletest_lib)
-Install('#' + bins + '/sdk/rms_sdk', json_lib)
-Install('#' + bins + '/sdk/rms_sdk', pfile_lib)
-Install('#' + bins + '/sdk/rms_sdk', restclients_lib)
 
 [modernapi_lib, modernapi_obj_files] = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
 Export('modernapi_lib modernapi_obj_files')
-Install('#' + bins + '/sdk/rms_sdk', modernapi_lib)
 
 # rms_lib = rms_env.SConscript('shared_lib/SConscript', duplicate=0)
 # Export('rms_lib')

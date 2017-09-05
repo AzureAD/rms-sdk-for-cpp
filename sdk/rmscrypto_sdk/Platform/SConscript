@@ -4,8 +4,6 @@ Import('rmscrypto_env bins')
 
 crypto_platform_env = rmscrypto_env.Clone()
 
-crypto_platform_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
-
 Export('crypto_platform_env')
 
 crypto_platform_crypto_lib = crypto_platform_env.SConscript('Crypto/SConscript', duplicate=0)
@@ -19,8 +17,3 @@ Export("""
   crypto_platform_logger_lib
   crypto_platform_settings_lib
 """)
-
-Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_crypto_lib)
-Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_keystorage_lib)
-Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_logger_lib)
-Install('#' + bins + '/sdk/rmscrypto_sdk', crypto_platform_settings_lib)

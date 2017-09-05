@@ -38,10 +38,10 @@ srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
 
 rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
-rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
-rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
 
 if platform == 'win32':
+  rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
+  rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
   rmscrypto_ut_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
   if configuration == 'debug':
     rmscrypto_ut_env.Append(LINKFLAGS=Split('/DEBUG'))

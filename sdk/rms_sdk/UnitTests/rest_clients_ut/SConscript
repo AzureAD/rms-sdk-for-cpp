@@ -32,19 +32,11 @@ src_files += Glob(configuration + '/*.cpp')
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 srcdir = Dir('.').srcnode().abspath.replace('\\','/')
-
-if platform == 'win32':
-  rms_env.Append(CCFLAGS=Split('-DSRCDIR=\\\"'+srcdir+'/\\\"'))
-  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
-    rms_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+rms_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 
 lib_path = [
     qt_lib_path,
-    '#third_party/lib/eay',
-    '#bin/' + configuration + '/' + target_arch + '/sdk/rmscrypto_sdk',
+    '#bin/' + configuration + '/' + target_arch + '/sdk',
 ]
 
 libs = [
@@ -62,24 +54,32 @@ libs = [
     rms_platform_logger_lib,
     rms_platform_settings_lib,
     rms_platform_xml_lib,
-    'rmscrypto',     
-]
-if platform == 'win32':
-  libs += [
     'Qt5Core' + lib_suffix,
     'Qt5Network' + lib_suffix,
     'Qt5Xml' + lib_suffix,
     'Qt5XmlPatterns' + lib_suffix,
     'Qt5Test' + lib_suffix,
     'Qt5Gui' + lib_suffix,
+    'rms',     
+]
+
+if platform == 'win32':
+  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  if configuration == 'debug':
+    rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+    rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  libs += [    
     'libeay32',
     'ssleay32',
     'Advapi32',
     'Gdi32',
     'User32',
   ]
+  lib_path += [
+    '#third_party/lib/eay',
+  ]
 else:
-  # i dont know about this
   libs += 'ssl'
   libs += 'crypto'
 

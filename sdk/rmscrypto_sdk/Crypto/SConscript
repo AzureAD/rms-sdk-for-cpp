@@ -6,8 +6,6 @@ Import("""
     rmscrypto_env
 """)
 
-rmscrypto_env.Append(CPPDEFINES = ['RMS_CRYPTO_LIBRARY'])
-
 crypto_env = rmscrypto_env.Clone();
 src_files = Glob('*.cpp')
 if platform == 'win32':

@@ -167,8 +167,7 @@ if isRelease:
   if platform == 'win32':
     env.Append(LINKFLAGS='/NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
     env.Append(CCFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
-    env.Append(CXXFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG')) # not including -DRMS_CRYPTO_LIBRARY
-    # env.Append(LINKFLAGS='/NOLOGO /RELEASE /OPT:REF /OPT:ICF /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
+    env.Append(CXXFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
 else:    
   configuration = 'debug'
   env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
@@ -176,7 +175,7 @@ else:
   if platform == 'win32':
     env.Append(LINKFLAGS='/NOLOGO')
     env.Append(CCFLAGS=Split('-c -Zi -MDd'))
-    env.Append(CXXFLAGS=Split('-c -Zi -MDd')) # not including -DRMS_CRYPTO_LIBRARY
+    env.Append(CXXFLAGS=Split('-c -Zi -MDd'))
 
 bins = env['BUILDROOT'] + "/" + configuration + "/" + target_arch
 lib_suffix = ''

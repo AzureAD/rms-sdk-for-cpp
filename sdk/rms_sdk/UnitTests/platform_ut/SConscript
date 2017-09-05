@@ -27,25 +27,16 @@ src_files += Glob(configuration + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
 
-rmsplatform_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+rmsplatform_env.Append(CPPPATH=Split('#sdk/rmscrypto_sdk/CryptoAPI #third_party/include #googletest/include')) 
+rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
 
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
 rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
-
-if platform == 'win32':
-  rmsplatform_env.Append(CPPPATH='#third_party/include')
-  rmsplatform_env.Append(CPPPATH='#googletest/include')
-  rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
-  rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
-    rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    rmsplatform_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-elif platform == '__linux__':
-  rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-
+  
+lib_path = [
+      qt_lib_path, 
+      '#bin/' + configuration + '/' + target_arch + '/sdk',
+  ]
 libs = [
       googletest_lib,
       modernapi_lib,
@@ -55,28 +46,35 @@ libs = [
       rms_platform_logger_lib,
       rms_platform_settings_lib,
       rms_platform_xml_lib,
-      'rmscrypto',     
-]
-if platform == 'win32':
-  lib_path = [
-      qt_lib_path, 
-      '#third_party/lib/eay',
-      '#bin/' + configuration + '/' + target_arch + '/sdk/rmscrypto_sdk',
-  ]
-  rmsplatform_env.Replace(LIBPATH=lib_path)
-  libs += [
       'Qt5Core' + lib_suffix,
       'Qt5Test' + lib_suffix,
       'Qt5Network' + lib_suffix,
       'Qt5Xml' + lib_suffix,
       'Qt5XmlPatterns' + lib_suffix,
+      'rms', 
+]
+
+if platform == 'win32':
+  rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  if configuration == 'debug':
+    rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+    rmsplatform_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  lib_path += [
+      '#third_party/lib/eay',
+  ]
+  libs += [      
       'libeay32',
       'ssleay32',
       'Advapi32',
       'Gdi32',
       'User32',
-  ]
-else:
+  ]  
+elif platform == '__linux__':
+  rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+elif platform == 'darwin':
   libs += 'ssl'
   libs += 'crypto'
 
