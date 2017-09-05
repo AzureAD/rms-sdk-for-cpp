@@ -2,11 +2,13 @@ import os.path
 from build_config import *
 
 Import("""
+    build_arch
     configuration
     lib_suffix
     platform
     qt_lib_path
     rms_env
+    target_arch
 """)
 
 Import("""    
@@ -21,7 +23,7 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
-src_files += Glob('debug/*.cpp')
+src_files += Glob(configuration + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
 
@@ -59,7 +61,7 @@ if platform == 'win32':
   lib_path = [
       qt_lib_path, 
       '#third_party/lib/eay',
-      '#bin/debug/amd64/sdk/rmscrypto_sdk',
+      '#bin/' + configuration + '/' + target_arch + '/sdk/rmscrypto_sdk',
   ]
   rmsplatform_env.Replace(LIBPATH=lib_path)
   libs += [

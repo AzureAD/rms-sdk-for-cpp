@@ -183,7 +183,17 @@ lib_suffix = ''
 if configuration == 'debug':
   lib_suffix = 'd'
 
-Export('arch_suffix bins configuration env lib_suffix qt_lib_path target_name platform')
+Export("""
+    arch_suffix bins
+    build_arch
+    configuration
+    env
+    lib_suffix
+    qt_lib_path
+    target_arch
+    target_name
+    platform
+""")
 
 if samples:
   env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)

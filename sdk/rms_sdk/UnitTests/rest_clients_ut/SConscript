@@ -1,6 +1,7 @@
 from build_config import *
 
 Import("""
+    target_arch
     configuration
     lib_suffix
     qt_lib_path
@@ -26,7 +27,7 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
-src_files += Glob('debug/*.cpp')
+src_files += Glob(configuration + '/*.cpp')
 
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
@@ -43,7 +44,7 @@ if platform == 'win32':
 lib_path = [
     qt_lib_path,
     '#third_party/lib/eay',
-    '#bin/debug/amd64/sdk/rmscrypto_sdk',
+    '#bin/' + configuration + '/' + target_arch + '/sdk/rmscrypto_sdk',
 ]
 
 libs = [

@@ -67,7 +67,7 @@ if platform == 'win32':
   lib_path = [
     qt_lib_path,
     '#third_party/lib/eay',
-    '#bin/debug/amd64/sdk/rmscrypto_sdk',
+    '#bin/' + configuration + '/' + platform + '/sdk/rmscrypto_sdk',
   ]
 else:
   libs += 'ssl'

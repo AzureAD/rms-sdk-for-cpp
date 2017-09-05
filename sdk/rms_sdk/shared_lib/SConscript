@@ -1,0 +1,78 @@
+Import("""
+    configuration
+    lib_suffix
+    pfile_lib
+    platform
+    qt_lib_path
+    rms_env
+""")
+
+Import("""
+    common_lib
+    consent_lib
+    googletest_lib
+    json_lib
+    modernapi_obj_files
+    rms_platform_filesystem_lib
+    rms_platform_http_lib
+    rms_platform_json_lib
+    rms_platform_logger_lib
+    rms_platform_settings_lib
+    rms_platform_xml_lib
+    restclients_lib
+""")
+
+# rms_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
+rms_env.Append(CCFLAGS=Split('-DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+rms_env.Append(CXXFLAGS=Split('-DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+
+src_files = Glob('*.cpp')
+rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+libs = [
+  common_lib,
+  consent_lib,
+  core_lib,
+  googletest_lib,
+  pfile_lib,
+  json_lib,
+  rms_platform_filesystem_lib,
+  rms_platform_http_lib,
+  rms_platform_json_lib,
+  rms_platform_logger_lib,
+  rms_platform_settings_lib,
+  rms_platform_xml_lib,
+  restclients_lib,
+  'rmscrypto',
+]
+
+if platform == 'win32':
+  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
+  if configuration == 'debug':
+      rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+      rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+
+  libs += [
+      'Qt5Core' + lib_suffix,
+      'Qt5Network' + lib_suffix,
+      'Qt5Widgets' + lib_suffix,
+      'Qt5Xml' + lib_suffix,
+      'Qt5XmlPatterns' + lib_suffix,
+      'libeay32',
+      'ssleay32',
+      'Advapi32',
+      'Gdi32',
+      'User32',
+  ]
+  lib_path = [
+    qt_lib_path,
+    '#third_party/lib/eay',
+    '#bin/debug/amd64/sdk/rmscrypto_sdk'
+  ]
+else:
+  libs += 'ssl'
+  libs += 'crypto'
+
+rms_lib = rms_env.SharedLibrary(target = "rms", source = modernapi_obj_files, LIBS = libs, LIBPATH = lib_path)
+Return('rms_lib')

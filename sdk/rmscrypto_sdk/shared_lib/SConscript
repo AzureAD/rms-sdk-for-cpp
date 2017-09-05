@@ -1,10 +1,12 @@
 from build_config import create_objs
 
 Import("""
+    build_arch
     configuration
     crypto_lib
+    crypto_api_obj_files
     crypto_platform_crypto_lib
-    crypto_platform_env
+    rmscrypto_env
     crypto_platform_keystorage_lib
     crypto_platform_logger_lib
     crypto_platform_settings_lib
@@ -13,9 +15,10 @@ Import("""
     platform
 """)
 
-cryptoapi_env = crypto_platform_env.Clone();
+rmscryptodll_env = rmscrypto_env.Clone()
 
-src_files = Glob('*.cpp')
+# src_files = Glob('#sdk\rmscrypto_sdk\CryptoAPI\*.cpp')
+
 
 libs = [
   crypto_lib,
@@ -26,15 +29,15 @@ libs = [
 ]
 
 if platform == 'win32':
-  cryptoapi_env.Append(CPPPATH='#third_party/include')
-  cryptoapi_env.Append(CPPDEFINES=['RMS_CRYPTO_LIBRARY'])
-  cryptoapi_env.Replace(LINKFLAGS=Split('/SUBSYSTEM:WINDOWS'))
-  cryptoapi_env.Append(CCFLAGS=Split('-DQT_PLUGIN'))
-  cryptoapi_env.Append(CXXFLAGS=Split('-DQT_PLUGIN'))
+  rmscryptodll_env.Append(CPPPATH='#third_party/include')
+  # rmscryptodll_env.Append(CPPDEFINES=['RMS_CRYPTO_LIBRARY'])
+  rmscryptodll_env.Replace(LINKFLAGS=Split('/DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
+  # rmscryptodll_env.Append(CCFLAGS=Split('-DQT_PLUGIN'))
+  # rmscryptodll_env.Append(CXXFLAGS=Split('-DQT_PLUGIN'))
   if configuration == 'debug':
-    cryptoapi_env.Append(LINKFLAGS=Split('/DEBUG'))
+    rmscryptodll_env.Append(LINKFLAGS=Split('/DEBUG'))
   elif configuration == 'release':
-    cryptoapi_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+    rmscryptodll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
   lib_path = [
       qt_lib_path, 
       '#third_party/lib/eay',
@@ -49,9 +52,9 @@ if platform == 'win32':
       'legacy_stdio_definitions',
   ]
 elif platform == '__linux__':
-  cryptoapi_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  cryptoapi_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  cryptoapi_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  rmscryptodll_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  rmscryptodll_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  rmscryptodll_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
   libs += [
       'ssl'
       'crypto'
@@ -72,6 +75,5 @@ elif platform == 'darwin':
 #     }
 # }
 
-crypto_api_obj_files = create_objs(cryptoapi_env, src_files)
-crypto_api_lib = cryptoapi_env.Library(target = "crypto_api", source = crypto_api_obj_files, LIBS = libs, LIBPATH = lib_path)
-Return('crypto_api_lib crypto_api_obj_files')
+rmscrypto_lib = rmscryptodll_env.SharedLibrary(target = "rmscrypto", source = crypto_api_obj_files, LIBS = libs, LIBPATH = lib_path)
+Return('rmscrypto_lib')

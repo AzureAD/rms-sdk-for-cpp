@@ -15,7 +15,7 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
-src_files += Glob('debug/*.cpp')
+src_files += Glob(configuration + '/*.cpp')
 
 libs = [
     crypto_api_lib,
