@@ -23,7 +23,7 @@
 void ZipApiTestsTest::testCase1()
 {
    ZipApi a;
-   auto val = a.GetEntry("C:\\Users\\amassi\\Desktop\\aaaa.docx", "docProps/custom.xml");
-   //a.SetEntry("C:\\Users\\amassi\\Desktop\\aaaa.docx","","");
+   auto val = a.GetEntry("\\\\sislands\\Public\\RnD\\rms-sdk\\Tests\\LabeledGeneral.docx", "docProps/custom.xml");
+   //a.SetEntry("\\\\sislands\\Public\\RnD\rms-sdk\\Tests\\Output.docx","","");
     std::cout << val << std::endl;
 }
