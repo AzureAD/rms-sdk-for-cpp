@@ -1,6 +1,6 @@
 from build_config import *
 
-Import('rms_env qt_lib_path lib_suffix')
+Import('rms_env')
 
 src_files = Glob('*.cpp')
 
@@ -8,12 +8,6 @@ rms_env.Append(CPPDEFINES = ['QT_NETWORK_LIB'])
 
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
-libs = [
-  'Qt5Core' + lib_suffix,
-  'Qt5Network' + lib_suffix,
-]
+platform_settings_obj = create_objs(rms_env, src_files)
 
-platform_settings_lib = create_objs(rms_env, src_files)
-# platform_settings_lib = rms_env.Library(target = "rms_platform_settings", \
-    # source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
-Return('platform_settings_lib')
+Return('platform_settings_obj')

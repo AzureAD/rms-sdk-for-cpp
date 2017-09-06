@@ -4,18 +4,18 @@ Import('rms_env bins')
 
 rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
 
-rms_platform_filesystem_lib = rms_env.SConscript('Filesystem/SConscript', duplicate=0)
-rms_platform_http_lib = rms_env.SConscript('Http/SConscript', duplicate=0)
-rms_platform_json_lib = rms_env.SConscript('Json/SConscript', duplicate=0)
-rms_platform_logger_lib = rms_env.SConscript('Logger/SConscript', duplicate=0)
-rms_platform_settings_lib = rms_env.SConscript('Settings/SConscript', duplicate=0)
-rms_platform_xml_lib = rms_env.SConscript('Xml/SConscript', duplicate=0)
+rms_platform_filesystem_obj = rms_env.SConscript('Filesystem/SConscript', duplicate=0)
+rms_platform_http_obj = rms_env.SConscript('Http/SConscript', duplicate=0)
+rms_platform_json_obj = rms_env.SConscript('Json/SConscript', duplicate=0)
+rms_platform_logger_obj = rms_env.SConscript('Logger/SConscript', duplicate=0)
+rms_platform_settings_obj = rms_env.SConscript('Settings/SConscript', duplicate=0)
+rms_platform_xml_obj = rms_env.SConscript('Xml/SConscript', duplicate=0)
 
 Export("""
-  rms_platform_filesystem_lib
-  rms_platform_http_lib
-  rms_platform_json_lib
-  rms_platform_logger_lib
-  rms_platform_settings_lib
-  rms_platform_xml_lib
+  rms_platform_filesystem_obj
+  rms_platform_http_obj
+  rms_platform_json_obj
+  rms_platform_logger_obj
+  rms_platform_settings_obj
+  rms_platform_xml_obj
 """)

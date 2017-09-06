@@ -4,6 +4,5 @@ Import('rms_env')
 
 src_files = Glob('*.cpp')
 
-consent_lib = create_objs(rms_env, src_files)
-# consent_lib = rms_env.Library(target = "consent", source = src_files)
-Return('consent_lib')
+consent_obj = create_objs(rms_env, src_files)
+Return('consent_obj')

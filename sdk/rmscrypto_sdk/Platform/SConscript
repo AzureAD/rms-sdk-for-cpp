@@ -6,14 +6,14 @@ crypto_platform_env = rmscrypto_env.Clone()
 
 Export('crypto_platform_env')
 
-crypto_platform_crypto_lib = crypto_platform_env.SConscript('Crypto/SConscript', duplicate=0)
-crypto_platform_keystorage_lib = crypto_platform_env.SConscript('KeyStorage/SConscript', duplicate=0)
-crypto_platform_logger_lib = crypto_platform_env.SConscript('Logger/SConscript', duplicate=0)
-crypto_platform_settings_lib = crypto_platform_env.SConscript('Settings/SConscript', duplicate=0)
+crypto_platform_crypto_obj = crypto_platform_env.SConscript('Crypto/SConscript', duplicate=0)
+crypto_platform_keystorage_obj = crypto_platform_env.SConscript('KeyStorage/SConscript', duplicate=0)
+crypto_platform_logger_obj = crypto_platform_env.SConscript('Logger/SConscript', duplicate=0)
+crypto_platform_settings_obj = crypto_platform_env.SConscript('Settings/SConscript', duplicate=0)
 
 Export("""
-  crypto_platform_crypto_lib
-  crypto_platform_keystorage_lib
-  crypto_platform_logger_lib
-  crypto_platform_settings_lib
+  crypto_platform_crypto_obj
+  crypto_platform_keystorage_obj
+  crypto_platform_logger_obj
+  crypto_platform_settings_obj
 """)

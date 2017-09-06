@@ -2,12 +2,12 @@ from build_config import *
 
 Import("""
     configuration
-    crypto_lib
-    crypto_platform_keystorage_lib
-    crypto_platform_crypto_lib
-    crypto_platform_logger_lib
-    crypto_platform_settings_lib
-    crypto_api_obj_files
+    crypto_obj
+    crypto_platform_keystorage_obj
+    crypto_platform_crypto_obj
+    crypto_platform_logger_obj
+    crypto_platform_settings_obj
+    crypto_api_obj
     lib_suffix
     platform
     qt_lib_path
@@ -18,12 +18,12 @@ src_files = Glob('*.cpp')
 src_files += Glob(configuration + '/*.cpp')
 
 objects = [
-    crypto_api_obj_files,
-    crypto_lib,
-    crypto_platform_crypto_lib,
-    crypto_platform_keystorage_lib,
-    crypto_platform_logger_lib,
-    crypto_platform_settings_lib,
+    crypto_api_obj,
+    crypto_obj,
+    crypto_platform_crypto_obj,
+    crypto_platform_keystorage_obj,
+    crypto_platform_logger_obj,
+    crypto_platform_settings_obj,
 ]
 libs = [
     'Qt5Core' + lib_suffix,
@@ -77,5 +77,5 @@ elif platform == 'darwin':
   ]
 
 rmscrypto_ut_obj = rmscrypto_ut_env.Object(source = src_files)
-unittests_lib = rmscrypto_ut_env.Program(target = "unittests", source=[rmscrypto_ut_obj] + objects, LIBS = [libs], LIBPATH=lib_path)
-Return('unittests_lib')
+unittests_exe = rmscrypto_ut_env.Program(target = "unittests", source=[rmscrypto_ut_obj] + objects, LIBS = [libs], LIBPATH=lib_path)
+Return('unittests_exe')

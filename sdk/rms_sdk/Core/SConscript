@@ -1,16 +1,11 @@
 from build_config import *
 
 Import("""
-    lib_suffix
     rms_env
-    qt_lib_path
 """)
-print "Core"
 
 src_files = Glob('*.cpp')
 
-libs = ['Qt5Core' + lib_suffix,]
 
-core_lib = create_objs(rms_env, src_files)
-# core_lib = rms_env.Library(target = "core", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
-Return('core_lib')
+core_obj = create_objs(rms_env, src_files)
+Return('core_obj')

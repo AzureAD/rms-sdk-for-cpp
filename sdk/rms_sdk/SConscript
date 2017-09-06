@@ -2,32 +2,32 @@ from build_config import *
 
 Import('rms_env bins')
 
-platform_libs = rms_env.SConscript('Platform/SConscript', duplicate=0)
+platform_objs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
-common_lib = rms_env.SConscript('Common/SConscript', duplicate=0)
-Export('common_lib')
+common_obj = rms_env.SConscript('Common/SConscript', duplicate=0)
+Export('common_obj')
 
-consent_lib = rms_env.SConscript('Consent/SConscript', duplicate=0)
-Export('consent_lib')
+consent_obj = rms_env.SConscript('Consent/SConscript', duplicate=0)
+Export('consent_obj')
 
-core_lib = rms_env.SConscript('Core/SConscript', duplicate=0)
-Export('core_lib')
+core_obj = rms_env.SConscript('Core/SConscript', duplicate=0)
+Export('core_obj')
 
-googletest_lib = rms_env.SConscript('GoogleTest/SConscript', duplicate=0)
-Export('googletest_lib')
+googletest_obj = rms_env.SConscript('GoogleTest/SConscript', duplicate=0)
+Export('googletest_obj')
 
-json_lib = rms_env.SConscript('Json/SConscript', duplicate=0)
-Export('json_lib')
+json_obj = rms_env.SConscript('Json/SConscript', duplicate=0)
+Export('json_obj')
 
-pfile_lib = rms_env.SConscript('PFile/SConscript', duplicate=0)
-Export('pfile_lib')
+pfile_obj = rms_env.SConscript('PFile/SConscript', duplicate=0)
+Export('pfile_obj')
 
-restclients_lib = rms_env.SConscript('RestClients/SConscript', duplicate=0)
-Export('restclients_lib')
+restclients_obj = rms_env.SConscript('RestClients/SConscript', duplicate=0)
+Export('restclients_obj')
 
 
-modernapi_obj_files = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
-Export('modernapi_obj_files')
+modernapi_obj = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
+Export('modernapi_obj')
 
 rms_platform_ut = rms_env.SConscript('UnitTests/platform_ut/SConscript', duplicate=0)
 Export('rms_platform_ut')

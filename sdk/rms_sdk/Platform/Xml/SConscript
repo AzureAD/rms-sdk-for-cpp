@@ -1,15 +1,9 @@
 from build_config import *
 
-Import('rms_env qt_lib_path lib_suffix')
+Import('rms_env')
 
 src_files = Glob('*.cpp')
 
-libs = [
-  'Qt5Xml' + lib_suffix,
-  'Qt5XmlPatterns' + lib_suffix,
-]
+platform_xml_obj = create_objs(rms_env, src_files)
 
-platform_xml_lib = create_objs(rms_env, src_files)
-# platform_xml_lib = rms_env.Library(target = "rms_platform_xml", \
-    # source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
-Return('platform_xml_lib')
+Return('platform_xml_obj')

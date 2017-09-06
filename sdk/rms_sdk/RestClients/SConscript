@@ -1,6 +1,6 @@
 from build_config import *
 
-Import('rms_env qt_lib_path lib_suffix')
+Import('rms_env')
 
 src_files = Glob('*.cpp')
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
@@ -8,13 +8,6 @@ rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 rms_env.Append(CPPDEFINES = ['QT_NETWORK_LIB'])
 rms_env.Append(CPPDEFINES = ['QT_XML_LIB'])
 
-libs = [
-  'Qt5Core' + lib_suffix,
-  'Qt5Network' + lib_suffix,
-  'Qt5Xml' + lib_suffix,
-]
+restclients_obj = create_objs(rms_env, src_files)
 
-restclients_lib = create_objs(rms_env, src_files)
-# restclients_lib = rms_env.Library(target = "restclients", \
-    # source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
-Return('restclients_lib')
+Return('restclients_obj')

@@ -2,21 +2,10 @@ from build_config import create_objs
 
 Import("""
     crypto_platform_env 
-    lib_suffix
-    qt_lib_path
-    platform
 """)
-
-crypto_platform_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
 
 src_files = Glob('*.cpp')
 
-libs = ['Qt5Core' + lib_suffix]
+crypto_platform_crypto_obj = create_objs(crypto_platform_env, src_files)
 
-if platform == 'win32':
-  crypto_platform_env.Append(CPPPATH='#third_party/include')
-
-crypto_platform_crypto_lib = create_objs(crypto_platform_env, src_files)
-# crypto_platform_crypto_lib = crypto_platform_env.Library(target = "crypto_platform_crypto", \
-#     source = src_files, LIBS = libs)
-Return('crypto_platform_crypto_lib')
+Return('crypto_platform_crypto_obj')

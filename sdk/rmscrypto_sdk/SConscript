@@ -5,14 +5,14 @@ Import('rmscrypto_env bins')
 rmscrypto_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
 rmscrypto_env.Append(CPPDEFINES=['RMS_CRYPTO_LIBRARY'])
 
-platform_lib = rmscrypto_env.SConscript('Platform/SConscript', duplicate=0)
+platform_obj = rmscrypto_env.SConscript('Platform/SConscript', duplicate=0)
 
-crypto_lib = rmscrypto_env.SConscript('Crypto/SConscript', duplicate=0)
-Export('crypto_lib')
+crypto_obj = rmscrypto_env.SConscript('Crypto/SConscript', duplicate=0)
+Export('crypto_obj')
 
-crypto_api_obj_files = rmscrypto_env.SConscript('CryptoAPI/SConscript', duplicate=0)
-Export('crypto_api_obj_files')
+crypto_api_obj = rmscrypto_env.SConscript('CryptoAPI/SConscript', duplicate=0)
+Export('crypto_api_obj')
 
-unittests_lib = rmscrypto_env.SConscript('UnitTests/SConscript', duplicate=0)
-Export('unittests_lib')
-Install('#' + bins + '/sdk/rmscrypto_sdk', unittests_lib)
+unittests_exe = rmscrypto_env.SConscript('UnitTests/SConscript', duplicate=0)
+Export('unittests_exe')
+Install('#' + bins + '/sdk/rmscrypto_sdk', unittests_exe)

@@ -12,20 +12,20 @@ Import("""
 """)
 
 Import("""
-    common_lib
-    core_lib
-    consent_lib
-    googletest_lib
-    json_lib
-    modernapi_obj_files
-    pfile_lib
-    restclients_lib
-    rms_platform_filesystem_lib
-    rms_platform_http_lib
-    rms_platform_json_lib
-    rms_platform_logger_lib
-    rms_platform_settings_lib
-    rms_platform_xml_lib
+    common_obj
+    core_obj
+    consent_obj
+    googletest_obj
+    json_obj
+    modernapi_obj
+    pfile_obj
+    restclients_obj
+    rms_platform_filesystem_obj
+    rms_platform_http_obj
+    rms_platform_json_obj
+    rms_platform_logger_obj
+    rms_platform_settings_obj
+    rms_platform_xml_obj
 """)
 
 src_files = Glob('*.cpp')
@@ -44,20 +44,20 @@ lib_path = [
       '#bin/' + configuration + '/' + target_arch + '/sdk',
   ]
 objects = [
-      common_lib,
-      core_lib,
-      consent_lib,
-      googletest_lib,
-      json_lib,
-      modernapi_obj_files,
-      pfile_lib,
-      restclients_lib,
-      rms_platform_filesystem_lib,
-      rms_platform_http_lib,
-      rms_platform_json_lib,
-      rms_platform_logger_lib,
-      rms_platform_settings_lib,
-      rms_platform_xml_lib,
+      common_obj,
+      core_obj,
+      consent_obj,
+      googletest_obj,
+      json_obj,
+      modernapi_obj,
+      pfile_obj,
+      restclients_obj,
+      rms_platform_filesystem_obj,
+      rms_platform_http_obj,
+      rms_platform_json_obj,
+      rms_platform_logger_obj,
+      rms_platform_settings_obj,
+      rms_platform_xml_obj,
 ]
 libs = [
       'Qt5Core' + lib_suffix,

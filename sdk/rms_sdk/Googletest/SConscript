@@ -8,6 +8,5 @@ src_files = Split("""
 	#googletest/src/gtest-all.cc
 """)
 
-googletest_lib = create_objs(rms_env, src_files)
-# googletest_lib = rms_env.Library(target = "googletest", source = src_files)
-Return('googletest_lib')
+googletest_obj = create_objs(rms_env, src_files)
+Return('googletest_obj')

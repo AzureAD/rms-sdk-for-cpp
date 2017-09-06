@@ -4,6 +4,5 @@ Import('rms_env')
 
 src_files = Glob('*.cpp')
 
-json_lib = create_objs(rms_env, src_files)
-# json_lib = rms_env.Library(target = "json", source = src_files)
-Return('json_lib')
+json_obj = create_objs(rms_env, src_files)
+Return('json_obj')

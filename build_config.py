@@ -6,10 +6,9 @@ import sys
 include_search_path = [
     '#sdk',
     '#third_party',
+    '#third_party/include',
     '#googletest',
     '#googletest/include',
-    'C:/Program Files (x86)/Windows Kits/10/bin/x64',
-    'C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um',
 ]
 
 build_base_dir = 'bin'

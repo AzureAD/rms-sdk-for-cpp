@@ -2,7 +2,6 @@ Import("""
     build_arch
     configuration
     lib_suffix
-    pfile_lib
     platform
     qt_lib_path
     env
@@ -10,25 +9,26 @@ Import("""
 """)
 
 Import("""
-    common_lib
-    consent_lib
-    core_lib
-    crypto_lib
-    crypto_api_obj_files
-    crypto_platform_crypto_lib
-    crypto_platform_keystorage_lib
-    crypto_platform_logger_lib
-    crypto_platform_settings_lib
-    googletest_lib
-    json_lib
-    modernapi_obj_files
-    rms_platform_filesystem_lib
-    rms_platform_http_lib
-    rms_platform_json_lib
-    rms_platform_logger_lib
-    rms_platform_settings_lib
-    rms_platform_xml_lib
-    restclients_lib
+    common_obj
+    consent_obj
+    core_obj
+    crypto_obj
+    crypto_api_obj
+    crypto_platform_crypto_obj
+    crypto_platform_keystorage_obj
+    crypto_platform_logger_obj
+    crypto_platform_settings_obj
+    googletest_obj
+    json_obj
+    modernapi_obj
+    pfile_obj
+    rms_platform_filesystem_obj
+    rms_platform_http_obj
+    rms_platform_json_obj
+    rms_platform_logger_obj
+    rms_platform_settings_obj
+    rms_platform_xml_obj
+    restclients_obj
 """)
 
 rmsdll_env = env.Clone()
@@ -44,26 +44,26 @@ lib_path = [
     qt_lib_path,
 ]
 objects = [  
-  crypto_lib,
-  crypto_api_obj_files,
-  crypto_platform_keystorage_lib,
-  crypto_platform_crypto_lib,
-  crypto_platform_logger_lib,
-  crypto_platform_settings_lib,
-  common_lib,
-  consent_lib,
-  core_lib,
-  googletest_lib,
-  pfile_lib,
-  json_lib,
-  modernapi_obj_files,
-  rms_platform_filesystem_lib,
-  rms_platform_http_lib,
-  rms_platform_json_lib,
-  rms_platform_logger_lib,
-  rms_platform_settings_lib,
-  rms_platform_xml_lib,
-  restclients_lib,
+  crypto_obj,
+  crypto_api_obj,
+  crypto_platform_keystorage_obj,
+  crypto_platform_crypto_obj,
+  crypto_platform_logger_obj,
+  crypto_platform_settings_obj,
+  common_obj,
+  consent_obj,
+  core_obj,
+  googletest_obj,
+  pfile_obj,
+  json_obj,
+  modernapi_obj,
+  rms_platform_filesystem_obj,
+  rms_platform_http_obj,
+  rms_platform_json_obj,
+  rms_platform_logger_obj,
+  rms_platform_settings_obj,
+  rms_platform_xml_obj,
+  restclients_obj,
 ]
 libs = [
   'Qt5Core' + lib_suffix,
