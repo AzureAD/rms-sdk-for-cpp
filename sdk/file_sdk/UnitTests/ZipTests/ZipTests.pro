@@ -1,18 +1,12 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2017-08-27T13:44:48
-#
-#-------------------------------------------------
 REPO_ROOT = $$PWD/../../../..
 DESTDIR   = $$REPO_ROOT/bin/tests
-TARGET    = FileAPITests
+TARGET = zip_tests
 
 QT       += testlib
 
 QT       -= gui
 
-TARGET = tst_zipapiteststest
-CONFIG   += console c++11 debug_and_release
+CONFIG   += console c++11 debug_and_release resources_big
 CONFIG   -= app_bundle
 
 INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
@@ -31,9 +25,5 @@ CONFIG(debug, debug|release) {
 TEMPLATE = app
 
 
-SOURCES += tst_zipapiteststest.cpp \
-    main.cpp
+SOURCES += zip_tests.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
-
-HEADERS += \
-    test_zipapiteststest.h

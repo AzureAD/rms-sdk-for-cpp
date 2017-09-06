@@ -22,7 +22,5 @@ HEADERS += \
     tag.h \
     ifile_format.h \
     file_format.h \
-    file_format_factory.h \
-    libgsf.h
     file_format_factory.h
 

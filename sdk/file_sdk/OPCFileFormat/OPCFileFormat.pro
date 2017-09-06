@@ -9,6 +9,7 @@ win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgsf-1-114 -lzlib1\
                -llibgobject-2.0-0\
                -llibglib-2.0-0 -llibbz2-1
+
 SOURCES += opc_file_format.cpp \
     zipapi.cpp
 

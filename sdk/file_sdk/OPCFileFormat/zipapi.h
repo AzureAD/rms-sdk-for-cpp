@@ -1,15 +1,14 @@
 #ifndef ZIPAPI_H
 #define ZIPAPI_H
 
-#include <iostream>
 #include <string>
-#include <memory>
 
 class ZipApi
 {
 public:
-    std::string GetEntry(std::string filePath, std::string EntryPath);
-    int SetEntry(std::string filePath, std::string EntryPath, std::string data);
+  ZipApi();
+  std::string GetEntry(std::string filePath, std::string entryPath);
+  int SetEntry(std::string filePath, std::string EntryPath, std::string data);
 };
 
 #endif // ZIPAPI_H
