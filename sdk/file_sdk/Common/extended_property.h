@@ -2,7 +2,7 @@
 #define EXTENDED_PROPERTY_H_
 
 #include <string>
-
+#include "string_utils.h"
 namespace mip {
 
 struct ExtendedProperty
@@ -11,11 +11,11 @@ struct ExtendedProperty
   std::string key;
   std::string value;
 
-  bool operator==(const ExtendedProperty& property)
+  bool operator==(const ExtendedProperty& property) const
   {
-    return key == property.key &&
-           value == property.value &&
-           vendor == property.vendor;
+    return EqualsIgnoreCase(key, property.key) &&
+           EqualsIgnoreCase(value, property.value) &&
+           EqualsIgnoreCase(vendor, property.vendor);
   }
 };
 

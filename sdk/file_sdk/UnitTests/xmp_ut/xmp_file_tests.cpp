@@ -15,15 +15,8 @@ using mip::Tag;
 
 namespace {
 static bool VerifyTags(Tag tag1, Tag tag2) {
-  if (tag1.GetExtendedProperties().size() != tag2.GetExtendedProperties().size())
+  if(tag1.GetExtendedProperties() != tag2.GetExtendedProperties()){
     return false;
-
-  for (size_t i = 0; i < tag1.GetExtendedProperties().size(); i++) {
-    if (tag1.GetExtendedProperties()[i].key != tag2.GetExtendedProperties()[i].key ||
-        tag1.GetExtendedProperties()[i].value != tag2.GetExtendedProperties()[i].value ||
-        tag1.GetExtendedProperties()[i].vendor != tag2.GetExtendedProperties()[i].vendor) {
-      return false;
-    }
   }
 
   return
