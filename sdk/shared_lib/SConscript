@@ -71,6 +71,7 @@ libs = [
   'Qt5Widgets' + lib_suffix,
   'Qt5Xml' + lib_suffix,
   'Qt5XmlPatterns' + lib_suffix,
+  'DnsAPI',
 ]
 
 if platform == 'win32':

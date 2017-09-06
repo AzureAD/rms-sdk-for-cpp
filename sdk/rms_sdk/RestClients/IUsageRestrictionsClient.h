@@ -8,7 +8,6 @@
 
 #ifndef _RMS_LIB_IUSAGERESTRICTIONSCLIENT_H_
 #define _RMS_LIB_IUSAGERESTRICTIONSCLIENT_H_
-#include "../Common/FrameworkSpecificTypes.h"
 #include "../ModernAPI/ProtectedFileStream.h"
 #include "RestObjects.h"
 

@@ -8,6 +8,8 @@ include_search_path = [
     '#third_party',
     '#googletest',
     '#googletest/include',
+    'C:/Program Files (x86)/Windows Kits/10/bin/x64',
+    'C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um',
 ]
 
 build_base_dir = 'bin'

@@ -5,8 +5,10 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
-
 #include "ServiceUrlConsent.h"
+
+#include <QString>
+
 #include "../ModernAPI/ConsentType.h"
 
 namespace rmscore { namespace consent {

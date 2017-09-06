@@ -83,14 +83,18 @@ if platform == 'win32':
       'Advapi32',
       'Gdi32',
       'User32',
+      'dnsapi',
   ]  
 elif platform == '__linux__':
   rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
   rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
   rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
 elif platform == 'darwin':
-  libs += 'ssl'
-  libs += 'crypto'
+  libs += [
+    'ssl',
+    'crypto',
+    'resolv',
+  ]
 
 platform_ut_obj = rmsplatform_env.Object(source = src_files)
 platform_ut_test = rmsplatform_env.Program(target = "platform_ut", \

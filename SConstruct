@@ -152,9 +152,10 @@ env.Append(CPPPATH = include_search_path + qt_include_search_path)
 if platform == 'win32':
   env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
   env.Append(CPPPATH = qt_bin_dir)
-  env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -W3 -w44456 -w44457 -w44458 \
+#   env.Append(CPPPATH ='C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um')
+  env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -W0 -w44456 -w44457 -w44458 \
       -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
-  env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc \
+  env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -W0 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc \
       -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
 if msvc12:
     env.Append(CPPDEFINES = ['MSVC12'])

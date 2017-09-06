@@ -219,11 +219,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   request.name        = descriptor.name;
   request.description = descriptor.description;
-
-  common::Locale loc;
-
-  request.language = loc.name().replace('_', "-").toStdString();
-
+  request.language = "en-US";
   request.encryptedApplicationData = descriptor.encryptedApplicationData;
   request.signedApplicationData    = descriptor.signedApplicationData;
 
@@ -495,8 +491,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
   const size_t   cbPublishLicense,
   const string   requester)
 {
-  common::MutexLocker lock(&s_cachedProtectionPoliciesMutex);
-
+  std::lock_guard<std::mutex> lock(s_cachedProtectionPoliciesMutex);
   if (pbPublishLicense == nullptr) {
     throw exceptions::RMSNullPointerException("NULL pointer exception");
   }
@@ -551,7 +546,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
 void ProtectionPolicy::AddProtectionPolicyToCache(
   shared_ptr<ProtectionPolicy>pProtectionPolicy)
 {
-  common::MutexLocker lock(&s_cachedProtectionPoliciesMutex);
+  std::lock_guard<std::mutex> lock(s_cachedProtectionPoliciesMutex);
 
   if (nullptr ==
       s_pCachedProtectionPolicies) s_pCachedProtectionPolicies =
@@ -571,6 +566,6 @@ void ProtectionPolicy::AddProtectionPolicyToCache(
 // as it is not safe to call all the destructors on dll unload.
 ProtectionPolicy::CachedProtectionPolicies *ProtectionPolicy::
 s_pCachedProtectionPolicies = nullptr;
-common::Mutex ProtectionPolicy::s_cachedProtectionPoliciesMutex;
+std::mutex ProtectionPolicy::s_cachedProtectionPoliciesMutex;
 } // namespace core
 } // namespace rmscore

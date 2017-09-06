@@ -62,7 +62,8 @@ libs = [
     'Qt5XmlPatterns' + lib_suffix,
     'Qt5Test' + lib_suffix,
     'Qt5Gui' + lib_suffix,
-    'rms',     
+    'DnsAPI',
+    'rms', 
 ]
 
 if platform == 'win32':

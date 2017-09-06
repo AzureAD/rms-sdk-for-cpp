@@ -12,7 +12,8 @@
 #include <memory>
 #include <string>
 
-#include "../../Common/FrameworkSpecificTypes.h"
+#include "../../Common/CommonTypes.h"
+
 namespace rmscore { namespace platform { namespace json {
 
 class IJsonObject;

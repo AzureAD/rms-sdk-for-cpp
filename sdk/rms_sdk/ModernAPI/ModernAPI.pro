@@ -27,7 +27,7 @@ CONFIG(debug, debug|release) {
     LIBS += -lrmscrypto
 }
 
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32 -ldnsapi
 else:LIBS  += -lssl -lcrypto
 
 SOURCES += \
@@ -37,7 +37,6 @@ SOURCES += \
     PolicyDescriptor.cpp \
     ProtectedFileStream.cpp \
     CustomProtectedStream.cpp \
-    ext/QTStreamImpl.cpp \
     HttpHelper.cpp \
     IRMSEnvironment.cpp
 
@@ -61,7 +60,6 @@ HEADERS += \
     ConsentType.h \
     ProtectedFileStream.h \
     CustomProtectedStream.h \
-    ext/QTStreamImpl.h \
     HttpHelper.h \
     ModernAPIExport.h \
     CacheControl.h \

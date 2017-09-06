@@ -10,7 +10,6 @@
 #define _RMS_LIB_DNSLOOKUPCLIENT_H_
 
 #include <memory>
-#include "../Common/FrameworkSpecificTypes.h"
 #include "../Common/CommonTypes.h"
 #include "IDnsLookupClient.h"
 
@@ -22,13 +21,9 @@ public:
   virtual ~DnsLookupClient();
 
   virtual std::shared_ptr<DnsClientResult>LookupDiscoveryService(
-    std::shared_ptr<Domain>domain) override;
+      std::shared_ptr<Domain>domain) override;
 
 private:
-  void SendPacket(
-    common::DataStream &sendStream,
-    const common::ByteArray &requestMessage);
-
   common::StringArray GetPossibleDomains(const std::string& domain);
 };
 } // namespace restclients

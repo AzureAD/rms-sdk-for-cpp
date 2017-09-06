@@ -11,7 +11,6 @@
 
 #include "IPfileHeaderReader.h"
 #include "PfileHeader.h"
-#include "../Common/FrameworkSpecificTypes.h"
 
 #include <string>
 

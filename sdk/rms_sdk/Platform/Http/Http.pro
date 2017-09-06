@@ -15,6 +15,8 @@ CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
 
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/ -ldnsapi
+
 SOURCES += \
     HttpClientQt.cpp \
     UriQt.cpp \

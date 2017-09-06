@@ -42,7 +42,7 @@
   #ifdef RMS_CRYPTO_LIBRARY
     #define DLL_PUBLIC_CRYPTO __declspec(dllexport)
   #else
-    #define DLL_PUBLIC_CRYPTO __declspec(dllimport)
+    #define DLL_PUBLIC_CRYPTO
   #endif  // ifdef UPE_IMPLEMENTATION
 #endif
  

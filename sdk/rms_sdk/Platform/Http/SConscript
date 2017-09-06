@@ -4,10 +4,18 @@ Import('rms_env platform qt_lib_path lib_suffix')
 
 src_files = Glob('*.cpp')
 
+for key in ['INCLUDE','LIB']:
+    if os.environ.has_key(key):
+        rms_env.Prepend(ENV = {key.upper():os.environ[key]})
+
 if platform == 'win32':
+  lib_path = [
+      '#third_party/lib',
+  ]
   libs = [
       'Qt5Core' + lib_suffix,
       'Qt5Network' + lib_suffix,
+      'DnsAPI',
   ]
 
 platform_http_lib = create_objs(rms_env, src_files)
