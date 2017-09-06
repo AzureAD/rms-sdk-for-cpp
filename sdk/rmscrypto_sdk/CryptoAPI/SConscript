@@ -74,5 +74,5 @@ elif platform == 'darwin':
 # }
 
 crypto_api_obj_files = create_objs(cryptoapi_env, src_files)
-crypto_api_lib = cryptoapi_env.Library(target = "crypto_api", source = crypto_api_obj_files, LIBS = libs, LIBPATH = lib_path)
-Return('crypto_api_lib crypto_api_obj_files')
+# crypto_api_lib = cryptoapi_env.Library(target = "crypto_api", source = crypto_api_obj_files, LIBS = libs, LIBPATH = lib_path)
+Return('crypto_api_obj_files')

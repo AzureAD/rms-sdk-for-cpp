@@ -1,3 +1,5 @@
+from build_config import create_objs
+
 Import("""
     crypto_platform_crypto_lib
     lib_suffix
@@ -17,5 +19,7 @@ libs = [
 
 libs += ['Qt5Core' + lib_suffix]
 
-crypto_lib = crypto_env.Library(target = "crypto", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
+crypto_lib = create_objs(crypto_env, src_files)
+
+# crypto_lib = crypto_env.Object(target = "crypto", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
 Return('crypto_lib')

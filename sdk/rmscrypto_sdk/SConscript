@@ -10,12 +10,8 @@ platform_lib = rmscrypto_env.SConscript('Platform/SConscript', duplicate=0)
 crypto_lib = rmscrypto_env.SConscript('Crypto/SConscript', duplicate=0)
 Export('crypto_lib')
 
-[crypto_api_lib, crypto_api_obj_files] = rmscrypto_env.SConscript('CryptoAPI/SConscript', duplicate=0)
-Export('crypto_api_lib crypto_api_obj_files')
-
-# rmscrypto_lib = rmscrypto_env.SConscript('shared_lib/SConscript', duplicate=0)
-# Export('rmscrypto_lib')
-# Install('#' + bins + '/sdk/rmscrypto_sdk', rmscrypto_lib)
+crypto_api_obj_files = rmscrypto_env.SConscript('CryptoAPI/SConscript', duplicate=0)
+Export('crypto_api_obj_files')
 
 unittests_lib = rmscrypto_env.SConscript('UnitTests/SConscript', duplicate=0)
 Export('unittests_lib')

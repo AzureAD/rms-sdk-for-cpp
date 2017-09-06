@@ -1,3 +1,5 @@
+from build_config import *
+
 Import('rms_env qt_lib_path lib_suffix')
 
 src_files = Glob('*.cpp')
@@ -12,6 +14,7 @@ libs = [
   'Qt5Xml' + lib_suffix,
 ]
 
-restclients_lib = rms_env.Library(target = "restclients", \
-    source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
+restclients_lib = create_objs(rms_env, src_files)
+# restclients_lib = rms_env.Library(target = "restclients", \
+    # source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
 Return('restclients_lib')

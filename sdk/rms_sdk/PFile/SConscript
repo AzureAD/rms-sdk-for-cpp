@@ -1,3 +1,5 @@
+from build_config import *
+
 Import('rms_env qt_lib_path lib_suffix')
 
 src_files = Glob('*.cpp')
@@ -5,5 +7,6 @@ rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 libs = ['Qt5Core' + lib_suffix,]
 
-pfile_lib = rms_env.Library(target = "pfile", source = src_files, LIBS = libs, LIBPPATH = qt_lib_path)
+pfile_lib = create_objs(rms_env, src_files)
+# pfile_lib = rms_env.Library(target = "pfile", source = src_files, LIBS = libs, LIBPPATH = qt_lib_path)
 Return('pfile_lib')

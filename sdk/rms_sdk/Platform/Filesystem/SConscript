@@ -1,3 +1,5 @@
+from build_config import *
+
 Import('rms_env qt_lib_path lib_suffix')
 
 src_files = Glob('*.cpp')
@@ -10,5 +12,6 @@ libs = [
   'Qt5Core' + lib_suffix,
 ]
 
-platform_filesystem_lib = rms_env.Library(target = "rms_platform_filesystem", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
+platform_filesystem_lib = create_objs(rms_env, src_files)
+# platform_filesystem_lib = rms_env.Library(target = "rms_platform_filesystem", source = src_files, LIBS = libs, LIBPATH = qt_lib_path)
 Return('platform_filesystem_lib')

@@ -11,9 +11,15 @@ Import("""
     target_arch
 """)
 
-Import("""    
+Import("""
+    common_lib
+    core_lib
+    consent_lib
     googletest_lib
-    modernapi_lib
+    json_lib
+    modernapi_obj_files
+    pfile_lib
+    restclients_lib
     rms_platform_filesystem_lib
     rms_platform_http_lib
     rms_platform_json_lib
@@ -37,15 +43,23 @@ lib_path = [
       qt_lib_path, 
       '#bin/' + configuration + '/' + target_arch + '/sdk',
   ]
-libs = [
+objects = [
+      common_lib,
+      core_lib,
+      consent_lib,
       googletest_lib,
-      modernapi_lib,
+      json_lib,
+      modernapi_obj_files,
+      pfile_lib,
+      restclients_lib,
       rms_platform_filesystem_lib,
       rms_platform_http_lib,
       rms_platform_json_lib,
       rms_platform_logger_lib,
       rms_platform_settings_lib,
       rms_platform_xml_lib,
+]
+libs = [
       'Qt5Core' + lib_suffix,
       'Qt5Test' + lib_suffix,
       'Qt5Network' + lib_suffix,
@@ -80,5 +94,5 @@ elif platform == 'darwin':
 
 platform_ut_obj = rmsplatform_env.Object(source = src_files)
 platform_ut_test = rmsplatform_env.Program(target = "platform_ut", \
-    source = [platform_ut_obj], LIBS = [libs], LIBPATH = lib_path)
+    source = [platform_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
 Return('platform_ut_test')

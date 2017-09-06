@@ -43,18 +43,20 @@ rmsdll_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 lib_path = [
     qt_lib_path,
 ]
-libs = [
-  common_lib,
-  consent_lib,
-  core_lib,
+objects = [  
   crypto_lib,
+  crypto_api_obj_files,
   crypto_platform_keystorage_lib,
   crypto_platform_crypto_lib,
   crypto_platform_logger_lib,
   crypto_platform_settings_lib,
+  common_lib,
+  consent_lib,
+  core_lib,
   googletest_lib,
   pfile_lib,
   json_lib,
+  modernapi_obj_files,
   rms_platform_filesystem_lib,
   rms_platform_http_lib,
   rms_platform_json_lib,
@@ -62,6 +64,8 @@ libs = [
   rms_platform_settings_lib,
   rms_platform_xml_lib,
   restclients_lib,
+]
+libs = [
   'Qt5Core' + lib_suffix,
   'Qt5Network' + lib_suffix,
   'Qt5Widgets' + lib_suffix,
@@ -100,5 +104,5 @@ elif platform == 'darwin':
   libs += 'ssl'
   libs += 'crypto'
 
-rms_lib = rmsdll_env.SharedLibrary(target = "rms", source = modernapi_obj_files + crypto_api_obj_files, LIBS = libs, LIBPATH = lib_path)
+rms_lib = rmsdll_env.SharedLibrary(target = "rms", source = objects, LIBS = libs, LIBPATH = lib_path)
 Return('rms_lib')

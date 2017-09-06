@@ -15,7 +15,7 @@ Import("""
     core_lib
     googletest_lib
     json_lib
-    modernapi_lib
+    modernapi_obj_files
     pfile_lib
     restclients_lib
     rms_platform_filesystem_lib
@@ -39,13 +39,13 @@ lib_path = [
     '#bin/' + configuration + '/' + target_arch + '/sdk',
 ]
 
-libs = [
+objects = [
     common_lib,
     consent_lib,
     core_lib,
     googletest_lib,
     json_lib,
-    modernapi_lib,
+    modernapi_obj_files,
     pfile_lib,
     restclients_lib,
     rms_platform_filesystem_lib,
@@ -54,6 +54,8 @@ libs = [
     rms_platform_logger_lib,
     rms_platform_settings_lib,
     rms_platform_xml_lib,
+]
+libs = [
     'Qt5Core' + lib_suffix,
     'Qt5Network' + lib_suffix,
     'Qt5Xml' + lib_suffix,
@@ -85,5 +87,5 @@ else:
 
 rest_clients_ut_obj = rms_env.Object(source = src_files)
 rest_clients_test = rms_env.Program(target = "rest_clients_ut", 
-    source = [rest_clients_ut_obj], LIBS = [libs], LIBPATH = lib_path)
+    source = [rest_clients_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
 Return('rest_clients_test')

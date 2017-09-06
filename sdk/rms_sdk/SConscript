@@ -26,12 +26,8 @@ restclients_lib = rms_env.SConscript('RestClients/SConscript', duplicate=0)
 Export('restclients_lib')
 
 
-[modernapi_lib, modernapi_obj_files] = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
-Export('modernapi_lib modernapi_obj_files')
-
-# rms_lib = rms_env.SConscript('shared_lib/SConscript', duplicate=0)
-# Export('rms_lib')
-# Install('#' + bins + '/sdk/rms_sdk', rms_lib)
+modernapi_obj_files = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
+Export('modernapi_obj_files')
 
 rms_platform_ut = rms_env.SConscript('UnitTests/platform_ut/SConscript', duplicate=0)
 Export('rms_platform_ut')
