@@ -5,7 +5,7 @@ Import('rms_env')
 rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
 
 src_files = Split("""
-	src/gtest-all.cc
+	#googletest/src/gtest-all.cc
 """)
 
 googletest_lib = create_objs(rms_env, src_files)

@@ -17,16 +17,16 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES += \
-    src/gtest.cc \
-    src/gtest_main.cc \
-    src/gtest-all.cc \
-    src/gtest-death-test.cc \
-    src/gtest-filepath.cc \
-    src/gtest-internal-inl.h \
-    src/gtest-port.cc \
-    src/gtest-printers.cc \
-    src/gtest-test-part.cc \
-    src/gtest-typed-test.cc
+    ../../../../googletest/src/gtest.cc \
+    ../../../../googletest/src/gtest_main.cc \
+    ../../../../googletest/src/gtest-all.cc \
+    ../../../../googletest/src/gtest-death-test.cc \
+    ../../../../googletest/src/gtest-filepath.cc \
+    ../../../../googletest/src/gtest-internal-inl.h \
+    ../../../../googletest/src/gtest-port.cc \
+    ../../../../googletest/src/gtest-printers.cc \
+    ../../../../googletest/src/gtest-test-part.cc \
+    ../../../../googletest/src/gtest-typed-test.cc
 
 HEADERS += \
-    src/gtest-internal-inl.h
+    ../../../../googletest/src/gtest-internal-inl.h

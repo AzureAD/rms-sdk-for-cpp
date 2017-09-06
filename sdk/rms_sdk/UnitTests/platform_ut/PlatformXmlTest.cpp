@@ -11,7 +11,6 @@
 #include "../../Platform/Xml/IDomDocument.h"
 #include "../../Platform/Xml/IDomNode.h"
 #include "../../Platform/Xml/IDomElement.h"
-#include <iostream>
 
 using namespace rmscore::platform::logger;
 
@@ -24,7 +23,6 @@ void PlatformXmlTest::testSelectSingleNode_data()
     QTest::addColumn<QString>("xmlAsString");
     QTest::addColumn<QString>("xPathRequest");
     QTest::addColumn<QString>("expectedResult");
-    std::cout << SRCDIR << std::endl;    
 
     QString path1 = QString(SRCDIR) + "data/testXPath1.xml";
     QFile file1(path1);
