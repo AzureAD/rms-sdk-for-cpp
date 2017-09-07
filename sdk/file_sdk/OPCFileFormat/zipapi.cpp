@@ -46,16 +46,22 @@ ZipApi::ZipApi()
   gsf_init ();
 }
 
-std::string GetEntryImpl (GsfInfile *infile, std::string EntryPath)
+std::string GetEntryImpl (GsfInfile *infile, std::string entryPath)
 {
-  gchar** elems = g_strsplit(EntryPath.c_str(), "/", -1);
-  std::unique_ptr<GsfInput, GsfInput_deleter> entry(gsf_infile_child_by_aname(infile, (const char**)elems));
+  gchar** elems = g_strsplit(entryPath.c_str(), "/", -1);
+  auto child = gsf_infile_child_by_aname(infile, (const char**)elems);
+  if (child == nullptr)
+    throw ZipEntryNotFoundException("Entry not found", entryPath);
+
+  std::unique_ptr<GsfInput, GsfInput_deleter> entry(child);
   g_strfreev (elems);
 
   gsf_off_t size = gsf_input_size(entry.get());
   guint8* data = new guint8[size];
 
-  gsf_input_read(entry.get(), size, data);
+  if (!gsf_input_read(entry.get(), size, data))
+    throw ZipException("Failed reading entry", entryPath);
+
   return std::string((const char*) data, size);
 }
 
@@ -64,17 +70,17 @@ std::string ZipApi::GetEntry(std::string filePath, std::string entryPath)
   GError *err = nullptr;
 
   std::unique_ptr<GsfInput, GsfInput_deleter> input(gsf_input_stdio_new (filePath.c_str(), &err));
-  if (input == nullptr) {
-    g_return_val_if_fail (err != NULL, "");
-    g_warning ("'%s' error: %s", filePath, err->message);
+  if (!input) {
+    auto error = err != nullptr ? err->message : "";
     g_error_free (err);
     err = NULL;
-    return "";
+
+    throw ZipException(error, "Failed to get entry from zip");
   }
 
   std::unique_ptr<GsfInfile, GsfInfile_deleter> infile(gsf_infile_zip_new (input.get(), &err));
-  if (infile == nullptr) {
-    g_return_val_if_fail (err != NULL,"");
+  if (!infile) {
+    g_return_val_if_fail (err != nullptr,"");
     g_warning ("'%s' Not a Zip file: %s", filePath, err->message);
     g_error_free (err);
     err = NULL;
@@ -82,7 +88,6 @@ std::string ZipApi::GetEntry(std::string filePath, std::string entryPath)
   }
   std::string data = GetEntryImpl (infile.get(), entryPath);
 
-  gsf_shutdown();
   return data;
 }
 
@@ -161,7 +166,6 @@ int ZipApi::SetEntry(std::string filePath, std::string EntryPath, std::string da
   g_object_unref (G_OBJECT (outfile));
   g_object_unref (child1);
   g_object_unref (child);
-  gsf_shutdown();
   //fclose(file);
 
   return 0;

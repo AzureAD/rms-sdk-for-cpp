@@ -10,6 +10,7 @@ CONFIG   += console c++11 debug_and_release resources_big
 CONFIG   -= app_bundle
 
 INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
+INCLUDEPATH += $$REPO_ROOT/sdk/rmsauth_sdk/rmsauth/rmsauth
 
 win32:LIBS += -L$$REPO_ROOT/bin/file
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgsf-1-114 -lzlib1\
