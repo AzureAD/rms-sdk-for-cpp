@@ -83,7 +83,7 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
         break;
       }
     }
-    if (domainSizen < 0) {
+    if (domainSize < 0) {
       Logger::Hidden("DNS Lookup failed looking up record for %s: Insufficient buffer",
         dnsRequest.c_str());
       return "";
