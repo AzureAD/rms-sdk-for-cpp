@@ -14,7 +14,6 @@
 
 #include "AuthenticationHandler.h"
 
-#include "../Common/FrameworkSpecificTypes.h"
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../Platform/Http/IHttpClient.h"
 
