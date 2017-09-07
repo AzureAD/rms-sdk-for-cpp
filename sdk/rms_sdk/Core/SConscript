@@ -6,6 +6,5 @@ Import("""
 
 src_files = Glob('*.cpp')
 
-
 core_obj = create_objs(rms_env, src_files)
 Return('core_obj')

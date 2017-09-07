@@ -11,12 +11,14 @@ Import("""
 
 Import("""
     common_obj
-    consent_obj
-    core_obj
+    crypto_api_obj
+    crypto_obj
+    crypto_platform_crypto_obj
+    crypto_platform_keystorage_obj
+    crypto_platform_logger_obj
+    crypto_platform_settings_obj
     googletest_obj
     json_obj
-    modernapi_obj
-    pfile_obj
     restclients_obj
     rms_platform_filesystem_obj
     rms_platform_http_obj
@@ -41,12 +43,14 @@ lib_path = [
 
 objects = [
     common_obj,
-    consent_obj,
-    core_obj,
+    crypto_api_obj,
+    crypto_obj,
+    crypto_platform_crypto_obj,
+    crypto_platform_keystorage_obj,
+    crypto_platform_logger_obj,
+    crypto_platform_settings_obj,
     googletest_obj,
     json_obj,
-    modernapi_obj,
-    pfile_obj,
     restclients_obj,
     rms_platform_filesystem_obj,
     rms_platform_http_obj,

@@ -7,10 +7,6 @@ Import("""
 
 src_files = ['base64.cpp']
 
-for key in ['INCLUDE','LIB']:
-    if os.environ.has_key(key):
-        crypto_platform_env.Prepend(ENV = {key.upper():os.environ[key]})
-
 if platform == 'win32':
   crypto_platform_env.Append(CPPPATH='#sdk/rmscrypto_sdk/')
   src_files += [

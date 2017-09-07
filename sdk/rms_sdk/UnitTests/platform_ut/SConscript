@@ -12,14 +12,13 @@ Import("""
 """)
 
 Import("""
-    common_obj
-    core_obj
-    consent_obj
+    crypto_api_obj
+    crypto_obj
+    crypto_platform_crypto_obj
+    crypto_platform_keystorage_obj
+    crypto_platform_logger_obj
+    crypto_platform_settings_obj
     googletest_obj
-    json_obj
-    modernapi_obj
-    pfile_obj
-    restclients_obj
     rms_platform_filesystem_obj
     rms_platform_http_obj
     rms_platform_json_obj
@@ -33,7 +32,7 @@ src_files += Glob(configuration + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
 
-rmsplatform_env.Append(CPPPATH=Split('#sdk/rmscrypto_sdk/CryptoAPI #third_party/include #googletest/include')) 
+rmsplatform_env.Append(CPPPATH=Split('#sdk/rmscrypto_sdk/CryptoAPI')) 
 rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
 
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
@@ -43,15 +42,15 @@ lib_path = [
       qt_lib_path, 
       '#bin/' + configuration + '/' + target_arch + '/sdk',
   ]
+
 objects = [
-      common_obj,
-      core_obj,
-      consent_obj,
+      crypto_api_obj,
+      crypto_obj,
+      crypto_platform_crypto_obj,
+      crypto_platform_keystorage_obj,
+      crypto_platform_logger_obj,
+      crypto_platform_settings_obj,
       googletest_obj,
-      json_obj,
-      modernapi_obj,
-      pfile_obj,
-      restclients_obj,
       rms_platform_filesystem_obj,
       rms_platform_http_obj,
       rms_platform_json_obj,

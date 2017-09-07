@@ -4,10 +4,6 @@ Import('rms_env')
 
 src_files = Glob('*.cpp')
 
-for key in ['INCLUDE','LIB']:
-    if os.environ.has_key(key):
-        rms_env.Prepend(ENV = {key.upper():os.environ[key]})
-
 platform_http_obj = create_objs(rms_env, src_files)
 
 Return('platform_http_obj')

@@ -25,7 +25,6 @@ Export('pfile_obj')
 restclients_obj = rms_env.SConscript('RestClients/SConscript', duplicate=0)
 Export('restclients_obj')
 
-
 modernapi_obj = rms_env.SConscript('ModernApi/SConscript', duplicate=0)
 Export('modernapi_obj')
 

@@ -2,8 +2,6 @@ from build_config import *
 
 Import('rms_env bins')
 
-rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
-
 rms_platform_filesystem_obj = rms_env.SConscript('Filesystem/SConscript', duplicate=0)
 rms_platform_http_obj = rms_env.SConscript('Http/SConscript', duplicate=0)
 rms_platform_json_obj = rms_env.SConscript('Json/SConscript', duplicate=0)

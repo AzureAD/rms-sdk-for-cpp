@@ -3,7 +3,6 @@ from build_config import *
 Import('rms_env')
 
 src_files = Glob('*.cpp')
-rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 pfile_obj = create_objs(rms_env, src_files)
 Return('pfile_obj')

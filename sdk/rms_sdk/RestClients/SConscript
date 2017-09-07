@@ -5,9 +5,6 @@ Import('rms_env')
 src_files = Glob('*.cpp')
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
-rms_env.Append(CPPDEFINES = ['QT_NETWORK_LIB'])
-rms_env.Append(CPPDEFINES = ['QT_XML_LIB'])
-
 restclients_obj = create_objs(rms_env, src_files)
 
 Return('restclients_obj')
