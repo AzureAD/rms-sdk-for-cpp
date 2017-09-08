@@ -134,7 +134,6 @@ PDFUnencryptedWrapperCreatorImpl::PDFUnencryptedWrapperCreatorImpl(rmscrypto::ap
     if(PDFPARSE_ERROR_SUCCESS == parseResult)
     {
         CPDF_Document* pDoc = m_pdfParser.GetDocument();
-        //m_pPDFWrapper20Creator = FPDF_Wrapper20Creator_Create(pDoc);
         m_pPDFWrapper20Creator = FPDF_UnencryptedWrapperCreator_Create(pDoc);
     }
 }

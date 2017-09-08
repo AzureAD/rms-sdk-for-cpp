@@ -13,6 +13,11 @@ namespace pdfobjectmodel {
 #define IRMV1_WRAPPER_DICTIONARY_VERSION    "Version"
 #define IRMV1_WRAPPER_DICTIONARY_OFFSET     "WrapperOffset"
 
+/**
+ * @brief The implementaion class of interface class PDFWrapperDoc defined in pdf object model layer.
+ * The implementation is on the basic of Foxit core.
+ * Please refer to comments of PDFWrapperDoc.
+ */
 class PDFWrapperDocImpl : public PDFWrapperDoc
 {
 public:
@@ -43,6 +48,11 @@ private:
     std::wstring m_wsFileName;
 };
 
+/**
+ * @brief The implementaion class of interface class PDFUnencryptedWrapperCreator defined in pdf object model layer.
+ * The implementation is on the basic of Foxit core.
+ * Please refer to comments of PDFUnencryptedWrapperCreator.
+ */
 class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator
 {
 public:
@@ -62,7 +72,6 @@ public:
 private:
     FileStreamImpl* m_wrapperFileStream;
     CPDF_Parser m_pdfParser;
-    //IPDF_Wrapper20Creator* m_pPDFWrapper20Creator;
     IPDF_UnencryptedWrapperCreator* m_pPDFWrapper20Creator;
     FileStreamImpl* m_payloadFileStream;
 };

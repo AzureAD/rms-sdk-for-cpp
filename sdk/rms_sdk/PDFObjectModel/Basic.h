@@ -7,6 +7,11 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
+/**
+ * @brief The implementaion class of interface class PDFBinaryBuf.
+ * Please refer to comments of PDFBinaryBuf.
+ * The interface header file of PDF object model is PDFObjectModel.h.
+ */
 class PDFBinaryBufImpl : public PDFBinaryBuf
 {
 public:
@@ -19,6 +24,12 @@ private:
     CFX_BinaryBuf* m_pBinBuf;
 };
 
+/**
+ * @brief The implementaion class of interface class IFX_FileStream.
+ * It is invoked by pdf object model when reading and writing pdf document.
+ * IFX_FileStream is the file stream interface (reading & writing) of Foxit core.
+ * Please refer to comments of IFX_FileStream of Foxit core.
+ */
 class FileStreamImpl : public IFX_FileStream
 {
 public:
@@ -59,6 +70,9 @@ typedef unsigned short  UTF16;  /* at least 16 bits */
 typedef unsigned char   UTF8;   /* typically 8 bits */
 typedef unsigned int    INT;
 
+/**
+ * @brief It is the utility class for pdf object model, like encoding converting.
+ */
 class Utility
 {
 public:

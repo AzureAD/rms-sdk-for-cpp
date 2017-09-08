@@ -9,6 +9,12 @@ namespace pdfobjectmodel {
 
 #define PROGRESSIVE_ENCRYPT_TEMP_FILE L".RMS.PE.temp"
 
+/**
+ * @brief The implementaion class of interface class CPDF_CryptoHandler of Foxit core.
+ * CPDF_CryptoHandler is the abstract class for PDF cryptographic operations (encryption and decryption).
+ * This class works with security handler which provides algorithm and key info.
+ * Please refer to comments of CPDF_CryptoHandler.
+ */
 class CustomCryptoHandler : public CPDF_CryptoHandler
 {
 public:
@@ -41,6 +47,11 @@ protected:
     PDFCryptoHandler* m_pPDFCryptoHandler;
 };
 
+/**
+ * @brief The implementaion class of interface class CPDF_ProgressiveEncryptHandler of Foxit core.
+ * CPDF_ProgressiveEncryptHandler is set to deal with progressive encryption.
+ * Please refer to comments of CPDF_ProgressiveEncryptHandler.
+ */
 class CustomProgressiveEncryptHandler : public CPDF_ProgressiveEncryptHandler
 {
 public:
@@ -71,6 +82,12 @@ public:
     FX_DWORD m_dwVersion;
 };
 
+/**
+ * @brief The implementaion class of interface class CPDF_SecurityHandler of Foxit core.
+ * CPDF_SecurityHandler is the abstract Abstract class for all security handlers, contains
+ * virtual functions to be implemented by derived classes.
+ * Please refer to comments of CPDF_SecurityHandler.
+ */
 class CustomSecurityHandler : public CPDF_SecurityHandler
 {
 public:
@@ -95,6 +112,10 @@ private:
     bool m_bEncryptMetadata;
 };
 
+/**
+ * @brief The implementaion class of interface class PDFCreator defined in pdf object model layer.
+ * Please refer to comments of PDFCreator.
+ */
 class PDFCreatorImpl : public PDFCreator
 {
 public:
