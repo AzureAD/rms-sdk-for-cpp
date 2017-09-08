@@ -10,7 +10,6 @@
 #define CRYPTEDSTREAMTESTS_H
 #include <QTest>
 
-
 class CryptedStreamTests : public QObject
 {
     Q_OBJECT

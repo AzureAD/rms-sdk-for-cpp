@@ -1,0 +1,31 @@
+from build_config import create_objs
+
+Import("""
+    configuration
+    lib_suffix
+    platform
+    rms_env
+""")
+
+modernapi_env = rms_env.Clone()
+
+modernapi_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
+
+modernapi_env.Append(CCFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+modernapi_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+
+src_files = Glob('*.cpp')
+modernapi_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+if platform == 'win32':
+  modernapi_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
+  if configuration == 'debug':
+      modernapi_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+      modernapi_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+else:
+  libs += 'ssl'
+  libs += 'crypto'
+
+modernapi_obj = create_objs(modernapi_env, src_files)
+Return('modernapi_obj')

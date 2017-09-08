@@ -6,6 +6,11 @@ dest/
 *.deb
 *.bz2
 *build.log
+rms*_log*.log
+*.obj
+_rms_test/*
+_crypto_test/*
+*.dblite
 
 # Qt Build Artifacts
 Makefile*
