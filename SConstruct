@@ -60,6 +60,7 @@ msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
 
+# TODO: move to build_config_<platform>
 if isX86:
   if platform == 'win32':
     target_arch = "x86"
@@ -79,12 +80,16 @@ msvc_version = '14.0'
 msvc_dir = 'msvc14'
 msvc_path = 'msvc2015'
 if platform == 'win32':
+  from build_config_win32 import *
   if msvc12:
     msvc_dir = 'msvc12'
     msvc_version = '12.0'
     msvc_path = 'msvc2013'
   print "MSVC: ", msvc_version
+elif platform == 'darwin':
+  from build_config_apple import *
 
+# TODO: move to build_config_<platform>
 qt_dir = 'C:/Qt/5.7/' + msvc_path + arch_suffix
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
@@ -149,6 +154,7 @@ if 'dump' in ARGUMENTS:
 #run ParseConfig(env, <command>, <option>) to personalize the env
 env.Append(CPPPATH = include_search_path + qt_include_search_path)
 
+# TODO: move to build_config_<platform>
 if platform == 'win32':
   env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
   env.Append(CPPPATH = qt_bin_dir)
