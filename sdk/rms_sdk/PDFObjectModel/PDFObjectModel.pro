@@ -52,22 +52,11 @@ else:
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/Core/include
 win32:LIBS += \
         -L$$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/Core/lib/dbg/mt_x86_vc14 \
-        -L$$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/fgas/lib/dbg/x86_vc14 \
-        -L$$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/fxgraphics/lib/dbg/x86_vc14 \
-        -L$$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/fxjse/lib/dbg/mt_x86_vc14 \
         -lfpdfapi[dbg_mt_x86_vc14]\
         -lfxcrt[dbg_mt_x86_vc14]\
         -lfpdfdoc[dbg_mt_x86_vc14]\
-        -lfxmath[dbg_mt_x86_vc14]\
-        -lfxge[dbg_mt_x86_vc14]\
-        -lfxhal[dbg_mt_x86_vc14]\
         -lfxcodec[dbg_mt_x86_vc14]\
-        -lfdrm[dbg_mt_x86_vc14]\
-        -lfpdftext[dbg_mt_x86_vc14]\
-        -lfxfontmgr[dbg_mt_x86_vc14]\
-        -lfgas[dbg_x86_vc14]\
-        -lfxgraphics[dbg_x86_vc14]\
-        -lfxjse[dbg_mt_x86_vc14]
+        -lfdrm[dbg_mt_x86_vc14]
 else:LIBS += \
         -L$$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/Core/lib/dbg/mt_x64_linux_gcc \
         -llinux_dbg_x64

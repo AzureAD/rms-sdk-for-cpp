@@ -505,8 +505,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
                 outputEncrypted);
     if(PDFCREATOR_ERR_SUCCESS != result)
     {
-        Logger::Error("Failed to encrypt the file. The file may be corrupted.");
-        throw exceptions::RMSPDFFileException("Failed to encrypt the file. The file may be corrupted.",
+        Logger::Error("Failed to encrypt the file. The file is invalid.");
+        throw exceptions::RMSPDFFileException("Failed to encrypt the file. The file is invalid.",
                                             exceptions::RMSPDFFileException::CorruptFile);
         return;
     }
