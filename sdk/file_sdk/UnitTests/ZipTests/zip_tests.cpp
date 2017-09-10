@@ -3,7 +3,11 @@
 #include <Qt>
 #include "../../OPCFileFormat/zipapi.h"
 #include <iostream>
-
+#include <QTStreamImpl.h>
+#include <memory>
+#include <CryptoAPI.h>
+#include <sstream>
+#include <fstream>
 class ZipTests : public QObject
 {
   Q_OBJECT
@@ -12,17 +16,31 @@ public:
   ZipTests();
 
 private Q_SLOTS:
-//  void testCase();
-  void testCaseGetEntryReturnsXml();
+  void testCase();
+ /* void testCaseGetEntryReturnsXml();
   void testCaseMissingEntryThrowZipException();
-  void testCaseNotAZipThrowZipException();
+  void testCaseNotAZipThrowZipException();*/
 };
 
 ZipTests::ZipTests()
 {
 }
+using rmscrypto::api::IStream;
+using std::static_pointer_cast;
+using std::make_shared;
 
-//void ZipTests::testCase()
+
+void ZipTests::testCase(){
+
+    auto zip = ZipApi();
+    auto ifs = make_shared<std::ifstream>("C:\\Users\\amassi\\Desktop\\LabeledGeneral.docx");
+    auto stream = rmscrypto::api::CreateStreamFromStdStream(std::static_pointer_cast<std::istream>(ifs));
+
+    std::string xml = zip.GetEntry(stream.get(), "docProps/custom.xml");
+    std::cout << xml << std::endl;
+
+}
+
 //{
 //  try
 //  {
@@ -39,7 +57,7 @@ ZipTests::ZipTests()
 //    std::cout << ex.what() << std::endl;
 //  }
 //}
-
+/*
 void ZipTests::testCaseGetEntryReturnsXml()
 {
   auto xml = ZipApi().GetEntry("\\\\sislands\\Public\\RnD\\rms-sdk\\Tests\\LabeledGeneral.docx", "docProps/custom.xml");
@@ -50,14 +68,14 @@ void ZipTests::testCaseGetEntryReturnsXml()
 
 void ZipTests::testCaseMissingEntryThrowZipException()
 {
-  QVERIFY_EXCEPTION_THROWN(ZipApi().GetEntry("\\\\sislands\\Public\\RnD\\rms-sdk\\Tests\\LabeledGeneral.docx", "docProps/missing.xml"), ZipEntryNotFoundException);
+  //QVERIFY_EXCEPTION_THROWN(ZipApi().GetEntry("\\\\sislands\\Public\\RnD\\rms-sdk\\Tests\\LabeledGeneral.docx", "docProps/missing.xml"), ZipEntryNotFoundException);
 }
 
 void ZipTests::testCaseNotAZipThrowZipException()
 {
-  QVERIFY_EXCEPTION_THROWN(ZipApi().GetEntry("\\\\sislands\\Public\\RnD\\rms-sdk\\Tests\\test.txt", "docProps/custom.xml"), ZipException);
+ // QVERIFY_EXCEPTION_THROWN(ZipApi().GetEntry("\\\\sislands\\Public\\RnD\\rms-sdk\\Tests\\test.txt", "docProps/custom.xml"), ZipException);
 }
-
+*/
 QTEST_APPLESS_MAIN(ZipTests)
 
 #include "zip_tests.moc"

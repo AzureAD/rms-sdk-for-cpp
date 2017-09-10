@@ -14,14 +14,16 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgsf-1-114 -lzlib1\
                -llibglib-2.0-0 -llibbz2-1
 
 SOURCES += opc_file_format.cpp \
-    zipapi.cpp
+    zipapi.cpp \
+    gsfinputistream.cpp
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
 
 HEADERS += opc_file_format.h \
-    zipapi.h
+    zipapi.h \
+    gsfinputistream.h
 
 unix {
     target.path = /usr/lib

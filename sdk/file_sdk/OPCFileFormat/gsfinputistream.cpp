@@ -76,7 +76,7 @@ static gboolean gsf_input_istream_seek(GsfInput *input, gsf_off_t offset, GSeekT
     GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(input);
 
     gsfStream->stream->Seek(offset);
-    return TRUE;
+    return FALSE;
 }
 
 static void gsf_input_istream_init(GObject *obj)

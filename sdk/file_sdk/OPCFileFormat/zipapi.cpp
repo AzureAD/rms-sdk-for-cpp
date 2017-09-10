@@ -65,23 +65,16 @@ std::string GetEntryImpl (GsfInfile *infile, std::string entryPath)
   return std::string((const char*) data, size);
 }
 
-std::string ZipApi::GetEntry(std::string filePath, std::string entryPath)
+std::string ZipApi::GetEntry(IStream *stream, std::string entryPath)
 {
   GError *err = nullptr;
 
-  std::unique_ptr<GsfInput, GsfInput_deleter> input(gsf_input_stdio_new (filePath.c_str(), &err));
-  if (!input) {
-    auto error = err != nullptr ? err->message : "";
-    g_error_free (err);
-    err = NULL;
-
-    throw ZipException(error, "Failed to get entry from zip");
-  }
+  std::unique_ptr<GsfInput, GsfInput_deleter> input(gsf_input_istream_new (stream));
 
   std::unique_ptr<GsfInfile, GsfInfile_deleter> infile(gsf_infile_zip_new (input.get(), &err));
   if (!infile) {
     g_return_val_if_fail (err != nullptr,"");
-    g_warning ("'%s' Not a Zip file: %s", filePath, err->message);
+    g_warning ("Not a Zip file: %s", err->message);
     g_error_free (err);
     err = NULL;
     return "";

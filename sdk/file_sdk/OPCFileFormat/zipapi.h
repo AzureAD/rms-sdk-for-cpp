@@ -2,12 +2,13 @@
 #define ZIPAPI_H
 
 #include <Exceptions.h>
+#include "gsfinputistream.h"
 
 class ZipApi
 {
 public:
   ZipApi();
-  std::string GetEntry(std::string filePath, std::string entryPath);
+  std::string GetEntry(IStream *stream, std::string entryPath);
   int SetEntry(std::string filePath, std::string entryPath, std::string data);
 };
 
