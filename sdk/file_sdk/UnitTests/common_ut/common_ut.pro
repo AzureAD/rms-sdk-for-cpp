@@ -29,8 +29,13 @@ CONFIG(debug, debug|release) {
 unix:!mac:LIBS += -lstaticXMPFiles -lstaticXMPCore
 
 SOURCES += common_ut.cpp \
-    istream_mock.cpp
+    istream_mock.cpp \
+    extended_property_ut.cpp \
+    main.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
-    istream_mock.h
+    istream_mock.h \
+    common_ut.h \
+    extended_property_ut.h \
+    include.h

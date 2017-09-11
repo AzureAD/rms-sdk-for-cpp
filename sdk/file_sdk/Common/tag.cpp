@@ -9,6 +9,7 @@ using std::vector;
 namespace {
 static const string kMetaDataPrefix = "MSIP_Label";
 static const string kExtendedPrefix = "Extended";
+static const string kMetaDataGuidRegex = "^" + kMetaDataPrefix + "_([a-z0-9]{8}-(?:[a-z0-9]{4}-){3}[a-z0-9]{12})";
 }  // namespace
 
 namespace mip {
@@ -66,16 +67,13 @@ string Tag::GetDataForKey(const vector<pair<string, string>>& properties, const 
 
 // static
 vector<string> Tag::GetAllIds(const vector<pair<string, string>>& properties) {
-  size_t length = kMetaDataPrefix.size() + 1;
-  size_t guidLength = 36;
-
   vector<string> labelsIds;
   for (size_t i = 0; i < properties.size(); i++) {
     pair<string, string> data = properties[i];
-    string id = data.first;
-    string guid = id.substr(length, guidLength);
-    if (std::regex_match(guid, std::regex("^" + kMetaDataPrefix + "_([a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12})$", std::regex_constants::icase))) {
-      labelsIds.push_back(guid);
+    std::smatch match;
+    static std::regex regex(kMetaDataGuidRegex, std::regex_constants::icase);
+    if (std::regex_search(data.first, match, regex) && match.size() >= 2) {
+      labelsIds.push_back(match[1].str());
     }
   }
 
@@ -112,50 +110,9 @@ Tag::Tag(
   }
 }
 
-Tag::Tag(const Tag& tag)
-  :
-    mLabelId(tag.mLabelId),
-    mLabelName(tag.mLabelName),
-    mLabelParentId(tag.mLabelParentId),
-    mOwner(tag.mOwner),
-    mEnabled(tag.mEnabled),
-    mSiteId(tag.mSiteId),
-    mMethod(tag.mMethod),
-    mSetTime(tag.mSetTime)
-{
-  auto properties = tag.mExtendedProperties;
-  for (size_t i = 0; i < properties.size(); i++) {
-    mExtendedProperties.push_back(properties[i]);
-  }
-}
-
-Tag&Tag::operator=(const Tag& tag)
-{
-  if (this == &tag)
-    return *this;
-
-  mLabelId = tag.mLabelId;
-  mLabelName = tag.mLabelName;
-  mLabelParentId = tag.mLabelParentId;
-  mEnabled = tag.mEnabled;
-  mMethod = tag.mMethod;
-  mOwner = tag.mOwner;
-  mSetTime = tag.mSetTime;
-  mSiteId = tag.mSiteId;
-
-  mExtendedProperties.clear();
-  auto properties = tag.GetExtendedProperties();
-  for (size_t i = 0; i < properties.size(); i++) {
-    mExtendedProperties.push_back(properties[i]);
-  }
-
-  return *this;
-}
-
 bool Tag::operator== (const Tag& other) const {
-  if(mExtendedProperties != other.mExtendedProperties){
+  if (mExtendedProperties != other.mExtendedProperties)
     return false;
-  }
 
   return
       mLabelId == other.mLabelId &&
@@ -238,9 +195,8 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
     for (size_t j = 0; j < properties.size(); j++) {
       pair<string, string> data = properties[j];
       string id = data.first;
-      string replace = "";
       if (id.compare(methodKey) != 0 && !id.compare(0, extendedPropertyPrefix.size(), extendedPropertyPrefix)) {
-        string vendorAndKey = regex_replace(id, std::regex(extendedPropertyPrefix), replace);
+        string vendorAndKey = id.erase(0, extendedPropertyPrefix.size());
         size_t index = vendorAndKey.find_first_of("_");
         if (index == string::npos)
           continue;

@@ -34,6 +34,8 @@ public:
 
   static vector<Tag> Deserialize(const SXMPMeta& metadata);
 
+  static vector<Tag> DeserializeObsoleteFormat(const SXMPMeta& metadata);
+
   static void Initialize();
 
   static const vector<Tag> GetTags(shared_ptr<IStream> fileStream);

@@ -38,10 +38,6 @@ public:
       const std::string& siteId = "Local",
       const std::vector<ExtendedProperty>& extendedProperties = std::vector<ExtendedProperty>());
 
-  Tag(const Tag& tag);
-
-  Tag& operator=(const Tag& other);
-
   bool operator== (const Tag& other) const;
   std::vector<std::pair<std::string, std::string>> ToProperties() const;
   const std::string& GetLabelId() const { return mLabelId; }
@@ -63,6 +59,7 @@ private:
       const std::vector<std::string>& backwardCompatibleKeys);
   static std::string GetDataForKey(
       const std::vector<std::pair<std::string, std::string>>& properties, const std::string& key);
+public:
   static std::vector<std::string> GetAllIds(
       const std::vector<std::pair<std::string, std::string>>& properties);
 

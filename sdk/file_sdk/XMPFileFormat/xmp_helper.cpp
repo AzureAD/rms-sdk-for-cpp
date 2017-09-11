@@ -1,5 +1,7 @@
 #include "xmp_helper.h"
 
+using std::pair;
+
 namespace mip {
 namespace file {
 
@@ -24,11 +26,9 @@ string XMPHelper::GetStringByKey(const SXMPMeta& metadata,const string &labelsIt
   return value;
 }
 
-vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {
+vector<Tag> XMPHelper::DeserializeObsoleteFormat(const SXMPMeta& metadata) {
   XMP_Index count = metadata.CountArrayItems(kMsipNamespace, kLabelsArrayName);
-
   vector<Tag> tags;
-
   for (int i = 1; i <= count; ++i)
   {
     std::string labelsItemPath;
@@ -94,6 +94,37 @@ vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {
   }
 
   return tags;
+}
+
+vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {
+  string namespacePrefix;
+  vector<Tag> tags;
+
+  if (!metadata.GetNamespacePrefix(kMsipNamespace, &namespacePrefix))
+    return tags; // namespace doesn't exist
+
+  string propertyPath;
+  string propertyValue;
+  vector<pair<string, string>> properties;
+
+  SXMPIterator iterator(metadata, kMsipNamespace, kXMP_IterJustChildren | kXMP_IterOmitQualifiers | kXMP_IterJustLeafName);
+  while (iterator.Next(nullptr, &propertyPath, &propertyValue))
+  {
+    if (propertyPath.length() < namespacePrefix.length())
+      continue;
+
+    auto name = propertyPath.erase(0, namespacePrefix.length());
+    auto value = propertyValue;
+
+    properties.push_back(pair<string, string>(name, value));
+  }
+
+
+  tags = Tag::FromProperties(properties);
+  if (!tags.empty())
+    return tags;
+
+  return DeserializeObsoleteFormat(metadata);
 }
 
 void XMPHelper::Initialize() {

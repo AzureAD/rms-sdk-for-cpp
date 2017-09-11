@@ -16,5 +16,16 @@
         <file>xmp_labeled_automatic/Labeled.jpg</file>
         <file>xmp_labeled_automatic/Labeled.png</file>
         <file>xmp_labeled_automatic/Labeled.psd</file>
+        <file>xmp_labeled_newFormat/Labeled.gif</file>
+        <file>xmp_labeled_newFormat/Labeled.jfi</file>
+        <file>xmp_labeled_newFormat/Labeled.jfif</file>
+        <file>xmp_labeled_newFormat/Labeled.jif</file>
+        <file>xmp_labeled_newFormat/Labeled.jpe</file>
+        <file>xmp_labeled_newFormat/Labeled.jpeg</file>
+        <file>xmp_labeled_newFormat/Labeled.jpg</file>
+        <file>xmp_labeled_newFormat/Labeled.png</file>
+        <file>xmp_labeled_newFormat/Labeled.psd</file>
+        <file>xmp_labeled_newFormat/Labeled.tif</file>
+        <file>xmp_labeled_newFormat/Labeled.tiff</file>
     </qresource>
 </RCC>
