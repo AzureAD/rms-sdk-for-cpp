@@ -5,7 +5,7 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
-
+/*
 #ifndef PLATFORMDNSTEST
 #define PLATFORMDNSTEST
 #include <QtTest>
@@ -21,3 +21,4 @@ private Q_SLOTS:
 };
 #endif // PLATFORMDNSTEST
 
+*/

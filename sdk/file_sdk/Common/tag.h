@@ -34,7 +34,6 @@ public:
       const std::string& owner,
       bool enabled,
       const std::string& setTime,
-      const std::string& applicationName,
       const Method& method = Method::NONE,
       const std::string& siteId = "Local",
       const std::vector<ExtendedProperty>& extendedProperties = std::vector<ExtendedProperty>());
@@ -44,18 +43,24 @@ public:
   const std::string& GetLabelId() const { return mLabelId; }
   const std::string& GetLabelName() const { return mLabelName; }
   const std::string& GetLabelParentId() const { return mLabelParentId; }
+  const std::string& GetOwner() const { return mOwner; }
+  const bool GetEnabled() const { return mEnabled; }
+  const std::string& GetSiteId() const { return mSiteId; }
+  const std::string& GetSetTime() const { return mSetTime; }
+  const Method GetMethod() const { return mMethod; }
+  const std::vector<ExtendedProperty>& GetExtendedProperties() const { return mExtendedProperties; }
 
 private:
   // TODO: Add tests for these methods.
   static std::string GetBackwardCompatibleKey(
-    const std::vector<std::pair<std::string, std::string>>& properties,
-    const std::string& id,
-    const std::string& key,
-    const std::vector<std::string>& backwardCompatibleKeys);
+      const std::vector<std::pair<std::string, std::string>>& properties,
+      const std::string& id,
+      const std::string& key,
+      const std::vector<std::string>& backwardCompatibleKeys);
   static std::string GetDataForKey(
-    const std::vector<std::pair<std::string, std::string>>& properties, const std::string& key);
+      const std::vector<std::pair<std::string, std::string>>& properties, const std::string& key);
   static std::vector<std::string> GetAllIds(
-    const std::vector<std::pair<std::string, std::string>>& properties);
+      const std::vector<std::pair<std::string, std::string>>& properties);
 
   std::string mLabelId;
   std::string mLabelName;
@@ -65,7 +70,6 @@ private:
   std::string mSiteId;
   Method mMethod;
   std::string mSetTime;
-  std::string mApplicationName;
   std::vector<ExtendedProperty> mExtendedProperties;
 };
 

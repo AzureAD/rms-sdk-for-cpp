@@ -5,7 +5,7 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
-
+/*
 #ifndef PLATFORMURITEST
 #define PLATFORMURITEST
 #include <QtTest>
@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testUri(bool enabled = true);
 };
 #endif // PLATFORMURITEST
-
+*/
