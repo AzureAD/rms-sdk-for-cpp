@@ -7,5 +7,9 @@ ContentTypesXml::ContentTypesXml(const std::string &xml)
     : OpcXml(xml) {
 }
 
+bool ContentTypesXml::UpdateCustomProperties() {
+    return false;
+}
+
 } // namespace file
 } // namespace mip

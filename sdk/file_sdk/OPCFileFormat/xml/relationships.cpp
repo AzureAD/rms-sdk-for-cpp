@@ -7,5 +7,9 @@ RelationshipsXml::RelationshipsXml(const std::string &xml)
     : OpcXml(xml) {
 }
 
+bool RelationshipsXml::UpdateCustomProperties() {
+    return false;
+}
+
 } // namespace file
 } // namespace mip

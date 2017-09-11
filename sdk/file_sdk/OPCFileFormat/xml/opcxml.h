@@ -7,9 +7,10 @@ namespace mip {
 namespace file {
 
 class OpcXml {
-public:
+protected:
   OpcXml(const std::string& xml);
 
+public:
   std::string Serialize();
 };
 

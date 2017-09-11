@@ -10,6 +10,7 @@ namespace file {
 class RelationshipsXml : public OpcXml {
 public:
   RelationshipsXml(const std::string& xml);
+  bool UpdateCustomProperties();
 };
 
 } // namespace file

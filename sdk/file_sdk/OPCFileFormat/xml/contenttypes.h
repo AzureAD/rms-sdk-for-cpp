@@ -10,6 +10,7 @@ namespace file {
 class ContentTypesXml : public OpcXml {
 public:
   ContentTypesXml(const std::string& xml);
+  bool UpdateCustomProperties();
 };
 
 } // namespace file
