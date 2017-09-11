@@ -1,0 +1,11 @@
+from build_config import *
+
+Import('file_env')
+
+src_files = Glob('*.cpp')
+
+xmp_env = file_env.Clone()
+xmp_env.Append(CPPPATH = Split('#sdk/rmscrypto_sdk/CryptoAPI #sdk/file_sdk'))
+
+xmp_obj = create_objs(xmp_env, src_files)
+Return('xmp_obj')
