@@ -4,10 +4,10 @@
 set buildtarget=%1
 
 IF /I "%buildtarget%"=="amd64" (
-	set windeployqtpath=msvc2015_64
+	set windeployqtpath=msvc2013_64
 )
 IF /I "%buildtarget%"=="x86" (
-	set windeployqtpath=msvc2015
+	set windeployqtpath=msvc2013
 )
 
 ::Inside rms-sdk-for-cpp directory
