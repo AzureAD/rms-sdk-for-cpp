@@ -50,12 +50,6 @@ AddOption(
     action='store_true',
     help='samples',
     default=False)
-#run scons --filesdk in order to build the file sdk
-AddOption(
-    '--filesdk',
-    action='store_true',
-    help='file',
-    default=False)
 
 isX86 = GetOption('x86')
 build_arch = "x86" if isX86 else "x64"
@@ -65,7 +59,6 @@ platform = sys.platform
 msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
-filesdk = GetOption('filesdk')
 
 # TODO: move to build_config_<platform>
 if isX86:
