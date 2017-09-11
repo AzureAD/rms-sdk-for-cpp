@@ -39,14 +39,13 @@ public:
 private Q_SLOTS:
   void GetTags_FileWithAutomaticTag_ReturnCorrectTag();
   void GetTags_FileWithManualTag_ReturnCorrectTag();
-  void GetTags_FileWithManualTagOldFormat_ReturnCorrectTag();
 };
 
 Xmp_Tests::Xmp_Tests() {
 }
 
-void Xmp_Tests::GetTags_FileWithManualTagOldFormat_ReturnCorrectTag() {
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "https://rmsibizaapidf.trafficmanager.net/api/72f988bf-86f1-41af-91ab-2d7cd011db47");
+void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
+  /*mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
   QTemporaryDir tempDir;
   tempDir.autoRemove();
@@ -68,44 +67,11 @@ void Xmp_Tests::GetTags_FileWithManualTagOldFormat_ReturnCorrectTag() {
     }
     else
       QFAIL("Failed to copy file");
-  }
-}
-
-void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
-
-  QTemporaryDir tempDir;
-  tempDir.autoRemove();
-  foreach( const QString &fileName, QDir(":xmp_labeled_newFormat").entryList() )
-  {
-    auto fileNameString = fileName.toStdString();
-    auto extension = fileNameString.substr(fileNameString.find_last_of("."));
-    auto tempFile = tempDir.path() + "/temp" + QString::fromStdString(extension);
-    if (QFile::copy(":xmp_labeled_newFormat/"+fileName, tempFile)) {
-
-      auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
-      auto stream = rmscrypto::api::CreateStreamFromStdStream(std::static_pointer_cast<std::istream>(ifs));
-
-      XMPFileFormat xmpFileFormat(stream, extension);
-      auto tags = xmpFileFormat.GetTags();
-      QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
-      mip::Tag tag = tags[0];
-      QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
-    }
-    else
-      QFAIL("Failed to copy file");
-  }
+  }*/
 }
 
 void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
-  vector<mip::ExtendedProperty> properties;
-  mip::ExtendedProperty property;
-  property.key = "Method";
-  property.vendor = "MSFT";
-  property.value = "Automatic";
-  properties.push_back(property);
-
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", mip::Method::NONE, "72f988bf-86f1-41af-91ab-2d7cd011db47", properties);
+  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", mip::Method::AUTOMATIC, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
   QTemporaryDir tempDir;
   tempDir.autoRemove();
@@ -128,7 +94,7 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
       mip::Tag tag = tags[0];
       QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
 
-      QVERIFY2(tag.GetSetTime().find("2017-08-30") == 0, "SetTime is different than expected");
+      QVERIFY2(tag.GetSetTime().find("2017-09-11") == 0, "SetTime is different than expected");
     }
     else
       QFAIL("Failed to copy file");

@@ -32,11 +32,7 @@ class XMPHelper {
 public:
   static XMPHelper& GetInstance();
 
-  static string GetStringByKey(const SXMPMeta& metadata, const string &labelsItemPath, const XMP_StringPtr fieldName, const XMP_StringPtr alternativeFieldName, const XMP_StringPtr oldestFieldName = nullptr);
-
   static vector<Tag> Deserialize(const SXMPMeta& metadata);
-
-  static vector<Tag> DeserializeObsoleteFormat(const SXMPMeta& metadata);
 
   static const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
 

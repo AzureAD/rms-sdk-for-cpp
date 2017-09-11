@@ -59,10 +59,10 @@ private:
       const std::vector<std::string>& backwardCompatibleKeys);
   static std::string GetDataForKey(
       const std::vector<std::pair<std::string, std::string>>& properties, const std::string& key);
-public:
   static std::vector<std::string> GetAllIds(
       const std::vector<std::pair<std::string, std::string>>& properties);
 
+public:
   std::string mLabelId;
   std::string mLabelName;
   std::string mLabelParentId;
