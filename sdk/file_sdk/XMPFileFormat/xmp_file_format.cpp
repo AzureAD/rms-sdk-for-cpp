@@ -5,7 +5,7 @@
 #include <XMP.incl_cpp>
 #include <XMP.hpp>
 #include <time.h>
-#include <string_utils.h>
+#include <Common/string_utils.h>
 
 using std::string;
 using std::vector;

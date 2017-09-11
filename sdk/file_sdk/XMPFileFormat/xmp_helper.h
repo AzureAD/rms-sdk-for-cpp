@@ -8,9 +8,9 @@
 #include <XMP.incl_cpp>
 #include <XMP.hpp>
 #include <time.h>
-#include <string_utils.h>
+#include <Common/string_utils.h>
 #include <mutex>
-#include "tag.h"
+#include "Common/tag.h"
 
 using std::string;
 using std::vector;
