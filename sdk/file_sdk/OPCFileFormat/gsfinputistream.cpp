@@ -57,16 +57,25 @@ static const guint8 *gsf_input_istream_read(GsfInput *input, size_t num_bytes, g
     GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(input);
 
     if(buffer == NULL) {
-        if(gsfStream->buf_size < num_bytes) {
-            gsfStream->buf_size = num_bytes;
-            if(gsfStream->buf)
-                g_free(gsfStream->buf);
-            gsfStream->buf = g_new0(guint8, num_bytes);
-        }
+
+        gsfStream->buf_size = num_bytes;
+        if(gsfStream->buf)
+            g_free(gsfStream->buf);
+        gsfStream->buf = g_new0(guint8, num_bytes);
+
         buffer = gsfStream->buf;
     }
+    int read = 0;
+    while(num_bytes - read > 64){
+        int size = gsfStream->stream->Read(buffer + read, 64);
 
-    gsfStream->stream->Read(buffer, num_bytes);
+        if(size == 0)
+            throw std::exception("Unable to read entry");
+
+        read += size;
+    }
+
+    gsfStream->stream->Read(buffer + read, num_bytes - read);
 
     return buffer;
 }
@@ -75,7 +84,31 @@ static gboolean gsf_input_istream_seek(GsfInput *input, gsf_off_t offset, GSeekT
 {
     GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(input);
 
-    gsfStream->stream->Seek(offset);
+    if (gsfStream->stream == nullptr)
+            return TRUE;
+
+    uint64_t pos = gsfStream->stream->Position();
+    uint64_t newPos = 0;
+
+    switch(whence)
+        {
+case G_SEEK_CUR:
+    newPos = pos + offset;
+    break;
+case G_SEEK_END:
+    {
+        uint64_t size = gsfStream->stream->Size();
+        newPos = size - offset;
+        break;
+        }
+case G_SEEK_SET:
+    newPos = offset;
+    break;
+default:
+        break;
+        }
+
+    gsfStream->stream->Seek(newPos);
     return FALSE;
 }
 
@@ -101,7 +134,7 @@ static void gsf_input_istream_class_init(GObjectClass *gobject_class)
 }
 
 GSF_CLASS(GsfInputIStream,
-    gsf_input_istream,
-    gsf_input_istream_class_init,
-    gsf_input_istream_init,
-    GSF_INPUT_TYPE)
+          gsf_input_istream,
+          gsf_input_istream_class_init,
+          gsf_input_istream_init,
+          GSF_INPUT_TYPE)
