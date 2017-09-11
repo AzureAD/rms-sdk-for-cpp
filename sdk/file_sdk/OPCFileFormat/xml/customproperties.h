@@ -1,7 +1,7 @@
 #ifndef CUSTOMPROPERTIES_H
 #define CUSTOMPROPERTIES_H
 
-#include "opcxml.h"
+#include "xml/opcxml.h"
 #include <string>
 
 namespace mip {
