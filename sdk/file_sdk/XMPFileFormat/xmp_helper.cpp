@@ -8,6 +8,12 @@ namespace file {
 bool XMPHelper::mInitialized = false;
 std::mutex XMPHelper::mInitMutex;
 
+XMPHelper&XMPHelper::GetInstance()
+{
+  static XMPHelper instance;
+  return instance;
+}
+
 string XMPHelper::GetStringByKey(const SXMPMeta& metadata,const string &labelsItemPath, const XMP_StringPtr fieldName, const XMP_StringPtr alternativeFieldName, const XMP_StringPtr oldestFieldName) {
   std::string path;
   SXMPUtils::ComposeStructFieldPath(kMsipNamespace, labelsItemPath.c_str(), kMsipLabelNamespace, fieldName, &path);
@@ -24,6 +30,30 @@ string XMPHelper::GetStringByKey(const SXMPMeta& metadata,const string &labelsIt
   }
 
   return value;
+}
+
+XMPHelper::XMPHelper()
+{
+  if (mInitialized)
+    return;
+
+  std::lock_guard<std::mutex> lock(mInitMutex);
+
+  if (mInitialized)
+    return;
+
+  if (!SXMPMeta::Initialize())
+    throw new std::runtime_error("SXMPMeta Error");
+
+  if (!SXMPFiles::Initialize())
+    throw new std::runtime_error("SXMPFiles Error");
+
+  std::string actualPrefix;
+  SXMPMeta::RegisterNamespace(kMsipNamespace, "msip", &actualPrefix);
+  SXMPMeta::RegisterNamespace(kMsipLabelNamespace, "msip-label", &actualPrefix);
+  SXMPMeta::RegisterNamespace(kMsipLabelExtendedNamespace, "msip-label-extended", &actualPrefix);
+
+  mInitialized = true;
 }
 
 vector<Tag> XMPHelper::DeserializeObsoleteFormat(const SXMPMeta& metadata) {
@@ -127,31 +157,7 @@ vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {
   return DeserializeObsoleteFormat(metadata);
 }
 
-void XMPHelper::Initialize() {
-  if (mInitialized)
-    return;
-
-  std::lock_guard<std::mutex> lock(mInitMutex);
-
-  if (mInitialized)
-    return;
-
-  if (!SXMPMeta::Initialize())
-    throw new std::runtime_error("SXMPMeta Error");
-
-  if (!SXMPFiles::Initialize())
-    throw new std::runtime_error("SXMPFiles Error");
-
-  std::string actualPrefix;
-  SXMPMeta::RegisterNamespace(kMsipNamespace, "msip", &actualPrefix);
-  SXMPMeta::RegisterNamespace(kMsipLabelNamespace, "msip-label", &actualPrefix);
-  SXMPMeta::RegisterNamespace(kMsipLabelExtendedNamespace, "msip-label-extended", &actualPrefix);
-
-  mInitialized = true;
-}
-
 const vector<Tag> XMPHelper::GetTags(shared_ptr<IStream> fileStream) {
-  Initialize();
   XMPIOOverIStream xmpStream (fileStream);
 
   SXMPFiles file;

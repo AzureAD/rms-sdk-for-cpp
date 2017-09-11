@@ -15,7 +15,7 @@ namespace file {
 
 XMPFileFormat::XMPFileFormat(shared_ptr<IStream> file, const string& extension)
   : FileFormat(file, extension),
-    mXMPHelper(XMPHelper())
+    mXMPHelper(XMPHelper::GetInstance())
 {
 }
 

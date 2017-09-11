@@ -11,11 +11,10 @@ struct ExtendedProperty
   std::string key;
   std::string value;
 
-  bool operator==(const ExtendedProperty& property) const
-  {
+  bool operator==(const ExtendedProperty& property) const {
     return EqualsIgnoreCase(key, property.key) &&
-           EqualsIgnoreCase(value, property.value) &&
-           EqualsIgnoreCase(vendor, property.vendor);
+        EqualsIgnoreCase(vendor, property.vendor) &&
+        value == property.value;
   }
 };
 
