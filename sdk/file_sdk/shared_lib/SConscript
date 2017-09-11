@@ -1,0 +1,51 @@
+Import("""
+    build_arch
+    configuration
+    lib_suffix
+    platform
+    qt_lib_path
+    env
+    target_arch
+""")
+
+Import("""
+    common_obj
+    compound_obj
+    default_obj
+    opc_obj
+    pdf_obj
+    pfile_obj
+    xmp_obj
+""")
+
+filedll_env = env.Clone()
+
+lib_path = [
+    qt_lib_path,
+]
+objects = [
+    common_obj,
+    compound_obj,
+    default_obj,
+    opc_obj,
+    pdf_obj,
+    pfile_obj,
+    xmp_obj,
+]
+libs = []
+
+if platform == 'win32':
+  filedll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
+  if configuration == 'debug':
+      filedll_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+      filedll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  lib_path += []
+  libs += []  
+elif platform == '__linux__':
+  pass
+elif platform == 'darwin':
+  pass
+
+file_lib = filedll_env.Library(target = "file", source = objects, LIBS = libs, LIBPATH = lib_path)
+Return('file_lib')

@@ -1,6 +1,6 @@
 #include <QString>
 #include <QtTest>
-#include <file_format_factory.h>
+#include <Common/file_format_factory.h>
 #include <XMPFileFormat/xmp_file_format.h>
 #include <CompoundFileFormat/compound_file_format.h>
 #include <OPCFileFormat/opc_file_format.h>
