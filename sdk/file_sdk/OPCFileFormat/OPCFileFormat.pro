@@ -10,6 +10,14 @@ CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
 
-SOURCES += opc_file_format.cpp
+SOURCES += opc_file_format.cpp \
+    xml/contenttypes.cpp \
+    xml/relationships.cpp \
+    xml/customproperties.cpp \
+    xml/opcxml.cpp
 
-HEADERS += opc_file_format.h
+HEADERS += opc_file_format.h \
+    xml/contenttypes.h \
+    xml/relationships.h \
+    xml/customproperties.h \
+    xml/opcxml.h

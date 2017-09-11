@@ -6,8 +6,7 @@
 namespace mip {
 namespace file {
 
-class OPCFileFormat : public FileFormat
-{
+class OPCFileFormat : public FileFormat {
 public:
   OPCFileFormat(shared_ptr<IStream> file, const std::string& extension);
   const vector<Tag> ReadTags();
