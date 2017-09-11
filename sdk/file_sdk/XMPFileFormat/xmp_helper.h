@@ -18,10 +18,6 @@ using std::shared_ptr;
 
 namespace {
 const XMP_StringPtr kMsipNamespace = "http://www.microsoft.com/msip/1.0/";
-const XMP_StringPtr kMsipLabelNamespace = "http://www.microsoft.com/msip/label/1.0/";
-const XMP_StringPtr kMsipLabelExtendedNamespace = "http://www.microsoft.com/msip/label/extended/1.0/";
-const XMP_StringPtr kLabelsArrayName = "labels";
-const XMP_StringPtr kExtendedStructName = "extended";
 }
 
 namespace mip {
@@ -32,17 +28,17 @@ class XMPHelper {
 public:
   static XMPHelper& GetInstance();
 
-  static vector<Tag> Deserialize(const SXMPMeta& metadata);
+  vector<Tag> Deserialize(const SXMPMeta& metadata);
 
-  static const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
+  const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
 
   XMPHelper(XMPHelper const&) = delete;
 
   void operator=(XMPHelper const&) = delete;
 private:
   XMPHelper();
-  static bool mInitialized;
-  static std::mutex mInitMutex;
+  bool mInitialized = false;
+  std::mutex mInitMutex;
 
 };
 

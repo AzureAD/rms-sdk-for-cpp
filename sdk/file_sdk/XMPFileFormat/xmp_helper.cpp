@@ -5,10 +5,7 @@ using std::pair;
 namespace mip {
 namespace file {
 
-bool XMPHelper::mInitialized = false;
-std::mutex XMPHelper::mInitMutex;
-
-XMPHelper&XMPHelper::GetInstance()
+XMPHelper& XMPHelper::GetInstance()
 {
   static XMPHelper instance;
   return instance;
@@ -32,8 +29,6 @@ XMPHelper::XMPHelper()
 
   std::string actualPrefix;
   SXMPMeta::RegisterNamespace(kMsipNamespace, "msip", &actualPrefix);
-  SXMPMeta::RegisterNamespace(kMsipLabelNamespace, "msip-label", &actualPrefix);
-  SXMPMeta::RegisterNamespace(kMsipLabelExtendedNamespace, "msip-label-extended", &actualPrefix);
 
   mInitialized = true;
 }

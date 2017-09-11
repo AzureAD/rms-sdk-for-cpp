@@ -62,7 +62,6 @@ private:
   static std::vector<std::string> GetAllIds(
       const std::vector<std::pair<std::string, std::string>>& properties);
 
-public:
   std::string mLabelId;
   std::string mLabelName;
   std::string mLabelParentId;
