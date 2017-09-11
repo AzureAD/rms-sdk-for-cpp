@@ -13,7 +13,8 @@ CONFIG(debug, debug|release) {
 SOURCES += \
     tag.cpp \
     file_format.cpp \
-    file_format_factory.cpp
+    file_format_factory.cpp \
+    string_utils.cpp
     file_format_factory.cpp
 
 HEADERS += \
@@ -22,6 +23,7 @@ HEADERS += \
     tag.h \
     ifile_format.h \
     file_format.h \
-    file_format_factory.h
+    file_format_factory.h \
+    string_utils.h
     file_format_factory.h
 

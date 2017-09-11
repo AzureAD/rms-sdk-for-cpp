@@ -1,6 +1,9 @@
 #ifndef XMP_FILE_FORMAT_H
 #define XMP_FILE_FORMAT_H
 
+#define TXMP_STRING_TYPE std::string
+#define XMP_INCLUDE_XMPFILES 1
+
 #include <Common/file_format.h>
 
 namespace mip {
@@ -16,4 +19,5 @@ public:
 
 } // namespace file
 } // namespace mip
+
 #endif // XMP_FILE_FORMAT_H
