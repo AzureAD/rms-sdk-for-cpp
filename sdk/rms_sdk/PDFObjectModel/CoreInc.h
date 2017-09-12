@@ -10,16 +10,11 @@
 #define RMS_SDK_CORE_INC_H
 
 #include "fpdfapi/fpdf_module.h"
-#include "fpdfapi/fpdf_render.h"
 #include "fpdfapi/fpdf_pageobj.h"
 #include "fpdfapi/fpdf_objects.h"
-#include "fpdftext/fpdf_text.h"
 #include "fxcodec/fx_codec.h"
-#include "fxge/fx_ge.h"
 #include "fpdfapi/fpdf_serial.h"
 #include "fpdfdoc/fpdf_doc.h"
-#include "fpdfdoc/fpdf_vt.h"
-#include "fxcrt/fx_xml.h"
 #include "fxcrt/fx_ext.h"
 #include "fxcrt/fx_stream.h"
 #include "fxcrt/fx_string.h"
