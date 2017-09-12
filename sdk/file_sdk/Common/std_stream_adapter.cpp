@@ -1,24 +1,25 @@
 #include <assert.h>
 #include "std_stream_adapter.h"
-#include "RMSCryptoExceptions.h"
+
+using std::enable_shared_from_this;
 
 namespace mip {
 namespace file {
 
-StdStreamAdapter::StdStreamAdapter(std::shared_ptr<std::iostream>stdStream)
-  : mInputStream(std::static_pointer_cast<std::istream>(stdStream)),
-    mOutputStream(std::static_pointer_cast<std::ostream>(stdStream))
+StdStreamAdapter::StdStreamAdapter(std::shared_ptr<std::iostream> stdStream)
+  : mInputStream(static_pointer_cast<std::istream>(stdStream)),
+    mOutputStream(static_pointer_cast<std::ostream>(stdStream))
 {}
 
-StdStreamAdapter::StdStreamAdapter(std::shared_ptr<std::ostream>stdOutputStream)
+StdStreamAdapter::StdStreamAdapter(std::shared_ptr<std::ostream> stdOutputStream)
   : mOutputStream(stdOutputStream)
 {}
 
-StdStreamAdapter::StdStreamAdapter(std::shared_ptr<std::istream>stdInputStream)
+StdStreamAdapter::StdStreamAdapter(std::shared_ptr<std::istream> stdInputStream)
   : mInputStream(stdInputStream)
 {}
 
-StdStreamAdapter::StdStreamAdapter(std::shared_ptr<StdStreamAdapter>from)
+StdStreamAdapter::StdStreamAdapter(std::shared_ptr<StdStreamAdapter> from)
   : mInputStream(from->mInputStream),
     mOutputStream(from->mOutputStream)
 {}
@@ -124,6 +125,12 @@ uint64_t StdStreamAdapter::Size() {
     mOutputStream->clear();
   }
   return static_cast<uint64_t>(position);
+}
+
+void StdStreamAdapter::Size(uint64_t) {}
+
+SharedStream StdStreamAdapter::Clone() {
+  return static_pointer_cast<IStream>(std::shared_ptr<StdStreamAdapter>(new StdStreamAdapter(shared_from_this())));
 }
 
 } // namespace file

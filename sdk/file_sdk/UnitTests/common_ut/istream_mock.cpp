@@ -12,6 +12,10 @@ bool IStreamMock::Flush() {
   return true;
 }
 
+std::shared_ptr<IStream> IStreamMock::Clone() {
+  return std::make_shared<IStreamMock>();
+}
+
 void IStreamMock::Seek(uint64_t) {
 }
 
@@ -29,6 +33,9 @@ uint64_t IStreamMock::Position() {
 
 uint64_t IStreamMock::Size() {
   return 1;
+}
+
+void IStreamMock::Size(uint64_t) {
 }
 
 IStreamMock::~IStreamMock() {

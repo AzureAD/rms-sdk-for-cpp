@@ -1,17 +1,16 @@
 #include <QString>
 #include <string>
 #include <QtTest>
-#include <QTStreamImpl.h>
 #include <XMPFileFormat/xmp_file_format.h>
-#include <CryptoAPI.h>
+#include "Common/std_stream_adapter.h"
 #include <sstream>
 #include <fstream>
 
-using rmscrypto::api::IStream;
 using std::static_pointer_cast;
 using std::make_shared;
 using mip::file::XMPFileFormat;
 using mip::Tag;
+using mip::file::StdStreamAdapter;
 
 namespace {
 static bool VerifyTags(Tag tag1, Tag tag2) {
@@ -45,7 +44,7 @@ Xmp_Tests::Xmp_Tests() {
 }
 
 void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
-  /*mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
+  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
   QTemporaryDir tempDir;
   tempDir.autoRemove();
@@ -56,8 +55,8 @@ void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
     auto tempFile = tempDir.path() + "/temp" + QString::fromStdString(extension);
     if (QFile::copy(":xmp_labeled_manual/"+fileName, tempFile)) {
 
-      auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
-      auto stream = rmscrypto::api::CreateStreamFromStdStream(std::static_pointer_cast<std::istream>(ifs));
+      auto fileStream = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
+      auto stream = StdStreamAdapter::Create(fileStream);
 
       XMPFileFormat xmpFileFormat(stream, extension);
       auto tags = xmpFileFormat.GetTags();
@@ -67,7 +66,7 @@ void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
     }
     else
       QFAIL("Failed to copy file");
-  }*/
+  }
 }
 
 void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
@@ -84,8 +83,7 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
     if (QFile::copy(":xmp_labeled_automatic/" + fileName, tempFile)) {
 
       auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios::binary);
-      auto stream = rmscrypto::api::CreateStreamFromStdStream(
-            std::static_pointer_cast<std::istream>(ifs));
+      auto stream = StdStreamAdapter::Create(std::static_pointer_cast<std::istream>(ifs));
 
       XMPFileFormat xmpFileFormat(stream, extension);
       auto tags = xmpFileFormat.GetTags();

@@ -10,9 +10,9 @@ class PDFFileFormat : public FileFormat
 {
 
 public:
-  PDFFileFormat(shared_ptr<IStream> file, const std::string& extension);
+  PDFFileFormat(SharedStream file, const std::string& extension);
   const vector<Tag> ReadTags();
-  void Commit(shared_ptr<IStream> file, string& newExtension);
+  void Commit(SharedStream file, string& newExtension);
 };
 
 } // namespace file

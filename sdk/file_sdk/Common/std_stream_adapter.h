@@ -5,17 +5,36 @@
 #include "IStream.h"
 #include <Exceptions.h>
 
+using std::static_pointer_cast;
+using std::make_shared;
+
 namespace mip {
 namespace file {
 
 class StdStreamAdapter
     : public IStream,
-      public std::enable_shared_from_this<StdStreamAdapter>{
+      public std::enable_shared_from_this<StdStreamAdapter> {
 public:
 
-  StdStreamAdapter(std::shared_ptr<std::iostream>stdStream);
-  StdStreamAdapter(std::shared_ptr<std::ostream>stdOutputStream);
-  StdStreamAdapter(std::shared_ptr<std::istream>stdInputStream);
+  static SharedStream Create(std::shared_ptr<std::istream> stdInputStream) {
+    return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdInputStream));
+  }
+
+  static SharedStream Create(std::shared_ptr<std::ostream> stdOutputStream) {
+    return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdOutputStream));
+  }
+
+  static SharedStream Create(std::shared_ptr<std::iostream> stdStream) {
+    return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdStream));
+  }
+
+//  static StdStreamAdapter Create(std::shared_ptr<std::stringstream> stdStringStream) {
+//    return make_shared<StdStreamAdapter>(static_pointer_cast<std::iostream>(stdStringStream));
+//  }
+
+  StdStreamAdapter(std::shared_ptr<std::iostream> stdStream);
+  StdStreamAdapter(std::shared_ptr<std::ostream> stdOutputStream);
+  StdStreamAdapter(std::shared_ptr<std::istream> stdInputStream);
 
   virtual int64_t Read(uint8_t *buffer, int64_t  bufferLength) override;
   virtual int64_t Write(const uint8_t *buffer, int64_t bufferLength) override;
@@ -25,6 +44,8 @@ public:
   virtual bool CanWrite() const override;
   virtual uint64_t Position() override;
   virtual uint64_t Size() override;
+  virtual void Size(uint64_t value) override;
+  virtual SharedStream Clone() override;
 
 private:
 

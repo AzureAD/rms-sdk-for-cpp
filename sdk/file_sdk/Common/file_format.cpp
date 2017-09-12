@@ -4,7 +4,7 @@ namespace mip {
 namespace file {
 
 FileFormat::FileFormat(
-    std::shared_ptr<IStream> file,
+    SharedStream file,
     const string& extension)
   : mFile(file),
     mExtension(extension),

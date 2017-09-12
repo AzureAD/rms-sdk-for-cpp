@@ -4,10 +4,9 @@
 #include <IStream.h>
 #include <XMP_IO.hpp>
 #include <XMP_Const.h>
-#include <CryptoAPI.h>
 #include <sstream>
 
-using rmscrypto::api::IStream;
+using mip::file::IStream;
 using std::static_pointer_cast;
 using std::make_shared;
 
@@ -17,7 +16,7 @@ namespace file {
 class XMPIOOverIStream : public XMP_IO
 {
 public:
-  XMPIOOverIStream(std::shared_ptr<IStream> stream);
+  XMPIOOverIStream(SharedStream stream);
 
   ~XMPIOOverIStream() override;
 
@@ -39,7 +38,7 @@ public:
 
 private:
   XMPIOOverIStream* mTemp = nullptr;
-  std::shared_ptr<IStream> mBaseStream;
+  SharedStream mBaseStream;
 };
 
 } // namespace file

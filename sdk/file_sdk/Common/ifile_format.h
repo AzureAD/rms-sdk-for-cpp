@@ -3,12 +3,11 @@
 
 #include <string>
 #include <vector>
-#include <IStream.h>
+#include "IStream.h"
 #include "tag.h"
 
 using std::string;
 using std::vector;
-using rmscrypto::api::IStream;
 
 namespace mip {
 namespace file {
@@ -26,7 +25,7 @@ public:
   virtual void SetTags(const vector<Tag>& tags) = 0;
 
   // Saves original file to the output file with tags and protection and sets the new file extension to newExtension parameter
-  virtual void Commit(std::shared_ptr<IStream> file, string& newExtension) = 0;
+  virtual void Commit(SharedStream file, string& newExtension) = 0;
 
 };
 

@@ -3,7 +3,7 @@
 namespace mip {
 namespace file {
 
-CompoundFileFormat::CompoundFileFormat(shared_ptr<IStream> file, const std::string& extension)
+CompoundFileFormat::CompoundFileFormat(SharedStream file, const std::string& extension)
   : FileFormat(file, extension)
 {
 }
@@ -12,7 +12,7 @@ const vector<Tag> CompoundFileFormat::ReadTags() {
   throw std::runtime_error("not implemented");
 }
 
-void CompoundFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+void CompoundFileFormat::Commit(SharedStream file, string& newExtension) {
   throw std::runtime_error("not implemented");
 }
 

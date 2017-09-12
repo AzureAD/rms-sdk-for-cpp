@@ -10,10 +10,10 @@ class PFileFileFormat : public FileFormat
 {
 
 public:
-  PFileFileFormat(shared_ptr<IStream> file, const std::string& extension);
+  PFileFileFormat(SharedStream file, const std::string& extension);
   const vector<Tag> ReadTags();
   string GetOriginalExtension();
-  void Commit(shared_ptr<IStream> file, string& newExtension);
+  void Commit(SharedStream file, string& newExtension);
 };
 
 } // namespace file
