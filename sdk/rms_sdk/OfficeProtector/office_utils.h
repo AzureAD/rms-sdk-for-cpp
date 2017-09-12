@@ -123,20 +123,60 @@ bool IsProtectedInternal(
     uint64_t inputFileSize,
     bool isMetro);
 
+/*!
+ * \brief Reads 'length' number of bytes from GsfInput stream 'stm' into the 'buffer' and checks for errors.
+ * \param stm
+ * \param length
+ * \param buffer
+ */
 void GsfRead(GsfInput* stm, uint32_t length, uint8_t* buffer);
 
+/*!
+ * \brief Writes 'length' number of bytes from 'buffer' into the GsfOutput stream 'stm' and checks for errors.
+ * \param stm
+ * \param length
+ * \param buffer
+ */
 void GsfWrite(GsfOutput* stm, uint32_t length, const uint8_t* buffer);
 
+/*!
+ * \brief Seeks to 'offset' from 'position' in the GsfInput stream 'stm' and checks for errors.
+ * \param stm
+ * \param offset
+ * \param position
+ */
 void GsfInputSeek(GsfInput* stm, uint64_t offset, GSeekType position);
 
+/*!
+ * \brief Seeks to 'offset' from 'position' in the GsfOutput stream 'stm' and checks for errors.
+ * \param stm
+ * \param offset
+ * \param position
+ */
 void GsfOutputSeek(GsfOutput* stm, uint64_t offset, GSeekType position);
 
+/*!
+ * \brief Checks whether the GsfInput stream 'stm' is null or not.
+ * \param stm
+ */
 void CheckGsfInput(GsfInput* stm);
 
+/*!
+ * \brief Checks whether the GsfOutput stream 'stm' is null or not.
+ * \param stm
+ */
 void CheckGsfOutput(GsfOutput* stm);
 
+/*!
+ * \brief Checks whether the GsfInfile storage 'stg' is null or not.
+ * \param stg
+ */
 void CheckGsfInfile(GsfInfile* stg);
 
+/*!
+ * \brief Checks whether the GsfOutfile storage 'stg' is null or not.
+ * \param stg
+ */
 void CheckGsfOutfile(GsfOutfile* stg);
 
 } // namespace officeutils
