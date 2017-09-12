@@ -39,7 +39,7 @@ bool FileFormatFactory::in_array(const std::string &value, const vector<std::str
 }
 
 // static
-std::shared_ptr<IFileFormat> FileFormatFactory::Create(SharedStream stream, const string& extension) {
+std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> stream, const string& extension) {
   if (!stream){
     // TODO: add log
     throw std::invalid_argument("stream is null");

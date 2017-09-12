@@ -17,16 +17,16 @@ public:
 
   virtual void SetTags(const vector<Tag>& tags);
 
-  virtual void Commit(SharedStream file, string& newExtension) = 0;
+  virtual void Commit(std::shared_ptr<IStream> file, string& newExtension) = 0;
 
 protected:
-  FileFormat(SharedStream file, const string& extension);
+  FileFormat(std::shared_ptr<IStream> file, const string& extension);
 
   // Reads the tags from the file
   virtual const vector<Tag> ReadTags() = 0;
 
 protected:
-  SharedStream mFile;
+  std::shared_ptr<IStream> mFile;
 
   string mExtension;
 

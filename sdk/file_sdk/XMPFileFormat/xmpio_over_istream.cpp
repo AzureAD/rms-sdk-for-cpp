@@ -4,7 +4,7 @@
 namespace mip {
 namespace file {
 
-XMPIOOverIStream::XMPIOOverIStream(SharedStream stream) {
+XMPIOOverIStream::XMPIOOverIStream(std::shared_ptr<IStream> stream) {
   mBaseStream = stream;
 }
 

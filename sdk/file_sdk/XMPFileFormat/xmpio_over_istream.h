@@ -16,7 +16,7 @@ namespace file {
 class XMPIOOverIStream : public XMP_IO
 {
 public:
-  XMPIOOverIStream(SharedStream stream);
+  XMPIOOverIStream(std::shared_ptr<IStream> stream);
 
   ~XMPIOOverIStream() override;
 
@@ -38,7 +38,7 @@ public:
 
 private:
   XMPIOOverIStream* mTemp = nullptr;
-  SharedStream mBaseStream;
+  std::shared_ptr<IStream> mBaseStream;
 };
 
 } // namespace file

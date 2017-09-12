@@ -7,9 +7,6 @@
 namespace mip {
 namespace file {
 
-class IStream;
-typedef std::shared_ptr<IStream> SharedStream;
-
 class IStream {
 public:
   virtual int64_t Read(uint8_t *buffer, int64_t bufferLength) = 0;
@@ -21,7 +18,7 @@ public:
   virtual uint64_t Position() = 0;
   virtual uint64_t Size() = 0;
   virtual void Size(uint64_t value) = 0;
-  virtual SharedStream Clone() = 0;
+  virtual std::shared_ptr<IStream> Clone() = 0;
 
 protected:
   virtual ~IStream() {}

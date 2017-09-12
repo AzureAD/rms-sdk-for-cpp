@@ -16,15 +16,15 @@ class StdStreamAdapter
       public std::enable_shared_from_this<StdStreamAdapter> {
 public:
 
-  static SharedStream Create(std::shared_ptr<std::istream> stdInputStream) {
+  static std::shared_ptr<IStream> Create(std::shared_ptr<std::istream> stdInputStream) {
     return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdInputStream));
   }
 
-  static SharedStream Create(std::shared_ptr<std::ostream> stdOutputStream) {
+  static std::shared_ptr<IStream> Create(std::shared_ptr<std::ostream> stdOutputStream) {
     return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdOutputStream));
   }
 
-  static SharedStream Create(std::shared_ptr<std::iostream> stdStream) {
+  static std::shared_ptr<IStream> Create(std::shared_ptr<std::iostream> stdStream) {
     return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdStream));
   }
 
@@ -45,7 +45,7 @@ public:
   virtual uint64_t Position() override;
   virtual uint64_t Size() override;
   virtual void Size(uint64_t value) override;
-  virtual SharedStream Clone() override;
+  virtual std::shared_ptr<IStream> Clone() override;
 
 private:
 

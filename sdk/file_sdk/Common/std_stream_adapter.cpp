@@ -129,7 +129,7 @@ uint64_t StdStreamAdapter::Size() {
 
 void StdStreamAdapter::Size(uint64_t) {}
 
-SharedStream StdStreamAdapter::Clone() {
+std::shared_ptr<IStream> StdStreamAdapter::Clone() {
   return static_pointer_cast<IStream>(std::shared_ptr<StdStreamAdapter>(new StdStreamAdapter(shared_from_this())));
 }
 

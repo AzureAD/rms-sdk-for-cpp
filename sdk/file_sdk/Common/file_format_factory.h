@@ -17,7 +17,7 @@ private:
   static bool in_array(const string &value, const vector<string> &array);
 
 public:
-  static std::shared_ptr<IFileFormat> Create(SharedStream stream, const string& extension);
+  static std::shared_ptr<IFileFormat> Create(std::shared_ptr<IStream> stream, const string& extension);
 };
 
 } // namespace file
