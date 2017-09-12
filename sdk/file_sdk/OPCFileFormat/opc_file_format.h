@@ -1,7 +1,7 @@
 ﻿#ifndef OPC_FILE_FORMAT_H
 #define OPC_FILE_FORMAT_H
 
-#include <file_format.h>
+#include <Common/file_format.h>
 
 namespace mip {
 namespace file {

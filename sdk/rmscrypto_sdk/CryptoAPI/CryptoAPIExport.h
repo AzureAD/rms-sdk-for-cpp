@@ -26,5 +26,4 @@
   #endif
 #endif
 
-
 #endif  // _RMS_LIB_EXPORT_H_

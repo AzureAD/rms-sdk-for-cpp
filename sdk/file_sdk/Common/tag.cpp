@@ -1,5 +1,6 @@
 #include "tag.h"
 #include <regex>
+#include <Common/string_utils.h>
 
 using std::pair;
 using std::string;
@@ -8,29 +9,12 @@ using std::vector;
 namespace {
 static const string kMetaDataPrefix = "MSIP_Label";
 static const string kExtendedPrefix = "Extended";
+static const string kMetaDataGuidRegex = "^" + kMetaDataPrefix + "_([a-z0-9]{8}-(?:[a-z0-9]{4}-){3}[a-z0-9]{12})";
 }  // namespace
 
 namespace mip {
 
-static bool TryParseBool(const string& str, bool& result) {
-  // Perf nit: We do not need a new string that is lower case. We can do
-  // a case insensitive comparison with "true" or "false". That has two (nit)
-  // perf benefits: another string is not allocated, time complexity is always
-  // O(1) since parsing will only do maximum 5 comparisions ("false").
-  // TODO: Find a portable way to do case insensitive comparison.
-  string s(str);
-  transform(s.begin(), s.end(), s.begin(), ::tolower);
-  // Currently we do not ignore leading and trailing whitespace.
-  // Add that if needed, potentially controlled by a flag passed to the function.
-  if  (s == "true") {
-    result = true;
-    return true;
-  } else if (s == "false") {
-    result = false;
-    return true;
-  }
-  return false;
-}
+string kMethodArray[] = {"None", "Manual", "Automatic"};
 
 // static
 const string& Tag::GetMetaDataPrefix() {
@@ -49,10 +33,10 @@ string Tag::GenerateExtendedKey(const string& id, const string& vendor, const st
 
 // static
 string Tag::GetBackwardCompatibleKey(
-  const vector<pair<string, string>>& properties,
-  const string& id,
-  const string& key,
-  const vector<string>& backwardCompatibleKeys) {
+    const vector<pair<string, string>>& properties,
+    const string& id,
+    const string& key,
+    const vector<string>& backwardCompatibleKeys) {
   string keyLabel = GenerateLabelKey(id, key);
   string value = GetDataForKey(properties, keyLabel);
 
@@ -63,7 +47,7 @@ string Tag::GetBackwardCompatibleKey(
     keyLabel = GenerateLabelKey(id, backwardCompatibleKeys[i]);
     value = GetDataForKey(properties, keyLabel);
     if (!value.empty())
-      return GetDataForKey(properties, GenerateLabelKey(id, backwardCompatibleKeys[i]));
+      return value;
   }
 
   return "";
@@ -73,8 +57,7 @@ string Tag::GetBackwardCompatibleKey(
 string Tag::GetDataForKey(const vector<pair<string, string>>& properties, const string& key) {
   for (size_t i = 0; i < properties.size(); i++) {
     const pair<string, string>& data = properties[i];
-    const string& id = data.first;
-    if (id == key) {
+    if (EqualsIgnoreCase(data.first, key)) {
       return data.second;
     }
   }
@@ -84,16 +67,13 @@ string Tag::GetDataForKey(const vector<pair<string, string>>& properties, const 
 
 // static
 vector<string> Tag::GetAllIds(const vector<pair<string, string>>& properties) {
-  size_t length = kMetaDataPrefix.size() + 1;
-  size_t guidLength = 36;
-
   vector<string> labelsIds;
   for (size_t i = 0; i < properties.size(); i++) {
     pair<string, string> data = properties[i];
-    string id = data.first;
-    string guid = id.substr(length, guidLength);
-    if (std::regex_match(guid, std::regex("^([a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12})$", std::regex_constants::icase))) {
-      labelsIds.push_back(guid);
+    std::smatch match;
+    static std::regex regex(kMetaDataGuidRegex, std::regex_constants::icase);
+    if (std::regex_search(data.first, match, regex) && match.size() >= 2) {
+      labelsIds.push_back(match[1].str());
     }
   }
 
@@ -108,7 +88,6 @@ Tag::Tag(
     const string& owner,
     bool enabled,
     const string& setTime,
-    const string& applicationName,
     const Method& method,
     const string& siteId,
     const vector<ExtendedProperty>& extendedProperties)
@@ -119,8 +98,7 @@ Tag::Tag(
     mEnabled(enabled),
     mSiteId(siteId),
     mMethod(method),
-    mSetTime(setTime),
-    mApplicationName(applicationName) {
+    mSetTime(setTime) {
   for (size_t i = 0; i < extendedProperties.size(); i++) {
     if (extendedProperties[i].key.length() > 255)
       throw std::length_error("Extended property key cannot be greater than 255");
@@ -133,24 +111,16 @@ Tag::Tag(
 }
 
 bool Tag::operator== (const Tag& other) const {
-  if (mExtendedProperties.size() != other.mExtendedProperties.size())
+  if (mExtendedProperties != other.mExtendedProperties)
     return false;
-
-  for (size_t i = 0; i < mExtendedProperties.size(); i++) {
-    if (mExtendedProperties[i].key != other.mExtendedProperties[i].key ||
-        mExtendedProperties[i].value != other.mExtendedProperties[i].value ||
-        mExtendedProperties[i].vendor != other.mExtendedProperties[i].vendor) {
-      return false;
-    }
-  }
 
   return
       mLabelId == other.mLabelId &&
       mLabelName == other.mLabelName &&
       mLabelParentId == other.mLabelParentId &&
       mEnabled == other.mEnabled &&
+      mMethod == other.mMethod &&
       mOwner == other.mOwner &&
-      mApplicationName == other.mApplicationName &&
       mSetTime == other.mSetTime &&
       mSiteId == other.mSiteId;
 }
@@ -159,17 +129,14 @@ vector<pair<string, string>> Tag::ToProperties() const {
   vector<pair<string, string>> result;
   string id = mLabelId;
   result.push_back(pair<string, string>(
-      GenerateLabelKey(id, "Enabled"), mEnabled ? "true" : "false"));
+                     GenerateLabelKey(id, "Enabled"), mEnabled ? "true" : "false"));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "SiteId"), mSiteId));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Owner"), mOwner));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "SetDate"), mSetTime));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Name"), mLabelName));
-  result.push_back(pair<string, string>(GenerateLabelKey(id, "Application"), mApplicationName));
 
   Method method = mMethod;
-  // TODO: This array can be a global static
-  string methodArray[] = {"None", "Manual", "Automatic"};
-  string methodAsString = methodArray[static_cast<size_t>(method)];
+  string methodAsString = kMethodArray[static_cast<size_t>(method)];
 
   result.push_back(pair<string, string>(GenerateExtendedKey(id, "MSFT", "Method"), methodAsString));
   if (!mLabelParentId.empty())
@@ -202,22 +169,18 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
     string labelId = labelsIds[i];
     bool isEnabled = false;
     TryParseBool(GetDataForKey(properties, GenerateLabelKey(labelId, "Enabled")), isEnabled);
-    vector<string> ids;
-    ids.push_back("Ref");
+
+    vector<string> ids = {"Ref"};
 
     string siteId = GetBackwardCompatibleKey(properties, labelId, "SiteId", ids);
 
-    ids.clear();
-    ids.push_back("AssignedBy");
-    ids.push_back("SetBy");
+    ids = { "AssignedBy", "SetBy" };
     string owner = GetBackwardCompatibleKey(properties, labelId, "Owner", ids);
 
-    ids.clear();
-    ids.push_back("DateCreated");
+    ids = { "DateCreated" };
     string setDate = GetBackwardCompatibleKey(properties, labelId, "SetDate", ids);
 
     string name = GetDataForKey(properties, GenerateLabelKey(labelId, "Name"));
-    string application = GetDataForKey(properties, GenerateLabelKey(labelId, "Application"));
     string parentId = GetDataForKey(properties, GenerateLabelKey(labelId, "Parent"));
     string methodKey = GenerateExtendedKey(labelId, "MSFT", "Method");
     string methodAsString = GetDataForKey(properties, methodKey);
@@ -232,12 +195,14 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
     for (size_t j = 0; j < properties.size(); j++) {
       pair<string, string> data = properties[j];
       string id = data.first;
-      string replace = "";
-      if (id.compare(methodKey) != 0 && id.find(extendedPropertyPrefix) != string::npos) {
-        string vendorAndKey = regex_replace(id, std::regex(extendedPropertyPrefix), replace);
+      if (id.compare(methodKey) != 0 && !id.compare(0, extendedPropertyPrefix.size(), extendedPropertyPrefix)) {
+        string vendorAndKey = id.erase(0, extendedPropertyPrefix.size());
         size_t index = vendorAndKey.find_first_of("_");
+        if (index == string::npos)
+          continue;
+
         string vendor = vendorAndKey.substr(0, index);
-        string key = vendorAndKey.substr(0, index + 1);
+        string key = vendorAndKey.substr(index + 1);
         ExtendedProperty extendedProperty;
         extendedProperty.vendor = vendor;
         extendedProperty.key = key;
@@ -246,8 +211,7 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
       }
     }
 
-    Tag tag(labelId, name, parentId, owner, isEnabled, setDate,
-            application, method, siteId, extendedProperties);
+    Tag tag(labelId, name, parentId, owner, isEnabled, setDate, method, siteId, extendedProperties);
     result.push_back(tag);
   }
 

@@ -1,0 +1,3 @@
+Import('file_env')
+
+common_ut_lib = file_env.SConscript('common_ut/SConscript', duplicate=0)

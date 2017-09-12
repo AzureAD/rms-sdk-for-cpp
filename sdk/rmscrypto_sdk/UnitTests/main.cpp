@@ -6,7 +6,7 @@
  * ======================================================================
 */
 
-#include <QApplication>
+#include<QApplication>
 #include "KeyStorageTests.h"
 #include "CryptedStreamTests.h"
 #include "CryptoAPITests.h"

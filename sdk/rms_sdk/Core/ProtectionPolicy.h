@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <CryptoAPI.h>
+#include <list>
 #include <mutex>
 #include "../Common/CommonTypes.h"
 #include "../ModernAPI/IConsentCallbackImpl.h"

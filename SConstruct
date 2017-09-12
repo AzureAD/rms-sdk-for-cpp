@@ -60,6 +60,21 @@ msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
 
+# TODO: move to build_config_<platform>
+if isX86:
+  if platform == 'win32':
+    target_arch = "x86"
+    arch_suffix = ''
+    win_def = 'WIN32'
+  else:
+    target_arch = 'i386'
+else:
+  if platform == 'win32':
+    target_arch = "amd64"
+    arch_suffix = '_64'
+    win_def = 'WIN64'
+  else:
+    target_arch = 'x86_64'
 
 print "Platform: ", platform
 print "AAA"
@@ -134,6 +149,7 @@ if 'dump' in ARGUMENTS:
 #run ParseConfig(env, <command>, <option>) to personalize the env
 env.Append(CPPPATH = include_search_path + qt_include_search_path)
 
+# TODO: move to build_config_<platform>
 if platform == 'win32':
   env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
   env.Append(CPPPATH = qt_bin_dir)

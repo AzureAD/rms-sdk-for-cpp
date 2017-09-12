@@ -12,7 +12,7 @@ include_search_path = [
 ]
 
 def setup_vars(ix86, platform, msvc12):
-  if isX86:
+      if isX86:
     if platform == 'win32':
         target_arch = "x86"
         arch_suffix = ''

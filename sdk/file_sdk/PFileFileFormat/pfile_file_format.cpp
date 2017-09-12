@@ -4,12 +4,11 @@ namespace mip {
 namespace file {
 
 PFileFileFormat::PFileFileFormat(shared_ptr<IStream> file, const string& extension)
-  : FileFormat(file, extension)
-{
+  : FileFormat(file, extension) {
 }
 
 const vector<Tag> PFileFileFormat::ReadTags() {
-  throw std::runtime_error("not implemented");
+  return mTags;
 }
 
 string PFileFileFormat::GetOriginalExtension() {
