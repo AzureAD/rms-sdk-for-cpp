@@ -1,0 +1,11 @@
+from build_config import create_objs
+
+Import("""
+    crypto_platform_env 
+""")
+
+src_files = Glob('*.cpp')
+
+crypto_platform_crypto_obj = create_objs(crypto_platform_env, src_files)
+
+Return('crypto_platform_crypto_obj')

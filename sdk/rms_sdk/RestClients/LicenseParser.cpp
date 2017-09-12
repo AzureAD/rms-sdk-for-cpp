@@ -5,8 +5,10 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
+#include "LicenseParser.h"
 
-#include "../Common/FrameworkSpecificTypes.h"
+#include <QString>
+
 #include "../Common/CommonTypes.h"
 #include "../Core/FeatureControl.h"
 #include "../ModernAPI/RMSExceptions.h"
@@ -15,8 +17,6 @@
 
 #include "CXMLUtils.h"
 #include "LicenseParser.h"
-
-
 
 using namespace std;
 

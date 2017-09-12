@@ -13,7 +13,7 @@
 #include <string>
 #include <atomic>
 
-#include "../../Common/FrameworkSpecificTypes.h"
+#include "../../Common/CommonTypes.h"
 
 namespace rmscore {
 namespace platform {
@@ -30,31 +30,30 @@ enum class StatusCode {
 class IHttpClient {
 public:
 
-  virtual void       AddAuthorizationHeader(const std::string& authToken)   = 0;
-  virtual void       AddAcceptMediaTypeHeader(const std::string& mediaType) = 0;
-  virtual void       AddAcceptLanguageHeader(const std::string& language)   = 0;
-
-  virtual void       AddHeader(const std::string& headerName,
+  virtual void AddAuthorizationHeader(const std::string& authToken)   = 0;
+  virtual void AddAcceptMediaTypeHeader(const std::string& mediaType) = 0;
+  virtual void AddAcceptLanguageHeader(const std::string& language)   = 0;
+  virtual void AddHeader(const std::string& headerName,
                                const std::string& headerValue) = 0;
 
-  virtual StatusCode Post(const std::string                & url,
-                          const common::ByteArray          & request,
-                          const std::string                & mediaType,
-                          common::ByteArray                & response,
+  virtual StatusCode Post(const std::string& url,
+                          const common::ByteArray& request,
+                          const std::string& mediaType,
+                          common::ByteArray& response,
                           std::shared_ptr<std::atomic<bool> >cancelState) = 0;
 
-  virtual StatusCode Get(const std::string                & url,
-                         common::ByteArray                & response,
+  virtual StatusCode Get(const std::string& url,
+                         common::ByteArray& response,
                          std::shared_ptr<std::atomic<bool> >cancelState) = 0;
 
   virtual const std::string GetResponseHeader(const std::string& headerName) = 0;
 
-  virtual void              SetAllowUI(bool allow) = 0;
+  virtual void SetAllowUI(bool allow) = 0;
   virtual ~IHttpClient() {}
 
 public:
 
-  static std::shared_ptr<IHttpClient>Create();
+  static std::shared_ptr<IHttpClient> Create();
 };
 }
 }

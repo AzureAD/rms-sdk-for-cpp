@@ -1,0 +1,11 @@
+from build_config import create_objs
+
+Import("""
+    rmscrypto_env
+""")
+
+src_files = Glob('*.cpp')
+  
+crypto_obj = create_objs(rmscrypto_env, src_files)
+
+Return('crypto_obj')

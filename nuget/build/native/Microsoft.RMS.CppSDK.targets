@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup Label="x86" Condition="'$(Platform)' == 'win32'">
+    <Link>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/x86/rms.lib;%(AdditionalDependencies)</AdditionalDependencies>
+	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../../lib/x86/rmscrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+	<ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//lib/x86/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Label="amd64" Condition="'$(Platform)' == 'x64'">
+    <Link>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/amd64/rms.lib;%(AdditionalDependencies)</AdditionalDependencies>
+	  <AdditionalDependencies>$(MSBuildThisFileDirectory)../..//lib/amd64/rmscrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+	<ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)../..//lib/amd64/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(Platform)' == 'win32'">
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/rms.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/rmscrypto.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/libeay32.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/ssleay32.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/Qt5Core.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/Qt5Network.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/Qt5Xml.dll" />
+	<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/x86/Qt5XmlPatterns.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/rms.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/rmscrypto.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/libeay32.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/ssleay32.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/Qt5Core.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/Qt5Network.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/Qt5Xml.dll" />
+  <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)../..//lib/amd64/Qt5XmlPatterns.dll" />
+  </ItemGroup>
+</Project>

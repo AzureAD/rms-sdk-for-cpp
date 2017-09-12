@@ -11,7 +11,6 @@
 
 #include <memory>
 #include <IStream.h>
-#include "../Common/FrameworkSpecificTypes.h"
 namespace rmscore {
 namespace pfile {
 class PfileHeader;

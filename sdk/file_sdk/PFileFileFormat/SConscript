@@ -1,0 +1,11 @@
+from build_config import *
+
+Import('file_env')
+
+src_files = Glob('*.cpp')
+
+pfile_env = file_env.Clone()
+pfile_env.Append(CPPPATH = Split('#sdk/rmscrypto_sdk/CryptoAPI #sdk/file_sdk'))
+
+pfile_obj = create_objs(pfile_env, src_files)
+Return('pfile_obj')

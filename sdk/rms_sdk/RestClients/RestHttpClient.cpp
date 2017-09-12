@@ -35,6 +35,8 @@ RestHttpClient::Result RestHttpClient::Get(const std::string& sUrl,
         authenticationCallback,
         cancelState);
 
+    Logger::Hidden("access token %s", accessToken.c_str());
+
     auto parameters = HttpRequestParameters {
         HttpRequestType::HTTP_GET,            // type
         string(sUrl),        // Url
