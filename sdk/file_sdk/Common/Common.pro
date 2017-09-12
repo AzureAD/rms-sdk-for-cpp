@@ -14,8 +14,7 @@ SOURCES += \
     tag.cpp \
     file_format.cpp \
     file_format_factory.cpp \
-    string_utils.cpp
-    file_format_factory.cpp
+    std_stream_adapter.cpp
 
 HEADERS += \
     extended_property.h \
@@ -24,6 +23,7 @@ HEADERS += \
     ifile_format.h \
     file_format.h \
     file_format_factory.h \
-    string_utils.h
-    file_format_factory.h
+    istream.h \
+    std_stream_adapter.h \
+    exceptions.h
 

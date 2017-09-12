@@ -1,15 +1,15 @@
-#ifndef ISTREAMMOCK_H
-#define ISTREAMMOCK_H
+#ifndef _FILE_SDK_ISTREAM_H_
+#define _FILE_SDK_ISTREAM_H_
 
-#include "IStream.h"
+#include <vector>
+#include <memory>
 
-using mip::file::IStream;
+namespace mip {
+namespace file {
 
-class IStreamMock
-    : public IStream,
-      public std::enable_shared_from_this<IStreamMock> {
+class IStream
+{
 public:
-
   virtual int64_t Read(uint8_t *buffer, int64_t bufferLength) = 0;
   virtual int64_t Write(const uint8_t *buffer, int64_t bufferLength) = 0;
   virtual bool Flush() = 0;
@@ -19,7 +19,12 @@ public:
   virtual uint64_t Position() = 0;
   virtual uint64_t Size() = 0;
 
-  virtual ~IStreamMock() override;
-};
+protected:
+  virtual ~IStream() {}
 
-#endif // ISTREAMMOCK_H
+}; // class IStream
+
+} //namespace file
+} //namespace mip
+
+#endif // _FILE_SDK_ISTREAM_H_
