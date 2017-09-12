@@ -22,6 +22,8 @@ call copy bin\rms*.exp deploy\.
 call copy third_party\lib\eay\ssleay32.dll deploy\.
 call copy third_party\lib\eay\libeay32.dll deploy\.
 
+call copy "THIRD PARTY NOTICES - Azure Info Protection SDK (w QT Libraries).txt" deploy\.
+
 call cd deploy
 call C:\Qt\5.7\%windeployqtpath%\bin\windeployqt.exe rms_sample.exe rmsauth_sample.exe rms.dll rmscrypto.dll rmsauth.dll rmsauthWebAuthDialog.dll
 

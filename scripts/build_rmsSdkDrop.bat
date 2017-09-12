@@ -42,6 +42,8 @@ call copy bin\rmscryptod.pdb rmsSdkDeploy\.
 call copy third_party\lib\eay\ssleay32.dll rmsSdkDeploy\.
 call copy third_party\lib\eay\libeay32.dll rmsSdkDeploy\.
 
+call copy "THIRD PARTY NOTICES - Azure Info Protection SDK (w QT Libraries).txt" rmsSdkDeploy\.
+
 call cd rmsSdkDeploy
 call C:\Qt\5.7\%windeployqtpath%\bin\windeployqt.exe rms.dll rmscrypto.dll
 call C:\Qt\5.7\%windeployqtpath%\bin\windeployqt.exe rmsd.dll rmscryptod.dll
