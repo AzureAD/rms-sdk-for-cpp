@@ -15,7 +15,7 @@
     #define DLL_PUBLIC_CRYPTO __declspec(dllexport)
   #else
     #define DLL_PUBLIC_CRYPTO
-  #endif  // ifdef UPE_IMPLEMENTATION
+  #endif
 #else 
   #if __GNUC__ >= 4 
     #define DLL_PUBLIC_CRYPTO __attribute__ ((visibility ("default"))) 

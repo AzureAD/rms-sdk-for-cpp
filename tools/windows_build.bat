@@ -11,26 +11,14 @@ mkdir ..\third_party
 xcopy %third_party_path% ..\third_party /e /y
 cd ..\sdk
 %qmake_path%\qmake.exe sdk.pro -spec win32-msvc2015 "CONFIG+=release"
-if %ERRORLEVEL% NEQ 0 exit /b 1
-C:\Qt\Tools\QtCreator\bin\jom.exe clean
-if %ERRORLEVEL% NEQ 0 exit /b 1
 C:\Qt\Tools\QtCreator\bin\jom.exe qmake_all
-if %ERRORLEVEL% NEQ 0 exit /b 1
+C:\Qt\Tools\QtCreator\bin\jom.exe clean
 C:\Qt\Tools\QtCreator\bin\jom.exe
 if %ERRORLEVEL% NEQ 0 exit /b 1
 cd ..\samples
 %qmake_path%\qmake.exe samples.pro -spec win32-msvc2015 "CONFIG+=release"
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
-C:\Qt\Tools\QtCreator\bin\jom.exe clean
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
 C:\Qt\Tools\QtCreator\bin\jom.exe qmake_all
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
+C:\Qt\Tools\QtCreator\bin\jom.exe clean
 C:\Qt\Tools\QtCreator\bin\jom.exe
 if %ERRORLEVEL% NEQ 0 ( 
 	exit /B 1

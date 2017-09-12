@@ -24,5 +24,6 @@
     #define DLL_PUBLIC_RMS 
     #define DLL_LOCAL_RMS 
   #endif 
-#endif 
+#endif
+
 #endif  // _RMS_CRYPTO_EXPORT_H_
