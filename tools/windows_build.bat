@@ -14,18 +14,13 @@ cd ..\sdk
 C:\Qt\Tools\QtCreator\bin\jom.exe qmake_all
 C:\Qt\Tools\QtCreator\bin\jom.exe clean
 C:\Qt\Tools\QtCreator\bin\jom.exe
-if %ERRORLEVEL% NEQ 0 exit /b 1
 cd ..\samples
 %qmake_path%\qmake.exe samples.pro -spec win32-msvc2015 "CONFIG+=release"
 C:\Qt\Tools\QtCreator\bin\jom.exe qmake_all
 C:\Qt\Tools\QtCreator\bin\jom.exe clean
 C:\Qt\Tools\QtCreator\bin\jom.exe
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
 cd ..\bin
 xcopy tests\*UnitTest* . /e /y
-if %ERRORLEVEL% NEQ 0 exit /b 1
 set PATH=%qmake_path%;%PATH%
 set PATH=..\third_party\lib\eay;%PATH%
 rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
