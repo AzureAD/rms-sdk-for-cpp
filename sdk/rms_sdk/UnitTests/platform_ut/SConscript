@@ -37,6 +37,7 @@ rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT
 
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
 rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+print srcdir
   
 lib_path = [
       qt_lib_path, 
@@ -85,6 +86,7 @@ if platform == 'win32':
       'dnsapi',
   ]  
 elif platform == '__linux__':
+  rmsplatform_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
   rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
   rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
   rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')

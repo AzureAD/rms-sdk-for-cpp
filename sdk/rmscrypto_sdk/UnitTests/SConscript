@@ -40,7 +40,7 @@ srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
 
 rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
-
+print "AAAA", platform
 if platform == 'win32':
   rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
   rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
@@ -60,21 +60,29 @@ if platform == 'win32':
   lib_path += [
       '#third_party/lib/eay',
   ]
-elif platform == '__linux__':
+elif platform == 'linux2':
   rmscrypto_ut_env.Append(CPPPATH='/usr/include/glib-2.0/')
   rmscrypto_ut_env.Append(CPPPATH='/usr/include/libsecret-1/')
   rmscrypto_ut_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  rmscrypto_ut_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
+  lib_path += [
+      '/usr/lib/x86_64-linux-gnu/',
+      '/home/admuller/Qt/5.7/gcc_64/lib/',
+      '/usr/lib64',
+  ]
   libs +=[
-      'ssl'
-      'crypto'
-      'secret-1'
-      'glib-2.0'
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
+      'pthread',
+      'GL',
   ]
 elif platform == 'darwin':
-  libs +=[
-      'ssl'
-      'crypto'
-  ]
+	libs +=[
+			'ssl'
+			'crypto'
+	]
 
 rmscrypto_ut_obj = rmscrypto_ut_env.Object(source = src_files)
 unittests_exe = rmscrypto_ut_env.Program(target = "unittests", source=[rmscrypto_ut_obj] + objects, LIBS = [libs], LIBPATH=lib_path)

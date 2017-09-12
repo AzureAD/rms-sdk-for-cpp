@@ -14,7 +14,7 @@ if platform == 'win32':
       'sqlite3.c',
       'StorageAccessWindows.cpp',
   ]
-elif platform == '__linux__':
+elif platform == 'linux2':
   # CONFIG += link_pkgconfig
   # PKGCONFIG += glib-2.0
   crypto_platform_env.Append(CPPPATH='/usr/include/glib-2.0/')

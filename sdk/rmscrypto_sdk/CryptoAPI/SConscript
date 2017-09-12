@@ -18,7 +18,7 @@ if platform == 'win32':
     cryptoapi_env.Append(LINKFLAGS=Split('/DEBUG'))
   elif configuration == 'release':
     cryptoapi_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-elif platform == '__linux__':
+elif platform == 'linux2':
   cryptoapi_env.Append(CPPPATH='/usr/include/glib-2.0/')
   cryptoapi_env.Append(CPPPATH='/usr/include/libsecret-1/')
   cryptoapi_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')

@@ -60,36 +60,22 @@ msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
 
-if isX86:
-  if platform == 'win32':
-    target_arch = "x86"
-    arch_suffix = ''
-    win_def = 'WIN32'
-  else:
-    target_arch = 'i386'
-else:
-  if platform == 'win32':
-    target_arch = "amd64"
-    arch_suffix = '_64'
-    win_def = 'WIN64'
-  else:
-    target_arch = 'x86_64'
 
-msvc_version = '14.0'
-msvc_dir = 'msvc14'
-msvc_path = 'msvc2015'
+print "Platform: ", platform
+print "AAA"
+# TODO: move to build_config_<platform
 if platform == 'win32':
-  if msvc12:
-    msvc_dir = 'msvc12'
-    msvc_version = '12.0'
-    msvc_path = 'msvc2013'
+  from build_config_win32 import setup_vars
+  setup_vars(isX86, platform, msvc12)
+  from build_config_win32 import *
   print "MSVC: ", msvc_version
+elif platform == 'linux2':
+  from build_config_linux import *
 
-qt_dir = 'C:/Qt/5.7/' + msvc_path + arch_suffix
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
-qt_include_search_path = [
+qt_include_search_path += [
     qt_inc_dir,
     qt_inc_dir + '/QtCore',
     qt_inc_dir + '/QtTest',
@@ -99,7 +85,6 @@ qt_include_search_path = [
     qt_inc_dir + '/QtNetwork',
     qt_inc_dir + '/QtXml',
     qt_inc_dir + '/QtXmlPatterns',
-    qt_dir + '/mkspecs/win32-msvc2015',
 ]
 
 print "Qt directory: ", qt_dir
@@ -157,10 +142,20 @@ if platform == 'win32':
       -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
   env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc \
       -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
+elif platform == 'linux2':
+  # srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
+  env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : '/home/admuller/Qt/5.7/gcc_64/lib/:$LD_LIBRARY_PATH' })
+  print env['CPPDEFINES']
+  env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
+  env.Append(CPPPATH = qt_bin_dir)
+#   env.Append(CPPPATH ='C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um')
+  env.Append(CCFLAGS=Split('-DQT_CORE_LIB'))
+  env.Append(CXXFLAGS=Split('-DQT_CORE_LIB'))
 if msvc12:
     env.Append(CPPDEFINES = ['MSVC12'])
 
 configuration = ''
+lib_suffix = ''
 if isRelease:
   configuration = 'release'
   env.Append(CPPDEFINES = ['NDEBUG'])
@@ -174,17 +169,20 @@ else:
   env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
 
   if platform == 'win32':
+    lib_suffix = 'd'
     env.Append(LINKFLAGS='/NOLOGO')
     env.Append(CCFLAGS=Split('-c -Zi -MDd'))
     env.Append(CXXFLAGS=Split('-c -Zi -MDd'))
+  elif platform == "linux2":
+    env.Append(LINKFLAGS='')
+    env.Append(CCFLAGS=Split('-DQT_QML_DEBUG -pipe -g -Wall -W -D_REENTRANT -fPIC'))
+    env.Append(CXXFLAGS=Split('-DQT_QML_DEBUG -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC'))
 
 bins = env['BUILDROOT'] + "/" + configuration + "/" + target_arch
-lib_suffix = ''
-if configuration == 'debug':
-  lib_suffix = 'd'
 
 Export("""
-    arch_suffix bins
+    arch_suffix
+    bins
     build_arch
     configuration
     env
