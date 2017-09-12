@@ -225,7 +225,7 @@ UnprotectResult MetroOfficeProtector::UnprotectInternal(
         exceptions::RMSOfficeFileException::Reason::BadArguments);
   }
   mUserPolicy = policyRequest->Policy;
-  if (mUserPolicy.get() == nullptr) {
+  if (!mUserPolicy) {
     Logger::Error("User Policy acquisition failed");
     throw exceptions::RMSOfficeFileException(
         "User Policy acquisition failed.",

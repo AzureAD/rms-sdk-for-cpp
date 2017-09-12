@@ -98,8 +98,9 @@ void AlignOutputAtFourBytes(GsfOutput* stm, uint32_t contentLength) {
   // The bitmask is used to round to the nearest multiple of 4.
   uint32_t alignCount = ((contentLength + 3) & ~3) - contentLength;
   std::string alignBytes;
-  for(uint32_t i = 0; i < alignCount; i++)
+  for (uint32_t i = 0; i < alignCount; i++) {
     alignBytes.push_back('\0');
+  }
   // Write null chars to stream
   GsfWrite(stm, alignCount, reinterpret_cast<const uint8_t*>(alignBytes.data()));
 }
@@ -253,7 +254,7 @@ void GsfOutputSeek(GsfOutput* stm, uint64_t offset, GSeekType position) {
 }
 
 void CheckGsfInput(GsfInput* stm) {
-  if(stm == nullptr) {
+  if (stm == nullptr) {
     Logger::Error("Compound file error. GsfInput* stream is null");
     throw exceptions::RMSOfficeFileException(
         "Compound File error",
@@ -262,7 +263,7 @@ void CheckGsfInput(GsfInput* stm) {
 }
 
 void CheckGsfOutput(GsfOutput* stm) {
-  if(stm == nullptr) {
+  if (stm == nullptr) {
     Logger::Error("Compound file error. GsfOutput* stream is null");
     throw exceptions::RMSOfficeFileException(
         "Compound File error",
@@ -271,7 +272,7 @@ void CheckGsfOutput(GsfOutput* stm) {
 }
 
 void CheckGsfInfile(GsfInfile* stg) {
-  if(stg == nullptr) {
+  if (stg == nullptr) {
     Logger::Error("Compound file error. GsfInfile* storage is null");
     throw exceptions::RMSOfficeFileException(
         "Compound File error",
@@ -280,14 +281,13 @@ void CheckGsfInfile(GsfInfile* stg) {
 }
 
 void CheckGsfOutfile(GsfOutfile* stg) {
-  if(stg == nullptr) {
+  if (stg == nullptr) {
     Logger::Error("Compound file error. GsfOutfile* storage is null");
     throw exceptions::RMSOfficeFileException(
         "Compound File error",
         exceptions::RMSOfficeFileException::Reason::CompoundFileError);
   }
 }
-
 
 } // namespace officeutils
 } // namespace rmscore

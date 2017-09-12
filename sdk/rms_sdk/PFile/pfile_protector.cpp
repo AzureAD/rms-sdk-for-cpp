@@ -152,7 +152,7 @@ UnprotectResult PFileProtector::Unprotect(
         exceptions::RMSPFileException::Reason::CorruptFile);
   }
   mUserPolicy = policyRequest->Policy;
-  if (mUserPolicy.get() == nullptr) {
+  if (!mUserPolicy) {
     Logger::Error("User Policy acquisition failed");
     throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
   }
