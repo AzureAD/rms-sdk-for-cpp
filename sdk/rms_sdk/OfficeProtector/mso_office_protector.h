@@ -25,6 +25,10 @@ using namespace rmscore::fileapi;
 namespace rmscore {
 namespace officeprotector {
 
+/*!
+ * \brief The MetroOfficeProtector class Provides functionalities for protecting and unprotecting
+ * office files in the old format (.doc, .xls, .ppt, etc)
+ */
 class MsoOfficeProtector : public Protector {
 public:
   MsoOfficeProtector(const std::string& fileName, std::shared_ptr<std::istream> inputStream);

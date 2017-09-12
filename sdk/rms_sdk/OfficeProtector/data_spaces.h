@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 #include <gsf/gsf.h>
-#include "../Common/CommonTypes.h"
+#include "CommonTypes.h"
 
 using namespace rmscore::common;
 

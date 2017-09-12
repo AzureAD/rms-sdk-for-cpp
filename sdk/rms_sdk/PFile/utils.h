@@ -46,14 +46,14 @@ modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptionsForPfile(
 void CopyFromFileToOstream(std::string fileName, std::ostream* stream);
 
 /*!
- * \brief Creates a file with name 'tempFileName' and copies contents from 'stream' as binary.
+ * \brief Creates a file with name 'fileName' and copies contents from 'stream' as binary.
  * \param stream
  * \param tempFileName
  * \param inputFileSize The size of the stream pointed to by 'stream'
  */
 void CopyFromIstreamToFile(
     std::istream *stream,
-    const std::string& TempFileName,
+    const std::string& fileName,
     uint64_t inputFileSize);
 
 /*!
@@ -81,7 +81,9 @@ uint64_t ValidateAndGetFileSize(std::istream* stream, uint64_t maxFileSize);
  */
 uint64_t ValidateAndGetFileSize(FILE* file, uint64_t maxFileSize);
 
-struct FILE_deleter {
+void CheckStream(std::ios* stream, std::string message);
+
+struct FILE_closer {
   void operator () (FILE* obj) const {
     std::fclose(obj);
   }

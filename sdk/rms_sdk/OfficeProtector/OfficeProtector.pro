@@ -12,8 +12,12 @@ QT       += core
 QT 	     -= gui
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Common
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Core
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Platform/Logger
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/FileAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgthread-2.0-0 -llibiconv-2 -llibintl-8 -lliblzma-5 -llibpcre-1

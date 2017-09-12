@@ -8,7 +8,7 @@
 
 #include "protector_selector.h"
 #include "RMSExceptions.h"
-#include "../Platform/Logger/Logger.h"
+#include "Logger.h"
 
 using namespace rmscore::platform::logger;
 
@@ -16,20 +16,21 @@ namespace rmscore {
 namespace fileapi {
 
 ProtectorSelector::ProtectorSelector(const std::string& fileName)
-    : m_pType(ProtectorType::PFILE) {
+    : mCurrentFileExtension(""),
+      mPType(ProtectorType::PFILE) {
   Compute(fileName);
 }
 
 ProtectorType ProtectorSelector::GetProtectorType() {
-  return m_pType;
+  return mPType;
 }
 
 std::string ProtectorSelector::GetCurrentFileExtension() {
-  return m_currentFileExtension;
+  return mCurrentFileExtension;
 }
 
 std::string ProtectorSelector::GetOutputFileName() {
-  return m_newFileName;
+  return mNewFileName;
 }
 
 std::map<std::string, std::pair<ProtectorType, std::string>> ProtectorSelector::Init() {
@@ -86,7 +87,7 @@ std::map<std::string, std::pair<ProtectorType, std::string>> ProtectorSelector::
 
 const std::map<std::string, std::pair<ProtectorType, std::string>>&
 ProtectorSelector::GetProtectorExtensionsMap() {
-  static std::map<std::string, std::pair<ProtectorType, std::string>> protectorExtensionsMap = Init();
+  static auto protectorExtensionsMap = Init();
   return protectorExtensionsMap;
 }
 
@@ -95,34 +96,35 @@ void ProtectorSelector::Compute(const std::string& fileName) {
     throw exceptions::RMSInvalidArgumentException("The filename is empty");
   }
   auto pos = fileName.find_last_of('.');
-  if (pos == std::string::npos) {
-    Logger::Error("Invalid filename provided.", fileName);
-    throw exceptions::RMSInvalidArgumentException(
-          "Full filename with extension needed. Filename provided: " + fileName);
+  if (pos == std::string::npos || pos == fileName.length()-1) {
+    // Default to Pfile protection
+    // TODO: Add tests to check this case
+    mNewFileName = fileName + ".pfile";
+    return;
   }
   std::string ext = fileName.substr(pos);
   std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-  m_currentFileExtension = ext;
+  mCurrentFileExtension = ext;
   if (ext == ".pfile") {
-    m_newFileName = fileName.substr(0, pos);
+    mNewFileName = fileName.substr(0, pos);
     return;
   }
   auto& protectorExtensionsMap = GetProtectorExtensionsMap();
   auto it = protectorExtensionsMap.find(ext);
   if (it != protectorExtensionsMap.end()) {
     // Key present
-    m_pType = it->second.first;
+    mPType = it->second.first;
   }
 
-  if (m_pType != ProtectorType::PFILE && m_pType != ProtectorType::PSTAR) {
+  if (mPType != ProtectorType::PFILE && mPType != ProtectorType::PSTAR) {
     //Native protector
-    m_newFileName = fileName;
+    mNewFileName = fileName;
     return;
   }
   auto ppos = ext.find_first_of('p');
-  if (m_pType == ProtectorType::PSTAR) {
+  if (mPType == ProtectorType::PSTAR) {
     // PStar extension protection
-    m_newFileName = fileName.substr(0, pos) + it->second.second;
+    mNewFileName = fileName.substr(0, pos) + it->second.second;
     return;
   } else if (ppos != std::string::npos) {
     // Possible PStar extension unprotection
@@ -130,13 +132,13 @@ void ProtectorSelector::Compute(const std::string& fileName) {
     it = protectorExtensionsMap.find(pStarExtension);
     if (it != protectorExtensionsMap.end() && it->second.first == ProtectorType::PSTAR) {
       // PStar extension unprotection
-      m_pType = ProtectorType::PSTAR;
-      m_newFileName = fileName.substr(0, pos) + it->first;
+      mPType = ProtectorType::PSTAR;
+      mNewFileName = fileName.substr(0, pos) + it->first;
       return;
     }
   }
   // Pfile protection
-  m_newFileName = fileName + ".pfile";
+  mNewFileName = fileName + ".pfile";
 }
 
 } // namespace fileapi

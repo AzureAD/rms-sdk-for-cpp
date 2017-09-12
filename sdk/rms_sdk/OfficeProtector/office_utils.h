@@ -120,7 +120,25 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream
 bool IsProtectedInternal(
     std::istream* inputStream,
     std::string inputTempFileName,
-    uint64_t inputFileSize);
+    uint64_t inputFileSize,
+    bool isMetro);
+
+void GsfRead(GsfInput* stm, uint32_t length, uint8_t* buffer);
+
+void GsfWrite(GsfOutput* stm, uint32_t length, const uint8_t* buffer);
+
+void GsfInputSeek(GsfInput* stm, uint64_t offset, GSeekType position);
+
+void GsfOutputSeek(GsfOutput* stm, uint64_t offset, GSeekType position);
+
+void CheckGsfInput(GsfInput* stm);
+
+void CheckGsfOutput(GsfOutput* stm);
+
+void CheckGsfInfile(GsfInfile* stg);
+
+void CheckGsfOutfile(GsfOutfile* stg);
+
 } // namespace officeutils
 } // namespace rmscore
 

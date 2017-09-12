@@ -39,6 +39,7 @@ public:
     RightsError,
     OfficeFileError,
     NotSupported,
+    FileError,
   };
 
   RMSException(const ExceptionTypes type,
@@ -248,6 +249,7 @@ public:
     NotProtected,
     NonRMSProtected,
     AlreadyProtected,
+    CompoundFileError,
     Unknown
   };
 

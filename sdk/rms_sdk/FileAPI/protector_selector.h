@@ -34,9 +34,9 @@ private:
   static std::map<std::string, std::pair<ProtectorType, std::string>> Init();
   static const std::map<std::string, std::pair<ProtectorType, std::string>>& GetProtectorExtensionsMap();
   void Compute(const std::string& fileName);
-  std::string m_currentFileExtension;
-  std::string m_newFileName;
-  ProtectorType m_pType;
+  std::string mCurrentFileExtension;
+  std::string mNewFileName;
+  ProtectorType mPType;
 };
 
 } // namespace fileapi

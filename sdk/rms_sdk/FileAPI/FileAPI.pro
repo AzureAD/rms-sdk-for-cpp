@@ -14,6 +14,7 @@ QT       += core xml xmlpatterns widgets network
 QT 	     -= gui
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Platform/Logger
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/OfficeProtector

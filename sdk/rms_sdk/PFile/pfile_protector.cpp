@@ -12,9 +12,9 @@
 #include "RMSExceptions.h"
 #include "PfileHeaderReader.h"
 #include "PfileHeaderWriter.h"
-#include "../Common//CommonTypes.h"
-#include "../Core/ProtectionPolicy.h"
-#include "../Platform/Logger/Logger.h"
+#include "CommonTypes.h"
+#include "ProtectionPolicy.h"
+#include "Logger.h"
 #include "utils.h"
 
 using namespace rmscore::platform::logger;
@@ -46,23 +46,23 @@ void PFileProtector::ProtectWithTemplate(
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSPFileException(
-          "File is already protected",
-          exceptions::RMSPFileException::Reason::AlreadyProtected);
+        "File is already protected",
+        exceptions::RMSPFileException::Reason::AlreadyProtected);
   }
   auto inputFileSize = utils::ValidateAndGetFileSize(
-        mInputStream.get(),
-        utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+      mInputStream.get(),
+      utils::MAX_FILE_SIZE_FOR_ENCRYPT);
   auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptionsForPfile(
-        options.allowAuditedExtraction,
-        options.cryptoOptions);
+      options.allowAuditedExtraction,
+      options.cryptoOptions);
   // Create User Policy
   mUserPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(
-        options.templateDescriptor,
-        userContext.userId,
-        userContext.authenticationCallback,
-        userPolicyCreationOptions,
-        options.signedAppData,
-        cancelState);
+      options.templateDescriptor,
+      userContext.userId,
+      userContext.authenticationCallback,
+      userPolicyCreationOptions,
+      options.signedAppData,
+      cancelState);
   ProtectInternal(outputStream, inputFileSize);
   Logger::Hidden("-PFileProtector::ProtectWithTemplate");
 }
@@ -82,22 +82,22 @@ void PFileProtector::ProtectWithCustomRights(
   if (IsProtected()) {
     Logger::Error("File is already protected");
     throw exceptions::RMSPFileException(
-          "File is already protected",
-          exceptions::RMSPFileException::Reason::AlreadyProtected);
+        "File is already protected",
+        exceptions::RMSPFileException::Reason::AlreadyProtected);
   }
   auto inputFileSize = utils::ValidateAndGetFileSize(
-        mInputStream.get(),
-        utils::MAX_FILE_SIZE_FOR_ENCRYPT);
+      mInputStream.get(),
+      utils::MAX_FILE_SIZE_FOR_ENCRYPT);
   auto userPolicyCreationOptions = utils::ConvertToUserPolicyCreationOptionsForPfile(
-        options.allowAuditedExtraction,
-        options.cryptoOptions);
+      options.allowAuditedExtraction,
+      options.cryptoOptions);
   // Create User Policy
   mUserPolicy = modernapi::UserPolicy::Create(
-        const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
-        userContext.userId,
-        userContext.authenticationCallback,
-        userPolicyCreationOptions,
-        cancelState);
+      const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
+      userContext.userId,
+      userContext.authenticationCallback,
+      userPolicyCreationOptions,
+      cancelState);
   ProtectInternal(outputStream, inputFileSize);
   Logger::Hidden("-PFileProtector::ProtectWithCustomRights");
 }
@@ -132,24 +132,24 @@ UnprotectResult PFileProtector::Unprotect(
   auto cacheMask = modernapi::RESPONSE_CACHE_NOCACHE;
   if (options.useCache) {
     cacheMask = static_cast<modernapi::ResponseCacheFlags>(
-          modernapi::RESPONSE_CACHE_INMEMORY|
-          modernapi::RESPONSE_CACHE_ONDISK |
-          modernapi::RESPONSE_CACHE_CRYPTED);
+        modernapi::RESPONSE_CACHE_INMEMORY|
+        modernapi::RESPONSE_CACHE_ONDISK |
+        modernapi::RESPONSE_CACHE_CRYPTED);
   }
   // Acquire User Policy
   auto policyRequest = modernapi::UserPolicy::Acquire(
-        header->GetPublishingLicense(),
-        userContext.userId,
-        userContext.authenticationCallback,
-        &userContext.consentCallback,
-        policyAcquisitionOptions,
-        cacheMask,
-        cancelState);
+      header->GetPublishingLicense(),
+      userContext.userId,
+      userContext.authenticationCallback,
+      &userContext.consentCallback,
+      policyAcquisitionOptions,
+      cacheMask,
+      cancelState);
   if (policyRequest->Status != modernapi::GetUserPolicyResultStatus::Success) {
     Logger::Error("UserPolicy::Acquire unsuccessful", policyRequest->Status);
     throw exceptions::RMSPFileException(
-          "The file is corrupt",
-          exceptions::RMSPFileException::Reason::CorruptFile);
+        "The file is corrupt",
+        exceptions::RMSPFileException::Reason::CorruptFile);
   }
   mUserPolicy = policyRequest->Policy;
   if (mUserPolicy.get() == nullptr) {
@@ -211,11 +211,11 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::Creat
   auto contentStartPosition = header->GetContentStartPosition();
   auto backingStreamImpl = stream->Clone();
   return rmscrypto::api::BlockBasedProtectedStream::Create(
-        cryptoProvider,
-        backingStreamImpl,
-        contentStartPosition,
-        stream->Size() - contentStartPosition,
-        protectedStreamBlockSize);
+      cryptoProvider,
+      backingStreamImpl,
+      contentStartPosition,
+      stream->Size() - contentStartPosition,
+      protectedStreamBlockSize);
 }
 
 void PFileProtector::EncryptStream(
@@ -238,10 +238,10 @@ void PFileProtector::EncryptStream(
     mInputStream->seekg(offsetRead);
     mInputStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
     auto written = pStream->WriteAsync(
-          buffer.data(),
-          toProcess,
-          offsetWrite,
-          std::launch::deferred).get();
+        buffer.data(),
+        toProcess,
+        offsetWrite,
+        std::launch::deferred).get();
     if (written != toProcess) {
       throw exceptions::RMSStreamException("Error while writing data");
     }
@@ -285,18 +285,17 @@ std::shared_ptr<pfile::PfileHeader> PFileProtector::WriteHeader(
   common::ByteArray metadata; // No metadata as of now.
 
   // calculate content size
-  uint32_t contentStartPosition = static_cast<uint32_t>(mOriginalFileExtension.size() +
-                                                        publishingLicense.size() +
-                                                        metadata.size() + 454);
+  uint32_t contentStartPosition = static_cast<uint32_t>(
+      mOriginalFileExtension.size() + publishingLicense.size() + metadata.size() + 454);
   pHeader = std::make_shared<pfile::PfileHeader>(
-        move(publishingLicense),
-        mOriginalFileExtension,
-        contentStartPosition,
-        originalFileSize, //
-        move(metadata),
-        static_cast<uint32_t>(rmscore::pfile::MJVERSION_FOR_WRITING),
-        static_cast<uint32_t>(rmscore::pfile::MNVERSION_FOR_WRITING),
-        pfile::CleartextRedirectHeader);
+      move(publishingLicense),
+      mOriginalFileExtension,
+      contentStartPosition,
+      originalFileSize, //
+      move(metadata),
+      static_cast<uint32_t>(rmscore::pfile::MJVERSION_FOR_WRITING),
+      static_cast<uint32_t>(rmscore::pfile::MNVERSION_FOR_WRITING),
+      pfile::CleartextRedirectHeader);
   headerWriter->Write(stream, pHeader);
   stream->Flush();
   return pHeader;
@@ -309,13 +308,13 @@ std::shared_ptr<pfile::PfileHeader> PFileProtector::ReadHeader(
   auto headerReader = pfile::IPfileHeaderReader::Create();
   header  = headerReader->Read(stream);
   Logger::Hidden(
-        "PFileProtector: ReadHeader. Major version: %d, minor version: %d, "
-        "file extension: '%s', content start position: %d, original file size: %I64d",
-        header->GetMajorVersion(),
-        header->GetMinorVersion(),
-        header->GetFileExtension().c_str(),
-        header->GetContentStartPosition(),
-        header->GetOriginalFileSize());
+      "PFileProtector: ReadHeader. Major version: %d, minor version: %d, "
+      "file extension: '%s', content start position: %d, original file size: %I64d",
+      header->GetMajorVersion(),
+      header->GetMinorVersion(),
+      header->GetFileExtension().c_str(),
+      header->GetContentStartPosition(),
+      header->GetOriginalFileSize());
   return header;
 }
 
