@@ -421,13 +421,16 @@ uint32_t PDFCreatorImpl::ParsePDFFile(CPDF_Parser *pPDFParser)
     FX_DWORD parseResult = pPDFParser->StartParse(bsFilePath);
     result = ConvertParsingErrCode(parseResult);
 
-    CPDF_Dictionary* pEncryptDict = pPDFParser->GetTrailer()->GetDict("Encrypt");
-    if (pEncryptDict)
+    if(result == PDFCREATOR_ERR_SUCCESS)
     {
-        CFX_ByteString sFilter = pEncryptDict->GetString("Filter");
-        if (sFilter.Compare("Standard") == 0)
+        CPDF_Dictionary* pEncryptDict = pPDFParser->GetTrailer()->GetDict("Encrypt");
+        if (pEncryptDict)
         {
-            return PDFCREATOR_ERR_SECURITY;
+            CFX_ByteString sFilter = pEncryptDict->GetString("Filter");
+            if (sFilter.Compare("Standard") == 0)
+            {
+                return PDFCREATOR_ERR_SECURITY;
+            }
         }
     }
 
