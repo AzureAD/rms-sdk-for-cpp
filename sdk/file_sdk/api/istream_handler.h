@@ -3,14 +3,13 @@
 
 #include <memory>
 
-#include <IStream.h>
+#include <Common/IStream.h>
 #include <UserPolicy.h>
 #include "label.h"
 #include "fileapi_export.h"
 #include "ipolicy_engine.h"
 #include "labeling_options.h"
 
-using rmscrypto::api::IStream;
 using rmscore::modernapi::UserPolicy;
 using mip::file::ILabel;
 using mip::file::LabelingOptions;

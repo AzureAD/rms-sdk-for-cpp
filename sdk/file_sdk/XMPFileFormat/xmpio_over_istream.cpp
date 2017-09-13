@@ -1,5 +1,5 @@
 #include "xmpio_over_istream.h"
-#include "std_stream_adapter.h"
+#include <Common/std_stream_adapter.h>
 
 namespace mip {
 namespace file {

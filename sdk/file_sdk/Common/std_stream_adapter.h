@@ -2,8 +2,8 @@
 #define _FILE_SDK_STDSTREAMADAPTER_H
 
 #include <iostream>
-#include "IStream.h"
-#include <Exceptions.h>
+#include "istream.h"
+#include <Common/exceptions.h>
 
 using std::static_pointer_cast;
 using std::make_shared;
@@ -27,10 +27,6 @@ public:
   static std::shared_ptr<IStream> Create(std::shared_ptr<std::iostream> stdStream) {
     return static_pointer_cast<IStream>(make_shared<StdStreamAdapter>(stdStream));
   }
-
-//  static StdStreamAdapter Create(std::shared_ptr<std::stringstream> stdStringStream) {
-//    return make_shared<StdStreamAdapter>(static_pointer_cast<std::iostream>(stdStringStream));
-//  }
 
   StdStreamAdapter(std::shared_ptr<std::iostream> stdStream);
   StdStreamAdapter(std::shared_ptr<std::ostream> stdOutputStream);

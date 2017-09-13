@@ -20,7 +20,7 @@ public:
   void DeleteLabel(const std::string& justificationMessage) override;
   void SetProtection(const UserPolicy & policy) override;
   void RemoveProtection() override;
-  void Commit(std::shared_ptr<rmscrypto::api::IStream> outputStream, std::string& outputExtension) override;
+  void Commit(std::shared_ptr<IStream> outputStream, std::string& outputExtension) override;
 };
 
 } //namespace file

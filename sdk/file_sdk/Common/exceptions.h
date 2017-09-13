@@ -9,6 +9,8 @@
 #endif
 #endif
 
+namespace mip {
+
 class Exception : public std::exception {
 public:
   Exception(const std::string& error) _NOEXCEPT
@@ -35,5 +37,7 @@ public:
   IOException(const std::string& error, const std::string& message) _NOEXCEPT : Exception(error, message) {}
   IOException(const std::string& error) _NOEXCEPT : IOException(error, "") {}
 };
+
+} // namespace mip
 
 #endif // FILE_SDK_EXCEPTIONS_H

@@ -127,7 +127,9 @@ uint64_t StdStreamAdapter::Size() {
   return static_cast<uint64_t>(position);
 }
 
-void StdStreamAdapter::Size(uint64_t) {}
+void StdStreamAdapter::Size(uint64_t) {
+  // There seems to be no way to truncate/setSize of the underlying std::ostream.
+}
 
 std::shared_ptr<IStream> StdStreamAdapter::Clone() {
   return static_pointer_cast<IStream>(std::shared_ptr<StdStreamAdapter>(new StdStreamAdapter(shared_from_this())));

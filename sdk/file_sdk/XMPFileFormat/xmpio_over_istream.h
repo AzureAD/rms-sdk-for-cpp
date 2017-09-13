@@ -1,7 +1,7 @@
 #ifndef XMPIO_OVER_ISTREAM_H
 #define XMPIO_OVER_ISTREAM_H
 
-#include <IStream.h>
+#include <Common/istream.h>
 #include <XMP_IO.hpp>
 #include <XMP_Const.h>
 #include <sstream>

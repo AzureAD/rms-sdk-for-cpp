@@ -3,7 +3,7 @@ DESTDIR   = $$REPO_ROOT/bin/
 
 TEMPLATE = subdirs
 
-INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 
 HEADERS += \
     fileapi_export.h \

@@ -5,7 +5,7 @@ Import('file_env')
 src_files = Glob('*.cpp')
 
 default_env = file_env.Clone()
-default_env.Append(CPPPATH = Split('#sdk/rmscrypto_sdk/CryptoAPI #sdk/file_sdk'))
+default_env.Append(CPPPATH = Split('#sdk/file_sdk'))
 
 default_obj = create_objs(default_env, src_files)
 Return('default_obj')

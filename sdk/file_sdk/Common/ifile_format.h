@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "IStream.h"
+#include "istream.h"
 #include "tag.h"
 
 using std::string;
