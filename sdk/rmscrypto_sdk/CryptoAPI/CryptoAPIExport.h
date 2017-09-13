@@ -15,7 +15,15 @@
     #define DLL_PUBLIC_CRYPTO __declspec(dllexport)
   #else
     #define DLL_PUBLIC_CRYPTO
-  #endif  // ifdef UPE_IMPLEMENTATION
+  #endif
+#else 
+  #if __GNUC__ >= 4 
+    #define DLL_PUBLIC_CRYPTO __attribute__ ((visibility ("default"))) 
+    #define DLL_LOCAL_CRYPTO  __attribute__ ((visibility ("hidden"))) 
+  #else 
+    #define DLL_PUBLIC_CRYPTO 
+    #define DLL_LOCAL_CRYPTO 
+  #endif 
 #endif
 
 #endif  // _RMS_LIB_EXPORT_H_
