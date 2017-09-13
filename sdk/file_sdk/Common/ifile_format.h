@@ -1,5 +1,5 @@
-#ifndef IFILE_FORMAT_H
-#define IFILE_FORMAT_H
+#ifndef FILE_SDK_IFILE_FORMAT_H
+#define FILE_SDK_IFILE_FORMAT_H
 
 #include <string>
 #include <vector>
@@ -32,4 +32,4 @@ public:
 } //namespace file
 } //namespace mip
 
-#endif // FILE_FORMAT_BASE_H
+#endif // FILE_SDK_IFILE_FORMAT_H

@@ -1,5 +1,5 @@
-#ifndef FILE_FORMAT_H
-#define FILE_FORMAT_H
+#ifndef FILE_SDK_FILE_FORMAT_H
+#define FILE_SDK_FILE_FORMAT_H
 
 #include "ifile_format.h"
 
@@ -38,4 +38,4 @@ protected:
 } //namespace file
 } //namespace mip
 
-#endif // FILE_FORMAT_H
+#endif // FILE_SDK_FILE_FORMAT_H
