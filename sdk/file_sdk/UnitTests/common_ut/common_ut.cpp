@@ -26,6 +26,13 @@ void CommonTests::Create_NoExtension_ThrowInvalidArgument() {
   QVERIFY_EXCEPTION_THROWN(FileFormatFactory::Create(stream, ""), std::invalid_argument);
 }
 
+void CommonTests::Create_ExtensionWithUpperCase_ConverToLowerCase()
+{
+  auto stream = std::make_shared<IStreamMock>();
+  auto fileFormat = FileFormatFactory::Create(stream, std::string("PNG"));
+  QVERIFY2(fileFormat->GetOriginalExtension() == ".png", "extentsion is not in lower case");
+}
+
 void CommonTests::Create_ExtensionWithoutDot_AddsDot() {
   QFETCH(std::string, extension);
   QFETCH(std::string, result);
