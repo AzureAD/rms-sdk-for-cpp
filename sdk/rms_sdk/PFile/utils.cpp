@@ -11,8 +11,8 @@
 #include <ctime>
 #include <vector>
 #include "RMSExceptions.h"
-#include "../Common/CommonTypes.h"
-#include "../Platform/Logger/Logger.h"
+#include "CommonTypes.h"
+#include "Logger.h"
 
 using namespace rmscore::platform::logger;
 using namespace rmscore::common;
