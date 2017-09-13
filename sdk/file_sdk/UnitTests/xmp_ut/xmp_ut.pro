@@ -22,13 +22,14 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/xmp
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -lmodxmpfiled -lmodfilecommond -lXMPCoreStaticD -lXMPFilesStaticD
+    LIBS +=  -lmodxmpfiled -lmodfilecommond
+    win32:LIBS += -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
     LIBS +=  -lmodxmpfile -lmodfilecommon
     win32:LIBS += -lXMPCoreStatic -lXMPFilesStatic
 }
 
-unix:!mac:LIBS += -lstaticXMPFiles -lstaticXMPCore
+unix:!mac:LIBS += -L/usr/lib/xmp -lXMPCore -lXMPFiles -ldl
 
 SOURCES += xmp_file_tests.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
