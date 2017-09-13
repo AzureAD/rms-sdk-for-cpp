@@ -21,17 +21,20 @@ copy tests\*UnitTest* .
 set PATH=%qmake_path%;%PATH%
 set PATH=..\third_party\lib\eay;%PATH%
 
+echo *********************************************************************************
+echo Running Tests for %build_type% build!
+
 IF /I "%build_type"=="debug" (
-  rmscryptoUnitTestsd.exe -xunitxml > tests\rmsUnitTestResults.txt
+  call rmscryptoUnitTestsd.exe -xunitxml > tests\rmsUnitTestResults.txt
   ::rmsauthUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
-  rmsplatformUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
-  RestClientsUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
+  call rmsplatformUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
+  call RestClientsUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
 )
 IF /I "%build_type"=="release" (
-  rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
+  call rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
   ::rmsauthUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
-  rmsplatformUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
-  RestClientsUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
+  call rmsplatformUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
+  call RestClientsUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 )
 
 cd ..
