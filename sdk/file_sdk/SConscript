@@ -29,5 +29,8 @@ Export('pfile_obj')
 xmp_obj = file_env.SConscript('#sdk/file_sdk/XMPFileFormat/SConscript', variant_dir = variant_dir + '/XMPFileFormat', duplicate=0)
 Export('xmp_obj')
 
+apiimpl_obj = file_env.SConscript('#sdk/file_sdk/api_impl/SConscript', variant_dir = variant_dir + '/api_impl', duplicate=0)
+Export('apiimpl_obj')
+
 file_lib = file_env.SConscript('#sdk/file_sdk/shared_lib/SConscript',variant_dir = '#' +  bins + '/sdk/shared_lib', duplicate=0)
 Return('file_lib')

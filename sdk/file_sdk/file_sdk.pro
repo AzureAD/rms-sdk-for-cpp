@@ -8,6 +8,9 @@ SUBDIRS += UnitTests \
     OPCFileFormat \
     PDFFileFormat \
     PFileFileFormat \
-    DefaultFormat
+    DefaultFormat \
+    api \
+    api_impl
 
 UnitTests.depends   = Common XMPFileFormat CompoundFileFormat DefaultFormat OPCFileFormat PDFFileFormat PFileFileFormat
+api_impl.depends = api Common

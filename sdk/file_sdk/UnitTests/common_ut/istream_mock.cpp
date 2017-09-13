@@ -1,21 +1,5 @@
 #include "istream_mock.h"
 
-IStreamMock::IStreamMock()
-{
-}
-
-std::shared_future<int64_t> IStreamMock::ReadAsync(uint8_t*, int64_t, int64_t, std::launch) {
-  return std::future<int64_t>();
-}
-
-std::shared_future<int64_t> IStreamMock::WriteAsync(const uint8_t*, int64_t, int64_t, std::launch) {
-  return std::future<int64_t>();
-}
-
-std::future<bool> IStreamMock::FlushAsync(std::launch) {
-  return std::future<bool>();
-}
-
 int64_t IStreamMock::Read(uint8_t*, int64_t) {
   return 1;
 }
