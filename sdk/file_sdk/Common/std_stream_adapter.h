@@ -1,5 +1,5 @@
-#ifndef _FILE_SDK_STDSTREAMADAPTER_H
-#define _FILE_SDK_STDSTREAMADAPTER_H
+#ifndef FILE_SDK_STDSTREAMADAPTER_H
+#define FILE_SDK_STDSTREAMADAPTER_H
 
 #include <iostream>
 #include "istream.h"
@@ -64,4 +64,4 @@ public:
 } //namespace file
 } //namespace mip
 
-#endif // _FILE_SDK_STDSTREAMADAPTER_H
+#endif // FILE_SDK_STDSTREAMADAPTER_H

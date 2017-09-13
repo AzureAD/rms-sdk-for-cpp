@@ -1,5 +1,5 @@
-#ifndef _FILE_SDK_ISTREAM_H_
-#define _FILE_SDK_ISTREAM_H_
+#ifndef FILE_SDK_ISTREAM_H
+#define FILE_SDK_ISTREAM_H
 
 #include <vector>
 #include <memory>
@@ -28,4 +28,4 @@ protected:
 } //namespace file
 } //namespace mip
 
-#endif // _FILE_SDK_ISTREAM_H_
+#endif // FILE_SDK_ISTREAM_H
