@@ -5,7 +5,7 @@ Import('file_env')
 src_files = Glob('*.cpp')
 
 pdf_env = file_env.Clone()
-pdf_env.Append(CPPPATH = Split('#sdk/rmscrypto_sdk/CryptoAPI #sdk/file_sdk'))
+pdf_env.Append(CPPPATH = Split('#sdk/file_sdk'))
 
 pdf_obj = create_objs(pdf_env, src_files)
 Return('pdf_obj')

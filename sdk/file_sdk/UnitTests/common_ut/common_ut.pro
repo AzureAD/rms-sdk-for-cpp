@@ -12,17 +12,17 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common
 
-LIBS      +=  -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/crypto -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/file
+LIBS      +=  -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/file
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/xmp
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -lrmscryptod -lrmsd -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled
+    LIBS +=  -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled
     win32:LIBS += -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
-    LIBS +=  -lrmscrypto -lrms -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile
+    LIBS +=  -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile
     win32:LIBS += -lXMPCoreStatic -lXMPFilesStatic
 }
 
