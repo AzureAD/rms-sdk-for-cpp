@@ -1,7 +1,11 @@
 #include "gsfinputistream.h"
 #include <gsf/gsf-infile-impl.h>
 #include <gsf/gsf-impl-utils.h>
-
+/*
+ *
+ *TODO:.detail
+ *
+ */
 static GObjectClass *parent_class;
 
 struct _GsfInputIStream {
@@ -23,16 +27,8 @@ GsfInput *gsf_input_istream_new(IStream *stream)
     gsfStream->stream = stream;
 
     gsf_input_set_size(GSF_INPUT(gsfStream), gsfStream->stream->Size());
-    gsf_input_set_name(GSF_INPUT(gsfStream), "ameer");
 
     return GSF_INPUT(gsfStream);
-}
-
-IStream *gsf_input_istream_get_stream(GsfInput *input)
-{
-    GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(input);
-
-    return gsfStream->stream;
 }
 
 static void gsf_input_istream_finalize(GObject *obj)
@@ -65,9 +61,9 @@ static const guint8 *gsf_input_istream_read(GsfInput *input, size_t num_bytes, g
 
         buffer = gsfStream->buf;
     }
-    int read = 0;
+    int64_t read = 0;
     while(num_bytes - read > 64){
-        int size = gsfStream->stream->Read(buffer + read, 64);
+        int64_t size = gsfStream->stream->Read(buffer + read, 64);
 
         if(size == 0)
             throw std::exception("Unable to read entry");

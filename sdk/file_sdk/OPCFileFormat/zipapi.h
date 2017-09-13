@@ -3,13 +3,17 @@
 
 #include <Exceptions.h>
 #include "gsfinputistream.h"
+#include <map>
+#include <string>
+#include <memory>
 
 class ZipApi
 {
 public:
   ZipApi();
-  std::string GetEntry(IStream *stream, std::string entryPath);
-  int SetEntry(std::string filePath, std::string entryPath, std::string data);
+  std::string GetEntry(std::shared_ptr<IStream> stream, std::string entryPath);
+  int SetEntry(const std::string& filePath, const std::string& outputFilePath, std::map<std::string,std::string>& entries);
+
 };
 
 class ZipException : public rmsauth::Exception
