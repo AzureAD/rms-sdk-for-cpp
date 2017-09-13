@@ -9,7 +9,7 @@ namespace file {
 class DLL_PUBLIC_FILE StreamHandler : public IStreamHandler
 {
 public:
-  StreamHandler();
+  StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string &inputExtension);
 
   // IStreamHandler interface
   bool IsLabeled() override;

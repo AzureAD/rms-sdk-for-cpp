@@ -8,6 +8,12 @@
   #else
     #define DLL_PUBLIC_FILE
   #endif  // ifdef FILE_LIBRARY
-#endif
+#else
+  #if __GNUC__ >= 4
+    #define DLL_PUBLIC_FILE __attribute__ ((visibility ("default")))
+  #else
+    #define DLL_PUBLIC_FILE
+  #endif
+#endif //ifdef _WIN32
 
 #endif // FILEAPIEXPORT_H

@@ -1,11 +1,14 @@
+#include <api/istream_handler.h>
 #include "stream_handler.h"
 
 namespace mip {
 namespace file {
 
-StreamHandler::StreamHandler()
-{
+DLL_PUBLIC_FILE std::shared_ptr<IStreamHandler> IStreamHandler::Create(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string &inputExtension) {
+return std::make_shared<StreamHandler>(engine, inputStream, inputExtension);
+}
 
+StreamHandler::StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string &inputExtension) {
 }
 
 bool StreamHandler::IsLabeled() {

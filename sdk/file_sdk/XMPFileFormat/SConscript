@@ -2,7 +2,7 @@ from build_config import *
 
 Import("""
     file_env
-	configuration
+    configuration
 """)
 
 src_files = Glob('*.cpp')
@@ -21,7 +21,6 @@ if sys.platform == 'win32':
     xmp_env.Append(LIBS= Split('XMPCoreStaticD XMPFilesStaticD') )
   else:
     xmp_env.Append(LIBS= Split('XMPCoreStatic XMPFilesStatic') )
-	
 elif sys.platform == __linux__:
   xmp_env.Append(CPPPATH = Split('/usr/include/xmp/'))
   xmp_env.Append(CPPDEFINES = [ 'UNIX_ENV' ])

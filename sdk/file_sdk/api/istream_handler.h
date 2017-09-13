@@ -21,7 +21,7 @@ namespace file {
 
 class IStreamHandler {
 public:
-  static std::shared_ptr<class ILabelAndProtectStream> Create(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string& inputExtension);
+  DLL_PUBLIC_FILE static std::shared_ptr<IStreamHandler> Create(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string& inputExtension);
 
   virtual bool IsLabeled() = 0;
 
