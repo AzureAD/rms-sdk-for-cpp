@@ -1,14 +1,13 @@
-#ifndef IFILE_FORMAT_H
-#define IFILE_FORMAT_H
+#ifndef FILE_SDK_IFILE_FORMAT_H
+#define FILE_SDK_IFILE_FORMAT_H
 
 #include <string>
 #include <vector>
-#include <IStream.h>
+#include "istream.h"
 #include "tag.h"
 
 using std::string;
 using std::vector;
-using rmscrypto::api::IStream;
 
 namespace mip {
 namespace file {
@@ -33,4 +32,4 @@ public:
 } //namespace file
 } //namespace mip
 
-#endif // FILE_FORMAT_BASE_H
+#endif // FILE_SDK_IFILE_FORMAT_H

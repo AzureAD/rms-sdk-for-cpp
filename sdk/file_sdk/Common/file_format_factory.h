@@ -2,11 +2,10 @@
 #define FILE_FORMAT_FACTORY_H
 
 #include <memory>
-#include <IStream.h>
+#include <Common/istream.h>
 #include "ifile_format.h"
 
 using std::string;
-using rmscrypto::api::IStream;
 using mip::file::IFileFormat;
 
 namespace mip {

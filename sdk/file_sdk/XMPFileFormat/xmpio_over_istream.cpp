@@ -1,4 +1,5 @@
 #include "xmpio_over_istream.h"
+#include <Common/std_stream_adapter.h>
 
 namespace mip {
 namespace file {
@@ -60,11 +61,9 @@ void XMPIOOverIStream::Truncate(XMP_Int64 length) {
 
 XMP_IO* XMPIOOverIStream::DeriveTemp() {
   auto backingStdStream = make_shared<std::stringstream>(std::ios::in | std::ios::out | std::ios::binary);
-  auto stream = rmscrypto::api::CreateStreamFromStdStream(static_pointer_cast<std::iostream>(
-                                                            backingStdStream));
-  auto streamAdapter = static_pointer_cast<IStream>(stream);
+  auto stream = StdStreamAdapter::Create(static_pointer_cast<std::iostream>(backingStdStream));
   delete mTemp;
-  mTemp = new XMPIOOverIStream(streamAdapter);
+  mTemp = new XMPIOOverIStream(stream);
   return mTemp;
 }
 
