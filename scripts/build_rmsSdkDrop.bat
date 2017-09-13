@@ -25,7 +25,7 @@ IF /I "%buildtarget%"=="x86" (
 if exist rmsSdkDeploy\ rd /q /s rmsSdkDeploy\
 call mkdir rmsSdkDeploy
 
-IF /I "%build_type"=="debug" (
+IF /I "%build_type%"=="debug" (
 	call copy bin\rmsd.dll rmsSdkDeploy\.
 	call copy bin\rmsd.lib rmsSdkDeploy\.
 	call copy bin\rmsd.exp rmsSdkDeploy\.
@@ -39,7 +39,7 @@ IF /I "%build_type"=="debug" (
 	call C:\Qt\5.7\%windeployqtpath%\bin\windeployqt.exe rmsd.dll rmscryptod.dll
 )
 
-IF /I "%build_type"=="release" (
+IF /I "%build_type%"=="release" (
 	call copy bin\rms.dll rmsSdkDeploy\.
 	call copy bin\rms.lib rmsSdkDeploy\.
 	call copy bin\rms.exp rmsSdkDeploy\.
