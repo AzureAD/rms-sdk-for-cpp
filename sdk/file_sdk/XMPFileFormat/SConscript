@@ -16,15 +16,16 @@ xmp_env.Append(LIBS= Split('rms file') )
 if sys.platform == 'win32':
   xmp_env.Append(CPPPATH = Split('#third_party/include/xmp'))
   xmp_env.Append(CPPDEFINES = [ 'WIN_ENV' ])
-  xmp_env.Append(LIBPATH= Split('#third_party/lib/xmp') )
+  xmp_env.Append(LIBPATH= ['#third_party/lib/xmp'] )
   if configuration == 'debug':
     xmp_env.Append(LIBS= Split('XMPCoreStaticD XMPFilesStaticD') )
   else:
     xmp_env.Append(LIBS= Split('XMPCoreStatic XMPFilesStatic') )
-elif sys.platform == __linux__:
+elif sys.platform == '__linux__':
   xmp_env.Append(CPPPATH = Split('/usr/include/xmp/'))
   xmp_env.Append(CPPDEFINES = [ 'UNIX_ENV' ])
-  xmp_env.Append(LIBS= Split('staticXMPFiles staticXMPCore') )
+  xmp_env.Append(LIBPATH= ['/usr/lib/xmp'] )
+  xmp_env.Append(LIBS= Split('XMPCore XMPFiles dl') )
   
 xmp_obj = create_objs(xmp_env, src_files)
 Return('xmp_obj')
