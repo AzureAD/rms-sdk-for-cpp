@@ -24,13 +24,13 @@ set PATH=..\third_party\lib\eay;%PATH%
 echo *********************************************************************************
 echo Running Tests for %build_type% build!
 
-IF /I "%build_type"=="debug" (
+if %build_type%==debug (
   call rmscryptoUnitTestsd.exe -xunitxml > tests\rmsUnitTestResults.txt
   ::rmsauthUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
   call rmsplatformUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
   call RestClientsUnitTestsd.exe -xunitxml >> tests\rmsUnitTestResults.txt
 )
-IF /I "%build_type"=="release" (
+if %build_type%==release (
   call rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
   ::rmsauthUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
   call rmsplatformUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
