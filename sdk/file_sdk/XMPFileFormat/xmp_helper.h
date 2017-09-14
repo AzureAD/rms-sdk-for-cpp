@@ -38,9 +38,6 @@ public:
 private:
   XMPHelper();
   ~XMPHelper(){}
-  bool mInitialized = false;
-  std::mutex mInitMutex;
-
 };
 
 } // namespace file
