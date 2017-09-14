@@ -4,7 +4,12 @@ set qmake_path=%2
 set platform=%3
 set build_type=%4
 if %platform%==amd64 (
-	call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+	echo Running vcvarsall for amd64
+  call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+)
+if %platform%==x86 (
+  echo Running vcvarsall for x86
+  call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86
 )
 mkdir ..\third_party
 xcopy %third_party_path% ..\third_party /e
