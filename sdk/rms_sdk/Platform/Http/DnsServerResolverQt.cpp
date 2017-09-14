@@ -63,8 +63,9 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
   if (!QCoreApplication::instance()){
       int argc = 1;
       char name[] = "DnsServerResolverQt::lookup";
-      char* argv = &name[0];
-      QCoreApplication a(argc, &argv);
+      char **argv = new char *[argc];
+      argv[0] = name;
+      QCoreApplication a(argc, argv);
 
       auto result = doLookup(dnsRequest);
 
