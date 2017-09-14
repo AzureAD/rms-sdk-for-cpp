@@ -1,5 +1,6 @@
 
 cd ../sdk
+export XKB_DEFAULT_RULES=base
 qmake
 make clean
 make
