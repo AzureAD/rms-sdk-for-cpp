@@ -1,4 +1,5 @@
 #include "xmp_helper.h"
+#include "exceptions.h"
 
 using std::pair;
 
@@ -13,24 +14,19 @@ XMPHelper& XMPHelper::GetInstance()
 
 XMPHelper::XMPHelper()
 {
-  if (mInitialized)
-    return;
+  try{
+    if (!SXMPMeta::Initialize())
+      throw new Exception("SXMPMeta Error");
 
-  std::lock_guard<std::mutex> lock(mInitMutex);
+    if (!SXMPFiles::Initialize())
+      throw new Exception("SXMPFiles Error");
 
-  if (mInitialized)
-    return;
-
-  if (!SXMPMeta::Initialize())
-    throw new std::runtime_error("SXMPMeta Error");
-
-  if (!SXMPFiles::Initialize())
-    throw new std::runtime_error("SXMPFiles Error");
-
-  std::string actualPrefix;
-  SXMPMeta::RegisterNamespace(kMsipNamespace, "msip", &actualPrefix);
-
-  mInitialized = true;
+    std::string actualPrefix;
+    SXMPMeta::RegisterNamespace(kMsipNamespace, "msip", &actualPrefix);
+  }
+  catch(XMP_Error ex){
+    throw new Exception(ex.GetErrMsg());
+  }
 }
 
 vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {

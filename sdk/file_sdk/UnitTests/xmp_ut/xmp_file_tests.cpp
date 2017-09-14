@@ -101,67 +101,77 @@ Xmp_Tests::Xmp_Tests() {
 }
 
 void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
+  try{
+    mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
-  QTemporaryDir tempDir;
-  tempDir.autoRemove();
-  foreach( const QString &fileName, QDir(":xmp_labeled_manual").entryList() )
-  {
-    auto fileNameString = fileName.toStdString();
-    auto extension = fileNameString.substr(fileNameString.find_last_of("."));
-    auto tempFile = tempDir.path() + "/temp" + QString::fromStdString(extension);
-    if (QFile::copy(":xmp_labeled_manual/"+fileName, tempFile)) {
+    QTemporaryDir tempDir;
+    tempDir.autoRemove();
+    foreach( const QString &fileName, QDir(":xmp_labeled_manual").entryList() )
+    {
+      auto fileNameString = fileName.toStdString();
+      auto extension = fileNameString.substr(fileNameString.find_last_of("."));
+      auto tempFile = tempDir.path() + "/temp" + QString::fromStdString(extension);
+      if (QFile::copy(":xmp_labeled_manual/"+fileName, tempFile)) {
 
-      auto fileStream = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
-      auto stream = StdStreamAdapter::Create(fileStream);
+        auto fileStream = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
+        auto stream = StdStreamAdapter::Create(fileStream);
 
-      XMPFileFormat xmpFileFormat(stream, extension);
-      auto tags = xmpFileFormat.GetTags();
-      QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
-      mip::Tag tag = tags[0];
-      QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
+        XMPFileFormat xmpFileFormat(stream, extension);
+        auto tags = xmpFileFormat.GetTags();
+        QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
+        mip::Tag tag = tags[0];
+        QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
+      }
+      else
+        QFAIL("Failed to copy file");
     }
-    else
-      QFAIL("Failed to copy file");
+  }
+  catch(...){
+    QFAIL("An error occured");
   }
 }
 
 void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
-  mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", mip::Method::AUTOMATIC, "72f988bf-86f1-41af-91ab-2d7cd011db47");
+  try{
+    mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", mip::Method::AUTOMATIC, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
-  QTemporaryDir tempDir;
-  tempDir.autoRemove();
+    QTemporaryDir tempDir;
+    tempDir.autoRemove();
 
-  foreach( const QString &fileName, QDir(":xmp_labeled_automatic").entryList() )
-  {
-    auto fileNameString = fileName.toStdString();
-    auto extension = fileNameString.substr(fileNameString.find_last_of("."));
-    auto tempFile = tempDir.path() + "/temp" +  QString::fromStdString(extension);
-    if (QFile::copy(":xmp_labeled_automatic/" + fileName, tempFile)) {
+    foreach( const QString &fileName, QDir(":xmp_labeled_automatic").entryList() )
+    {
+      auto fileNameString = fileName.toStdString();
+      auto extension = fileNameString.substr(fileNameString.find_last_of("."));
+      auto tempFile = tempDir.path() + "/temp" +  QString::fromStdString(extension);
+      if (QFile::copy(":xmp_labeled_automatic/" + fileName, tempFile)) {
 
-      auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios::binary);
-      auto stream = StdStreamAdapter::Create(std::static_pointer_cast<std::istream>(ifs));
+        auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios::binary);
+        auto stream = StdStreamAdapter::Create(std::static_pointer_cast<std::istream>(ifs));
 
-      XMPFileFormat xmpFileFormat(stream, extension);
-      auto tags = xmpFileFormat.GetTags();
+        XMPFileFormat xmpFileFormat(stream, extension);
+        auto tags = xmpFileFormat.GetTags();
 
-      QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
-      mip::Tag tag = tags[0];
-      QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
+        QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
+        mip::Tag tag = tags[0];
+        QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
 
-      QVERIFY2(tag.GetSetTime().find("2017-09-11") == 0, "SetTime is different than expected");
+        QVERIFY2(tag.GetSetTime().find("2017-09-11") == 0, "SetTime is different than expected");
+      }
+      else
+        QFAIL("Failed to copy file");
     }
-    else
-      QFAIL("Failed to copy file");
+  }
+  catch(...){
+    QFAIL("An error occured");
   }
 }
 
 void Xmp_Tests::SetTags_FileWithNoTags_TagsSetSuccessfully() {
-// VerifySetTags(":xmp_not_labeled");
+  // VerifySetTags(":xmp_not_labeled");
 }
 
 void Xmp_Tests::SetTags_FileWithExistingTags_TagsSetSuccessfully() {
-// VerifySetTags(":xmp_labeled_manual");
+  // VerifySetTags(":xmp_labeled_manual");
 }
 
 QTEST_APPLESS_MAIN(Xmp_Tests)
