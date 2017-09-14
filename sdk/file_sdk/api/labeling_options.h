@@ -26,7 +26,7 @@ public:
 
   const Method GetAssingmentMethod() const { return mAssingmentMethod; }
 
-  const std::string& GetOwner() const {return mOwner; }
+  const std::string& GetOwner() const { return mOwner; }
 
   inline void SetJustificationMessage(const std::string& justificationMessage) { mJustificationMessage = justificationMessage; }
 
