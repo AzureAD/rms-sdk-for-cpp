@@ -22,11 +22,11 @@ public:
                   mAssingmentMethod(assignmentMethod),
                   mOwner(owner) {}
 
-  inline std::string& GetJustificationMessage() const { return std::string(mJustificationMessage); }
+  const std::string& GetJustificationMessage() const { return mJustificationMessage; }
 
-  inline Method& GetAssingmentMethod() const { return Method(mAssingmentMethod); }
+  const Method GetAssingmentMethod() const { return mAssingmentMethod; }
 
-  inline std::string& GetOwner() const {return std::string(mOwner); }
+  const std::string& GetOwner() const { return mOwner; }
 
   inline void SetJustificationMessage(const std::string& justificationMessage) { mJustificationMessage = justificationMessage; }
 

@@ -1,7 +1,7 @@
 #ifndef ISTREAMMOCK_H
 #define ISTREAMMOCK_H
 
-#include "IStream.h"
+#include "istream.h"
 
 using mip::file::IStream;
 
