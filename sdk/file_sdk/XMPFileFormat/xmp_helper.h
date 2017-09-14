@@ -37,9 +37,7 @@ public:
   void operator=(XMPHelper const&) = delete;
 private:
   XMPHelper();
-  bool mInitialized = false;
-  std::mutex mInitMutex;
-
+  ~XMPHelper(){}
 };
 
 } // namespace file
