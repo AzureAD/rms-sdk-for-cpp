@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <Common/IStream.h>
+#include <Common/istream.h>
 #include <UserPolicy.h>
 #include "label.h"
 #include "fileapi_export.h"
