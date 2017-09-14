@@ -3,6 +3,7 @@
 set buildtarget=%1
 set msvcver=%2
 set build_type=%3
+set VCINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\
 
 IF /I "%buildtarget%"=="amd64" (
 	IF /I "%msvcver%"=="msvc2015" (
