@@ -7,6 +7,7 @@ if [ $? -ne 0 ]; then
   echo "sdk make failed."
   exit 1
 fi
+echo "SDK done."
 cd ../samples
 qmake -recursive
 make clean
@@ -15,6 +16,8 @@ if [ $? -ne 0 ]; then
   echo "sdk make failed."
   exit 1
 fi
+echo "Samples done."
+export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
 cd ../bin
 export LD_LIBRARY_PATH=`pwd`
 cd tests
