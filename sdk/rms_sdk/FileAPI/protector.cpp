@@ -13,7 +13,7 @@
 #include "protector_selector.h"
 #include "RMSExceptions.h"
 #include "UserPolicy.h"
-#include "../Platform/Logger/Logger.h"
+#include "Logger.h"
 
 using namespace rmscore::platform::logger;
 using namespace rmscore::pfile;
