@@ -12,6 +12,7 @@
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Xml/IDomDocument.h"
 #include "../Platform/Xml/IDomElement.h"
+#include <QCoreApplication>
 
 #include "CXMLUtils.h"
 #include "LicenseParser.h"
@@ -39,7 +40,15 @@ const uint8_t BOM_UTF8[] = {0xef, 0xbb, 0xbf};
 const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicense(const void *pbPublishLicense,
                                                                 size_t cbPublishLicense)
 {
+  if(!QCoreApplication::instance()) {
+    int argc = 1;
+    char name[] = "QCoreApplication";
+    char **argv = new char *[argc];
+    argv[0] = name;
+    QCoreApplication a(argc, argv);
     return ParsePublishingLicenseInner(pbPublishLicense, cbPublishLicense);
+  }
+  return ParsePublishingLicenseInner(pbPublishLicense, cbPublishLicense);
 }
 
 const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner(const void *pbPublishLicense,
