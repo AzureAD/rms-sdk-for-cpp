@@ -48,6 +48,7 @@ For Windows:
         gsf
         libxml
         lzma
+   Also copy 'glibconfig.h' from <MSYS inst dir>\mingw64\lib\glib-2.0\include to rms-sdk-for-cpp\third_party\include\Libgsf
 4. Copy the following DLLs from <MSYS inst dir>\mingw64\bin to rms-sdk-for-cpp\third_party\lib\Libgsf
         libglib-2.0-0.dll
         libgmodule-2.0-0.dll
