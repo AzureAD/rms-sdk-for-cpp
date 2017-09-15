@@ -134,6 +134,11 @@ public:
             PDFSecurityHandler* securityHander,
             rmscrypto::api::SharedStream outputIOS);
 protected:
+    //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
+    bool IsProtectedByPassword(CPDF_Parser *pPDFParser);
+    bool IsSigned(CPDF_Parser *pPDFParser);
+    bool IsDynamicXFA(CPDF_Parser *pPDFParser);
+
     uint32_t ParsePDFFile(CPDF_Parser* pPDFParser);
     uint32_t CreatePDFFile(CPDF_Parser* pPDFParser,
                            CPDF_Dictionary *pEncryptionDic,

@@ -413,6 +413,94 @@ uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(const std::string& inputFileP
     return result;
 }
 
+bool PDFCreatorImpl::IsProtectedByPassword(CPDF_Parser *pPDFParser)
+{
+    CPDF_Dictionary* pEncryptDict = pPDFParser->GetTrailer()->GetDict("Encrypt");
+    if (pEncryptDict)
+    {
+        CFX_ByteString sFilter = pEncryptDict->GetString("Filter");
+        if (sFilter.Compare("Standard") == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool PDFCreatorImpl::IsSigned(CPDF_Parser *pPDFParser)
+{
+    CPDF_Document* pDoc = pPDFParser->GetDocument();
+    CPDF_Dictionary* pRootDict = pDoc->GetRoot();
+    if(pRootDict)
+    {
+        if(CPDF_Dictionary* pAcroFormDict = pRootDict->GetDict("AcroForm"))
+        {
+            //has been signed?
+            if(pAcroFormDict->KeyExist("SigFlags"))
+            {
+                int nSigFlg = pAcroFormDict->GetInteger("SigFlags");
+                if(nSigFlg == 3)
+                {
+                   return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool PDFCreatorImpl::IsDynamicXFA(CPDF_Parser *pPDFParser)
+{
+    CPDF_Document* pDoc = pPDFParser->GetDocument();
+    CPDF_Dictionary* pRootDict = pDoc->GetRoot();
+    CPDF_Dictionary* pAcroFormDict = nullptr;
+    if(!pRootDict) return false;
+
+    pAcroFormDict = pRootDict->GetDict("AcroForm");
+    if(!pAcroFormDict) return false;
+
+    if (!pAcroFormDict->KeyExist("XFA"))
+    {
+        return false;
+    }
+
+    CPDF_Object* pXFAObj = pAcroFormDict->GetElement("XFA");
+    CPDF_Array* pXFAArry = pXFAObj->GetArray();
+    if(!pXFAArry) return false;
+
+    FX_DWORD nCount = pXFAArry->GetCount();
+    for (int i = 0; i < nCount; i++)
+    {
+        CPDF_Object* pObj = pXFAArry->GetElement(i);
+        if (NULL != pObj && pObj->GetType() == PDFOBJ_REFERENCE)
+        {
+            CPDF_Object* pRefObj = (CPDF_Object*)pObj->GetDict();
+            if (NULL != pRefObj)
+            {
+                CPDF_Dictionary* pDic = pRefObj->GetDict();
+                if (NULL != pDic && pDic->GetInteger("Length") != 0)
+                {
+                    if(pRootDict->KeyExist("NeedsRendering"))
+                    {
+                        bool bDymasticXFA = pRootDict->GetBoolean("NeedsRendering");
+                        if(bDymasticXFA)
+                            return true;
+                        else
+                            //is static XFA
+                            return false;
+                    }
+                    else
+                    {
+                        //is static XFA
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 uint32_t PDFCreatorImpl::ParsePDFFile(CPDF_Parser *pPDFParser)
 {
     uint32_t result = PDFCREATOR_ERR_SUCCESS;
@@ -422,15 +510,23 @@ uint32_t PDFCreatorImpl::ParsePDFFile(CPDF_Parser *pPDFParser)
     result = ConvertParsingErrCode(parseResult);
 
     if(result == PDFCREATOR_ERR_SUCCESS)
-    {
-        CPDF_Dictionary* pEncryptDict = pPDFParser->GetTrailer()->GetDict("Encrypt");
-        if (pEncryptDict)
+    {        
+        //has been protected by password
+        if (IsProtectedByPassword(pPDFParser))
         {
-            CFX_ByteString sFilter = pEncryptDict->GetString("Filter");
-            if (sFilter.Compare("Standard") == 0)
-            {
-                return PDFCREATOR_ERR_SECURITY;
-            }
+            return PDFCREATOR_ERR_SECURITY;
+        }
+
+        //has been signed?
+        if(IsSigned(pPDFParser))
+        {
+            return PDFCREATOR_ERR_FORMAT;
+        }
+
+        //is dynamic XFA PDF
+        if(IsDynamicXFA(pPDFParser))
+        {
+            return PDFCREATOR_ERR_FORMAT;
         }
     }
 
