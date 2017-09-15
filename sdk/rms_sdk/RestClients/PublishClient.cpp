@@ -82,7 +82,7 @@ PublishResponse PublishClient::PublishCommon(
   {
     throw exceptions::RMSNetworkException(
             "PublishClient: Got an invalid json from the REST service.",
-            exceptions::RMSNetworkException::ServerError);
+            exceptions::RMSNetworkException::Reason::ServerError);
   }
 }
 

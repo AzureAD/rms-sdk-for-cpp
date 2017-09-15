@@ -18,6 +18,7 @@
 
 #include <rmsauth/AuthenticationContext.h>
 #include <rmsauth/FileCache.h>
+#include <Pole/pole.h>
 
 #include <UserRights.h>
 #include <rights.h>
@@ -97,6 +98,9 @@ private slots:
   void on_encryptPFILETemplatesButton_clicked();
   void on_fromPFILEButton_clicked();
   void on_encryptPFILERightsButton_clicked();
+  void on_FileAPIEncrypt_clicked();
+  void on_FileAPIDecrypt_clicked();
+  void on_FileAPIEncryptRights_clicked();
 
 private:
 
@@ -124,6 +128,22 @@ private:
                         const string& clientId,
                         const string& redirectUrl,
                         const string& clientEmail);
+
+  void FileAPIEncrypt(const string& fileIn,
+                      const string& clientId,
+                      const string& redirectUrl,
+                      const string& clientEmail);
+
+  void FileAPIEncryptRights(const string& fileIn,
+                            const vector<UserRights>& userRights,
+                            const string& clientId,
+                            const string& redirectUrl,
+                            const string& clientEmail);
+
+  void FileAPIDecrypt(const string& fileIn,
+                      const string& clientId,
+                      const string& redirectUrl,
+                      const string& clientEmail);
 
   void   AddLog(const QString& tag,
                 const QString& message);
