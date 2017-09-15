@@ -40,9 +40,6 @@ rmsdll_env.Append(CXXFLAGS=Split('-DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB 
 src_files = Glob('*.cpp')
 rmsdll_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
-lib_path = [
-    qt_lib_path,
-]
 objects = [  
   crypto_obj,
   crypto_api_obj,

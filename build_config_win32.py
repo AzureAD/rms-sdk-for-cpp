@@ -8,13 +8,12 @@ arch_suffix = ''
 linkflags = ''
 ccflags = ''
 cxxflags = ''
-msvc_version = '14'
-
-lib_path += [
+lib_path = [
     '#third_party/lib/eay',
 ]
 
-def get_vars(ix86, platform, msvc12):
+def get_vars(isX86, msvc12):
+  msvc_version = '14'
   print "Settings windows vars"
   if isX86:
     target_arch = "x86"
@@ -42,17 +41,11 @@ def get_flags_win32(isRelease):
     linkflags = '/NOLOGO /DEBUG'
     ccflags += ' -c -Zi -MDd'
     cxxflags += ' -c -Zi -MDd' 
-  if msvc_version == '12':
-    ccflags += ' -DMSVC12'
-    cxxflags += ' -DMSVC12'
   return (ccflags, cxxflags, linkflags)
 
-def get_qtvars():
+def get_qtvars(msvc_path):
   print "windows get qtvars"
-  msvc_path = int(msvc_version) + 1
-  str(msvc_path)
-  qt_dir = 'C:/Qt/5.7/msvc' + str(msvc_path) + arch_suffix
-  print "AAAAA", qt_dir
+  qt_dir = 'C:/Qt/5.7/' + msvc_path
   qt_include_search_path = [
       qt_dir + '/mkspecs/win32-msvc2015',
   ]

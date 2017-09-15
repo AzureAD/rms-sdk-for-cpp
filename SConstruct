@@ -71,12 +71,11 @@ if platform == 'win32':
   from build_config_win32 import get_vars, get_qtvars, lib_path
   (arch_suffix, target_arch, win_def, msvc) = get_vars(isX86, msvc12)
   msvc_version = msvc + '.0'
-  msvc_dir = 'msvc' + msvc
-  msvc_path = msvc + 1
-  msvc_path = 'msvc' + str(msvc_path)
+  msvc_path = int(msvc) + 1
+  msvc_path = 'msvc20' + str(msvc_path)
   libxml2flavor = "libxml2-2.9.3-win32-x86_64"
   libxml2headerpath = "#src/external/libxml2/" + libxml2flavor + "/include/libxml2"
-  (qt_dir, qt_include_path) = get_qtvars()
+  (qt_dir, qt_include_path) = get_qtvars(str(msvc_path) + arch_suffix)
   print "MSVC: ", msvc_version
 elif platform == 'linux2':
   print "BBBBB"
@@ -86,8 +85,6 @@ elif platform == 'linux2':
   (qt_dir, qt_include_path) = get_qtvars()
 
 # TODO: move to build_config_<platform>
-home = expanduser("~")
-qt_dir = home + '/Qt/5.7/gcc_64'
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
@@ -101,7 +98,7 @@ qt_include_path += [
     qt_inc_dir + '/QtNetwork',
     qt_inc_dir + '/QtXml',
     qt_inc_dir + '/QtXmlPatterns',
-    qt_dir + 'mkspecs/linux-g++',
+    qt_dir + '/mkspecs/linux-g++',
 ]
 
 lib_path += [
@@ -158,6 +155,9 @@ env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
 env.Append(CPPPATH = qt_bin_dir)
 
 (ccflags, cxxflags, linkflags) = get_flags(isRelease)
+if msvc_version == '12':
+    ccflags += ' -DMSVC12'
+    cxxflags += ' -DMSVC12'
 env.Append(CCFLAGS=Split(ccflags))
 env.Append(CXXFLAGS=Split(cxxflags))
 env.Append(LINKFLAGS=Split(linkflags))

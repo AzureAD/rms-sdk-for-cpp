@@ -32,9 +32,6 @@ libs = [
     'Qt5Widgets' + lib_suffix,
     'Qt5Gui' + lib_suffix,
 ] 
-lib_path = [
-    qt_lib_path,
-]
 
 rmscrypto_ut_env =  rmscrypto_env.Clone()
 srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
