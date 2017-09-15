@@ -7,10 +7,10 @@
  */
 
 #include <cmath>
+#include <ctime>
 #include <algorithm>
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Common/tools.h"
-#include "../Common/FrameworkSpecificTypes.h"
 #include "../Platform/Json/IJsonObject.h"
 #include "../Platform/Json/IJsonArray.h"
 #include "../Platform/Json/IJsonParser.h"
@@ -20,6 +20,11 @@ using namespace std;
 using namespace rmscore::platform::json;
 using namespace rmscore::common;
 using namespace rmscore::restclients;
+
+namespace {
+  // The current serialized time format: 2017-01-01T12:12:12Z.(precision in seconds).
+  string kDataTimeFormat = "%FT%TZ";
+} // namespace
 
 namespace rmscore {
 namespace json {
@@ -172,10 +177,10 @@ common::ByteArray JsonSerializer::SerializePublishCustomRequest(
 
   if (std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil) > 0)
   {
-    common::DateTime dt = common::DateTime::fromTime_t(
-      std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil));
-        pPolicyJson->SetNamedString("LicenseValidUntil", dt.toUTC().toString(
-                                  Qt::ISODate).toStdString());
+
+      std::time_t validUntil = std::chrono::system_clock::to_time_t(request.ftLicenseValidUntil);
+      struct tm t = ConvertStdTimeToGmtTm(validUntil);
+      pPolicyJson->SetNamedString("LicenseValidUntil", ConvertTmToString(t, kDataTimeFormat));
   }
 
   // the appdata should look like this:
@@ -367,10 +372,9 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
     if(response.contentValidUntil.end()[-1] != 'Z') {
         response.contentValidUntil += 'Z';
     }
-    auto tmp = common::DateTime::fromString(
-      QString::fromStdString(response.contentValidUntil), Qt::ISODate);
-    response.ftContentValidUntil = std::chrono::system_clock::from_time_t(
-      tmp.toLocalTime().toTime_t());
+
+    std::time_t validUntil= GetTimeFromString(response.contentValidUntil, kDataTimeFormat);
+    response.ftContentValidUntil = std::chrono::system_clock::from_time_t(validUntil);
   }
   else
   {
@@ -379,18 +383,16 @@ UsageRestrictionsResponse JsonSerializer::DeserializeUsageRestrictionsResponse(
 
   if (!response.licenseValidUntil.empty())
   {
-    auto tmp =
-      common::DateTime::fromString(
-        QString::fromStdString(response.licenseValidUntil), Qt::ISODate);
-    response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(
-      tmp.toLocalTime().toTime_t());
+    std::time_t validUntil= GetTimeFromString(response.licenseValidUntil, kDataTimeFormat);
+    response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(validUntil);
   }
   else
   {
     response.ftLicenseValidUntil = std::chrono::system_clock::from_time_t(0);
   }
 
-  if (pJsonResponse->HasName("allowOfflineAccess")) {
+  if (pJsonResponse->HasName("allowOfflineAccess"))
+  {
     response.bAllowOfflineAccess = pJsonResponse->GetNamedBool(
       "allowOfflineAccess", true);
   } else {

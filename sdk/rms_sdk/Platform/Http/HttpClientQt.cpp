@@ -12,6 +12,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QEventLoop>
+#include <QCoreApplication>
 #include <QTimer>
 
 #include "../Logger/Logger.h"
@@ -45,7 +46,7 @@ common::ByteArray ReadAllBytes(QIODevice *from) {
   return result;
 }
 
-shared_ptr<IHttpClient>IHttpClient::Create() {
+shared_ptr<IHttpClient> doCreate() {
   static bool initialized = false;
 
   // add Microsoft certificates to trust list
@@ -60,6 +61,22 @@ shared_ptr<IHttpClient>IHttpClient::Create() {
     initialized = true;
   }
   return make_shared<HttpClientQt>();
+}
+
+shared_ptr<IHttpClient> IHttpClient::Create() {
+
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if(!QCoreApplication::instance())
+  {
+    int argc = 0;
+    QCoreApplication a(argc, nullptr);
+
+    return doCreate();
+  }
+
+  return doCreate();
 }
 
 HttpClientQt::HttpClientQt() : lastReply_(nullptr) {
@@ -85,13 +102,13 @@ void HttpClientQt::AddHeader(const string& headerName,
   this->request_.setRawHeader(headerName.c_str(), headerValue.c_str());
 }
 
-StatusCode HttpClientQt::Post(const string                     & url,
-                              const common::ByteArray          & request,
-                              const string                     & mediaType,
-                              common::ByteArray                & response,
+StatusCode HttpClientQt::doPost(const string& url,
+                              const common::ByteArray& request,
+                              const string& mediaType,
+                              common::ByteArray& response,
                               std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Info("==> HttpClientQt::POST %s", url.data());
+  Logger::Info("==> PostWithCoreAppContext %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
   this->AddAcceptMediaTypeHeader(mediaType);
@@ -123,7 +140,7 @@ StatusCode HttpClientQt::Post(const string                     & url,
                           error.errorString().toStdString().c_str());
             throw exceptions::RMSNetworkException(
               error.errorString().toStdString(),
-              exceptions::RMSNetworkException::ServerError);
+              exceptions::RMSNetworkException::Reason::ServerError);
           }
         });
 
@@ -135,7 +152,7 @@ StatusCode HttpClientQt::Post(const string                     & url,
     if ((cancelState != nullptr) && cancelState->load()) {
       throw exceptions::RMSNetworkException(
               "Network operation was cancelled by user",
-              exceptions::RMSNetworkException::CancelledByUser);
+              exceptions::RMSNetworkException::Reason::CancelledByUser);
     }
   } while (!timer.isActive() || !lastReply_->isFinished());
 
@@ -163,11 +180,30 @@ StatusCode HttpClientQt::Post(const string                     & url,
   return StatusCode(statusCode.toInt());
 }
 
-StatusCode HttpClientQt::Get(const string                     & url,
-                             common::ByteArray                & response,
+StatusCode HttpClientQt::Post(const string& url,
+                              const common::ByteArray& request,
+                              const string& mediaType,
+                              common::ByteArray& response,
+                              std::shared_ptr<std::atomic<bool> >cancelState)
+{
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if (!QCoreApplication::instance()) {
+    int argc = 0;
+    QCoreApplication a(argc, nullptr);
+
+    return doPost(url, request, mediaType, response, cancelState);
+  }
+  return doPost(url, request, mediaType, response, cancelState);
+}
+
+StatusCode HttpClientQt::doGet(const string& url,
+                             common::ByteArray& response,
                              std::shared_ptr<std::atomic<bool> >cancelState)
 {
-  Logger::Info("==> HttpClientQt::GET %s", url.data());
+
+  Logger::Info("==> GetWithCoreAppContext %s", url.data());
 
   this->request_.setUrl(QUrl(url.c_str()));
 
@@ -189,7 +225,7 @@ StatusCode HttpClientQt::Get(const string                     & url,
                           error.errorString().toStdString().c_str());
             throw exceptions::RMSNetworkException(
               error.errorString().toStdString(),
-              exceptions::RMSNetworkException::ServerError);
+              exceptions::RMSNetworkException::Reason::ServerError);
           }
         });
 
@@ -201,7 +237,7 @@ StatusCode HttpClientQt::Get(const string                     & url,
     if ((cancelState != nullptr) && cancelState->load()) {
       throw exceptions::RMSNetworkException(
               "Network operation was cancelled by user",
-              exceptions::RMSNetworkException::CancelledByUser);
+              exceptions::RMSNetworkException::Reason::CancelledByUser);
     }
   } while (!timer.isActive() || !lastReply_->isFinished());
 
@@ -227,6 +263,23 @@ StatusCode HttpClientQt::Get(const string                     & url,
   }
 
   return StatusCode(statusCode.toInt());
+}
+
+StatusCode HttpClientQt::Get(const string& url,
+                             common::ByteArray& response,
+                             std::shared_ptr<std::atomic<bool> >cancelState)
+{
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if (!QCoreApplication::instance()) {
+    int argc = 0;
+    QCoreApplication a(argc, nullptr);
+
+    return doGet(url, response, cancelState);
+  }
+
+  return doGet(url, response, cancelState);
 }
 
 const string HttpClientQt::GetResponseHeader(const string& headerName) {

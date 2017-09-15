@@ -9,7 +9,7 @@
 #ifndef _RMS_LIB_SERVICEURLCONSENTMANAGER_H_
 #define _RMS_LIB_SERVICEURLCONSENTMANAGER_H_
 
-#include <string>
+#include <string.h>
 #include <vector>
 #include "IConsentManager.h"
 #include "../ModernAPI/IConsent.h"

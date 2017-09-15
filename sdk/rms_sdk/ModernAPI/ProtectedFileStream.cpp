@@ -80,9 +80,9 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   }
   catch (exceptions::RMSException& e)
   {
-    if ((e.error() != exceptions::RMSException::PFileError) ||
+    if ((e.error() != static_cast<int>(exceptions::RMSException::ErrorTypes::PFileError)) ||
         (static_cast<exceptions::RMSPFileException&>(e).reason() !=
-         exceptions::RMSPFileException::NotPFile))
+         exceptions::RMSPFileException::Reason::NotPFile))
     {
       throw;
     }
@@ -118,6 +118,36 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
     move(status), referrer,
     shared_ptr<ProtectedFileStream>(protectedFileStream));
   return result;
+}
+
+bool ProtectedFileStream::IsProtected(SharedStream stream)
+{
+    Logger::Hidden("+ProtectedFileStream::IsProtected");
+
+    // Read PfileHeader from the input stream. If header is parsed successfully, the file is
+    // already protected.
+    shared_ptr<IPfileHeaderReader> headerReader = IPfileHeaderReader::Create();
+    shared_ptr<PfileHeader> header = nullptr;
+    try
+    {
+      header  = headerReader->Read(stream);
+      Logger::Hidden(
+        "ProtectedFileStream: Read pfile header. Major version: %d, minor version: %d, "
+        "file extension: '%s', content start position: %d, original file size: %I64d",
+        header->GetMajorVersion(),
+        header->GetMinorVersion(),
+        header->GetFileExtension().c_str(),
+        header->GetContentStartPosition(),
+        header->GetOriginalFileSize());
+    }
+    catch (exceptions::RMSException&)
+    {
+      Logger::Hidden("-ProtectedFileStream::IsProtected");
+      return false;
+    }
+
+    Logger::Hidden("-ProtectedFileStream::IsProtected");
+    return true;
 }
 
 shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(

@@ -1,0 +1,11 @@
+from build_config import *
+
+Import('file_env')
+
+src_files = Glob('*.cpp')
+
+opc_env = file_env.Clone()
+opc_env.Append(CPPPATH = Split('#sdk/file_sdk'))
+
+opc_obj = create_objs(opc_env, src_files)
+Return('opc_obj')

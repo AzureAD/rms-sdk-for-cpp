@@ -1,0 +1,146 @@
+Import("""
+    build_arch
+    configuration
+    lib_suffix
+    platform
+    qt_lib_path
+    env
+    target_arch
+""")
+
+Import("""
+    common_obj
+    consent_obj
+    core_obj
+    crypto_obj
+    crypto_api_obj
+    crypto_platform_crypto_obj
+    crypto_platform_keystorage_obj
+    crypto_platform_logger_obj
+    crypto_platform_settings_obj
+    googletest_obj
+    json_obj
+    modernapi_obj
+    pfile_obj
+    office_obj
+    fileapi_obj
+    rms_platform_filesystem_obj
+    rms_platform_http_obj
+    rms_platform_json_obj
+    rms_platform_logger_obj
+    rms_platform_settings_obj
+    rms_platform_xml_obj
+    restclients_obj
+""")
+
+rmsdll_env = env.Clone()
+
+rmsdll_env.Append(CCFLAGS=Split('-DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+rmsdll_env.Append(CXXFLAGS=Split('-DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+
+src_files = Glob('*.cpp')
+rmsdll_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+lib_path = [
+    qt_lib_path,
+]
+objects = [  
+  crypto_obj,
+  crypto_api_obj,
+  crypto_platform_keystorage_obj,
+  crypto_platform_crypto_obj,
+  crypto_platform_logger_obj,
+  crypto_platform_settings_obj,
+  common_obj,
+  consent_obj,
+  core_obj,
+  googletest_obj,
+  pfile_obj,
+  json_obj,
+  modernapi_obj,
+  rms_platform_filesystem_obj,
+  rms_platform_http_obj,
+  rms_platform_json_obj,
+  rms_platform_logger_obj,
+  rms_platform_settings_obj,
+  rms_platform_xml_obj,
+  restclients_obj,
+]
+libs = [
+  'Qt5Core' + lib_suffix,
+  'Qt5Network' + lib_suffix,
+  'Qt5Widgets' + lib_suffix,
+  'Qt5Xml' + lib_suffix,
+  'Qt5XmlPatterns' + lib_suffix,
+  'DnsAPI',
+]
+
+if platform == 'win32':
+  rmsdll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
+  if configuration == 'debug':
+      rmsdll_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+      rmsdll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  lib_path += [
+    '#third_party/lib/eay',
+  ]
+  libs += [
+      'libeay32',
+      'ssleay32',
+      'Advapi32',
+      'Gdi32',
+      'User32',
+      'legacy_stdio_definitions',
+  ]  
+elif platform == '__linux__':
+  rmscryptodll_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  rmscryptodll_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  rmscryptodll_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  libs += [
+      'ssl'
+      'crypto'
+      'secret-1'
+      'glib-2.0'
+  ]
+elif platform == 'darwin':
+  libs += 'ssl'
+  libs += 'crypto'
+
+rms_lib = rmsdll_env.SharedLibrary(target = "rms", source = objects, LIBS = libs, LIBPATH = lib_path)
+
+# File API
+rmsfiledll_env = rmsdll_env.Clone()
+
+rmsfiledll_env.Append(CCFLAGS='-DQT_NO_KEYWORDS')
+rmsfiledll_env.Append(CXXFLAGS='-DQT_NO_KEYWORDS')
+objects += [
+    office_obj,
+    fileapi_obj]
+
+if platform == 'win32':
+    lib_path += [
+        '#third_party/lib/Libgsf',
+    ]
+    libs += [
+        'libgthread-2.0-0',
+        'libiconv-2',
+        'libintl-8',
+        'liblzma-5',
+        'libpcre-1',
+        'libwinpthread-1',
+        'libxml2-2',
+        'zlib1',
+        'libbz2-1',
+        'libffi-6',
+        'libgio-2.0-0',
+        'libglib-2.0-0',
+        'libgmodule-2.0-0',
+        'libgobject-2.0-0',
+        'libgsf-1-114',
+    ]
+elif platform == '__linux__':
+    rmsfiledll_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
+
+rmsfile_lib = rmsfiledll_env.SharedLibrary(target = "rmsfile", source = objects, LIBS = libs, LIBPATH = lib_path)
+
+Return('rms_lib rmsfile_lib')

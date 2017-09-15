@@ -57,7 +57,7 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
   if (bOffline) {
     throw exceptions::RMSNetworkException(
             "Couldn't get the response from cache, so need UI.",
-            exceptions::RMSNetworkException::NeedsOnline);
+            exceptions::RMSNetworkException::Reason::NeedsOnline);
   }
   auto pJsonSerializer   = json::IJsonSerializer::Create();
   auto serializedRequest = pJsonSerializer->SerializeUsageRestrictionsRequest(
@@ -96,7 +96,7 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
   {
     throw exceptions::RMSNetworkException(
             "UsageRestrictionsClient: Got an invalid json from the REST service.",
-            exceptions::RMSNetworkException::ServerError);
+            exceptions::RMSNetworkException::Reason::ServerError);
   }
   // we could deserialize the response so it should be valid and we can store it
   if (useCache) {
@@ -144,8 +144,8 @@ void UsageRestrictionsClient::StoreToCache(
   }
 
   shared_ptr<IRestClientCache> pCache = IRestClientCache::Create(
-    encryptData ? IRestClientCache::CACHE_ENCRYPTED
-    : IRestClientCache::CACHE_PLAINDATA);
+    encryptData ? IRestClientCache::CacheType::CACHE_ENCRYPTED
+    : IRestClientCache::CacheType::CACHE_PLAINDATA);
 
   try
   {
@@ -168,8 +168,8 @@ bool UsageRestrictionsClient::TryGetFromCache(
   bool                                        decryptData)
 {
   shared_ptr<IRestClientCache> pCache = IRestClientCache::Create(
-    decryptData ? IRestClientCache::CACHE_ENCRYPTED
-    : IRestClientCache::CACHE_PLAINDATA);
+    decryptData ? IRestClientCache::CacheType::CACHE_ENCRYPTED
+    : IRestClientCache::CacheType::CACHE_PLAINDATA);
   shared_ptr<IJsonSerializer> pJsonSerializer = IJsonSerializer::Create();
 
   try

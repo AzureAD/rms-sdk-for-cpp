@@ -102,9 +102,10 @@ public:
         IAuthenticationCallback& authenticationCallback,
         IConsentCallback* consentCallback,
         PolicyAcquisitionOptions options,
-        ResponseCacheFlags cacheMask = static_cast<ResponseCacheFlags>(RESPONSE_CACHE_INMEMORY |
-                                                                       RESPONSE_CACHE_ONDISK |
-                                                                       RESPONSE_CACHE_CRYPTED),
+        ResponseCacheFlags cacheMask = static_cast<ResponseCacheFlags>(
+                ResponseCacheFlags::RESPONSE_CACHE_INMEMORY |
+                ResponseCacheFlags::RESPONSE_CACHE_ONDISK |
+                ResponseCacheFlags::RESPONSE_CACHE_CRYPTED),
         std::shared_ptr<std::atomic<bool> > cancelState = nullptr);
 
     /*!
@@ -122,6 +123,14 @@ public:
     static std::shared_ptr<ProtectedFileStream> Create(std::shared_ptr<UserPolicy>  policy,
                                                        rmscrypto::api::SharedStream stream,
                                                        const std::string& originalFileExtension);
+
+    /*!
+    @brief Checks whether a stream is protectd by checking for the presence of a pfile header.
+
+    @param stream The std::iostream to be checked.
+    @return A bool value indicating whether the stream is protected or not.
+    */
+    static bool IsProtected(rmscrypto::api::SharedStream stream);
 
     std::shared_ptr<UserPolicy> Policy() { return m_policy; }
 

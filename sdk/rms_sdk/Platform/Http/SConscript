@@ -1,0 +1,9 @@
+from build_config import *
+
+Import('rms_env')
+
+src_files = Glob('*.cpp')
+
+platform_http_obj = create_objs(rms_env, src_files)
+
+Return('platform_http_obj')

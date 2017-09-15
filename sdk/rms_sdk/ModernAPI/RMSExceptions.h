@@ -25,10 +25,10 @@ namespace exceptions {
 class RMSException : public std::exception {
 public:
 
-  enum ExceptionTypes {
+  enum class ExceptionTypes : int {
     LogicError = 0
   };
-  enum ErrorTypes {
+  enum class ErrorTypes : int {
     InvalidArgument = 0,
     NullPointer,
     NotFound,
@@ -36,7 +36,10 @@ public:
     CryptoError,
     StreamError,
     PFileError,
-    RightsError
+    RightsError,
+    OfficeFileError,
+    NotSupported,
+    FileError,
   };
 
   RMSException(const ExceptionTypes type,
@@ -94,13 +97,13 @@ private:
 class RMSLogicException : public RMSException {
 public:
 
-  RMSLogicException(const int          error,
+  RMSLogicException(const ErrorTypes   error,
                     const std::string& message) _NOEXCEPT
-    : RMSException(LogicError, error, message) {}
+    : RMSException(ExceptionTypes::LogicError, static_cast<int>(error), message) {}
 
-  RMSLogicException(const int          error,
+  RMSLogicException(const ErrorTypes   error,
                     const char *const& message) _NOEXCEPT
-    : RMSException(LogicError, error, message) {}
+    : RMSException(ExceptionTypes::LogicError, static_cast<int>(error), message) {}
 
   virtual ~RMSLogicException() _NOEXCEPT {}
 };
@@ -109,10 +112,10 @@ class RMSInvalidArgumentException : public RMSLogicException {
 public:
 
   RMSInvalidArgumentException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(InvalidArgument, message) {}
+    : RMSLogicException(ErrorTypes::InvalidArgument, message) {}
 
   RMSInvalidArgumentException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(InvalidArgument, message) {}
+    : RMSLogicException(ErrorTypes::InvalidArgument, message) {}
 
   virtual ~RMSInvalidArgumentException() _NOEXCEPT {}
 };
@@ -121,10 +124,10 @@ class RMSNullPointerException : public RMSLogicException {
 public:
 
   RMSNullPointerException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(NullPointer, message) {}
+    : RMSLogicException(ErrorTypes::NullPointer, message) {}
 
   RMSNullPointerException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(NullPointer, message) {}
+    : RMSLogicException(ErrorTypes::NullPointer, message) {}
 
   virtual ~RMSNullPointerException() _NOEXCEPT {}
 };
@@ -133,10 +136,10 @@ class RMSNotFoundException : public RMSLogicException {
 public:
 
   RMSNotFoundException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(NullPointer, message) {}
+    : RMSLogicException(ErrorTypes::NullPointer, message) {}
 
   RMSNotFoundException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(NullPointer, message) {}
+    : RMSLogicException(ErrorTypes::NullPointer, message) {}
 
   virtual ~RMSNotFoundException() _NOEXCEPT {}
 };
@@ -144,7 +147,7 @@ public:
 class RMSNetworkException : public RMSLogicException {
 public:
 
-  enum Reason {
+  enum class Reason : int {
     ServerError = 0,
     UserNotConsented,
     ServiceNotAvailable,
@@ -158,10 +161,10 @@ public:
 
 
   RMSNetworkException(const std::string& message, Reason reason) _NOEXCEPT
-    : RMSLogicException(NetworkError, message), reason_(reason) {}
+    : RMSLogicException(ErrorTypes::NetworkError, message), reason_(reason) {}
 
   RMSNetworkException(const char *const& message, Reason reason) _NOEXCEPT
-    : RMSLogicException(NetworkError, message), reason_(reason) {}
+    : RMSLogicException(ErrorTypes::NetworkError, message), reason_(reason) {}
 
   virtual ~RMSNetworkException() _NOEXCEPT {}
 
@@ -178,10 +181,10 @@ class RMSCryptographyException : public RMSLogicException {
 public:
 
   RMSCryptographyException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(NetworkError, message) {}
+    : RMSLogicException(ErrorTypes::NetworkError, message) {}
 
   RMSCryptographyException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(NetworkError, message) {}
+    : RMSLogicException(ErrorTypes::NetworkError, message) {}
 
   virtual ~RMSCryptographyException() _NOEXCEPT {}
 };
@@ -189,27 +192,29 @@ class RMSStreamException : public RMSLogicException {
 public:
 
   RMSStreamException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(StreamError, message) {}
+    : RMSLogicException(ErrorTypes::StreamError, message) {}
 
   RMSStreamException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(StreamError, message) {}
+    : RMSLogicException(ErrorTypes::StreamError, message) {}
 
   virtual ~RMSStreamException() _NOEXCEPT {}
 };
 class RMSPFileException : public RMSLogicException {
 public:
 
-  enum Reason {
+  enum class Reason : int {
     NotPFile = 0,
     NotSupportedVersion,
     BadArguments,
+    CorruptFile,
+    AlreadyProtected,
   };
 
   RMSPFileException(const std::string& message, Reason reason) _NOEXCEPT
-    : RMSLogicException(PFileError, message), reason_(reason) {}
+    : RMSLogicException(ErrorTypes::PFileError, message), reason_(reason) {}
 
   RMSPFileException(const char *const& message, Reason reason) _NOEXCEPT
-    : RMSLogicException(PFileError, message), reason_(reason) {}
+    : RMSLogicException(ErrorTypes::PFileError, message), reason_(reason) {}
 
   virtual ~RMSPFileException() _NOEXCEPT {}
 
@@ -226,13 +231,44 @@ class RMSRightsException : public RMSLogicException {
 public:
 
   RMSRightsException(const std::string& message) _NOEXCEPT
-    : RMSLogicException(PFileError, message) {}
+    : RMSLogicException(ErrorTypes::RightsError, message) {}
 
   RMSRightsException(const char *const& message) _NOEXCEPT
-    : RMSLogicException(PFileError, message) {}
+    : RMSLogicException(ErrorTypes::RightsError, message) {}
 
   virtual ~RMSRightsException() _NOEXCEPT {}
 };
+
+class RMSOfficeFileException : public RMSLogicException {
+public:
+
+  enum class Reason : int {
+    NotOfficeFile = 0,
+    BadArguments,
+    CorruptFile,
+    NotProtected,
+    NonRMSProtected,
+    AlreadyProtected,
+    CompoundFileError,
+    Unknown
+  };
+
+  RMSOfficeFileException(const std::string& message, Reason reason) _NOEXCEPT
+    : RMSLogicException(ErrorTypes::OfficeFileError, message), reason_(reason) {}
+
+  RMSOfficeFileException(const char *const& message, Reason reason) _NOEXCEPT
+    : RMSLogicException(ErrorTypes::OfficeFileError, message), reason_(reason) {}
+
+  virtual ~RMSOfficeFileException() _NOEXCEPT {}
+
+  virtual Reason reason() const _NOEXCEPT {
+    return reason_;
+  }
+
+private:
+  Reason reason_; // additional reason for this error
+};
+
 } // namespace exceptions
 } // namespace rmscore
 #endif // _RMS_LIB_EXCEPTIONS_H

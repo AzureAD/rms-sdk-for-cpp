@@ -1,0 +1,96 @@
+from build_config import *
+
+Import("""
+    target_arch
+    configuration
+    lib_suffix
+    qt_lib_path
+    platform
+    rms_env
+""")
+
+Import("""
+    common_obj
+    crypto_api_obj
+    crypto_obj
+    crypto_platform_crypto_obj
+    crypto_platform_keystorage_obj
+    crypto_platform_logger_obj
+    crypto_platform_settings_obj
+    googletest_obj
+    json_obj
+    restclients_obj
+    rms_platform_filesystem_obj
+    rms_platform_http_obj
+    rms_platform_json_obj
+    rms_platform_logger_obj
+    rms_platform_settings_obj
+    rms_platform_xml_obj
+""")
+
+src_files = Glob('*.cpp')
+src_files += Glob(configuration + '/*.cpp')
+
+rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+srcdir = Dir('.').srcnode().abspath.replace('\\','/')
+rms_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+
+lib_path = [
+    qt_lib_path,
+    '#bin/' + configuration + '/' + target_arch + '/sdk',
+]
+
+objects = [
+    common_obj,
+    crypto_api_obj,
+    crypto_obj,
+    crypto_platform_crypto_obj,
+    crypto_platform_keystorage_obj,
+    crypto_platform_logger_obj,
+    crypto_platform_settings_obj,
+    googletest_obj,
+    json_obj,
+    restclients_obj,
+    rms_platform_filesystem_obj,
+    rms_platform_http_obj,
+    rms_platform_json_obj,
+    rms_platform_logger_obj,
+    rms_platform_settings_obj,
+    rms_platform_xml_obj,
+]
+libs = [
+    'Qt5Core' + lib_suffix,
+    'Qt5Network' + lib_suffix,
+    'Qt5Xml' + lib_suffix,
+    'Qt5XmlPatterns' + lib_suffix,
+    'Qt5Test' + lib_suffix,
+    'Qt5Gui' + lib_suffix,
+    'DnsAPI',
+    'rms', 
+]
+
+if platform == 'win32':
+  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  if configuration == 'debug':
+    rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif configuration == 'release':
+    rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  libs += [    
+    'libeay32',
+    'ssleay32',
+    'Advapi32',
+    'Gdi32',
+    'User32',
+  ]
+  lib_path += [
+    '#third_party/lib/eay',
+  ]
+else:
+  libs += 'ssl'
+  libs += 'crypto'
+
+rest_clients_ut_obj = rms_env.Object(source = src_files)
+rest_clients_test = rms_env.Program(target = "rest_clients_ut", 
+    source = [rest_clients_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
+Return('rest_clients_test')

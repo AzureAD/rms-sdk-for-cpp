@@ -13,7 +13,6 @@ CONFIG(debug, debug|release) {
 }
 
 HEADERS += CommonTypes.h \
-    FrameworkSpecificTypes.h \
     tools.h
 
 SOURCES += \

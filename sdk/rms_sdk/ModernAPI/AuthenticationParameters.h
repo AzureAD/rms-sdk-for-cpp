@@ -9,7 +9,12 @@
 #ifndef _RMS_LIB_AUTHENTICATIONCALLBACK_H_
 #define _RMS_LIB_AUTHENTICATIONCALLBACK_H_
 
+<<<<<<< HEAD
 #include "api_export.h"
+=======
+#include "ModernAPIExport.h"
+#include <string>
+>>>>>>> origin/dev
 
 namespace rmscore {
 namespace modernapi {

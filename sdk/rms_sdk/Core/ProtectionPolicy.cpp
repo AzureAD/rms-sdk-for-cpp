@@ -24,18 +24,18 @@ namespace rmscore {
 namespace core {
 static AccessStatus MapAccessStatus(const string& accessStatus) {
   if (0 == _stricmp("AccessGranted", accessStatus.c_str())) {
-    return ACCESS_STATUS_ACCESS_GRANTED;
+    return AccessStatus::ACCESS_STATUS_ACCESS_GRANTED;
   } else if (0 == _stricmp("AccessDenied", accessStatus.c_str())) {
-    return ACCESS_STATUS_ACCESS_DENIED;
+    return AccessStatus::ACCESS_STATUS_ACCESS_DENIED;
   } else if (0 == _stricmp("ContentExpired", accessStatus.c_str())) {
-    return ACCESS_STATUS_ACCESS_EXPIRED;
+    return AccessStatus::ACCESS_STATUS_ACCESS_EXPIRED;
   } else {
     ostringstream str;
 
     str << "Got an invalid AccessStatus (" << accessStatus.c_str() <<
       ") from the server.";
     throw exceptions::RMSNetworkException(
-            str.str(), exceptions::RMSNetworkException::ServerError);
+            str.str(), exceptions::RMSNetworkException::Reason::ServerError);
   }
 }
 
@@ -54,7 +54,7 @@ static rmscrypto::api::CipherMode MapCipherMode(const string& cipherMode) {
     str << "Got an invalid CipherMode (" << cipherMode.c_str() <<
       ") from the server.";
     throw exceptions::RMSNetworkException(
-            str.str(), exceptions::RMSNetworkException::ServerError);
+            str.str(), exceptions::RMSNetworkException::Reason::ServerError);
   }
 }
 
@@ -140,7 +140,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Acquire(
     pProtectionPolicy->SetRequester(email);
 
     // add the newly acquired protection policy to cache
-    if (cacheMask & modernapi::RESPONSE_CACHE_INMEMORY) {
+    if (cacheMask & modernapi::ResponseCacheFlags::RESPONSE_CACHE_INMEMORY) {
       AddProtectionPolicyToCache(pProtectionPolicy);
     }
   }
@@ -219,11 +219,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 
   request.name        = descriptor.name;
   request.description = descriptor.description;
-
-  common::Locale loc;
-
-  request.language = loc.name().replace('_', "-").toStdString();
-
+  request.language = "en-US";
   request.encryptedApplicationData = descriptor.encryptedApplicationData;
   request.signedApplicationData    = descriptor.signedApplicationData;
 
@@ -287,7 +283,7 @@ shared_ptr<ProtectionPolicy>ProtectionPolicy::Create(
 } // ProtectionPolicy::Create
 
 ProtectionPolicy::ProtectionPolicy() :
-  m_accessStatus(ACCESS_STATUS_ACCESS_DENIED),
+  m_accessStatus(AccessStatus::ACCESS_STATUS_ACCESS_DENIED),
   m_bAllowOfflineAccess(false), m_bFromTemplate(false)
 {
   m_requester           = "";
@@ -349,7 +345,7 @@ void ProtectionPolicy::Initialize(
   m_encryptedApplicationData = response->encryptedApplicationData;
 
   // if access is granted verify the key and create a crypto provider
-  if (ACCESS_STATUS_ACCESS_GRANTED ==
+  if (AccessStatus::ACCESS_STATUS_ACCESS_GRANTED ==
       m_accessStatus) InitializeKey(response->key);
 
   // initialize the publishing license
@@ -373,7 +369,7 @@ void ProtectionPolicy::Initialize(
   // initializing protection policy from the publishing response (here the user
   // is the owner)
 
-  m_accessStatus = ACCESS_STATUS_ACCESS_GRANTED;
+  m_accessStatus = AccessStatus::ACCESS_STATUS_ACCESS_GRANTED;
   m_id           = response.id;
   m_name         = response.name;
   m_description  = response.description;
@@ -395,7 +391,7 @@ void ProtectionPolicy::Initialize(
   m_bAllowAuditedExtraction = bAllowAuditedExtraction;
 
   // if access is granted verify the key and create a crypto provider
-  if (ACCESS_STATUS_ACCESS_GRANTED ==
+  if (AccessStatus::ACCESS_STATUS_ACCESS_GRANTED ==
       m_accessStatus) InitializeKey(response.key);
 
   // initialize the publishing license
@@ -419,7 +415,7 @@ void ProtectionPolicy::InitializeKey(restclients::KeyDetailsResponse& response) 
   } catch (exceptions::RMSException) {
     throw exceptions::RMSNetworkException(
             "Got an invalid base64 as a key value from the server.",
-            exceptions::RMSNetworkException::ServerError);
+            exceptions::RMSNetworkException::Reason::ServerError);
   }
 }
 
@@ -495,8 +491,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
   const size_t   cbPublishLicense,
   const string   requester)
 {
-  common::MutexLocker lock(&s_cachedProtectionPoliciesMutex);
-
+  std::lock_guard<std::mutex> lock(s_cachedProtectionPoliciesMutex);
   if (pbPublishLicense == nullptr) {
     throw exceptions::RMSNullPointerException("NULL pointer exception");
   }
@@ -551,7 +546,7 @@ std::shared_ptr<ProtectionPolicy>ProtectionPolicy::GetCachedProtectionPolicy(
 void ProtectionPolicy::AddProtectionPolicyToCache(
   shared_ptr<ProtectionPolicy>pProtectionPolicy)
 {
-  common::MutexLocker lock(&s_cachedProtectionPoliciesMutex);
+  std::lock_guard<std::mutex> lock(s_cachedProtectionPoliciesMutex);
 
   if (nullptr ==
       s_pCachedProtectionPolicies) s_pCachedProtectionPolicies =
@@ -571,6 +566,6 @@ void ProtectionPolicy::AddProtectionPolicyToCache(
 // as it is not safe to call all the destructors on dll unload.
 ProtectionPolicy::CachedProtectionPolicies *ProtectionPolicy::
 s_pCachedProtectionPolicies = nullptr;
-common::Mutex ProtectionPolicy::s_cachedProtectionPoliciesMutex;
+std::mutex ProtectionPolicy::s_cachedProtectionPoliciesMutex;
 } // namespace core
 } // namespace rmscore

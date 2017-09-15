@@ -11,7 +11,6 @@
 
 #include "IPfileHeaderWriter.h"
 #include "../Common/CommonTypes.h"
-#include "../Common/FrameworkSpecificTypes.h"
 #include <string>
 
 namespace rmscore {

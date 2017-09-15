@@ -5,8 +5,10 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
+#include "LicenseParser.h"
 
-#include "../Common/FrameworkSpecificTypes.h"
+#include <QString>
+
 #include "../Common/CommonTypes.h"
 #include "../Core/FeatureControl.h"
 #include "../ModernAPI/RMSExceptions.h"
@@ -15,8 +17,6 @@
 
 #include "CXMLUtils.h"
 #include "LicenseParser.h"
-
-
 
 using namespace std;
 
@@ -65,7 +65,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
     else 
     {
         throw exceptions::RMSNetworkException("Invalid publishing license encoding",
-                                              exceptions::RMSNetworkException::InvalidPL);
+                                              exceptions::RMSNetworkException::Reason::InvalidPL);
     }
     size_t finalSize = publishLicense.size();
 
@@ -85,7 +85,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
     if (!ok) 
     {
         throw exceptions::RMSNetworkException("Invalid publishing license",
-                                          exceptions::RMSNetworkException::InvalidPL);
+                                              exceptions::RMSNetworkException::Reason::InvalidPL);
     }
 
     auto extranetDomainNode = document->SelectSingleNode(EXTRANET_XPATH);
@@ -114,7 +114,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
     if (domains.empty()) 
     {
         throw exceptions::RMSNetworkException("Invalid domains publishing license",
-                                          exceptions::RMSNetworkException::InvalidPL);
+                                              exceptions::RMSNetworkException::Reason::InvalidPL);
     }
 
     shared_ptr<LicenseParserResult> result;
@@ -124,7 +124,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
         if (nullptr == slcNode.get())
         {
             throw exceptions::RMSNetworkException("Server public certificate",
-                                              exceptions::RMSNetworkException::InvalidPL);
+                                                  exceptions::RMSNetworkException::Reason::InvalidPL);
         }
         auto publicCertificate = slcNode->text();
         RemoveTrailingNewLine(publicCertificate);

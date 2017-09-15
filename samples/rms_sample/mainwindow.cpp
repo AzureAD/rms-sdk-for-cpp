@@ -26,6 +26,8 @@
 #include "consentlistdialog.h"
 #include "rightsdialog.h"
 #include "mainwindow.h"
+#include "FileAPI/protector.h"
+#include "FileAPI/file_api_structures.h"
 
 using namespace std;
 using namespace rmsauth;
@@ -354,6 +356,47 @@ void MainWindow::on_encryptPFILERightsButton_clicked()
   }
 }
 
+void MainWindow::on_FileAPIEncrypt_clicked()
+{
+    string fileIn = SelectFile("Select file to decrypt");
+
+    if (!fileIn.empty()) {
+      FileAPIEncrypt(
+                  fileIn,
+                  ui->lineEdit_clientId->text().toStdString(),
+                  ui->lineEdit_redirectUrl->text().toStdString(),
+                  ui->lineEdit_clientEmail->text().toStdString());
+    }
+}
+
+void MainWindow::on_FileAPIDecrypt_clicked()
+{
+    string fileIn = SelectFile("Select file to decrypt");
+
+    if (!fileIn.empty()) {
+      FileAPIDecrypt(
+        fileIn,
+        ui->lineEdit_clientId->text().toStdString(),
+        ui->lineEdit_redirectUrl->text().toStdString(),
+        ui->lineEdit_clientEmail->text().toStdString());
+    }
+}
+
+void MainWindow::on_FileAPIEncryptRights_clicked()
+{
+    string fileIn = SelectFile("Select file to encrypt");
+
+    if (!fileIn.empty()) {
+      vector<UserRights> userRights = openRightsDlg();
+      FileAPIEncryptRights(fileIn,
+                           userRights,
+                           ui->lineEdit_clientId->text().toStdString(),
+                           ui->lineEdit_redirectUrl->text().toStdString(),
+                           ui->lineEdit_clientEmail->text().toStdString());
+    }
+
+}
+
 void MainWindow::ConvertToPFILEUsingTemplates(const string& fileIn,
                                               const string& clientId,
                                               const string& redirectUrl,
@@ -582,15 +625,15 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
       this->cancelState);
 
     switch (pfs->m_status) {
-    case Success:
+    case GetUserPolicyResultStatus::Success:
       AddLog("Successfully converted to ", fileOut.c_str());
       break;
 
-    case NoRights:
+    case GetUserPolicyResultStatus::NoRights:
       AddLog("User has no rights to PFILE!", "");
       break;
 
-    case Expired:
+    case GetUserPolicyResultStatus::Expired:
       AddLog("Content has expired!", "");
       break;
     }
@@ -604,6 +647,110 @@ void MainWindow::ConvertFromPFILE(const string& fileIn,
   }
   inFile->close();
   outFile->close();
+}
+
+void MainWindow::FileAPIEncrypt(const string &fileIn,
+                                const string &clientId,
+                                const string &redirectUrl,
+                                const string &clientEmail)
+{
+    auto self = shared_from_this();
+    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+    addCertificates();
+
+    // create shared in/out streams
+    auto inFile = make_shared<fstream>(
+      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+
+    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string newFilename = "";
+    std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
+                filename, inFile, newFilename);
+    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
+    auto outFile = make_shared<fstream>(
+      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
+
+    rmscore::modernapi::AppDataHashMap signedData;
+    auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
+      clientEmail, authUI, launch::deferred, cancelState);
+    auto templates = templatesFuture.get();
+    size_t pos = self->templatesUI.SelectTemplate(templates);
+    rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AUTO,
+                                                     (*templates)[pos], signedData, true);
+    rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
+    obj->ProtectWithTemplate(ut, pt, outFile, self->cancelState);
+
+    inFile->close();
+    outFile->close();
+}
+
+void MainWindow::FileAPIDecrypt(const string &fileIn,
+                                const string &clientId,
+                                const string &redirectUrl,
+                                const string &clientEmail)
+{
+    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+    addCertificates();
+
+    // create shared in/out streams
+    auto inFile = make_shared<fstream>(
+      fileIn, ios_base::in | ios_base::binary);
+
+    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string newFilename = "";
+    std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
+                filename, inFile, newFilename);
+    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "UnProtected " + newFilename;
+    // create streams
+    auto outFile = make_shared<fstream>(
+      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    AuthCallback auth(clientId, redirectUrl);
+
+    rmscore::fileapi::UnprotectOptions upt (false, true);
+    rmscore::fileapi::UserContext ut (clientEmail, auth, this->consent);
+    obj->Unprotect(ut, upt, outFile, this->cancelState);
+
+    inFile->close();
+    outFile->close();
+}
+
+void MainWindow::FileAPIEncryptRights(const string &fileIn,
+                                      const vector<UserRights> &userRights,
+                                      const string &clientId,
+                                      const string &redirectUrl,
+                                      const string &clientEmail)
+{
+    auto self = shared_from_this();
+    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+    addCertificates();
+
+    // create shared in/out streams
+    auto inFile = make_shared<fstream>(
+      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string newFilename = "";
+    std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
+                filename, inFile, newFilename);
+    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
+    auto outFile = make_shared<fstream>(
+      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
+
+    auto endValidation = chrono::system_clock::now() + chrono::hours(480);
+    PolicyDescriptor desc(userRights);
+    desc.Referrer(make_shared<string>("https://client.test.app"));
+    desc.ContentValidUntil(endValidation);
+    desc.AllowOfflineAccess(false);
+    desc.Name("Test Name");
+    desc.Description("Test Description");
+    rmscore::fileapi::ProtectWithCustomRightsOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+                                                         desc, true);
+    rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
+    obj->ProtectWithCustomRights(ut, pt, outFile, self->cancelState);
+
+    inFile->close();
+    outFile->close();
 }
 
 string MainWindow::SelectFile(const string& msg) {
@@ -692,3 +839,4 @@ void MainWindow::AddLog(const QString& tag, const QString& message) {
   this->ui->textBrowser->insertPlainText(message);
   this->ui->textBrowser->insertPlainText("\n");
 }
+

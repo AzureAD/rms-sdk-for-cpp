@@ -10,8 +10,6 @@
 #define DNSSERVERRESOLVERQT
 #include "IDnsServerResolver.h"
 
-class QUdpSocket;
-
 namespace rmscore {
 namespace platform {
 namespace http {
