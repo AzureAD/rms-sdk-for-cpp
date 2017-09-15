@@ -119,28 +119,28 @@ objects += [
 
 if platform == 'win32':
     lib_path += [
-        '#third_party/lib/Libgsf'
+        '#third_party/lib/Libgsf',
     ]
     libs += [
-        'libgthread-2.0-0'
-        'libiconv-2'
-        'libintl-8'
-        'liblzma-5'
-        'libpcre-1'
-        'libwinpthread-1'
-        'libxml2-2'
-        'zlib1'
-        'libbz2-1'
-        'libffi-6'
-        'libgio-2.0-0'
-        'libglib-2.0-0'
-        'libgmodule-2.0-0'
-        'libgobject-2.0-0'
-        'libgsf-1-114'
+        'libgthread-2.0-0',
+        'libiconv-2',
+        'libintl-8',
+        'liblzma-5',
+        'libpcre-1',
+        'libwinpthread-1',
+        'libxml2-2',
+        'zlib1',
+        'libbz2-1',
+        'libffi-6',
+        'libgio-2.0-0',
+        'libglib-2.0-0',
+        'libgmodule-2.0-0',
+        'libgobject-2.0-0',
+        'libgsf-1-114',
     ]
 elif platform == '__linux__':
     rmsfiledll_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
 
 rmsfile_lib = rmsfiledll_env.SharedLibrary(target = "rmsfile", source = objects, LIBS = libs, LIBPATH = lib_path)
 
-Return(rms_lib, rmsfile_lib)
+Return('rms_lib rmsfile_lib')

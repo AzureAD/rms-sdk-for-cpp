@@ -8,7 +8,7 @@ Import("""
 office_env = rms_env.Clone()
 
 office_env.Append(CCFLAGS=Split('-DQT_NO_KEYWORDS'))
-office_env.Append(CXXFLAGS=Split('-DQT_NO_KEYWORDS')
+office_env.Append(CXXFLAGS=Split('-DQT_NO_KEYWORDS'))
 
 src_files = Glob('*.cpp')
 office_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
