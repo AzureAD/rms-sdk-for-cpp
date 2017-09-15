@@ -3,7 +3,8 @@ from build_config import *
 
 Import("""
     build_arch
-    configuration
+    build_flavor
+    lib_path
     lib_suffix
     platform
     qt_lib_path
@@ -28,7 +29,7 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
-src_files += Glob(configuration + '/*.cpp')
+src_files += Glob(build_flavor + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
 
@@ -38,11 +39,7 @@ rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
 rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 print srcdir
-  
-lib_path = [
-      qt_lib_path, 
-      '#bin/' + configuration + '/' + target_arch + '/sdk',
-  ]
+
 
 objects = [
       crypto_api_obj,
@@ -68,14 +65,14 @@ libs = [
 ]
 
 if platform == 'win32':
-  rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
-    rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    rmsplatform_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  lib_path += [
-      '#third_party/lib/eay',
-  ]
+  # rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  # if configuration == 'debug':
+  #   rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
+  # elif configuration == 'release':
+  #   rmsplatform_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  # lib_path += [
+  #     '#third_party/lib/eay',
+  # ]
   libs += [      
       'libeay32',
       'ssleay32',
@@ -86,17 +83,12 @@ if platform == 'win32':
       'rms', 
   ]  
 elif platform == 'linux2':
-  rmsplatform_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
-  rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-  rmsplatform_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
-
-  lib_path += [
-      '/usr/lib/x86_64-linux-gnu/',
-      '/home/admuller/Qt/5.7/gcc_64/lib/',
-      '/usr/lib64',
-  ]
+  # rmsplatform_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
+  # lib_path += [
+  #     '/usr/lib/x86_64-linux-gnu/',
+  #     '/home/admuller/Qt/5.7/gcc_64/lib/',
+  #     '/usr/lib64',
+  # ]
   libs +=[
       'ssl',
       'crypto',

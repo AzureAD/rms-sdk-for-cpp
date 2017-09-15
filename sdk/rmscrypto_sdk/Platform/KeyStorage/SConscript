@@ -15,11 +15,6 @@ if platform == 'win32':
       'StorageAccessWindows.cpp',
   ]
 elif platform == 'linux2':
-  # CONFIG += link_pkgconfig
-  # PKGCONFIG += glib-2.0
-  crypto_platform_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  crypto_platform_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  crypto_platform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
   src_files += ['KeyStoragePosix.cpp']  
 elif platform == 'darwin':
   src_files += ['KeyStorageOSX.cpp']

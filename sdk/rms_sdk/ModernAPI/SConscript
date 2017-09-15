@@ -1,7 +1,6 @@
 from build_config import create_objs
 
 Import("""
-    configuration
     lib_suffix
     platform
     rms_env
@@ -18,19 +17,12 @@ src_files = Glob('*.cpp')
 modernapi_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 if platform == 'win32':
-  modernapi_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
-  if configuration == 'debug':
-      modernapi_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-      modernapi_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-elif platform == 'linux2':
-  modernapi_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  modernapi_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  modernapi_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-  modernapi_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
-else:
-  libs += 'ssl'
-  libs += 'crypto'
+  modernapi_env.Append(LINKFLAGS=Split('/DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
+elif platform == 'darwin':
+  libs =+ [
+    'ssl',
+    'crypto',
+  ]
 
 modernapi_obj = create_objs(modernapi_env, src_files)
 Return('modernapi_obj')

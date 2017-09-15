@@ -1,6 +1,7 @@
 Import("""
     build_arch
-    configuration
+    build_flavor
+    lib_path
     lib_suffix
     platform
     qt_lib_path
@@ -73,14 +74,14 @@ libs = [
 ]
 
 if platform == 'win32':
-  rmsdll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
-  if configuration == 'debug':
-      rmsdll_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-      rmsdll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  lib_path += [
-    '#third_party/lib/eay',
-  ]
+  # rmsdll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
+  # if configuration == 'debug':
+  #     rmsdll_env.Append(LINKFLAGS=Split('/DEBUG'))
+  # elif configuration == 'release':
+  #     rmsdll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  # lib_path += [
+  #   '#third_party/lib/eay',
+  # ]
   libs += [
       'libeay32',
       'ssleay32',
@@ -92,23 +93,11 @@ if platform == 'win32':
   ]  
 elif platform == 'linux2':
   rmsdll_env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME']=1
-  rmsdll_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmsdll_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmsdll_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-  rmsdll_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
-
-  lib_path += [
-      '/usr/lib/x86_64-linux-gnu/',
-      '/home/admuller/Qt/5.7/gcc_64/lib/',
-      '/usr/lib64',
-  ]
-  libs +=[
+  libs += [
       'ssl',
       'crypto',
       'secret-1',
       'glib-2.0',
-      'pthread',
-      'GL',
   ]
 elif platform == 'darwin':
   libs += 'ssl'

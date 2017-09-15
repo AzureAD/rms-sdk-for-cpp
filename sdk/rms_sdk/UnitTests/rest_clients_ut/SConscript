@@ -2,7 +2,8 @@ from build_config import *
 
 Import("""
     target_arch
-    configuration
+    build_flavor
+    lib_path
     lib_suffix
     qt_lib_path
     platform
@@ -29,17 +30,17 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
-src_files += Glob(configuration + '/*.cpp')
+src_files += Glob(build_flavor + '/*.cpp')
 
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
 srcdir = Dir('.').srcnode().abspath.replace('\\','/')
 rms_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 
-lib_path = [
-    qt_lib_path,
-    '#bin/' + configuration + '/' + target_arch + '/sdk',
-]
+# lib_path = [
+#     qt_lib_path,
+#     '#bin/' + configuration + '/' + target_arch + '/sdk',
+# ]
 
 objects = [
     common_obj,
@@ -69,11 +70,11 @@ libs = [
 ]
 
 if platform == 'win32':
-  rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
-    rms_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  # rms_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  # if configuration == 'debug':
+  #   rms_env.Append(LINKFLAGS=Split('/DEBUG'))
+  # elif configuration == 'release':
+  #   rms_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
   libs += [    
     'libeay32',
     'ssleay32',
@@ -81,35 +82,25 @@ if platform == 'win32':
     'Gdi32',
     'User32',
     'DnsAPI',
-    'rms', 
   ]
-  lib_path += [
-    '#third_party/lib/eay',
-  ]
+  # lib_path += [
+  #   '#third_party/lib/eay',
+  # ]
 elif platform == 'linux2':
-  rms_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
-  rms_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rms_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rms_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-  rms_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
-
-  lib_path += [
-      '/usr/lib/x86_64-linux-gnu/',
-      '/home/admuller/Qt/5.7/gcc_64/lib/',
-      '/usr/lib64',
+  # lib_path += [
+  #     '/usr/lib/x86_64-linux-gnu/',
+  #     '/home/admuller/Qt/5.7/gcc_64/lib/',
+  #     '/usr/lib64',
+  # ]
+  libs += [
+    'ssl',
+    'crypto',
+    'secret-1',
+    'glib-2.0',
+    'pthread',
+    'GL',
+    'resolv',
   ]
-  libs +=[
-      'ssl',
-      'crypto',
-      'secret-1',
-      'glib-2.0',
-      'pthread',
-      'GL',
-      'resolv',
-  ]
-else:
-  libs += 'ssl'
-  libs += 'crypto'
 
 rest_clients_ut_obj = rms_env.Object(source = src_files)
 rest_clients_test = rms_env.Program(target = "rest_clients_ut", 

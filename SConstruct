@@ -61,46 +61,29 @@ msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
 
-include_search_path = [
-  '#sdk',
-  '#third_party',
-  '#third_party/include',
-  '#googletest',
-  '#googletest/include',
-  '/usr/include/glib-2.0/',
-  '/usr/include/libsecret-1/',
-  '/usr/lib/x86_64-linux-gnu/glib-2.0/include/',
-  '/usr/lib64',
-]
 
-arch_suffix = ''
-# TODO: move to build_config_<platform>
-if isX86:
-  if platform == 'win32':
-    target_arch = "x86"
-    win_def = 'WIN32'
-  else:
-    target_arch = 'i386'
-else:
-  if platform == 'win32':
-    target_arch = "amd64"
-    arch_suffix = '_64'
-    win_def = 'WIN64'
-  else:
-    target_arch = 'x86_64'
-
-msvc_version = '14.0'
-msvc_dir = 'msvc14'
-msvc_path = 'msvc2015'
+configuration = ''
+lib_suffix = ''
+msvc_version = ''
+# TODO: move to build_config_<platform
 if platform == 'win32':
-  from build_config_win32 import *
-  if msvc12:
-    msvc_dir = 'msvc12'
-    msvc_version = '12.0'
-    msvc_path = 'msvc2013'
+  print "AAAAAA"
+  from build_config_win32 import get_vars, get_qtvars, lib_path
+  (arch_suffix, target_arch, win_def, msvc) = get_vars(isX86, msvc12)
+  msvc_version = msvc + '.0'
+  msvc_dir = 'msvc' + msvc
+  msvc_path = msvc + 1
+  msvc_path = 'msvc' + str(msvc_path)
+  libxml2flavor = "libxml2-2.9.3-win32-x86_64"
+  libxml2headerpath = "#src/external/libxml2/" + libxml2flavor + "/include/libxml2"
+  (qt_dir, qt_include_path) = get_qtvars()
   print "MSVC: ", msvc_version
-elif platform == 'darwin':
-  from build_config_apple import *
+elif platform == 'linux2':
+  print "BBBBB"
+  from build_config_linux import include_path_linux, get_vars, get_qtvars, lib_path
+  target_arch = get_vars(isX86)
+  include_path += include_path_linux
+  (qt_dir, qt_include_path) = get_qtvars()
 
 # TODO: move to build_config_<platform>
 home = expanduser("~")
@@ -108,7 +91,7 @@ qt_dir = home + '/Qt/5.7/gcc_64'
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
-qt_include_search_path = [
+qt_include_path += [
     qt_inc_dir,
     qt_inc_dir + '/QtCore',
     qt_inc_dir + '/QtTest',
@@ -121,7 +104,11 @@ qt_include_search_path = [
     qt_dir + 'mkspecs/linux-g++',
 ]
 
-print "Qt directory: ", qt_dir
+lib_path += [
+    qt_lib_path, 
+    '#bin/' + build_flavor + '/' + target_arch + '/sdk',
+]
+print "QT_Dir: ", qt_dir
 
 env = Environment(BUILDROOT=build_base_dir, MSVC_VERSION=msvc_version, TARGET_ARCH=target_arch)
 #--------------------------------------------------------------
@@ -166,62 +153,34 @@ if 'dump' in ARGUMENTS:
       footer = prefix + ' - end' )
 #---------------------------------------------------------------
 #run ParseConfig(env, <command>, <option>) to personalize the env
-env.Append(CPPPATH = include_search_path + qt_include_search_path)
+env.Append(CPPPATH = include_path + qt_include_path)
+env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
+env.Append(CPPPATH = qt_bin_dir)
 
-# TODO: move to build_config_<platform>
-if platform == 'win32':
-  env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
-  env.Append(CPPPATH = qt_bin_dir)
-#   env.Append(CPPPATH ='C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um')
-  env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -W3 -w44456 -w44457 -w44458 \
-      -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
-  env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc \
-      -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
-elif platform == 'linux2':
-  # srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
-  env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : '/home/admuller/Qt/5.7/gcc_64/lib/:$LD_LIBRARY_PATH' })
-  print env['CPPDEFINES']
-  env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
-  env.Append(CPPPATH = qt_bin_dir)
-#   env.Append(CPPPATH ='C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um')
-  env.Append(CCFLAGS=Split('-DQT_CORE_LIB'))
-  env.Append(CXXFLAGS=Split('-DQT_CORE_LIB'))
-if msvc12:
-    env.Append(CPPDEFINES = ['MSVC12'])
+(ccflags, cxxflags, linkflags) = get_flags(isRelease)
+env.Append(CCFLAGS=Split(ccflags))
+env.Append(CXXFLAGS=Split(cxxflags))
+env.Append(LINKFLAGS=Split(linkflags))
 
-configuration = ''
-lib_suffix = ''
-if isRelease:
-  configuration = 'release'
-  env.Append(CPPDEFINES = ['NDEBUG'])
-  
-  if platform == 'win32':
-    env.Append(LINKFLAGS='/NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
-    env.Append(CCFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
-    env.Append(CXXFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
-else:    
-  configuration = 'debug'
-  env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
+print env['CCFLAGS']
+print env['CXXFLAGS']
+print env['LINKFLAGS']
 
-  if platform == 'win32':
-    lib_suffix = 'd'
-    env.Append(LINKFLAGS='/NOLOGO')
-    env.Append(CCFLAGS=Split('-c -Zi -MDd'))
-    env.Append(CXXFLAGS=Split('-c -Zi -MDd'))
-  elif platform == "linux2":
-    env.Append(LINKFLAGS='')
-    env.Append(CCFLAGS=Split('-DQT_QML_DEBUG -pipe -g -Wall -W -D_REENTRANT -fPIC'))
-    env.Append(CXXFLAGS=Split('-DQT_QML_DEBUG -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC'))
+if platform == 'linux2':
+  env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : qt_lib_path + '/:$LD_LIBRARY_PATH' })
 
-bins = env['BUILDROOT'] + "/" + configuration + "/" + target_arch
+if platform == 'win32' and not isRelease:
+      lib_suffix = 'd'
+
+bins = env['BUILDROOT'] + "/" + build_flavor + "/" + target_arch
 
 Export("""
-    arch_suffix
     bins
     build_arch
-    configuration
+    build_flavor
     env
     lib_suffix
+    lib_path
     qt_lib_path
     target_arch
     target_name
