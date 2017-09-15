@@ -310,51 +310,6 @@ void MainWindow::addCertificates() {
   }
 }
 
-void MainWindow::FileAPIEncryptRights(const string &fileIn,
-                                      const vector<UserRights> &userRights,
-                                      const string &clientId,
-                                      const string &redirectUrl,
-                                      const string &clientEmail)
-{
-    auto self = shared_from_this();
-    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
-    addCertificates();
-
-    // create shared in/out streams
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
-
-    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
-    std::string newFilename = "";
-    std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
-                filename, inFile, newFilename);
-
-    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
-
-    auto outFile = make_shared<fstream>(
-      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
-    AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
-
-    auto endValidation = chrono::system_clock::now() + chrono::hours(480);
-
-
-    PolicyDescriptor desc(userRights);
-
-    desc.Referrer(make_shared<string>("https://client.test.app"));
-    desc.ContentValidUntil(endValidation);
-    desc.AllowOfflineAccess(false);
-    desc.Name("Test Name");
-    desc.Description("Test Description");
-
-    rmscore::fileapi::ProtectWithCustomRightsOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
-                                                         desc, true);
-    rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
-    obj->ProtectWithCustomRights(ut, pt, outFile, self->cancelState);
-
-    inFile->close();
-    outFile->close();
-}
-
 void MainWindow::on_encryptPFILETemplatesButton_clicked()
 {
   if (ui->encryptPFILETemplatesButton->text() == "CANCEL") {
@@ -699,7 +654,6 @@ void MainWindow::FileAPIEncrypt(const string &fileIn,
                                 const string &redirectUrl,
                                 const string &clientEmail)
 {
-
     auto self = shared_from_this();
     // add trusted certificates using HttpHelpers of RMS and Auth SDKs
     addCertificates();
@@ -712,28 +666,16 @@ void MainWindow::FileAPIEncrypt(const string &fileIn,
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
                 filename, inFile, newFilename);
-
     string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
-
     auto outFile = make_shared<fstream>(
       fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
     AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
 
     rmscore::modernapi::AppDataHashMap signedData;
-
     auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
       clientEmail, authUI, launch::deferred, cancelState);
-
     auto templates = templatesFuture.get();
-
     size_t pos = self->templatesUI.SelectTemplate(templates);
-
-    //rmscore::fileapi::PFileProtector* obj = new rmscore::fileapi::PFileProtector(".jpg");
-//    rmscore::fileapi::MetroOfficeProtector* obj = new rmscore::fileapi::MetroOfficeProtector();
-//    obj->ProtectWithTemplate(inFile, (*templates)[pos], clientEmail, authUI,
-//                            UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms,
-//                            signedData, outFile, self->cancelState);
-
     rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AUTO,
                                                      (*templates)[pos], signedData, true);
     rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
@@ -755,30 +697,57 @@ void MainWindow::FileAPIDecrypt(const string &fileIn,
     auto inFile = make_shared<fstream>(
       fileIn, ios_base::in | ios_base::binary);
 
-    if (!inFile->is_open()) {
-      AddLog("ERROR: Failed to open ", fileIn.c_str());
-      return;
-    }
-
     std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
                 filename, inFile, newFilename);
-
     string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "UnProtected " + newFilename;
-
     // create streams
     auto outFile = make_shared<fstream>(
       fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
     AuthCallback auth(clientId, redirectUrl);
 
-    //rmscore::fileapi::PFileProtector* obj = new rmscore::fileapi::PFileProtector("");
-    //rmscore::fileapi::MetroOfficeProtector* obj = new rmscore::fileapi::MetroOfficeProtector();
-    //obj->Unprotect(inFile, clientEmail, auth, this->consent, false, true, outFile, this->cancelState);
-
     rmscore::fileapi::UnprotectOptions upt (false, true);
     rmscore::fileapi::UserContext ut (clientEmail, auth, this->consent);
     obj->Unprotect(ut, upt, outFile, this->cancelState);
+
+    inFile->close();
+    outFile->close();
+}
+
+void MainWindow::FileAPIEncryptRights(const string &fileIn,
+                                      const vector<UserRights> &userRights,
+                                      const string &clientId,
+                                      const string &redirectUrl,
+                                      const string &clientEmail)
+{
+    auto self = shared_from_this();
+    // add trusted certificates using HttpHelpers of RMS and Auth SDKs
+    addCertificates();
+
+    // create shared in/out streams
+    auto inFile = make_shared<fstream>(
+      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    std::string filename = fileIn.substr(fileIn.find_last_of("\\/") + 1);
+    std::string newFilename = "";
+    std::unique_ptr<rmscore::fileapi::Protector> obj = rmscore::fileapi::Protector::Create(
+                filename, inFile, newFilename);
+    string fileOut = fileIn.substr(0, fileIn.find_last_of("\\/") + 1) + "Protected " + newFilename;
+    auto outFile = make_shared<fstream>(
+      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    AuthCallbackUI authUI(self.get(), clientId, redirectUrl);
+
+    auto endValidation = chrono::system_clock::now() + chrono::hours(480);
+    PolicyDescriptor desc(userRights);
+    desc.Referrer(make_shared<string>("https://client.test.app"));
+    desc.ContentValidUntil(endValidation);
+    desc.AllowOfflineAccess(false);
+    desc.Name("Test Name");
+    desc.Description("Test Description");
+    rmscore::fileapi::ProtectWithCustomRightsOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+                                                         desc, true);
+    rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
+    obj->ProtectWithCustomRights(ut, pt, outFile, self->cancelState);
 
     inFile->close();
     outFile->close();
