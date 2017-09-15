@@ -66,8 +66,6 @@ libs = [
     'Qt5XmlPatterns' + lib_suffix,
     'Qt5Test' + lib_suffix,
     'Qt5Gui' + lib_suffix,
-    'DnsAPI',
-    'rms', 
 ]
 
 if platform == 'win32':
@@ -82,9 +80,32 @@ if platform == 'win32':
     'Advapi32',
     'Gdi32',
     'User32',
+    'DnsAPI',
+    'rms', 
   ]
   lib_path += [
     '#third_party/lib/eay',
+  ]
+elif platform == 'linux2':
+  rms_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
+  rms_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  rms_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  rms_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  rms_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
+
+  lib_path += [
+      '/usr/lib/x86_64-linux-gnu/',
+      '/home/admuller/Qt/5.7/gcc_64/lib/',
+      '/usr/lib64',
+  ]
+  libs +=[
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
+      'pthread',
+      'GL',
+      'resolv',
   ]
 else:
   libs += 'ssl'

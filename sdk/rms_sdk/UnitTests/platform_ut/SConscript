@@ -65,7 +65,6 @@ libs = [
       'Qt5Network' + lib_suffix,
       'Qt5Xml' + lib_suffix,
       'Qt5XmlPatterns' + lib_suffix,
-      'rms', 
 ]
 
 if platform == 'win32':
@@ -84,12 +83,29 @@ if platform == 'win32':
       'Gdi32',
       'User32',
       'dnsapi',
+      'rms', 
   ]  
-elif platform == '__linux__':
+elif platform == 'linux2':
   rmsplatform_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
   rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
   rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
   rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  rmsplatform_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
+
+  lib_path += [
+      '/usr/lib/x86_64-linux-gnu/',
+      '/home/admuller/Qt/5.7/gcc_64/lib/',
+      '/usr/lib64',
+  ]
+  libs +=[
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
+      'pthread',
+      'GL',
+      'resolv',
+  ]
 elif platform == 'darwin':
   libs += [
     'ssl',

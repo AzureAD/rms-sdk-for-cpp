@@ -2,6 +2,7 @@
 import sys
 import os
 import os.path
+from os.path import expanduser
 from build_config import *
 from build_support import *
 
@@ -60,11 +61,23 @@ msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
 
+include_search_path = [
+  '#sdk',
+  '#third_party',
+  '#third_party/include',
+  '#googletest',
+  '#googletest/include',
+  '/usr/include/glib-2.0/',
+  '/usr/include/libsecret-1/',
+  '/usr/lib/x86_64-linux-gnu/glib-2.0/include/',
+  '/usr/lib64',
+]
+
+arch_suffix = ''
 # TODO: move to build_config_<platform>
 if isX86:
   if platform == 'win32':
     target_arch = "x86"
-    arch_suffix = ''
     win_def = 'WIN32'
   else:
     target_arch = 'i386'
@@ -76,21 +89,26 @@ else:
   else:
     target_arch = 'x86_64'
 
-print "Platform: ", platform
-print "AAA"
-# TODO: move to build_config_<platform
+msvc_version = '14.0'
+msvc_dir = 'msvc14'
+msvc_path = 'msvc2015'
 if platform == 'win32':
-  from build_config_win32 import setup_vars
-  setup_vars(isX86, platform, msvc12)
   from build_config_win32 import *
+  if msvc12:
+    msvc_dir = 'msvc12'
+    msvc_version = '12.0'
+    msvc_path = 'msvc2013'
   print "MSVC: ", msvc_version
-elif platform == 'linux2':
-  from build_config_linux import *
+elif platform == 'darwin':
+  from build_config_apple import *
 
+# TODO: move to build_config_<platform>
+home = expanduser("~")
+qt_dir = home + '/Qt/5.7/gcc_64'
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
-qt_include_search_path += [
+qt_include_search_path = [
     qt_inc_dir,
     qt_inc_dir + '/QtCore',
     qt_inc_dir + '/QtTest',
@@ -100,6 +118,7 @@ qt_include_search_path += [
     qt_inc_dir + '/QtNetwork',
     qt_inc_dir + '/QtXml',
     qt_inc_dir + '/QtXmlPatterns',
+    qt_dir + 'mkspecs/linux-g++',
 ]
 
 print "Qt directory: ", qt_dir

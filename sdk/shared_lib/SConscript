@@ -70,7 +70,6 @@ libs = [
   'Qt5Widgets' + lib_suffix,
   'Qt5Xml' + lib_suffix,
   'Qt5XmlPatterns' + lib_suffix,
-  'DnsAPI',
 ]
 
 if platform == 'win32':
@@ -89,16 +88,27 @@ if platform == 'win32':
       'Gdi32',
       'User32',
       'legacy_stdio_definitions',
+      'DnsAPI',
   ]  
-elif platform == '__linux__':
-  rmscryptodll_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmscryptodll_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmscryptodll_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-  libs += [
-      'ssl'
-      'crypto'
-      'secret-1'
-      'glib-2.0'
+elif platform == 'linux2':
+  rmsdll_env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME']=1
+  rmsdll_env.Append(CPPPATH='/usr/include/glib-2.0/')
+  rmsdll_env.Append(CPPPATH='/usr/include/libsecret-1/')
+  rmsdll_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+  rmsdll_env.Append(LINKFLAGS=Split('-Wl,-rpath,/home/admuller/Qt/5.7/gcc_64/lib'))
+
+  lib_path += [
+      '/usr/lib/x86_64-linux-gnu/',
+      '/home/admuller/Qt/5.7/gcc_64/lib/',
+      '/usr/lib64',
+  ]
+  libs +=[
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
+      'pthread',
+      'GL',
   ]
 elif platform == 'darwin':
   libs += 'ssl'
