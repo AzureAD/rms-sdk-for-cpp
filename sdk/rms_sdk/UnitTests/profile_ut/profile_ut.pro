@@ -4,7 +4,7 @@ TARGET    = profileUnitTests
 
 TEMPLATE = app
 
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 
 QT += core testlib
 QT -= gui

@@ -3,7 +3,7 @@ DESTDIR   = $$REPO_ROOT/bin
 TARGET    = rms
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/logger
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp
 
@@ -44,7 +44,7 @@ SOURCES += \
     CustomProtectedStream.cpp \
     HttpHelper.cpp \
     IRMSEnvironment.cpp \
-    $$REPO_ROOT/sdk/rms_sdk/profile/profile.cpp
+    $$REPO_ROOT/sdk/rms_sdk/Profile/profile.cpp
 
 HEADERS += \
     UserPolicy.h \
@@ -70,7 +70,7 @@ HEADERS += \
     CacheControl.h \
     RMSExceptions.h \
     IRMSEnvironment.h \
-    $$REPO_ROOT/sdk/rms_sdk/profile/profile.h
+    $$REPO_ROOT/sdk/rms_sdk/Profile/profile.h
 
 
 unix {

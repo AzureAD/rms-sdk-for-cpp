@@ -7,7 +7,7 @@ QT       -= core gui
 TEMPLATE = lib
 CONFIG += staticlib
 
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp
 
 CONFIG(debug, debug|release) {

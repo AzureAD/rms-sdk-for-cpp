@@ -11,7 +11,7 @@
 #define RMS_SDK_FILE_API_FILEAPISTRUCTURES_H
 
 #include <string>
-#include "ModernAPIExport.h"
+#include "api_export.h"
 #include "IAuthenticationCallback.h"
 #include "IConsentCallback.h"
 #include "TemplateDescriptor.h"

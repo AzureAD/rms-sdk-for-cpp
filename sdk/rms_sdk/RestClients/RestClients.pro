@@ -9,7 +9,7 @@ TEMPLATE = lib
 CONFIG  += staticlib c++11 debug_and_release
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/profile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
