@@ -135,7 +135,7 @@ std::string GetExtenstion(const std::string& filePath) {
   idx = filePath.rfind('.');
 
   if(idx != std::string::npos) {
-    return filePath.substr(idx+1);
+    return filePath.substr(idx); // to include the dot in the file extention
   }
   else {
     throw std::runtime_error("not implemented");
