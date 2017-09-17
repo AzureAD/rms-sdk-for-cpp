@@ -40,7 +40,7 @@ public:
 
 private:
 
-    enum HttpRequestType
+    enum class HttpRequestType
     {
       HTTP_GET,
       HTTP_POST,

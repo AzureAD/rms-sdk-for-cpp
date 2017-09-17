@@ -54,7 +54,7 @@ TemplateListResponse TemplatesClient::GetTemplates(modernapi::IAuthenticationCal
     catch (exceptions::RMSException)
     {
         throw exceptions::RMSNetworkException("TemplatesClient: Got an invalid json from the REST service",
-            exceptions::RMSNetworkException::ServerError);
+            exceptions::RMSNetworkException::Reason::ServerError);
     }
 }
 

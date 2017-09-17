@@ -106,7 +106,7 @@ void ConsentCallbackImpl::Consents(const string             & email,
       if (!result->Result().Accepted())
       {
         throw exceptions::RMSNetworkException("User did not consent",
-                                              exceptions::RMSNetworkException::UserNotConsented);
+                                              exceptions::RMSNetworkException::Reason::UserNotConsented);
       }
     }
   }

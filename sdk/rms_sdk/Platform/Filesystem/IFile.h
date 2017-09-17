@@ -15,7 +15,7 @@
 
 namespace rmscore { namespace platform { namespace filesystem {
 
-enum FileOpenModes
+enum class FileOpenModes
 {
     FILE_OPEN_WRITE,
     FILE_OPEN_READ

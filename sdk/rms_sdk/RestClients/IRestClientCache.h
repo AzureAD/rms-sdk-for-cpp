@@ -23,7 +23,7 @@ using _ptr = std::shared_ptr<T>;
 
 class IRestClientCache {
 public:
-    enum CacheType {
+    enum class CacheType {
         CACHE_PLAINDATA = 0,
         CACHE_ENCRYPTED
     };
