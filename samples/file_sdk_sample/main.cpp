@@ -153,8 +153,8 @@ void SetLabels(std::string filePath, std::string labelId,std::string owner, std:
     auto streamHandler = mip::file::IStreamHandler::Create(nullptr, inputStream, extension);
 
     // Create output stream
-    std::string addedString (labelId.empty() ? "_NotLabeld" : "_Labeld");
-    auto oFileStream = std::make_shared<std::ofstream>(filePath + addedString, std::ios::binary);
+    std::string addedString (labelId.empty() ? "NotLabeld_" : "Labeld_");
+    auto oFileStream = std::make_shared<std::ofstream>(addedString + filePath, std::ios::binary);
     auto outputStream = StdStreamAdapter::Create(std::static_pointer_cast<std::ostream>(oFileStream));
 
     if (labelId.empty()) {
