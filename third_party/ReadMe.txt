@@ -75,4 +75,3 @@ To compile file_sdk_sample:
 
 1. Downoad cxxopts: https://github.com/jarro2783/cxxopts/archive/master.zip .
 2. Copy cxxopts.hpp to rms-sdk-for-cpp/third_party/include/cxxopts
->>>>>>> Product Backlog Item 1412906: Create a sample app with the ability to stub label a file
