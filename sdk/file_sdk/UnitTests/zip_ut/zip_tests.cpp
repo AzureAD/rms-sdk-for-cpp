@@ -2,7 +2,7 @@
 #include <QtTest>
 #include <Qt>
 #undef signals
-#include "OPCFileFormat/zip_file.h"
+#include <OPCFileFormat/zip_file.h>
 #include <iostream>
 #include <QTStreamImpl.h>
 #include <memory>

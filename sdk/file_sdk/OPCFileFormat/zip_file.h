@@ -1,9 +1,9 @@
 #ifndef ZIPAPI_H
 #define ZIPAPI_H
 
-#include "common/exceptions.h"
-#include "common/gsf_input_istream.h"
-#include "Common/istream.h"
+#include <common/exceptions.h>
+#include <common/gsf_input_istream.h>
+#include <Common/istream.h>
 #include <map>
 #include <string>
 #include <memory>
