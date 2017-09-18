@@ -7,7 +7,7 @@ CONFIG += console c++11 debug_and_release
 CONFIG -= app_bundle
 CONFIG -= qt
 
-INCLUDEPATH += $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI $$REPO_ROOT/third_party/include $$REPO_ROOT/sdk/rms_sdk/ModernAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 unix:!mac:INCLUDEPATH += /usr/include/xmp/
 
 LIBS      +=  -L$$DESTDIR -L$$DESTDIR/rms -L$$DESTDIR/file

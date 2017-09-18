@@ -3,7 +3,7 @@
 #include <memory>
 #include <fstream>
 
-#include <cxxopts/cxxopts.hpp>
+#include "cxxopts/cxxopts.hpp"
 #include <Common/file_format_factory.h>
 #include <Common/std_stream_adapter.h>
 #include <api/istream_handler.h>

@@ -70,8 +70,3 @@ For Windows:
    https://support.microsoft.com/en-us/help/131313/how-to-create-32-bit-import-libraries-without--objs-or-source.
 6. The steps 3-5 are for 64 bit binaries. For 32 bit binaries, do the same steps but copy the header files and DLLs from
    <MSYS inst dir>\mingw32\include and <MSYS inst dir>\mingw32\bin respectively.
-
-To compile file_sdk_sample:
-
-1. Downoad cxxopts: https://github.com/jarro2783/cxxopts/archive/master.zip .
-2. Copy cxxopts.hpp to rms-sdk-for-cpp/third_party/include/cxxopts
