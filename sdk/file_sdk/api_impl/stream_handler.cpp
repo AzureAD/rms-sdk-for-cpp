@@ -5,7 +5,7 @@
 #include <ctime>
 
 #include <api/istream_handler.h>
-#include <file_format_factory.h>
+#include <Common/file_format_factory.h>
 
 using mip::file::FileFormatFactory;
 
