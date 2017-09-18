@@ -7,18 +7,6 @@ Import("""
 
 src_files = ['unittest_main.cpp']
 
-'''
-src_files += Glob('#src/upe/api_impl/test/*.cpp')
-src_files += Glob('#src/upe/base/test/*.cpp')
-src_files += Glob('#src/upe/common/test/*.cpp')
-src_files += Glob('#src/upe/core/test/*.cpp')
-src_files += Glob('#src/upe/core/parser/test/*.cpp')
-src_files += Glob('#src/upe/store/test/*.cpp')
-src_files += Glob('#src/shared/telemetry/test/*.cpp')
-'''
-
-#env.Append(CPPPATH=lib_xml_inc_dir)
-
 libs = [
     googlemock_lib,
     googletest_lib,
