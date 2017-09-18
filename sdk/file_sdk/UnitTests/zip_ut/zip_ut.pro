@@ -1,6 +1,6 @@
 REPO_ROOT = $$PWD/../../../..
 DESTDIR   = $$REPO_ROOT/bin/tests
-TARGET = zip_tests
+TARGET = zipFileUnitTests
 
 QT       += testlib
 
@@ -28,3 +28,6 @@ TEMPLATE = app
 
 SOURCES += zip_tests.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+RESOURCES += \
+    zip_files.qrc

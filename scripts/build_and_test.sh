@@ -135,6 +135,11 @@ if [ $TEST == 'true' ]; then
   else
     echo "!!! unit tests for xmpFile not found"
   fi
+  if [ -e "./tests/zipFileUnitTests$UT_SUFFIX" ]; then
+      ./tests/zip_tests$UT_SUFFIX
+  else
+    echo "!!! unit tests for zipFile not found"
+  fi
   if [ -e "./tests/pFileUnitTests$UT_SUFFIX" ]; then
       ./tests/pFileUnitTests$UT_SUFFIX
   else

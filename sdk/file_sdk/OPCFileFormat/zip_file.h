@@ -13,7 +13,7 @@ namespace mip {
 namespace file {
 
 struct GsfOutput_deleter {
-  void operator () (GsfOutput* obj) const {
+  void operator ()(GsfOutput* obj) const {
     if (!gsf_output_is_closed(obj)) {
       gsf_output_close(obj);
     }
@@ -22,7 +22,7 @@ struct GsfOutput_deleter {
 };
 
 struct GsfOutfile_deleter {
-  void operator () (GsfOutfile* obj) const {
+  void operator ()(GsfOutfile* obj) const {
     if (!gsf_output_is_closed(GSF_OUTPUT(obj))) {
       gsf_output_close(GSF_OUTPUT(obj));
     }
@@ -31,25 +31,25 @@ struct GsfOutfile_deleter {
 };
 
 struct GsfInput_deleter {
-  void operator () (GsfInput* obj) const {
+  void operator ()(GsfInput* obj) const {
     g_object_unref(G_OBJECT(obj));
   }
 };
 
 struct GsfInfile_deleter {
-  void operator () (GsfInfile* obj) const {
+  void operator ()(GsfInfile* obj) const {
     g_object_unref(G_OBJECT(obj));
   }
 };
 
 struct GsfStrSplit_deleter {
-  void operator () (gchar** obj) const {
+  void operator ()(gchar** obj) const {
     g_strfreev(obj);
   }
 };
 
 struct GError_deleter {
-  void operator () (GError* obj) const {
+  void operator ()(GError* obj) const {
     if(obj != nullptr)
       g_error_free(obj);
   }

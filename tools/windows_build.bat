@@ -48,4 +48,8 @@ commonUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 if %ERRORLEVEL% NEQ 0 ( 
 	exit /B 1
 )
+zipFileUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
+if %ERRORLEVEL% NEQ 0 ( 
+	exit /B 1
+)
 cd ..

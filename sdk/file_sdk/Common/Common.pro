@@ -33,3 +33,7 @@ HEADERS += \
     string_utils.h \
     gsf_input_istream.h
 
+unix {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libgsf-1
+}
