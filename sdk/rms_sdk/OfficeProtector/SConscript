@@ -1,0 +1,28 @@
+from build_config import *
+
+Import("""    
+    platform
+    rms_env
+""")
+
+office_env = rms_env.Clone()
+
+office_env.Append(CCFLAGS=Split('-DQT_NO_KEYWORDS'))
+office_env.Append(CXXFLAGS=Split('-DQT_NO_KEYWORDS'))
+
+src_files = Glob('*.cpp')
+office_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+office_env.Append(CPPPATH='#sdk/rms_sdk/Common')
+office_env.Append(CPPPATH='#sdk/rms_sdk/Core')
+office_env.Append(CPPPATH='#sdk/rms_sdk/Platform/Logger')
+office_env.Append(CPPPATH='#sdk/rms_sdk/ModernAPI')
+office_env.Append(CPPPATH='#sdk/rms_sdk/FileAPI')
+office_env.Append(CPPPATH='#sdk/rms_sdk/PFile')
+
+if platform == 'win32':
+    office_env.Append(CPPPATH='#third_party/include/Libgsf')
+else:
+    office_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
+
+office_obj = create_objs(office_env, src_files)
+Return('office_obj')

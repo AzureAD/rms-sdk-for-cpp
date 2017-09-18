@@ -22,6 +22,12 @@ Export('json_obj')
 pfile_obj = rms_env.SConscript('PFile/SConscript', duplicate=0)
 Export('pfile_obj')
 
+office_obj = rms_env.SConscript('OfficeProtector/SConscript', duplicate=0)
+Export('office_obj')
+
+fileapi_obj = rms_env.SConscript('FileAPI/SConscript', duplicate=0)
+Export('fileapi_obj')
+
 restclients_obj = rms_env.SConscript('RestClients/SConscript', duplicate=0)
 Export('restclients_obj')
 

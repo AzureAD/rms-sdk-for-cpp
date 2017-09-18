@@ -10,8 +10,8 @@ modernapi_env = rms_env.Clone()
 
 modernapi_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
 
-modernapi_env.Append(CCFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
-modernapi_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY -DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB'))
+modernapi_env.Append(CCFLAGS=Split('-DRMS_LIBRARY'))
+modernapi_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY'))
 
 src_files = Glob('*.cpp')
 modernapi_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')

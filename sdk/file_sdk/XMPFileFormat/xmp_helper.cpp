@@ -1,5 +1,5 @@
 #include "xmp_helper.h"
-#include "exceptions.h"
+#include "Common/exceptions.h"
 
 using std::pair;
 
@@ -18,7 +18,7 @@ XMPHelper::XMPHelper()
     if (!SXMPMeta::Initialize())
       throw new Exception("SXMPMeta Error");
 
-    if (!SXMPFiles::Initialize())
+    if (!SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText))
       throw new Exception("SXMPFiles Error");
 
     std::string actualPrefix;

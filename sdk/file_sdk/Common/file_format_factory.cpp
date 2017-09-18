@@ -1,6 +1,8 @@
 #include "file_format_factory.h"
 #include <algorithm>
 #include <vector>
+#include <string>
+
 #include "file_format.h"
 #include "XMPFileFormat/xmp_file_format.h"
 #include "CompoundFileFormat/compound_file_format.h"
@@ -51,6 +53,7 @@ std::shared_ptr<IFileFormat> FileFormatFactory::Create(std::shared_ptr<IStream> 
   }
 
   std::string finalExtention = extension;
+  std::transform(finalExtention.begin(), finalExtention.end(), finalExtention.begin(), ::tolower);
   auto pos = extension.find_last_of('.');
   if(pos == string::npos) {
     // TODO: add log
