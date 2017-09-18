@@ -12,6 +12,8 @@ class DLL_PUBLIC_FILE StreamHandler : public IStreamHandler
 private:
   std::vector<Tag> mLabels; // holds the labels to commit; Tag will be raplaced with ILabel when impl
 
+  time_t GetCurrentTime();
+
 protected:
   std::shared_ptr<IPolicyEngine> mEngine;
   std::shared_ptr<IFileFormat> mFileFormat;

@@ -23,7 +23,7 @@ StreamHandler::StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_
 }
 
 bool StreamHandler::IsLabeled() {
-  return mFileFormat->GetTags().size() > 0;
+  return mLabels.size() > 0;
 }
 
 bool StreamHandler::IsProtected() {
@@ -35,22 +35,30 @@ std::shared_ptr<Tag> StreamHandler::GetLabel() {
 }
 
 void StreamHandler::SetLabel(const std::string& labelId, const LabelingOptions& labelingOptions) {
-  std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  Tag tag(labelId, "Label", "parentId", labelingOptions.GetOwner(), true, std::ctime(&now)); //will get all the missing data such as label name from UPE when impl
-  mLabels.push_back(tag);
+  std::time_t now = GetCurrentTime();
+
+  mLabels.clear(); // need to clear all previous labels that was set.
+  mLabels.push_back(Tag(labelId, "Label", "parentId", labelingOptions.GetOwner(), true, std::ctime(&now))); //will get all the missing data such as label name from UPE when impl;
 }
 
 void StreamHandler::SetLabel(std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) {
-  std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-  if (auto ptr = label->GetParent().lock()) {
-    Tag tag(label->GetId(), label->GetName(), ptr->GetId(), labelingOptions.GetOwner(), true, std::ctime(&now), labelingOptions.GetAssingmentMethod());
-    mLabels.push_back(tag);
-  }
+  SetLabel(label->GetId(), labelingOptions);
 }
 
 void StreamHandler::DeleteLabel(const std::string& justificationMessage) {
-  mLabels.clear();
+  std::vector<Tag> newLabels;
+  for (const auto &label : mLabels){
+    newLabels.push_back(Tag(label.GetLabelId(),
+                            label.GetLabelName(),
+                            label.GetLabelParentId(),
+                            label.GetOwner(),
+                            false,
+                            label.GetSetTime(),
+                            label.GetMethod(),
+                            label.GetSiteId(),
+                            label.GetExtendedProperties()));
+  }
+  mLabels = newLabels;
 }
 
 void StreamHandler::SetProtection(const UserPolicy& policy) {
@@ -62,6 +70,10 @@ void StreamHandler::RemoveProtection() {
 void StreamHandler::Commit(std::shared_ptr<IStream> outputStream, std::string& outputExtension) {
   mFileFormat->SetTags(mLabels);
   mFileFormat->Commit(outputStream, outputExtension);
+}
+
+time_t StreamHandler::GetCurrentTime() {
+  return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 }
 
 } //namespace file
