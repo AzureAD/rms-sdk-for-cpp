@@ -38,8 +38,6 @@ rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT
 
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
 rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
-print srcdir
-
 
 objects = [
       crypto_api_obj,
