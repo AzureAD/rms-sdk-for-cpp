@@ -12,6 +12,7 @@ public:
 private Q_SLOTS:
   void Create_StreamIsNull_ThrowInvalidArgument();
   void Create_NoExtension_ThrowInvalidArgument();
+  void Create_ExtensionWithUpperCase_ConverToLowerCase();
   void Create_ExtensionWithoutDot_AddsDot();
   void Create_ExtensionWithoutDot_AddsDot_data(){
     QTest::addColumn<std::string>("extension");
