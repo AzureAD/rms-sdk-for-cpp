@@ -1,7 +1,7 @@
 #ifndef CONTENTTYPES_H
 #define CONTENTTYPES_H
 
-#include "xml/opcxml.h"
+#include "OPCFileFormat/xml/opcxml.h"
 #include <string>
 
 namespace mip {

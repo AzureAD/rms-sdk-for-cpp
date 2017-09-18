@@ -20,4 +20,5 @@ HEADERS += opc_file_format.h \
     xml/contenttypes.h \
     xml/relationships.h \
     xml/customproperties.h \
-    xml/opcxml.h
+    xml/opcxml.h \
+    zip_file.h

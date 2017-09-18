@@ -2,9 +2,11 @@ from build_config import *
 
 Import('file_env')
 
-src_files = Glob('*.cpp')
-
 opc_env = file_env.Clone()
+
+src_files = Glob('*.cpp')
+src_files += Glob('xml/*.cpp')
+
 
 opc_obj = create_objs(opc_env, src_files)
 Return('opc_obj')

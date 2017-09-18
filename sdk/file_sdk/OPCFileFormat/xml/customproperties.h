@@ -1,7 +1,8 @@
 #ifndef CUSTOMPROPERTIES_H
 #define CUSTOMPROPERTIES_H
 
-#include "xml/opcxml.h"
+#include "OPCFileFormat/xml/opcxml.h"
+
 #include <string>
 #include <vector>
 

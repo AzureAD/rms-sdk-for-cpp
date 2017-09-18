@@ -7,6 +7,7 @@ Import("""
 """)
 
 src_files = ['unittest_main.cpp']
+src_files += Glob('../../OPCFileFormat/test/*.cpp')
 
 libs = [
     googlemock_lib,
