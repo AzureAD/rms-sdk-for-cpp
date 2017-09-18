@@ -5,6 +5,8 @@ Import('env bins')
 variant_dir = '#' +  bins + '/sdk/file_sdk'
 
 file_env = env.Clone()
+file_env.Append(CPPPATH = ['#sdk/file_sdk'])
+
 Export('file_env')
 
 common_obj = file_env.SConscript('Common/SConscript', variant_dir = variant_dir + '/Common', duplicate=0)
@@ -31,7 +33,9 @@ Export('xmp_obj')
 apiimpl_obj = file_env.SConscript('api_impl/SConscript', variant_dir = variant_dir + '/api_impl', duplicate=0)
 Export('apiimpl_obj')
 
+file_lib = file_env.SConscript('shared_lib/SConscript', variant_dir = '#' +  bins + '/sdk/shared_lib', duplicate=0)
+Export('file_lib')
+
 file_sdk_ut = file_env.SConscript('UnitTests/SConscript', duplicate=0)
 
-file_lib = file_env.SConscript('shared_lib/SConscript',variant_dir = '#' +  bins + '/sdk/shared_lib', duplicate=0)
 Return('file_lib')
