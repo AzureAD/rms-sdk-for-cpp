@@ -56,15 +56,13 @@ struct GError_deleter {
 };
 
 class ZipFile {
-
 public:
   ZipFile(std::shared_ptr<IStream> inputStream);
   std::string GetEntry(const std::string& entryPath);
   void SetEntry(const std::string& entryPath, const std::string& content);
   void Commit(std::shared_ptr<IStream> outputStream);
 
-protected:
-
+private:
   std::unique_ptr<GsfInfile, GsfInfile_deleter> mGsfZipStream;
 };
 
