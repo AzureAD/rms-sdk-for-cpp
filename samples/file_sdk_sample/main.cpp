@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
         ("f,file", "Full path to the file to work on.", cxxopts::value<std::string>(), "File path")
         ("g,get-label", "Show the labels that applies on a file.")
         ("s,set-label", "Set a label with <labelId> and with owner <owner>. "
-                        "If downgrading label - will apply <Justification message> as needed.", cxxopts::value<std::vector<std::string>>())
-        ("r,remove-label", "Remove the current label from the file with <Justification message>.", cxxopts::value<std::string>())
+                        "If downgrading label - will apply <Justification message> as needed.", cxxopts::value<std::vector<std::string>>(), "lblId, owner, msg")
+        ("r,remove-label", "Remove the current label from the file with <Justification message>.", cxxopts::value<std::string>(), "msg")
         ("l,list-labels", "Show all available labels with there Id's.")
         ("h,help", "Print help and exit.")
         ;
