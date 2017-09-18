@@ -171,8 +171,6 @@ env.Append(CPPPATH = include_path + qt_include_path)
 env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
 env.Append(CPPPATH = qt_bin_dir)
 
-# (ccflags, cxxflags, linkflags) = get_flags(isRelease)
-
 env.Append(CCFLAGS=Split(ccflags))
 env.Append(CXXFLAGS=Split(cxxflags))
 env.Append(LINKFLAGS=Split(linkflags))

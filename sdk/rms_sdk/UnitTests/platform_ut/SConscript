@@ -65,14 +65,6 @@ libs = [
 ]
 
 if platform == 'win32':
-  # rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  # if configuration == 'debug':
-  #   rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
-  # elif configuration == 'release':
-  #   rmsplatform_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  # lib_path += [
-  #     '#third_party/lib/eay',
-  # ]
   libs += [      
       'libeay32',
       'ssleay32',
@@ -83,12 +75,6 @@ if platform == 'win32':
       'rms', 
   ]  
 elif platform == 'linux2':
-  # rmsplatform_env.Append(CCFLAGS=Split('-DQT_QML_DEBUG'))
-  # lib_path += [
-  #     '/usr/lib/x86_64-linux-gnu/',
-  #     '/home/admuller/Qt/5.7/gcc_64/lib/',
-  #     '/usr/lib64',
-  # ]
   libs +=[
       'ssl',
       'crypto',

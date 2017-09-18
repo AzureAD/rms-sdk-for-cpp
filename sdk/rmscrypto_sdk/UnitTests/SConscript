@@ -41,12 +41,6 @@ rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
 rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
 if platform == 'win32':
-  # rmscrypto_ut_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  # if configuration == 'debug':
-  #   rmscrypto_ut_env.Append(LINKFLAGS=Split('/DEBUG'))
-  # elif configuration == 'release':
-  #   rmscrypto_ut_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  # rmscrypto_ut_env.Append(CPPPATH='#third_party/include')
   libs += [
       'libeay32',
       'ssleay32',
@@ -54,15 +48,7 @@ if platform == 'win32':
       'Gdi32',
       'User32',
   ]
-  # lib_path += [
-  #     '#third_party/lib/eay',
-  # ]
 elif platform == 'linux2':
-  # lib_path += [
-  #     '/usr/lib/x86_64-linux-gnu/',
-  #     '/home/admuller/Qt/5.7/gcc_64/lib/',
-  #     '/usr/lib64',
-  # ]
   libs +=[
       'ssl',
       'crypto',
@@ -72,10 +58,10 @@ elif platform == 'linux2':
       'GL',
   ]
 elif platform == 'darwin':
-	libs +=[
+  libs +=[
       'ssl'
       'crypto'
-	]
+  ]
 
 rmscrypto_ut_obj = rmscrypto_ut_env.Object(source = src_files)
 unittests_exe = rmscrypto_ut_env.Program(target = "unittests", source=[rmscrypto_ut_obj] + objects, LIBS = [libs], LIBPATH=lib_path)
