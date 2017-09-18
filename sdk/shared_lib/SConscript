@@ -18,7 +18,7 @@ Import("""
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
-    googletest_obj
+    googletest_lib
     json_obj
     modernapi_obj
     pfile_obj
@@ -54,7 +54,6 @@ objects = [
   common_obj,
   consent_obj,
   core_obj,
-  googletest_obj,
   pfile_obj,
   json_obj,
   modernapi_obj,
@@ -73,6 +72,7 @@ libs = [
   'Qt5Xml' + lib_suffix,
   'Qt5XmlPatterns' + lib_suffix,
   'DnsAPI',
+  googletest_lib,
 ]
 
 if platform == 'win32':

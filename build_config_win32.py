@@ -9,6 +9,8 @@ include_search_path = [
     '#third_party/include',
     '#googletest',
     '#googletest/include',
+    '#googlemock',
+    '#googlemock/include',
 ]
 
 libxml2flavor = "libxml2-2.9.3-win32-x86_64"

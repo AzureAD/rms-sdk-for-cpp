@@ -1,0 +1,29 @@
+Import('file_env target_name')
+
+Import("""
+    googlemock_lib
+    googletest_lib
+""")
+
+src_files = ['unittest_main.cpp']
+
+'''
+src_files += Glob('#src/upe/api_impl/test/*.cpp')
+src_files += Glob('#src/upe/base/test/*.cpp')
+src_files += Glob('#src/upe/common/test/*.cpp')
+src_files += Glob('#src/upe/core/test/*.cpp')
+src_files += Glob('#src/upe/core/parser/test/*.cpp')
+src_files += Glob('#src/upe/store/test/*.cpp')
+src_files += Glob('#src/shared/telemetry/test/*.cpp')
+'''
+
+#env.Append(CPPPATH=lib_xml_inc_dir)
+
+libs = [
+    googlemock_lib,
+    googletest_lib,
+]
+
+file_sdk_unittest_obj = file_env.Object(source = src_files);
+file_sdk_unittest_exe = file_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs])
+Return('file_sdk_unittest_exe')
