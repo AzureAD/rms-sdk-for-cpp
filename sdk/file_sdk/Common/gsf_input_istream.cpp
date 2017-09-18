@@ -1,6 +1,7 @@
 #include "gsf_input_istream.h"
 #include <gsf/gsf-infile-impl.h>
 #include <gsf/gsf-impl-utils.h>
+#include <algorithm>
 
 /*
  * Extending Libgsf to support Istream.
@@ -21,8 +22,7 @@ typedef struct {
   GsfInputClass input_class;
 } GsfInputIStreamClass;
 
-GsfInput* gsf_input_istream_new(IStream *stream)
-{
+GsfInput* gsf_input_istream_new(IStream *stream) {
   GsfInputIStream *gsfStream;
 
   gsfStream = (GsfInputIStream*) g_object_new(GSF_INPUT_ISTREAM_TYPE, NULL);
@@ -33,8 +33,7 @@ GsfInput* gsf_input_istream_new(IStream *stream)
   return GSF_INPUT(gsfStream);
 }
 
-static void gsf_input_istream_finalize(GObject *obj)
-{
+static void gsf_input_istream_finalize(GObject *obj) {
   GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(obj);
 
   if(gsfStream->buf)
@@ -43,43 +42,36 @@ static void gsf_input_istream_finalize(GObject *obj)
   parent_class->finalize(obj);
 }
 
-static GsfInput* gsf_input_istream_dup(GsfInput *src_input, GError **err)
-{
+static GsfInput* gsf_input_istream_dup(GsfInput *src_input, GError **err) {
   GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(src_input);
 
   return gsf_input_istream_new(gsfStream->stream);
 }
 
-static const guint8* gsf_input_istream_read(GsfInput *input, size_t num_bytes, guint8 *buffer)
-{
+static const guint8* gsf_input_istream_read(GsfInput *input, size_t num_bytes, guint8 *buffer) {
   GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(input);
 
   if(buffer == NULL) {
-
     gsfStream->buf_size = num_bytes;
     if(gsfStream->buf)
       g_free(gsfStream->buf);
     gsfStream->buf = g_new0(guint8, num_bytes);
-
     buffer = gsfStream->buf;
   }
+
+  int64_t total_read = 0;
   int64_t read = 0;
-  while(num_bytes - read > 64){
-    int64_t size = gsfStream->stream->Read(buffer + read, 64);
+  const int64_t chunk_size = 1024;
 
-    if(size == 0)
-      throw std::exception("Unable to read entry");
-
-    read += size;
-  }
-
-  gsfStream->stream->Read(buffer + read, num_bytes - read);
+  do {
+    read = gsfStream->stream->Read(buffer + total_read, std::min(chunk_size, static_cast<const int64_t> (num_bytes - total_read)));
+    total_read += read;
+  } while(total_read < num_bytes);
 
   return buffer;
 }
 
-static gboolean gsf_input_istream_seek(GsfInput *input, gsf_off_t offset, GSeekType whence)
-{
+static gboolean gsf_input_istream_seek(GsfInput *input, gsf_off_t offset, GSeekType whence) {
   GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(input);
 
   if (gsfStream->stream == nullptr)
@@ -110,8 +102,7 @@ static gboolean gsf_input_istream_seek(GsfInput *input, gsf_off_t offset, GSeekT
   return FALSE;
 }
 
-static void gsf_input_istream_init(GObject *obj)
-{
+static void gsf_input_istream_init(GObject *obj) {
   GsfInputIStream *gsfStream = GSF_INPUT_ISTREAM(obj);
 
   gsfStream->stream = NULL;
@@ -119,8 +110,7 @@ static void gsf_input_istream_init(GObject *obj)
   gsfStream->buf_size = 0;
 }
 
-static void gsf_input_istream_class_init(GObjectClass *gobject_class)
-{
+static void gsf_input_istream_class_init(GObjectClass *gobject_class) {
   GsfInputClass *input_class = GSF_INPUT_CLASS(gobject_class);
 
   gobject_class->finalize = gsf_input_istream_finalize;
