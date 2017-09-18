@@ -23,7 +23,7 @@ StreamHandler::StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_
 }
 
 bool StreamHandler::IsLabeled() {
-  return mLabels.size() > 0;
+  return mLabels.size() > 0 && mLabels[0].GetEnabled();
 }
 
 bool StreamHandler::IsProtected() {

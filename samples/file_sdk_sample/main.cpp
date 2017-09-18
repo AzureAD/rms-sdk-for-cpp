@@ -120,7 +120,7 @@ void GetLabels(std::string filePath) {
     }
 
     auto tag = streamHandler->GetLabel();
-    cout << "File is Labeled with: " << tag->GetLabelName() << std::endl;
+    cout << "File is labeled as: " << tag->GetLabelName() << "\nId: " << tag->GetLabelId() << "\nOwner: " << tag->GetOwner() <<std::endl;
 
   } catch (std::runtime_error) {
     cout << "Can't parse file extension" << std::endl;
