@@ -6,13 +6,38 @@ import sys
 build_base_dir = 'bin'
 target_name = 'mip_upe_sdk'
 
-include_path = [
+INCLUDE_PATH_BASE = [
     '#sdk',
     '#googletest',
     '#googletest/include',
     '#third_party',
     '#third_party/include',
 ]
+
+LIBXML2FLAVOR = "libxml2-2.9.3-win32-x86_64"
+LIBXML2HEADERPATH = "#src/external/libxml2/" + LIBXML2FLAVOR + "/include/libxml2"
+
+CCFLAGS_BASE = '-DQT_CORE_LIB'
+CCFLAGS_BASE_RELEASE = '-DQT_NO_DEBUG -DNDEBUG -DNDEBUG'
+CCFLAGS_BASE_DEBUG = '-DDEBUG -D_DEBUG'
+
+CXXFLAGS_BASE = '-DQT_CORE_LIB'
+CXXFLAGS_BASE_RELEASE = '-DQT_NO_DEBUG -DNDEBUG -DNDEBUG'
+CXXFLAGS_BASE_DEBUG = '-DDEBUG -D_DEBUG'
+
+def get_vars(isX86, isRelease, platform, msvc12):
+  global target_arch
+  global include_path
+  global libxml2headerpath
+  global lib_path
+  if platform == 'win32':
+    pass
+  elif platform == 'linux2':
+    from build_config_linux import include_path_linux, get_vars, get_qtvars, lib_path
+    target_arch = get_vars(isX86)
+    include_path += include_path_linux
+    (qt_dir, qt_include_path) = get_qtvars()
+    lib_path = lib_path_linux
 
 def get_flags(isRelease):
   print "get_flags"

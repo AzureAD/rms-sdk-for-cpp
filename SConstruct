@@ -66,25 +66,56 @@ configuration = ''
 lib_suffix = ''
 msvc_version = ''
 # TODO: move to build_config_<platform
+# from build_config import get_vars
+# get_vars(isX86, isRelease, platform, msvc12)
+# from build_config import *
 if platform == 'win32':
-  print "AAAAAA"
-  from build_config_win32 import get_vars, get_qtvars, lib_path
-  (arch_suffix, target_arch, win_def, msvc) = get_vars(isX86, msvc12)
-  msvc_version = msvc + '.0'
-  msvc_path = int(msvc) + 1
-  msvc_path = 'msvc20' + str(msvc_path)
-  libxml2flavor = "libxml2-2.9.3-win32-x86_64"
-  libxml2headerpath = "#src/external/libxml2/" + libxml2flavor + "/include/libxml2"
-  (qt_dir, qt_include_path) = get_qtvars(str(msvc_path) + arch_suffix)
-  print "MSVC: ", msvc_version
-elif platform == 'linux2':
-  print "BBBBB"
-  from build_config_linux import include_path_linux, get_vars, get_qtvars, lib_path
-  target_arch = get_vars(isX86)
-  include_path += include_path_linux
-  (qt_dir, qt_include_path) = get_qtvars()
+    from build_config_win32 import *
+# elif platform == 'linux2'
+#     from build_config_linux import *
 
-# TODO: move to build_config_<platform>
+if isX86:
+    arch = '32'
+else:
+    arch = '64'
+
+if isRelease:
+    build = 'RELEASE'
+else:
+    build = 'DEBUG'
+
+if msvc12:
+    msvc = MSVC_12
+else:
+    msvc = MSVC_14
+
+ccflags = CCFLAGS + ' ' + eval("CCFLAGS_" + arch) + ' ' + eval("CCFLAGS_" + build)
+cxxflags = CXXFLAGS + ' ' + eval("CXXFLAGS_" + arch) + ' ' + eval("CXXFLAGS_" + build)
+include_path = INCLUDE_PATH
+lib_path = LIB_PATH
+lib_suffix = eval("LIB_SUFFIX_" + build)
+linkflags = eval("LINKFLAGS_" + build)
+libxml2headerpath = LIBXML2HEADERPATH
+msvc_version = int(msvc) + 1
+msvc_path = MSVC_PATH_PREFIX + str(msvc_version) + eval("MSVC_PATH_SUFFIX_" + arch)
+
+qt_dir = QT_DIR_PREFIX + msvc_path
+qt_include_path = [
+    qt_dir + '/mkspecs/' + QT_MKSPECS_PATH + str(msvc_version),
+]
+target_arch = eval("TARGET_ARCH_" + arch)
+
+
+print "build_base_dir: ", build_base_dir
+print "target_name: ", target_name
+print "target_arch: ", target_arch
+print "include_path: ", include_path
+print "libxml2headerpath: ", libxml2headerpath
+print "qt_dir: ", qt_dir
+print "qt_include_path: ", qt_include_path
+print "msvc_version: ", msvc_version 
+print "lib_path: ", lib_path
+
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
@@ -98,16 +129,17 @@ qt_include_path += [
     qt_inc_dir + '/QtNetwork',
     qt_inc_dir + '/QtXml',
     qt_inc_dir + '/QtXmlPatterns',
-    qt_dir + '/mkspecs/linux-g++',
 ]
 
 lib_path += [
     qt_lib_path, 
     '#bin/' + build_flavor + '/' + target_arch + '/sdk',
 ]
-print "QT_Dir: ", qt_dir
 
-env = Environment(BUILDROOT=build_base_dir, MSVC_VERSION=msvc_version, TARGET_ARCH=target_arch)
+if msvc != '':
+    msvc += '.0'
+
+env = Environment(BUILDROOT=build_base_dir, MSVC_VERSION=msvc, TARGET_ARCH=target_arch)
 #--------------------------------------------------------------
 def DumpEnv( env, key = None, header = None, footer = None ):
     """
@@ -154,8 +186,8 @@ env.Append(CPPPATH = include_path + qt_include_path)
 env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
 env.Append(CPPPATH = qt_bin_dir)
 
-(ccflags, cxxflags, linkflags) = get_flags(isRelease)
-if msvc_version == '12':
+# (ccflags, cxxflags, linkflags) = get_flags(isRelease)
+if msvc == '12':
     ccflags += ' -DMSVC12'
     cxxflags += ' -DMSVC12'
 env.Append(CCFLAGS=Split(ccflags))
@@ -168,9 +200,6 @@ print env['LINKFLAGS']
 
 if platform == 'linux2':
   env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : qt_lib_path + '/:$LD_LIBRARY_PATH' })
-
-if platform == 'win32' and not isRelease:
-      lib_suffix = 'd'
 
 bins = env['BUILDROOT'] + "/" + build_flavor + "/" + target_arch
 

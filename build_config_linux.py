@@ -10,6 +10,8 @@ qt_include_path = [
       qt_dir + 'mkspecs/linux-g++',
 ]
 
+QT_MKSPECS_PATH = 'linux-g++'
+
 include_path_linux = [
     '/usr/include/glib-2.0/',
     '/usr/include/libsecret-1/',
@@ -17,7 +19,7 @@ include_path_linux = [
     '/usr/lib64',
 ]
 
-lib_path = [
+lib_path_linux = [
     '/usr/lib/x86_64-linux-gnu/',
     '/home/admuller/Qt/5.7/gcc_64/lib/',
     '/usr/lib64',
