@@ -25,7 +25,7 @@ src_files = Glob('*.cpp')
 
 filecommon_env_env = file_env.Clone()
 
-filecommon_env_env.Append(CPPPATH=Split('#sdk/rmscrypto_sdk/CryptoAPI #sdk/file_sdk')) 
+filecommon_env_env.Append(CPPPATH=Split('#sdk/file_sdk')) 
 filecommon_env_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
 
 srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'

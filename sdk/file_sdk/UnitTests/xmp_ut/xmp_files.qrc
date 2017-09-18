@@ -18,5 +18,17 @@
         <file>xmp_labeled_automatic/Labeled.jpeg</file>
         <file>xmp_labeled_automatic/Labeled.jpg</file>
         <file>xmp_labeled_automatic/Labeled.png</file>
+        <file>xmp_not_labeled/NotLabeled.dng</file>
+        <file>xmp_not_labeled/NotLabeled.gif</file>
+        <file>xmp_not_labeled/NotLabeled.jfi</file>
+        <file>xmp_not_labeled/NotLabeled.jfif</file>
+        <file>xmp_not_labeled/NotLabeled.jif</file>
+        <file>xmp_not_labeled/NotLabeled.jpe</file>
+        <file>xmp_not_labeled/NotLabeled.jpeg</file>
+        <file>xmp_not_labeled/NotLabeled.jpg</file>
+        <file>xmp_not_labeled/NotLabeled.png</file>
+        <file>xmp_not_labeled/NotLabeled.psd</file>
+        <file>xmp_not_labeled/NotLabeled.tif</file>
+        <file>xmp_not_labeled/NotLabeled.tiff</file>
     </qresource>
 </RCC>

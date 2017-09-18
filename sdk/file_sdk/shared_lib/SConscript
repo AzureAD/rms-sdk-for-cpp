@@ -9,6 +9,7 @@ Import("""
 """)
 
 Import("""
+    apiimpl_obj
     common_obj
     compound_obj
     default_obj
@@ -24,6 +25,7 @@ lib_path = [
     qt_lib_path,
 ]
 objects = [
+    apiimpl_obj,
     common_obj,
     compound_obj,
     default_obj,
