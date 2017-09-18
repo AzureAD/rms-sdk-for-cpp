@@ -71,14 +71,6 @@ libs = [
 ]
 
 if platform == 'win32':
-  # rmsdll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
-  # if configuration == 'debug':
-  #     rmsdll_env.Append(LINKFLAGS=Split('/DEBUG'))
-  # elif configuration == 'release':
-  #     rmsdll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  # lib_path += [
-  #   '#third_party/lib/eay',
-  # ]
   libs += [
       'libeay32',
       'ssleay32',

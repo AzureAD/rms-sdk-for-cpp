@@ -1,4 +1,3 @@
-
 cd ../sdk
 qmake -recursive
 make clean

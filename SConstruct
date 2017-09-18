@@ -1,9 +1,6 @@
 #!python
 import sys
 import os
-import os.path
-from os.path import expanduser
-from build_config import *
 from build_support import *
 
 Help("""
