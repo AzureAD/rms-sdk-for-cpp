@@ -7,8 +7,8 @@ CONFIG  += plugin c++11 debug_and_release warn_on
 
 DEFINES     += RMS_LIBRARY
 
-QMAKE_CFLAGS_WARN_ON -= -W3
-QMAKE_CFLAGS_WARN_ON += -W4
+#QMAKE_CFLAGS_WARN_ON -= -W3
+#QMAKE_CFLAGS_WARN_ON += -W4
 
 QT       += core xml xmlpatterns widgets network
 QT 	 -= gui
