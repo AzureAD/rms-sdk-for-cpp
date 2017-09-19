@@ -28,13 +28,10 @@ const vector<Tag> XMPFileFormat::ReadTags() {
 }
 
 void XMPFileFormat::Commit(shared_ptr<IStream> outputStream, string& newExtension) {
-  std::string tempFileName = std::tmpnam(nullptr);
-//  std::ofstream temp(tempFileName); //create empty file
-//  temp.close();
-  try {
   int readCount = 0;
+  mFile->Seek(0);
+  uint8_t buffer[BufferSize];
   do{
-    uint8_t buffer[BufferSize];
     readCount = mFile->Read(&buffer[0], BufferSize);
     outputStream->Write(buffer, readCount);
   }
@@ -44,13 +41,6 @@ void XMPFileFormat::Commit(shared_ptr<IStream> outputStream, string& newExtensio
   XMPHelper::GetInstance().SetTags(outputStream, mTags);
 
   newExtension = mExtension;
-  }
-  catch(std::exception ex){
-     std::remove(tempFileName.c_str());
-     throw ex;
-  }
-
-  std::remove(tempFileName.c_str());
 }
 
 } // namespace file
