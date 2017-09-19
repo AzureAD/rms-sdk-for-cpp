@@ -1,3 +1,6 @@
-Import('file_env')
+Import('file_env bins')
 
-common_ut_lib = file_env.SConscript('common_ut/SConscript', duplicate=0)
+variant_dir = '#' +  bins + '/sdk/file_sdk/unittests/'
+
+file_sdk_ut = file_env.SConscript('gtest/SConscript', variant_dir=variant_dir + 'gtest', duplicate=0)
+Install("#" + bins + '/sdk/file_sdk', file_sdk_ut)

@@ -10,7 +10,6 @@ Import('file_env')
 src_files = Glob('*.cpp')
 
 opc_env = file_env.Clone()
-opc_env.Append(CPPPATH = Split('#sdk/file_sdk'))
 
 if platform == 'win32':
     opc_env.Append(CPPPATH='#third_party/include/Libgsf')

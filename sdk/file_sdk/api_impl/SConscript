@@ -5,7 +5,7 @@ Import('file_env')
 src_files = Glob('*.cpp')
 
 apiimpl_env = file_env.Clone()
-apiimpl_env.Append(CPPPATH = Split('#sdk/file_sdk #sdk/rms_sdk/ModernAPI'))
+apiimpl_env.Append(CPPPATH = Split('#sdk/rms_sdk/ModernAPI'))
 
 apiimpl_obj = create_objs(apiimpl_env, src_files)
 Return('apiimpl_obj')
