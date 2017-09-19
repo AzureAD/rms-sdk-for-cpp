@@ -17,7 +17,7 @@ public:
 
   virtual void SetTags(const vector<Tag>& tags);
 
-  virtual void Commit(shared_ptr<IStream> file, string& newExtension) = 0;
+  virtual void Commit(shared_ptr<IStream> outputStream, string& newExtension) = 0;
 
 protected:
   FileFormat(shared_ptr<IStream> file, const string& extension);

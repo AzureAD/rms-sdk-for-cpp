@@ -1,0 +1,13 @@
+Import('env')
+
+src_files = ['src/gmock-all.cc']
+
+env.Append(CPPPATH=[
+  '#googlemock',
+  '#googletest',
+  '#googlemock/include',
+  '#googletest/include',
+])
+
+googlemock_lib = env.Library(target = "googlemock", source = src_files)
+Return('googlemock_lib')

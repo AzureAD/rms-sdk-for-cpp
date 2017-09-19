@@ -25,7 +25,7 @@ public:
   virtual void SetTags(const vector<Tag>& tags) = 0;
 
   // Saves original file to the output file with tags and protection and sets the new file extension to newExtension parameter
-  virtual void Commit(std::shared_ptr<IStream> file, string& newExtension) = 0;
+  virtual void Commit(std::shared_ptr<IStream> outputStream, string& newExtension) = 0;
 
 };
 

@@ -19,7 +19,7 @@ Import("""
     crypto_platform_logger_obj
     crypto_platform_settings_obj
     easylogger_obj
-    googletest_obj
+    googletest_lib
     json_obj
     logger_obj
     modernapi_obj
@@ -58,7 +58,6 @@ objects = [
   consent_obj,
   core_obj,
   easylogger_obj,
-  googletest_obj,
   logger_obj,
   profile_obj,
   pfile_obj,
@@ -79,6 +78,7 @@ libs = [
   'Qt5Xml' + lib_suffix,
   'Qt5XmlPatterns' + lib_suffix,
   'DnsAPI',
+  googletest_lib,
 ]
 
 if platform == 'win32':

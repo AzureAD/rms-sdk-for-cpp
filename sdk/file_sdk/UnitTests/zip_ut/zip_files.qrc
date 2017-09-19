@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>zip_files/LabeledGeneral.docx</file>
+        <file>zip_files/test.txt</file>
+    </qresource>
+</RCC>

@@ -10,6 +10,7 @@ Import("""
 """)
 
 Import("""
+    googletest_lib
     common_obj
     crypto_api_obj
     crypto_obj
@@ -17,7 +18,6 @@ Import("""
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
-    googletest_obj
     json_obj
     restclients_obj
     rms_platform_filesystem_obj
@@ -49,7 +49,6 @@ objects = [
     crypto_platform_keystorage_obj,
     crypto_platform_logger_obj,
     crypto_platform_settings_obj,
-    googletest_obj,
     json_obj,
     restclients_obj,
     rms_platform_filesystem_obj,
@@ -68,6 +67,7 @@ libs = [
     'Qt5Gui' + lib_suffix,
     'DnsAPI',
     'rms', 
+    googletest_lib
 ]
 
 if platform == 'win32':
