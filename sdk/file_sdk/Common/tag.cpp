@@ -196,7 +196,7 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
       pair<string, string> data = properties[j];
       string id = data.first;
       if (id.compare(methodKey) != 0 && !id.compare(0, extendedPropertyPrefix.size(), extendedPropertyPrefix)) {
-        string vendorAndKey = id.erase(0, extendedPropertyPrefix.size());
+        string vendorAndKey = id.erase(0, extendedPropertyPrefix.size() + 1);
         size_t index = vendorAndKey.find_first_of("_");
         if (index == string::npos)
           continue;
