@@ -4,6 +4,8 @@ Import('rms_env bins')
 
 platform_objs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
+external_objs = rms_env.SConscript('external/SConscript', duplicate=0)
+
 common_obj = rms_env.SConscript('Common/SConscript', duplicate=0)
 Export('common_obj')
 
@@ -19,8 +21,14 @@ Export('googletest_obj')
 json_obj = rms_env.SConscript('Json/SConscript', duplicate=0)
 Export('json_obj')
 
+logger_obj = rms_env.SConscript('Logger/SConscript', duplicate=0)
+Export('logger_obj')
+
 pfile_obj = rms_env.SConscript('PFile/SConscript', duplicate=0)
 Export('pfile_obj')
+
+profile_obj = rms_env.SConscript('Profile/SConscript', duplicate=0)
+Export('profile_obj')
 
 office_obj = rms_env.SConscript('OfficeProtector/SConscript', duplicate=0)
 Export('office_obj')
