@@ -36,6 +36,7 @@ public:
 
   void DeleteTemp() override;
 
+
 private:
   XMPIOOverIStream* mTemp = nullptr;
   std::shared_ptr<IStream> mBaseStream;
