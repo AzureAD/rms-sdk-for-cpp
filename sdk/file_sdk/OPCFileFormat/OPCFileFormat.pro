@@ -5,6 +5,7 @@ TARGET    = modopcfile
 TEMPLATE = lib
 CONFIG += staticlib warn_on c++11 debug_and_release
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 

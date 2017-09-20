@@ -11,6 +11,7 @@ CONFIG      += staticlib warn_on c++11 debug_and_release
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI $$REPO_ROOT/sdk/file_sdk
 
 INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/xmp
 unix:!mac:INCLUDEPATH += /usr/include/xmp/
 

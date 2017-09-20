@@ -9,6 +9,7 @@ CONFIG += plugin warn_on c++11 debug_and_release
 CONFIG -= qt
 
 INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/rms_sdk/ModernAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 LIBS      +=  -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/file
 
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/xmp
