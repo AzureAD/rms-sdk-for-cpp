@@ -165,11 +165,11 @@ if 'dump' in ARGUMENTS:
 #---------------------------------------------------------------
 #run ParseConfig(env, <command>, <option>) to personalize the env
 def SetupUtMocs(test_dir, build_flavor):
-    os.system('rmdir /Q /S ' + test_dir + PLATFORM_SLASH + build_flavor)
+    os.system(DELETE + ' ' + test_dir + PLATFORM_SLASH + build_flavor)
     os.system('mkdir ' + test_dir + PLATFORM_SLASH + build_flavor)
     test_files = Glob(test_dir + '/*Test*.cpp')
     for test_file in test_files:
-        os.system(qt_bin_dir + '/moc.exe -o ' + test_dir + '/' + build_flavor + '/moc_' + test_file.name +' ' + test_dir + '/'+ os.path.splitext(test_file.name)[0]+'.h')
+        os.system(qt_bin_dir + '/moc -o ' + test_dir + '/' + build_flavor + '/moc_' + test_file.name +' ' + test_dir + '/'+ os.path.splitext(test_file.name)[0]+'.h')
 
 env.Append(CPPPATH = include_path + qt_include_path)
 env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
