@@ -75,7 +75,6 @@ if platform == 'win32':
       'Gdi32',
       'User32',
       'dnsapi',
-      'rms', 
   ]  
 elif platform == 'linux2':
   libs +=[

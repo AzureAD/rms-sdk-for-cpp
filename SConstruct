@@ -10,7 +10,9 @@ Type: 'scons' to build on debug mode,
       'scons --package' to build a binary drop.
       'scons --msvc12' to build with msvc2012.
       'scons --sdk' to the rms sdk.
-      'scons --samples' to build the samples.""")
+      'scons --samples' to build the samples.
+      'scons --qmake="<qmake path>"'
+""")
 
 #run scons --release in order to get it to build release mode, default is debug
 AddOption(
@@ -48,6 +50,14 @@ AddOption(
     action='store_true',
     help='samples',
     default=False)
+#run scons --qt in order to specify the qt installation path
+AddOption(
+    '--qt',
+    type='string',
+    nargs=1,
+    action='store',
+    help='qt',
+    metavar='DIR')
 
 isX86 = GetOption('x86')
 build_arch = "x86" if isX86 else "x64"
@@ -57,6 +67,7 @@ platform = sys.platform
 msvc12 = GetOption('msvc12')
 sdk = GetOption('sdk')
 samples = GetOption('samples')
+qt_dir = GetOption('qt')
 
 if platform == 'win32':
     from build_config_win32 import *
@@ -79,7 +90,6 @@ include_path = INCLUDE_PATH
 lib_path = LIB_PATH
 lib_suffix = eval("LIB_SUFFIX_" + build)
 linkflags = eval("LINKFLAGS_" + build)
-libxml2headerpath = LIBXML2HEADERPATH
 
 if msvc12:
     msvc = MSVC_12
@@ -95,7 +105,9 @@ if msvc != '':
 
 msvc_path = MSVC_PATH_PREFIX + str(msvc_version) + eval("MSVC_PATH_SUFFIX_" + arch)
 
-qt_dir = QT_DIR_PREFIX + msvc_path
+if not qt_dir:
+    qt_dir = QT_DIR_PREFIX 
+qt_dir += '/' + msvc_path
 qt_include_path = [
     qt_dir + '/mkspecs/' + QT_MKSPECS_PATH + str(msvc_version),
 ]

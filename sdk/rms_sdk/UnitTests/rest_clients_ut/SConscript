@@ -37,9 +37,11 @@ SetupUtMocs(srcdir, build_flavor)
 
 src_files += Glob(build_flavor + '/*.cpp')
 
-rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+rmsrest_clients_ut_env = rms_env.Clone()
 
-rms_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
+rmsrest_clients_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+rmsrest_clients_ut_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
 
 objects = [
     common_obj,
@@ -88,7 +90,7 @@ elif platform == 'linux2':
     'resolv',
   ]
 
-rest_clients_ut_obj = rms_env.Object(source = src_files)
-rest_clients_test = rms_env.Program(target = "rest_clients_ut", 
+rest_clients_ut_obj = rmsrest_clients_ut_env.Object(source = src_files)
+rest_clients_test = rmsrest_clients_ut_env.Program(target = "rest_clients_ut",
     source = [rest_clients_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
 Return('rest_clients_test')

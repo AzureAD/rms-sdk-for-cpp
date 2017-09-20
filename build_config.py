@@ -16,9 +16,6 @@ INCLUDE_PATH_BASE = [
     '#googlemock/include',
 ]
 
-LIBXML2FLAVOR = "libxml2-2.9.3-win32-x86_64"
-LIBXML2HEADERPATH = "#src/external/libxml2/" + LIBXML2FLAVOR + "/include/libxml2"
-
 CCFLAGS_BASE = '-DQT_CORE_LIB'
 CCFLAGS_BASE_RELEASE = '-DQT_NO_DEBUG -DNDEBUG -DNDEBUG'
 CCFLAGS_BASE_DEBUG = '-DDEBUG -D_DEBUG'

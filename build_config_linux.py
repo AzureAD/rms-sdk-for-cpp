@@ -24,14 +24,11 @@ LINKFLAGS_DEBUG = '-Wl,-rpath,' + QT_DIR + '/lib'
 
 LIB_PATH = [
     '/usr/lib/x86_64-linux-gnu/',
-    '/home/admuller/Qt/5.7/gcc_64/lib/',
+    QT_DIR +'/lib/',
     '/usr/lib64',
 ]
 LIB_SUFFIX_RELEASE = ''
 LIB_SUFFIX_DEBUG = ''
-
-LIBXML2FLAVOR = "libxml2-2.9.3-win32-x86_64"
-LIBXML2HEADERPATH = "#src/external/libxml2/" + LIBXML2FLAVOR + "/include/libxml2"
 
 INCLUDE_PATH = INCLUDE_PATH_BASE + [
     '/usr/include/glib-2.0/',
