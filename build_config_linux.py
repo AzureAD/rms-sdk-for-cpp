@@ -24,7 +24,6 @@ LINKFLAGS_DEBUG = '-Wl,-rpath,' + QT_DIR + '/lib'
 
 LIB_PATH = [
     '/usr/lib/x86_64-linux-gnu/',
-    QT_DIR +'/lib/',
     '/usr/lib64',
 ]
 LIB_SUFFIX_RELEASE = ''

@@ -18,6 +18,7 @@ fileapi_env.Append(CPPPATH='#sdk/rms_sdk/Platform/Logger')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/ModernAPI')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/OfficeProtector')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/PFile')
+fileapi_env.Append(CPPPATH='#sdk/rms_sdk/FileAPI')
 
 if platform == 'win32':
     fileapi_env.Append(CPPPATH='#third_party/include/Libgsf')
