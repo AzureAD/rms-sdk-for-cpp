@@ -4,7 +4,7 @@ TARGET    = rms
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/logger
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Logger
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp
 
 DEFINES     += RMS_LIBRARY
@@ -22,8 +22,8 @@ CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
     LIBS += -lplatformhttpd -lplatformloggerd -lplatformxmld -lplatformjsond -lplatformfilesystemd -lplatformsettingsd
-    LIBS += -lrmscryptod
     LIBS += -lloggerd
+    LIBS += -lrmscryptod
 } else {
     LIBS += -lmodprotectedfile -lmodcore -lmodrestclients -lmodconsent -lmodcommon -lmodjson
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings

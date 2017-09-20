@@ -16,9 +16,9 @@ LIBS += -L$$REPO_ROOT/bin
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS += -lrmsd
+    LIBS += -lrmsd -lrmscryptod
 } else {
-    LIBS += -lrms
+    LIBS += -lrms -lrmscrypto
 }
 
 SOURCES += main.cpp \
