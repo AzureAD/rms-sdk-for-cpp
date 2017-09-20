@@ -7,6 +7,7 @@ Import("""
     lib_suffix
     qt_lib_path
     platform
+    SetupUtMocs
     rms_env
 """)
 
@@ -30,12 +31,15 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
 src_files += Glob(build_flavor + '/*.cpp')
 
 rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
-srcdir = Dir('.').srcnode().abspath.replace('\\','/')
-rms_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+rms_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
 
 objects = [
     common_obj,
