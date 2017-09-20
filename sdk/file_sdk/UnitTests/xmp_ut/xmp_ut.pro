@@ -13,6 +13,7 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/xmp
 unix:!mac:INCLUDEPATH += /usr/include/xmp/
 

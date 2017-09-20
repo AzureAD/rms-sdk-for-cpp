@@ -11,7 +11,7 @@
 
 #include "UserPolicy.h"
 #include "IStream.h"
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace modernapi {

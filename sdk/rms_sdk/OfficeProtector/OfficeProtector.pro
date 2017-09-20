@@ -15,6 +15,7 @@ INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Common
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Core
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Platform/Logger
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/FileAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile

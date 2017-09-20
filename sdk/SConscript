@@ -2,6 +2,7 @@ from build_config import *
 
 Import('env bins')
 
+env.Append(CPPPATH='#sdk/rms_sdk/Profile')
 variant_dir = '#' +  bins + '/sdk'
 
 googletest_lib = env.SConscript('#googletest/SConscript', variant_dir='#' +  bins + '/googletest', duplicate=0)

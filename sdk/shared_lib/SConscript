@@ -18,10 +18,13 @@ Import("""
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
+    easylogger_obj
     googletest_lib
     json_obj
+    logger_obj
     modernapi_obj
     pfile_obj
+    profile_obj
     office_obj
     fileapi_obj
     rms_platform_filesystem_obj
@@ -54,6 +57,9 @@ objects = [
   common_obj,
   consent_obj,
   core_obj,
+  easylogger_obj,
+  logger_obj,
+  profile_obj,
   pfile_obj,
   json_obj,
   modernapi_obj,
