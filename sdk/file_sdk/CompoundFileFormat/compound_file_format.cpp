@@ -12,7 +12,7 @@ const vector<Tag> CompoundFileFormat::ReadTags() {
   throw std::runtime_error("not implemented");
 }
 
-void CompoundFileFormat::Commit(shared_ptr<IStream> file, string& newExtension) {
+void CompoundFileFormat::Commit(shared_ptr<IStream> outputStream, string& newExtension) {
   throw std::runtime_error("not implemented");
 }
 

@@ -30,7 +30,11 @@ public:
 
   vector<Tag> Deserialize(const SXMPMeta& metadata);
 
+  void Serialize(SXMPMeta& metadata, const vector<Tag>& tags);
+
   const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
+
+  void SetTags(shared_ptr<IStream> stream, const vector<Tag>& tags);
 
   XMPHelper(XMPHelper const&) = delete;
 

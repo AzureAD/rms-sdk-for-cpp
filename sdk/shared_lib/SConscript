@@ -19,7 +19,7 @@ Import("""
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
-    googletest_obj
+    googletest_lib
     json_obj
     modernapi_obj
     pfile_obj
@@ -52,7 +52,6 @@ objects = [
   common_obj,
   consent_obj,
   core_obj,
-  googletest_obj,
   pfile_obj,
   json_obj,
   modernapi_obj,
@@ -70,6 +69,7 @@ libs = [
   'Qt5Widgets' + lib_suffix,
   'Qt5Xml' + lib_suffix,
   'Qt5XmlPatterns' + lib_suffix,
+  googletest_lib,
 ]
 
 if platform == 'win32':
@@ -126,7 +126,7 @@ if platform == 'win32':
         'libgobject-2.0-0',
         'libgsf-1-114',
     ]
-elif platform == '__linux__':
+elif platform == 'linux2':
     rmsfiledll_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
 
 rmsfile_lib = rmsfiledll_env.SharedLibrary(target = "rmsfile", source = objects, LIBS = libs, LIBPATH = lib_path)

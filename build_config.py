@@ -12,6 +12,8 @@ INCLUDE_PATH_BASE = [
     '#googletest/include',
     '#third_party',
     '#third_party/include',
+    '#googlemock',
+    '#googlemock/include',
 ]
 
 LIBXML2FLAVOR = "libxml2-2.9.3-win32-x86_64"

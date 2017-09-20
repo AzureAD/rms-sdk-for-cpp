@@ -7,6 +7,8 @@ include_search_path = [
     '#sdk',
     '#googletest',
     '#googletest/include',
+    '#googlemock',
+    '#googlemock/include',
 ]
 
 osx_version = '10.10'

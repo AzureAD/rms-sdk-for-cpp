@@ -14,13 +14,13 @@ Import("""
 """)
 
 Import("""
+    googletest_lib
     crypto_api_obj
     crypto_obj
     crypto_platform_crypto_obj
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
-    googletest_obj
     rms_platform_filesystem_obj
     rms_platform_http_obj
     rms_platform_json_obj
@@ -51,7 +51,6 @@ objects = [
       crypto_platform_keystorage_obj,
       crypto_platform_logger_obj,
       crypto_platform_settings_obj,
-      googletest_obj,
       rms_platform_filesystem_obj,
       rms_platform_http_obj,
       rms_platform_json_obj,
@@ -65,6 +64,7 @@ libs = [
       'Qt5Network' + lib_suffix,
       'Qt5Xml' + lib_suffix,
       'Qt5XmlPatterns' + lib_suffix,
+      googletest_lib,
 ]
 
 if platform == 'win32':

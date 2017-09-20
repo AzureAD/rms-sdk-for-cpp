@@ -2,6 +2,8 @@ from build_config import *
 
 Import('rms_env bins')
 
+rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+
 platform_objs = rms_env.SConscript('Platform/SConscript', duplicate=0)
 
 common_obj = rms_env.SConscript('Common/SConscript', duplicate=0)
@@ -12,9 +14,6 @@ Export('consent_obj')
 
 core_obj = rms_env.SConscript('Core/SConscript', duplicate=0)
 Export('core_obj')
-
-googletest_obj = rms_env.SConscript('GoogleTest/SConscript', duplicate=0)
-Export('googletest_obj')
 
 json_obj = rms_env.SConscript('Json/SConscript', duplicate=0)
 Export('json_obj')
@@ -34,10 +33,10 @@ Export('restclients_obj')
 modernapi_obj = rms_env.SConscript('ModernAPI/SConscript', duplicate=0)
 Export('modernapi_obj')
 
-rms_platform_ut = rms_env.SConscript('UnitTests/platform_ut/SConscript', duplicate=0)
-Export('rms_platform_ut')
-Install('#' + bins + '/sdk/rms_sdk', rms_platform_ut)
+#rms_platform_ut = rms_env.SConscript('UnitTests/platform_ut/SConscript', duplicate=0)
+#Export('rms_platform_ut')
+#Install('#' + bins + '/sdk/rms_sdk', rms_platform_ut)
 
-rest_clients_ut = rms_env.SConscript('UnitTests/rest_clients_ut/SConscript', duplicate=0)
-Export('rest_clients_ut')
-Install('#' + bins + '/sdk/rms_sdk', rest_clients_ut)
+#rest_clients_ut = rms_env.SConscript('UnitTests/rest_clients_ut/SConscript', duplicate=0)
+#Export('rest_clients_ut')
+#Install('#' + bins + '/sdk/rms_sdk', rest_clients_ut)
