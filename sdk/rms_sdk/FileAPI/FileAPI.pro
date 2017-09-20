@@ -17,6 +17,7 @@ INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Platform/Logger
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/OfficeProtector
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
 

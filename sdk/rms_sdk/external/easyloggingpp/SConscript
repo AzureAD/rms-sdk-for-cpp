@@ -1,0 +1,8 @@
+from build_config import *
+
+Import('rms_env')
+
+src_files = Glob('*.cc')
+
+easylogger_obj = create_objs(rms_env, src_files)
+Return('easylogger_obj')
