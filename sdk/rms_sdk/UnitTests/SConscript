@@ -5,3 +5,4 @@ rms_env.Append(CXXFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LI
 
 platform_ut_lib = rms_env.SConscript('platform_ut/SConscript', duplicate=0)
 rest_clients_ut_lib = rms_env.SConscript('rest_clients_ut/SConscript', duplicate=0)
+profile_ut_lib = rms_env.SConscript('profile_ut/SConscript', duplicate=0)

@@ -48,3 +48,7 @@ Install('#' + bins + '/sdk/rms_sdk', rms_platform_ut)
 rest_clients_ut = rms_env.SConscript('UnitTests/rest_clients_ut/SConscript', duplicate=0)
 Export('rest_clients_ut')
 Install('#' + bins + '/sdk/rms_sdk', rest_clients_ut)
+
+profile_ut = rms_env.SConscript('UnitTests/profile_ut/SConscript', duplicate=0)
+Export('profile_ut')
+Install('#' + bins + '/sdk/rms_sdk', profile_ut)
