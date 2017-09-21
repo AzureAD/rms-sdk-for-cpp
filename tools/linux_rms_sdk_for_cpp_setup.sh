@@ -6,14 +6,14 @@ if [ $? -ne 0 ]; then
   echo "sdk make failed."
   exit 1
 fi
-# cd ../samples
-# qmake -recursive
-# make clean
-# make
-# if [ $? -ne 0 ]; then
-#   echo "sample make failed."
-#   exit 1
-# fi
+cd ../samples
+qmake -recursive
+make clean
+make
+if [ $? -ne 0 ]; then
+  echo "sample make failed."
+  exit 1
+fi
 cd ../bin
 export LD_LIBRARY_PATH=`pwd`
 cd tests
