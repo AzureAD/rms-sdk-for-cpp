@@ -1,6 +1,8 @@
 #!python
 import sys
 import os
+
+sys.path.append("build/")
 from build_support import *
 
 Help("""
