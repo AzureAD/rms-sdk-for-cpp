@@ -108,8 +108,9 @@ rmsfiledll_env = rmsdll_env.Clone()
 rmsfiledll_env.Append(CCFLAGS='-DQT_NO_KEYWORDS')
 rmsfiledll_env.Append(CXXFLAGS='-DQT_NO_KEYWORDS')
 objects += [
+    fileapi_obj,
     office_obj,
-    fileapi_obj]
+]
 
 if platform == 'win32':
     lib_path += [

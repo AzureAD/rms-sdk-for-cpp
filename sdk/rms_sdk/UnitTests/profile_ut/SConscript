@@ -1,0 +1,51 @@
+from build_config import *
+
+Import("""
+    target_arch
+    build_flavor
+    lib_path
+    lib_suffix
+    qt_lib_path
+    SetupUtMocs
+    rms_env
+""")
+
+Import("""
+    googletest_lib
+    profile_obj
+    logger_obj
+    easylogger_obj
+""")
+
+src_files = Glob('*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
+src_files += Glob(build_flavor + '/*.cpp')
+
+profile_ut_env = rms_env.Clone()
+
+profile_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+profile_ut_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
+
+objects = [
+    easylogger_obj,
+    logger_obj,
+    profile_obj,
+]
+libs = [
+    'Qt5Core' + lib_suffix,
+    'Qt5Network' + lib_suffix,
+    'Qt5Xml' + lib_suffix,
+    'Qt5XmlPatterns' + lib_suffix,
+    'Qt5Test' + lib_suffix,
+    'Qt5Gui' + lib_suffix,
+    googletest_lib
+]
+
+profile_ut_obj = profile_ut_env.Object(source = src_files)
+profile_test = profile_ut_env.Program(target = "profile_ut",
+    source = [profile_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
+Return('profile_test')

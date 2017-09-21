@@ -22,8 +22,8 @@ CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
     LIBS += -lplatformhttpd -lplatformloggerd -lplatformxmld -lplatformjsond -lplatformfilesystemd -lplatformsettingsd
-    LIBS += -lrmscryptod
     LIBS += -lloggerd
+    LIBS += -lrmscryptod
 } else {
     LIBS += -lmodprotectedfile -lmodcore -lmodrestclients -lmodconsent -lmodcommon -lmodjson
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings

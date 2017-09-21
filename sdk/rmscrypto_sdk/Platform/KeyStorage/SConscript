@@ -19,10 +19,8 @@ elif platform == 'linux2':
 elif platform == 'darwin':
   src_files += ['KeyStorageOSX.cpp']
 
-# unix {
-#     target.path = /usr/lib
-#     INSTALLS += target
-# }
+if platform == 'linux2':
+    crypto_platform_env.ParseConfig('pkg-config --cflags --libs glib-2.0')
 
 crypto_platform_keystorage_obj = create_objs(crypto_platform_env, src_files)
 
