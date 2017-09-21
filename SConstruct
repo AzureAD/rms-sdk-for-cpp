@@ -74,6 +74,7 @@ include_path = INCLUDE_PATH
 lib_path = LIB_PATH
 lib_suffix = eval("LIB_SUFFIX_" + build_flavor)
 linkflags = eval("LINKFLAGS_" + build_flavor)
+build_flavor = build_flavor.lower()
 
 if msvc12:
     msvc = MSVC_12
@@ -165,6 +166,7 @@ def SetupUtMocs(test_dir, build_flavor):
     os.system(DELETE + ' ' + test_dir + PLATFORM_SLASH + build_flavor)
     os.system('mkdir ' + test_dir + PLATFORM_SLASH + build_flavor)
     test_files = Glob(test_dir + '/*Test*.cpp')
+    test_files += Glob(test_dir + '/*test*.cpp')
     for test_file in test_files:
         os.system(qt_bin_dir + '/moc -o ' + test_dir + '/' + build_flavor + '/moc_' + test_file.name +' ' + test_dir + '/'+ os.path.splitext(test_file.name)[0]+'.h')
 

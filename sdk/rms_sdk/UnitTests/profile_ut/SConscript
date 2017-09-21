@@ -6,6 +6,7 @@ Import("""
     lib_path
     lib_suffix
     qt_lib_path
+    platform
     SetupUtMocs
     rms_env
 """)
@@ -44,6 +45,12 @@ libs = [
     'Qt5Gui' + lib_suffix,
     googletest_lib
 ]
+
+if platform == 'linux2':
+  libs += [    
+    'pthread',
+  ]
+
 
 profile_ut_obj = profile_ut_env.Object(source = src_files)
 profile_test = profile_ut_env.Program(target = "profile_ut",
