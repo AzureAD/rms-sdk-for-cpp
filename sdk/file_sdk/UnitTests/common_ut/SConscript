@@ -3,7 +3,7 @@ from build_config import *
 
 Import("""
     build_arch
-    configuration
+    build_flavor
     lib_suffix
     platform
     qt_lib_path
@@ -32,7 +32,7 @@ filecommon_env_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
   
 lib_path = [
       qt_lib_path, 
-      '#bin/' + configuration + '/' + target_arch + '/file_sdk',
+      '#bin/' + build_flavor + '/' + target_arch + '/file_sdk',
   ]
 
 objects = [
@@ -51,13 +51,13 @@ libs = [
 
 if platform == 'win32':
   filecommon_env_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
+  if build_flavor == 'debug':
     filecommon_env_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
+  elif build_flavor == 'release':
     filecommon_env_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
   lib_path += []
   libs += []
-elif platform == '__linux__':
+elif platform == 'linux2':
   libs += []
 elif platform == 'darwin':
   libs += []

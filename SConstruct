@@ -1,31 +1,32 @@
 #!python
 import sys
 import os
-import os.path
-from build_config import *
+
+sys.path.append("build/")
 from build_support import *
 
 Help("""
-Type: 'scons' to build on debug mode,
-      'scons --release' to build the release version.
-      'scons --x86' to build x86 target.
-      'scons --package' to build a binary drop.
+Type: 'scons' to build on debug mode.
+      'scons --configuration=CONFIGURATION' to specify configuration. Choose from ['debug','release'].
+      'scons --arch=ARCHITECTURE' to specify architecture. Choose from ['x86','x64'].
+            For Linux only x86_64 is supported.
       'scons --msvc12' to build with msvc2012.
-      'scons --sdk' to the rms sdk.
-      'scons --samples' to build the samples.""")
+      'scons --qt=QT_PATH' to specify the Qt installation path. 
+            By default it's C:/Qt/5.7 for windows and home/Qt/5.7/gcc_64' for linux.
+""")
 
 #run scons --release in order to get it to build release mode, default is debug
 AddOption(
-    '--release',
-    action='store_true',
-    help='release',
-    default=False)
+    '--configuration',
+    choices=['debug','release'],
+    help='Configurations: [debug, release]',
+    default='debug')
 #run scons --x86 in order to get it to build x86, default is x64
 AddOption(
-    '--x86',
-    action='store_true',
-    help='x86',
-    default=False)
+    '--arch',
+    choices=['x86','x64'],
+    help='Architecture: [x86, x64]',
+    default='x64')
 #run scons --package in order to build binary drop
 AddOption(
     '--package',
@@ -38,63 +39,68 @@ AddOption(
     action='store_true',
     help='msvc12',
     default=False)
-#run scons --sdk in order to build the sdk
-AddOption(
-    '--sdk',
-    action='store_true',
-    help='sdk',
-    default=False)
 #run scons --samples in order to build the samples
 AddOption(
     '--samples',
     action='store_true',
     help='samples',
     default=False)
+#run scons --qt in order to specify the qt installation path
+AddOption(
+    '--qt',
+    type='string',
+    nargs=1,
+    action='store',
+    help='qt',
+    metavar='DIR')
 
-isX86 = GetOption('x86')
-build_arch = "x86" if isX86 else "x64"
-isRelease = GetOption('release')
-build_flavor = "release" if isRelease else "debug"
+build_arch = GetOption('arch')
+build_flavor = GetOption('configuration').upper()
 platform = sys.platform
 msvc12 = GetOption('msvc12')
-sdk = GetOption('sdk')
 samples = GetOption('samples')
+qt_dir = GetOption('qt')
 
-# TODO: move to build_config_<platform>
-if isX86:
-  if platform == 'win32':
-    target_arch = "x86"
-    arch_suffix = ''
-    win_def = 'WIN32'
-  else:
-    target_arch = 'i386'
-else:
-  if platform == 'win32':
-    target_arch = "amd64"
-    arch_suffix = '_64'
-    win_def = 'WIN64'
-  else:
-    target_arch = 'x86_64'
-
-msvc_version = '14.0'
-msvc_dir = 'msvc14'
-msvc_path = 'msvc2015'
 if platform == 'win32':
-  from build_config_win32 import *
-  if msvc12:
-    msvc_dir = 'msvc12'
-    msvc_version = '12.0'
-    msvc_path = 'msvc2013'
-  print "MSVC: ", msvc_version
-elif platform == 'darwin':
-  from build_config_apple import *
+    from build_config_win32 import *
+elif platform == 'linux2':
+    from build_config_linux import *
 
-# TODO: move to build_config_<platform>
-qt_dir = 'C:/Qt/5.7/' + msvc_path + arch_suffix
+if not qt_dir:
+    qt_dir = QT_DIR_DEFAULT 
+
+ccflags = CCFLAGS + ' ' + eval("CCFLAGS_" + build_arch) + ' ' + eval("CCFLAGS_" + build_flavor)
+cxxflags = CXXFLAGS + ' ' + eval("CXXFLAGS_" + build_arch) + ' ' + eval("CXXFLAGS_" + build_flavor)
+include_path = INCLUDE_PATH
+lib_path = LIB_PATH
+lib_suffix = eval("LIB_SUFFIX_" + build_flavor)
+linkflags = eval("LINKFLAGS_" + build_flavor)
+build_flavor = build_flavor.lower()
+
+if msvc12:
+    msvc = MSVC_12
+    ccflags += ' -DMSVC12'
+    cxxflags += ' -DMSVC12'
+else:
+    msvc = MSVC_14
+
+msvc_version = ''
+if msvc != '':
+    msvc_version = int(msvc) + 1
+    msvc += '.0'
+
+msvc_path = MSVC_PATH_PREFIX + str(msvc_version) + eval("MSVC_PATH_SUFFIX_" + build_arch)
+
+target_arch = eval("TARGET_ARCH_" + build_arch)
+
+qt_dir += '/' + msvc_path
+qt_include_path = [
+    qt_dir + '/mkspecs/' + QT_MKSPECS_PATH + str(msvc_version),
+]
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
-qt_include_search_path = [
+qt_include_path += [
     qt_inc_dir,
     qt_inc_dir + '/QtCore',
     qt_inc_dir + '/QtTest',
@@ -104,12 +110,14 @@ qt_include_search_path = [
     qt_inc_dir + '/QtNetwork',
     qt_inc_dir + '/QtXml',
     qt_inc_dir + '/QtXmlPatterns',
-    qt_dir + '/mkspecs/win32-msvc2015',
 ]
 
-print "Qt directory: ", qt_dir
+lib_path += [
+    qt_lib_path, 
+    '#bin/' + build_flavor + '/' + target_arch + '/sdk',
+]
 
-env = Environment(BUILDROOT=build_base_dir, MSVC_VERSION=msvc_version, TARGET_ARCH=target_arch)
+env = Environment(BUILDROOT=build_base_dir, MSVC_VERSION=msvc, TARGET_ARCH=target_arch)
 #--------------------------------------------------------------
 def DumpEnv( env, key = None, header = None, footer = None ):
     """
@@ -152,56 +160,46 @@ if 'dump' in ARGUMENTS:
       footer = prefix + ' - end' )
 #---------------------------------------------------------------
 #run ParseConfig(env, <command>, <option>) to personalize the env
-env.Append(CPPPATH = include_search_path + qt_include_search_path)
 
-# TODO: move to build_config_<platform>
-if platform == 'win32':
-  env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
-  env.Append(CPPPATH = qt_bin_dir)
-#   env.Append(CPPPATH ='C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/um')
-  env.Append(CCFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -W3 -w44456 -w44457 -w44458 \
-      -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
-  env.Append(CXXFLAGS=Split('-nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -GR -EHsc \
-      -DUNICODE -D' + win_def + ' -DQT_CORE_LIB'))
-if msvc12:
-    env.Append(CPPDEFINES = ['MSVC12'])
+# Scons does not have built-in support to create unit test moc files that Qt generates.
+# This helper fills that gap by calling the Qt tool moc.exe.
+def SetupUtMocs(test_dir, build_flavor):
+    os.system(DELETE + ' ' + test_dir + PLATFORM_SLASH + build_flavor)
+    os.system('mkdir ' + test_dir + PLATFORM_SLASH + build_flavor)
+    test_files = Glob(test_dir + '/*Test*.cpp')
+    test_files += Glob(test_dir + '/*test*.cpp')
+    for test_file in test_files:
+        os.system(qt_bin_dir + '/moc -o ' + test_dir + '/' + build_flavor + '/moc_' + test_file.name +' ' + test_dir + '/'+ os.path.splitext(test_file.name)[0]+'.h')
 
-configuration = ''
-if isRelease:
-  configuration = 'release'
-  env.Append(CPPDEFINES = ['NDEBUG'])
-  
-  if platform == 'win32':
-    env.Append(LINKFLAGS='/NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE')
-    env.Append(CCFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
-    env.Append(CXXFLAGS=Split('-c -O2 -MD -DQT_NO_DEBUG -DNDEBUG'))
-else:    
-  configuration = 'debug'
-  env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
+env.Append(CPPPATH = include_path + qt_include_path)
+env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
+env.Append(CPPPATH = qt_bin_dir)
 
-  if platform == 'win32':
-    env.Append(LINKFLAGS='/NOLOGO')
-    env.Append(CCFLAGS=Split('-c -Zi -MDd'))
-    env.Append(CXXFLAGS=Split('-c -Zi -MDd'))
+if platform == 'linux2':
+  env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : qt_lib_path + '/:$LD_LIBRARY_PATH' })
+  linkflags += qt_lib_path
 
-bins = env['BUILDROOT'] + "/" + configuration + "/" + target_arch
-lib_suffix = ''
-if configuration == 'debug':
-  lib_suffix = 'd'
+env.Append(CCFLAGS=Split(ccflags))
+env.Append(CXXFLAGS=Split(cxxflags))
+env.Append(LINKFLAGS=Split(linkflags))
+
+bins = env['BUILDROOT'] + "/" + build_flavor + "/" + target_arch
 
 Export("""
-    arch_suffix bins
+    bins
     build_arch
-    configuration
+    build_flavor
     env
     lib_suffix
+    lib_path
+    qt_bin_dir
     qt_lib_path
     target_arch
     target_name
     platform
+    SetupUtMocs
 """)
 
-if samples:
-  env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)
-else:
-  env.SConscript('sdk/SConscript',variant_dir = bins + '/sdk', duplicate=0)
+env.SConscript('sdk/SConscript',variant_dir = bins + '/sdk', duplicate=0)
+# if samples:
+#   env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)

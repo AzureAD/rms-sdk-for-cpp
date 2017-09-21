@@ -1,6 +1,6 @@
 Import("""
     build_arch
-    configuration
+    build_flavor
     lib_suffix
     platform
     qt_lib_path
@@ -38,13 +38,13 @@ libs = []
 
 if platform == 'win32':
   filedll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
-  if configuration == 'debug':
+  if build_flavor == 'debug':
       filedll_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
+  elif build_flavor == 'release':
       filedll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
   lib_path += []
   libs += []  
-elif platform == '__linux__':
+elif platform == 'linux2':
   pass
 elif platform == 'darwin':
   pass

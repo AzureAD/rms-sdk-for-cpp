@@ -1,3 +1,11 @@
+/*
+ * ======================================================================
+ * Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
+ * Licensed under the MIT License.
+ * See LICENSE.md in the project root for license information.
+ * ======================================================================
+*/
+
 #ifndef PROFILETEST_H
 #define PROFILETEST_H
 
@@ -7,10 +15,7 @@
 class ProfileTest : public QObject
 {
   Q_OBJECT
-public:
-  ProfileTest() { }
-
-private slots:
+private Q_SLOTS:
   void TestProfileLoad();
 };
 

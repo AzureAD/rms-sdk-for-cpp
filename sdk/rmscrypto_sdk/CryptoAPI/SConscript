@@ -1,7 +1,6 @@
 from build_config import create_objs
 
 Import("""
-    configuration
     crypto_platform_env
     platform
 """)
@@ -9,38 +8,6 @@ Import("""
 cryptoapi_env = crypto_platform_env.Clone();
 
 src_files = Glob('*.cpp')
-
-if platform == 'win32':
-  cryptoapi_env.Replace(LINKFLAGS=Split('/SUBSYSTEM:WINDOWS'))
-  cryptoapi_env.Append(CCFLAGS=Split('-DQT_PLUGIN'))
-  cryptoapi_env.Append(CXXFLAGS=Split('-DQT_PLUGIN'))
-  if configuration == 'debug':
-    cryptoapi_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    cryptoapi_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-elif platform == '__linux__':
-  cryptoapi_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  cryptoapi_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  cryptoapi_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
-  libs = [
-      'ssl'
-      'crypto'
-      'secret-1'
-      'glib-2.0'
-  ]
-elif platform == 'darwin':
-  libs += 'ssl'
-  libs += 'crypto'
-
-# unix {
-#     contains(QMAKE_HOST.arch, x86_64) {
-#         target.path = /usr/lib64
-#         INSTALLS += target
-#     } else {
-#         target.path += /usr/lib
-#         INSTALLS += target
-#     }
-# }
 
 crypto_api_obj = create_objs(cryptoapi_env, src_files)
 Return('crypto_api_obj')

@@ -3,11 +3,13 @@ from build_config import *
 
 Import("""
     build_arch
-    configuration
+    build_flavor
+    lib_path
     lib_suffix
     platform
     qt_lib_path
     rms_env
+    SetupUtMocs
     target_arch
 """)
 
@@ -28,20 +30,19 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
-src_files += Glob(configuration + '/*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
+src_files += Glob(build_flavor + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
 
 rmsplatform_env.Append(CPPPATH=Split('#sdk/rmscrypto_sdk/CryptoAPI')) 
 rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
 
-srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
+srcdir = '\\\"' + srcdir.replace('\\','/') + '/\\\"'
 rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
-  
-lib_path = [
-      qt_lib_path, 
-      '#bin/' + configuration + '/' + target_arch + '/sdk',
-  ]
 
 objects = [
       crypto_api_obj,
@@ -63,19 +64,10 @@ libs = [
       'Qt5Network' + lib_suffix,
       'Qt5Xml' + lib_suffix,
       'Qt5XmlPatterns' + lib_suffix,
-      'rms',
       googletest_lib,
 ]
 
 if platform == 'win32':
-  rmsplatform_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
-    rmsplatform_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    rmsplatform_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  lib_path += [
-      '#third_party/lib/eay',
-  ]
   libs += [      
       'libeay32',
       'ssleay32',
@@ -84,10 +76,16 @@ if platform == 'win32':
       'User32',
       'dnsapi',
   ]  
-elif platform == '__linux__':
-  rmsplatform_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmsplatform_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmsplatform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+elif platform == 'linux2':
+  libs +=[
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
+      'pthread',
+      'GL',
+      'resolv',
+  ]
 elif platform == 'darwin':
   libs += [
     'ssl',

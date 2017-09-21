@@ -1,6 +1,7 @@
 Import("""
     build_arch
-    configuration
+    build_flavor
+    lib_path
     lib_suffix
     platform
     qt_lib_path
@@ -44,9 +45,6 @@ rmsdll_env.Append(CXXFLAGS=Split('-DQT_PLUGIN -DQT_XML_LIB -DQT_XMLPATTERNS_LIB 
 src_files = Glob('*.cpp')
 rmsdll_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 
-lib_path = [
-    qt_lib_path,
-]
 objects = [  
   crypto_obj,
   crypto_api_obj,
@@ -77,19 +75,10 @@ libs = [
   'Qt5Widgets' + lib_suffix,
   'Qt5Xml' + lib_suffix,
   'Qt5XmlPatterns' + lib_suffix,
-  'DnsAPI',
   googletest_lib,
 ]
 
 if platform == 'win32':
-  rmsdll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
-  if configuration == 'debug':
-      rmsdll_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-      rmsdll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  lib_path += [
-    '#third_party/lib/eay',
-  ]
   libs += [
       'libeay32',
       'ssleay32',
@@ -97,16 +86,15 @@ if platform == 'win32':
       'Gdi32',
       'User32',
       'legacy_stdio_definitions',
+      'DnsAPI',
   ]  
-elif platform == '__linux__':
-  rmscryptodll_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmscryptodll_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmscryptodll_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+elif platform == 'linux2':
+  rmsdll_env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME']=1
   libs += [
-      'ssl'
-      'crypto'
-      'secret-1'
-      'glib-2.0'
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
   ]
 elif platform == 'darwin':
   libs += 'ssl'
@@ -120,8 +108,9 @@ rmsfiledll_env = rmsdll_env.Clone()
 rmsfiledll_env.Append(CCFLAGS='-DQT_NO_KEYWORDS')
 rmsfiledll_env.Append(CXXFLAGS='-DQT_NO_KEYWORDS')
 objects += [
+    fileapi_obj,
     office_obj,
-    fileapi_obj]
+]
 
 if platform == 'win32':
     lib_path += [
@@ -144,7 +133,7 @@ if platform == 'win32':
         'libgobject-2.0-0',
         'libgsf-1-114',
     ]
-elif platform == '__linux__':
+elif platform == 'linux2':
     rmsfiledll_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
 
 rmsfile_lib = rmsfiledll_env.SharedLibrary(target = "rmsfile", source = objects, LIBS = libs, LIBPATH = lib_path)

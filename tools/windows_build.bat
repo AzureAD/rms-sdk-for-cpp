@@ -22,7 +22,7 @@ C:\Qt\Tools\QtCreator\bin\jom.exe
 cd ..\bin
 xcopy tests\*UnitTest* . /e /y
 set PATH=%qmake_path%;%PATH%
-set PATH=..\third_party\lib\eay;%PATH%
+set PATH=..\third_party\lib\eay;..\third_party\lib\Libgsf;..\third_party\lib\xmp;%PATH%
 rmscryptoUnitTests.exe -xunitxml > tests\rmsUnitTestResults.txt
 if %ERRORLEVEL% NEQ 0 ( 
 	exit /B 1
@@ -48,5 +48,4 @@ commonUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 if %ERRORLEVEL% NEQ 0 ( 
 	exit /B 1
 )
-
 cd ..
