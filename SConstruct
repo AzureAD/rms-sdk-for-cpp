@@ -6,12 +6,13 @@ sys.path.append("build/")
 from build_support import *
 
 Help("""
-Type: 'scons' to build on debug mode,
-      'scons --configuration=CONFIGURATION' to specify configuration. Choose from ['debug','release']
-      'scons --arch=ARCHITECTURE' to specify architecture. Choose from ['x86','x64']
+Type: 'scons' to build on debug mode.
+      'scons --configuration=CONFIGURATION' to specify configuration. Choose from ['debug','release'].
+      'scons --arch=ARCHITECTURE' to specify architecture. Choose from ['x86','x64'].
+            For Linux only x86_64 is supported.
       'scons --msvc12' to build with msvc2012.
       'scons --qt=QT_PATH' to specify the Qt installation path. 
-            By default it's C:/Qt/5.7 for windows and home/Qt/5.7/gcc_64' for linux 
+            By default it's C:/Qt/5.7 for windows and home/Qt/5.7/gcc_64' for linux.
 """)
 
 #run scons --release in order to get it to build release mode, default is debug
