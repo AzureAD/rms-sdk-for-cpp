@@ -12,14 +12,14 @@
 #include "../ModernAPI/RMSExceptions.h"
 #include "../Platform/Xml/IDomDocument.h"
 #include "../Platform/Xml/IDomElement.h"
+#include "../Platform/Logger/Logger.h"
 #include <QCoreApplication>
 
 #include "CXMLUtils.h"
 #include "LicenseParser.h"
 
-
-
 using namespace std;
+using namespace rmscore::platform::logger;
 
 namespace rmscore 
 {
@@ -42,10 +42,9 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicense(cons
 {
   if(!QCoreApplication::instance()) {
     int argc = 1;
-    char name[] = "QCoreApplication";
-    char **argv = new char *[argc];
-    argv[0] = name;
-    QCoreApplication a(argc, argv);
+    char name[] = "LicenseParser::ParsePublishingLicense";
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return ParsePublishingLicenseInner(pbPublishLicense, cbPublishLicense);
   }
   return ParsePublishingLicenseInner(pbPublishLicense, cbPublishLicense);
@@ -76,6 +75,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
         throw exceptions::RMSNetworkException("Invalid publishing license encoding",
                                               exceptions::RMSNetworkException::InvalidPL);
     }
+    //Logger::Hidden("Publishing License in LicenseParser: %s", publishLicense.c_str());
     size_t finalSize = publishLicense.size();
 
     string publishLicenseWithRoot;

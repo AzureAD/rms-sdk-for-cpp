@@ -72,9 +72,8 @@ shared_ptr<IHttpClient> IHttpClient::Create() {
   {
     int argc = 1;
     char name[] = "IHttpClient::Create";
-    char **argv = new char *[argc];
-    argv[0] = name;
-    QCoreApplication a(argc, argv);
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return doCreate();
   }
 
@@ -194,9 +193,8 @@ StatusCode HttpClientQt::Post(const string& url,
   if (!QCoreApplication::instance()) {
     int argc = 1;
     char name[] = "HttpClientQt::Post";
-    char **argv = new char *[argc];
-    argv[0] = name;
-    QCoreApplication a(argc, argv);
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return doPost(url, request, mediaType, response, cancelState);
   }
   return doPost(url, request, mediaType, response, cancelState);
@@ -279,9 +277,8 @@ StatusCode HttpClientQt::Get(const string& url,
   if (!QCoreApplication::instance()) {
     int argc = 1;
     char name[] = "HttpClientQt::Get";
-    char **argv = new char *[argc];
-    argv[0] = name;
-    QCoreApplication a(argc, argv);
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return doGet(url, response, cancelState);
   }
 
