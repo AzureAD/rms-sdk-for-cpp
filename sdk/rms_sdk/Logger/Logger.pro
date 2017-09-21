@@ -15,11 +15,11 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES += \
-    $$REPO_ROOT/sdk/rms_sdk/External/easyloggingpp/easylogging++.cc \
+    $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp/easylogging++.cc \
     logger.cpp
 
 HEADERS += \
-    $$REPO_ROOT/sdk/rms_sdk/External/easyloggingpp/easylogging++.h \
+    $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp/easylogging++.h \
     logger.h
 unix {
     target.path = /usr/lib

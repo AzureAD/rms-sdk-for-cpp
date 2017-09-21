@@ -16,16 +16,16 @@ Type: 'scons' to build on debug mode,
 
 #run scons --release in order to get it to build release mode, default is debug
 AddOption(
-    '--release',
-    action='store_true',
-    help='release',
-    default=False)
+    '--configuration',
+    choices=['debug','release'],
+    help='Configurations: [debug, release]',
+    default='debug')
 #run scons --x86 in order to get it to build x86, default is x64
 AddOption(
-    '--x86',
-    action='store_true',
-    help='x86',
-    default=False)
+    '--arch',
+    choices=['x86','x64'],
+    help='Architecture: [x86, x64]',
+    default='x64')
 #run scons --package in order to build binary drop
 AddOption(
     '--package',
@@ -37,12 +37,6 @@ AddOption(
     '--msvc12',
     action='store_true',
     help='msvc12',
-    default=False)
-#run scons --sdk in order to build the sdk
-AddOption(
-    '--sdk',
-    action='store_true',
-    help='sdk',
     default=False)
 #run scons --samples in order to build the samples
 AddOption(
@@ -59,13 +53,10 @@ AddOption(
     help='qt',
     metavar='DIR')
 
-isX86 = GetOption('x86')
-build_arch = "x86" if isX86 else "x64"
-isRelease = GetOption('release')
-build_flavor = "release" if isRelease else "debug"
+build_arch = GetOption('arch')
+build_flavor = GetOption('configuration').upper()
 platform = sys.platform
 msvc12 = GetOption('msvc12')
-sdk = GetOption('sdk')
 samples = GetOption('samples')
 qt_dir = GetOption('qt')
 
@@ -74,22 +65,15 @@ if platform == 'win32':
 elif platform == 'linux2':
     from build_config_linux import *
 
-if isX86:
-    arch = '32'
-else:
-    arch = '64'
+if not qt_dir:
+    qt_dir = QT_DIR_DEFAULT 
 
-if isRelease:
-    build = 'RELEASE'
-else:
-    build = 'DEBUG'
-
-ccflags = CCFLAGS + ' ' + eval("CCFLAGS_" + arch) + ' ' + eval("CCFLAGS_" + build)
-cxxflags = CXXFLAGS + ' ' + eval("CXXFLAGS_" + arch) + ' ' + eval("CXXFLAGS_" + build)
+ccflags = CCFLAGS + ' ' + eval("CCFLAGS_" + build_arch) + ' ' + eval("CCFLAGS_" + build_flavor)
+cxxflags = CXXFLAGS + ' ' + eval("CXXFLAGS_" + build_arch) + ' ' + eval("CXXFLAGS_" + build_flavor)
 include_path = INCLUDE_PATH
 lib_path = LIB_PATH
-lib_suffix = eval("LIB_SUFFIX_" + build)
-linkflags = eval("LINKFLAGS_" + build)
+lib_suffix = eval("LIB_SUFFIX_" + build_flavor)
+linkflags = eval("LINKFLAGS_" + build_flavor)
 
 if msvc12:
     msvc = MSVC_12
@@ -103,16 +87,14 @@ if msvc != '':
     msvc_version = int(msvc) + 1
     msvc += '.0'
 
-msvc_path = MSVC_PATH_PREFIX + str(msvc_version) + eval("MSVC_PATH_SUFFIX_" + arch)
+msvc_path = MSVC_PATH_PREFIX + str(msvc_version) + eval("MSVC_PATH_SUFFIX_" + build_arch)
 
-if not qt_dir:
-    qt_dir = QT_DIR_PREFIX 
+target_arch = eval("TARGET_ARCH_" + build_arch)
+
 qt_dir += '/' + msvc_path
 qt_include_path = [
     qt_dir + '/mkspecs/' + QT_MKSPECS_PATH + str(msvc_version),
 ]
-target_arch = eval("TARGET_ARCH_" + arch)
-
 qt_inc_dir = qt_dir + '/include'
 qt_bin_dir = qt_dir + '/bin'
 qt_lib_path = qt_dir + '/lib'
@@ -176,6 +158,9 @@ if 'dump' in ARGUMENTS:
       footer = prefix + ' - end' )
 #---------------------------------------------------------------
 #run ParseConfig(env, <command>, <option>) to personalize the env
+
+# Scons does not have built-in support to create unit test moc files that Qt generates.
+# This helper fills that gap by calling the Qt tool moc.exe.
 def SetupUtMocs(test_dir, build_flavor):
     os.system(DELETE + ' ' + test_dir + PLATFORM_SLASH + build_flavor)
     os.system('mkdir ' + test_dir + PLATFORM_SLASH + build_flavor)
@@ -187,12 +172,13 @@ env.Append(CPPPATH = include_path + qt_include_path)
 env.Append(CPPPATH = qt_inc_dir, LIBPATH = [qt_bin_dir])
 env.Append(CPPPATH = qt_bin_dir)
 
+if platform == 'linux2':
+  env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : qt_lib_path + '/:$LD_LIBRARY_PATH' })
+  linkflags += qt_lib_path
+
 env.Append(CCFLAGS=Split(ccflags))
 env.Append(CXXFLAGS=Split(cxxflags))
 env.Append(LINKFLAGS=Split(linkflags))
-
-if platform == 'linux2':
-  env.Append(CPPDEFINES = { 'LD_LIBRARY_PATH' : qt_lib_path + '/:$LD_LIBRARY_PATH' })
 
 bins = env['BUILDROOT'] + "/" + build_flavor + "/" + target_arch
 
@@ -211,7 +197,6 @@ Export("""
     SetupUtMocs
 """)
 
+env.SConscript('sdk/SConscript',variant_dir = bins + '/sdk', duplicate=0)
 if samples:
   env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)
-else:
-  env.SConscript('sdk/SConscript',variant_dir = bins + '/sdk', duplicate=0)

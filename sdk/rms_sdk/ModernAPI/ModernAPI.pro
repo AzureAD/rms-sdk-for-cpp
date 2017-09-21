@@ -4,7 +4,7 @@ TARGET    = rms
 
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
-INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/logger
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Logger
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/external/easyloggingpp
 
 DEFINES     += RMS_LIBRARY
