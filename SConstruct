@@ -7,13 +7,11 @@ from build_support import *
 
 Help("""
 Type: 'scons' to build on debug mode,
-      'scons --release' to build the release version.
-      'scons --x86' to build x86 target.
-      'scons --package' to build a binary drop.
+      'scons --configuration=CONFIGURATION' to specify configuration. Choose from ['debug','release']
+      'scons --arch=ARCHITECTURE' to specify architecture. Choose from ['x86','x64']
       'scons --msvc12' to build with msvc2012.
-      'scons --sdk' to the rms sdk.
-      'scons --samples' to build the samples.
-      'scons --qmake="<qmake path>"'
+      'scons --qt=QT_PATH' to specify the Qt installation path. 
+            By default it's C:/Qt/5.7 for windows and home/Qt/5.7/gcc_64' for linux 
 """)
 
 #run scons --release in order to get it to build release mode, default is debug
@@ -202,5 +200,5 @@ Export("""
 """)
 
 env.SConscript('sdk/SConscript',variant_dir = bins + '/sdk', duplicate=0)
-if samples:
-  env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)
+# if samples:
+#   env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)
