@@ -13,7 +13,7 @@ public:
   PFileFileFormat(std::shared_ptr<IStream> file, const std::string& extension);
   const vector<Tag> ReadTags();
   string GetOriginalExtension();
-  void Commit(std::shared_ptr<IStream> file, string& newExtension);
+  void Commit(std::shared_ptr<IStream> outputStream, string& newExtension);
 };
 
 } // namespace file

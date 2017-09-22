@@ -1,5 +1,7 @@
 #include "xmpio_over_istream.h"
 #include <Common/std_stream_adapter.h>
+#include <iostream>
+#include <fstream>
 
 namespace mip {
 namespace file {
@@ -24,7 +26,6 @@ XMP_Uns32 XMPIOOverIStream::Read(void* buffer, XMP_Uns32 count, bool readAll) {
 }
 
 void XMPIOOverIStream::Write(const void* buffer, XMP_Uns32 count) {
-
   if (buffer == nullptr)
     throw new XMP_Error(kXMPErr_BadParam, "Buffer is null");
 
@@ -34,18 +35,18 @@ void XMPIOOverIStream::Write(const void* buffer, XMP_Uns32 count) {
 XMP_Int64 XMPIOOverIStream::Seek(XMP_Int64 offset, SeekMode mode) {
 
   switch(mode) {
-    case SeekMode::kXMP_SeekFromStart: {
-      mBaseStream->Seek((uint64_t)offset);
-      break;
-    }
-    case SeekMode::kXMP_SeekFromCurrent: {
-      mBaseStream->Seek(offset + mBaseStream->Position());
-      break;
-    }
-    case SeekMode::kXMP_SeekFromEnd: {
-      mBaseStream->Seek(mBaseStream->Size() + offset);
-      break;
-    }
+  case SeekMode::kXMP_SeekFromStart: {
+    mBaseStream->Seek((uint64_t)offset);
+    break;
+  }
+  case SeekMode::kXMP_SeekFromCurrent: {
+    mBaseStream->Seek(offset + mBaseStream->Position());
+    break;
+  }
+  case SeekMode::kXMP_SeekFromEnd: {
+    mBaseStream->Seek(mBaseStream->Size() + offset);
+    break;
+  }
   }
 
   return  mBaseStream->Position();
@@ -60,9 +61,10 @@ void XMPIOOverIStream::Truncate(XMP_Int64 length) {
 }
 
 XMP_IO* XMPIOOverIStream::DeriveTemp() {
+  if(mTemp)
+    return mTemp;
   auto backingStdStream = make_shared<std::stringstream>(std::ios::in | std::ios::out | std::ios::binary);
   auto stream = StdStreamAdapter::Create(static_pointer_cast<std::iostream>(backingStdStream));
-  delete mTemp;
   mTemp = new XMPIOOverIStream(stream);
   return mTemp;
 }
@@ -70,10 +72,15 @@ XMP_IO* XMPIOOverIStream::DeriveTemp() {
 void XMPIOOverIStream::AbsorbTemp() {
   if (mTemp == nullptr)
     return;
-  mBaseStream->Seek(0);
   mTemp->mBaseStream->Seek(0);
-  mTemp->mBaseStream = mTemp->mBaseStream->Clone();
-  mTemp->mBaseStream->Size(mTemp->mBaseStream->Size());
+  mBaseStream->Seek(0);
+  int readCount = 0;
+  do{
+    uint8_t buffer[1024];
+    readCount = mTemp->mBaseStream->Read(&buffer[0], 1024);
+    mBaseStream->Write(buffer, readCount);
+  }
+  while (readCount > 0);
 }
 
 void XMPIOOverIStream::DeleteTemp() {

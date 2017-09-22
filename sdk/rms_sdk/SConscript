@@ -2,7 +2,11 @@ from build_config import *
 
 Import('rms_env bins')
 
+rms_env.Append(CPPDEFINES = ['QTFRAMEWORK'])
+
 platform_objs = rms_env.SConscript('Platform/SConscript', duplicate=0)
+
+external_objs = rms_env.SConscript('external/SConscript', duplicate=0)
 
 common_obj = rms_env.SConscript('Common/SConscript', duplicate=0)
 Export('common_obj')
@@ -13,14 +17,17 @@ Export('consent_obj')
 core_obj = rms_env.SConscript('Core/SConscript', duplicate=0)
 Export('core_obj')
 
-googletest_obj = rms_env.SConscript('GoogleTest/SConscript', duplicate=0)
-Export('googletest_obj')
-
 json_obj = rms_env.SConscript('Json/SConscript', duplicate=0)
 Export('json_obj')
 
+logger_obj = rms_env.SConscript('Logger/SConscript', duplicate=0)
+Export('logger_obj')
+
 pfile_obj = rms_env.SConscript('PFile/SConscript', duplicate=0)
 Export('pfile_obj')
+
+profile_obj = rms_env.SConscript('Profile/SConscript', duplicate=0)
+Export('profile_obj')
 
 office_obj = rms_env.SConscript('OfficeProtector/SConscript', duplicate=0)
 Export('office_obj')
@@ -41,3 +48,7 @@ Install('#' + bins + '/sdk/rms_sdk', rms_platform_ut)
 rest_clients_ut = rms_env.SConscript('UnitTests/rest_clients_ut/SConscript', duplicate=0)
 Export('rest_clients_ut')
 Install('#' + bins + '/sdk/rms_sdk', rest_clients_ut)
+
+profile_ut = rms_env.SConscript('UnitTests/profile_ut/SConscript', duplicate=0)
+Export('profile_ut')
+Install('#' + bins + '/sdk/rms_sdk', profile_ut)

@@ -13,6 +13,7 @@ DEFINES += Q_COMPILER_INITIALIZER_LISTS
 INCLUDEPATH += $$REPO_ROOT/sdk/rmsauth_sdk/rmsauth
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/FileAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile

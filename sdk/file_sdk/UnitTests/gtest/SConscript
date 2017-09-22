@@ -1,0 +1,25 @@
+Import('file_env')
+
+Import("""
+    googlemock_lib
+    googletest_lib
+    file_lib
+    platform
+""")
+
+src_files = ['unittest_main.cpp']
+
+libs = [
+    googlemock_lib,
+    googletest_lib,
+    file_lib,
+]
+
+if platform == 'linux2':
+    libs += [
+        'pthread',
+    ]
+
+file_sdk_unittest_obj = file_env.Object(source = src_files);
+file_sdk_unittest_exe = file_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs])
+Return('file_sdk_unittest_exe')

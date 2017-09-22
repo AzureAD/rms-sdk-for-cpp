@@ -8,7 +8,7 @@
 
 #ifndef CONSENTTYPE
 #define CONSENTTYPE
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace modernapi {

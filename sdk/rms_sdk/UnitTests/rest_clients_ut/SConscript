@@ -7,10 +7,12 @@ Import("""
     lib_suffix
     qt_lib_path
     platform
+    SetupUtMocs
     rms_env
 """)
 
 Import("""
+    googletest_lib
     common_obj
     crypto_api_obj
     crypto_obj
@@ -18,7 +20,6 @@ Import("""
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
-    googletest_obj
     json_obj
     restclients_obj
     rms_platform_filesystem_obj
@@ -30,12 +31,17 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
 src_files += Glob(build_flavor + '/*.cpp')
 
-rms_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+rmsrest_clients_ut_env = rms_env.Clone()
 
-srcdir = Dir('.').srcnode().abspath.replace('\\','/')
-rms_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+rmsrest_clients_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+rmsrest_clients_ut_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
 
 objects = [
     common_obj,
@@ -45,7 +51,6 @@ objects = [
     crypto_platform_keystorage_obj,
     crypto_platform_logger_obj,
     crypto_platform_settings_obj,
-    googletest_obj,
     json_obj,
     restclients_obj,
     rms_platform_filesystem_obj,
@@ -62,6 +67,7 @@ libs = [
     'Qt5XmlPatterns' + lib_suffix,
     'Qt5Test' + lib_suffix,
     'Qt5Gui' + lib_suffix,
+    googletest_lib
 ]
 
 if platform == 'win32':
@@ -84,7 +90,7 @@ elif platform == 'linux2':
     'resolv',
   ]
 
-rest_clients_ut_obj = rms_env.Object(source = src_files)
-rest_clients_test = rms_env.Program(target = "rest_clients_ut", 
+rest_clients_ut_obj = rmsrest_clients_ut_env.Object(source = src_files)
+rest_clients_test = rmsrest_clients_ut_env.Program(target = "rest_clients_ut",
     source = [rest_clients_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
 Return('rest_clients_test')

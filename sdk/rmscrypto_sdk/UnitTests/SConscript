@@ -1,5 +1,3 @@
-from build_config import *
-
 Import("""
     build_flavor
     crypto_obj
@@ -13,9 +11,16 @@ Import("""
     platform
     qt_lib_path
     rmscrypto_env
+    SetupUtMocs
 """)
 
+rmscrypto_ut_env =  rmscrypto_env.Clone()
+
 src_files = Glob('*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
 src_files += Glob(build_flavor + '/*.cpp')
 
 objects = [
@@ -33,10 +38,7 @@ libs = [
     'Qt5Gui' + lib_suffix,
 ] 
 
-rmscrypto_ut_env =  rmscrypto_env.Clone()
-srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
-
-rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
 rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
 rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
 rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))

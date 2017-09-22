@@ -11,7 +11,7 @@
 
 #include <CryptoAPI.h>
 #include "UserPolicy.h"
-#include "ModernAPIExport.h"
+#include "api_export.h"
 #include "CacheControl.h"
 
 namespace rmscore {

@@ -5,7 +5,6 @@ Import('file_env')
 src_files = Glob('*.cpp')
 
 compound_env = file_env.Clone()
-compound_env.Append(CPPPATH = Split('#sdk/file_sdk'))
 
 compound_obj = create_objs(compound_env, src_files)
 Return('compound_obj')

@@ -9,17 +9,18 @@ Import("""
     platform
     qt_lib_path
     rms_env
+    SetupUtMocs
     target_arch
 """)
 
 Import("""
+    googletest_lib
     crypto_api_obj
     crypto_obj
     crypto_platform_crypto_obj
     crypto_platform_keystorage_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
-    googletest_obj
     rms_platform_filesystem_obj
     rms_platform_http_obj
     rms_platform_json_obj
@@ -29,6 +30,10 @@ Import("""
 """)
 
 src_files = Glob('*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
 src_files += Glob(build_flavor + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
@@ -36,7 +41,7 @@ rmsplatform_env = rms_env.Clone()
 rmsplatform_env.Append(CPPPATH=Split('#sdk/rmscrypto_sdk/CryptoAPI')) 
 rmsplatform_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
 
-srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
+srcdir = '\\\"' + srcdir.replace('\\','/') + '/\\\"'
 rmsplatform_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
 
 objects = [
@@ -46,7 +51,6 @@ objects = [
       crypto_platform_keystorage_obj,
       crypto_platform_logger_obj,
       crypto_platform_settings_obj,
-      googletest_obj,
       rms_platform_filesystem_obj,
       rms_platform_http_obj,
       rms_platform_json_obj,
@@ -60,6 +64,7 @@ libs = [
       'Qt5Network' + lib_suffix,
       'Qt5Xml' + lib_suffix,
       'Qt5XmlPatterns' + lib_suffix,
+      googletest_lib,
 ]
 
 if platform == 'win32':
