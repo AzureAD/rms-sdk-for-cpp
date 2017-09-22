@@ -33,9 +33,9 @@ for %%a in (%archs%) do (
 		xcopy "C:\third_party_msvc15win32" third_party /e /y
 	)
 	for %%c in  (%configs%) do (
-		echo scons --arch=%%a --configuration=%%c --package
-		call scons --arch=%%a --configuration=%%c --package -c
-		call scons --arch=%%a --configuration=%%c --package
+		echo scons -j 4 --arch=%%a --configuration=%%c --package
+		call scons -j 4 --arch=%%a --configuration=%%c --package -c
+		call scons -j 4 --arch=%%a --configuration=%%c --package
 		if %ERRORLEVEL% NEQ 0 (
 			exit /B 1
 		)
