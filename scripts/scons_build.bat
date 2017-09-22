@@ -8,12 +8,13 @@ set DIRECTORY_NAME=%1
 rmdir /Q /S %DIRECTORY_NAME%
 mkdir %DIRECTORY_NAME%
 
-set PATH=C:\Qt\5.7\msvc2015\bin;C:\Qt\5.7\msvc2015_64\bin;%PATH%
-
 rmdir /Q /S bin
 rmdir /Q /S third_party
 mkdir third_party
 xcopy "C:\third_party_msvc15win64" third_party /e /y
+
+set PATH=C:\Qt\5.7\msvc2015\bin;C:\Qt\5.7\msvc2015_64\bin;%PATH%
+set PATH=third_party\lib\eay;third_party\lib\Libgsf;third_party\lib\xmp;%PATH%
 
 call rmdir /Q /S unittest_results
 call mkdir unittest_results
