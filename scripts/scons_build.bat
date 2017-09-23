@@ -1,18 +1,8 @@
 @echo off
 SETLOCAL enabledelayedexpansion 
-REM set third_party_path=%1
-REM set qmake_path=%2
-REM set platform=%3
 set DIRECTORY_NAME=%1
 
 rmdir /Q /S %DIRECTORY_NAME%
-mkdir %DIRECTORY_NAME%
-mkdir %DIRECTORY_NAME%\release
-mkdir %DIRECTORY_NAME%\release\amd64
-mkdir %DIRECTORY_NAME%\release\x86
-mkdir %DIRECTORY_NAME%\debug
-mkdir %DIRECTORY_NAME%\debug\amd64
-mkdir %DIRECTORY_NAME%\debug\x86
 
 set archs=x64 x86
 set configs=release debug
@@ -44,6 +34,8 @@ for %%a in (%archs%) do (
 		) else (
 			set arch_path=x86
 		)
+		mkdir %DIRECTORY_NAME%\%%c
+		mkdir %DIRECTORY_NAME%\%%c\!arch_path!
 		echo scripts\scons_unittest_helper.bat bin\%%c\!arch_path!\sdk unittest_results %%c_!arch_path!_results
 		echo copy bin\%%c\!arch_path!\sdk\rms*.dll %DIRECTORY_NAME%\%%c\!arch_path!
 		call scripts\scons_unittest_helper.bat bin\%%c\!arch_path!\sdk unittest_results %%c_!arch_path!_results
