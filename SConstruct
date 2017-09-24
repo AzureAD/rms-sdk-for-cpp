@@ -180,7 +180,7 @@ else:
   env.Append(CPPDEFINES =['DEBUG','_DEBUG'])
 
   if platform == 'win32':
-    env.Append(LINKFLAGS='/NOLOGO')
+    env.Append(LINKFLAGS='/NOLOGO /DEBUG')
     env.Append(CCFLAGS=Split('-c -Zi -MDd'))
     env.Append(CXXFLAGS=Split('-c -Zi -MDd'))
 

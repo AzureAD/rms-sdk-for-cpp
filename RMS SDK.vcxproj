@@ -68,7 +68,7 @@
     <NMakeCleanCommandLine>scons -c</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>scons -c &amp;&amp; scons -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);C:\Qt\5.7\msvc2015\include\QtCore;C:\One\rms-sdk-for-cpp\sdk\rmscrypto_sdk\CryptoAPI;C:\One\rms-sdk-for-cpp\sdk\rms_sdk\ModernAPI\ext;C:\qt\5.7\msvc2015\include\QtTest</IncludePath>
+    <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);C:\Qt\5.7\msvc2015\include\QtCore;C:\One\rms-sdk-for-cpp\sdk\rmscrypto_sdk\CryptoAPI;C:\One\rms-sdk-for-cpp\sdk\rms_sdk\ModernAPI\ext</IncludePath>
     <OutDir>$(SolutionDir)bins\$(Configuration)\amd64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -85,7 +85,7 @@
     <NMakeCleanCommandLine>scons --release -c</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>scons --release -c &amp;&amp; scons --release -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);C:\Qt\5.7\msvc2015\include\QtCore;C:\One\rms-sdk-for-cpp\sdk\rmscrypto_sdk\CryptoAPI;C:\One\rms-sdk-for-cpp\sdk\rms_sdk\ModernAPI\ext;C:\qt\5.7\msvc2015\include\QtTest</IncludePath>
+    <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);C:\Qt\5.7\msvc2015\include\QtCore;C:\One\rms-sdk-for-cpp\sdk\rmscrypto_sdk\CryptoAPI;C:\One\rms-sdk-for-cpp\sdk\rms_sdk\ModernAPI\ext</IncludePath>
     <OutDir>$(SolutionDir)bins\$(Configuration)\amd64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
