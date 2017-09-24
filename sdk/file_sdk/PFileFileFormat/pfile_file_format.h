@@ -11,9 +11,10 @@ class PFileFileFormat : public FileFormat
 
 public:
   PFileFileFormat(std::shared_ptr<IStream> file, const std::string& extension);
-  const vector<Tag> ReadTags();
-  string GetOriginalExtension();
-  void Commit(std::shared_ptr<IStream> outputStream, string& newExtension);
+  string GetOriginalExtension() override;
+  const vector<pair<std::string, std::string>> GetProperties() override;
+  void UpdateProperties(const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove) override;
+  void Commit(std::shared_ptr<IStream> outputStream, string& newExtension) override;
 };
 
 } // namespace file

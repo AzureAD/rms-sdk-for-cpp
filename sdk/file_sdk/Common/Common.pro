@@ -15,7 +15,6 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
     tag.cpp \
-    file_format.cpp \
     file_format_factory.cpp \
     std_stream_adapter.cpp \
     string_utils.cpp \

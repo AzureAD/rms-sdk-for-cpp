@@ -163,9 +163,10 @@ vector<pair<string, string>> Tag::ToProperties() const {
 
 Method Tag::GetMethod() const
 {
-  auto it = std::find_if(mExtendedProperties.cbegin(), mExtendedProperties.cend(), [](const ExtendedProperty& property) {
-    return EqualsIgnoreCase(property.vendor, "MSFT") && EqualsIgnoreCase(property.key, "Method");
-  });
+  ExtendedProperty property;
+  property.key = "MSFT";
+  property.value = "Method";
+  auto it = ExtendedProperty::GetMatchingProperty(mExtendedProperties, property);
 
   if(it == mExtendedProperties.cend())
     return Method::NONE;
