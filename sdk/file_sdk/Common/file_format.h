@@ -11,13 +11,13 @@ namespace file {
 class FileFormat : public IFileFormat
 {
 public:
-  virtual string GetOriginalExtension();
+  string GetOriginalExtension() override;
 
-  virtual const vector<Tag> GetTags();
+  const vector<Tag> GetTags() override;
 
-  virtual void SetTags(const vector<Tag>& tags);
+  void SetTags(const vector<Tag>& tags) override;
 
-  virtual void Commit(shared_ptr<IStream> file, string& newExtension) = 0;
+  void Commit(shared_ptr<IStream> file, string& newExtension) override = 0;
 
 protected:
   FileFormat(shared_ptr<IStream> file, const string& extension);

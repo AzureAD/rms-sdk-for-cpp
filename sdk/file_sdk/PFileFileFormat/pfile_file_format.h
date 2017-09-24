@@ -1,5 +1,5 @@
-#ifndef PFIILE_FILE_FORMAT_H
-#define PFIILE_FILE_FORMAT_H
+#ifndef PFILE_FILE_FORMAT_H
+#define PFILE_FILE_FORMAT_H
 
 #include <Common/file_format.h>
 
@@ -8,12 +8,13 @@ namespace file {
 
 class PFileFileFormat : public FileFormat
 {
-
 public:
-  PFileFileFormat(std::shared_ptr<IStream> file, const std::string& extension);
-  const vector<Tag> ReadTags();
-  string GetOriginalExtension();
-  void Commit(std::shared_ptr<IStream> file, string& newExtension);
+  PFileFileFormat(shared_ptr<IStream> file, const string& extension);
+  string GetOriginalExtension() override;
+  void Commit(shared_ptr<IStream> file, string& newExtension) override;
+
+protected:
+  const vector<Tag> ReadTags() override;
 };
 
 } // namespace file

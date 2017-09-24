@@ -8,7 +8,7 @@ RelationshipsXml::RelationshipsXml(const std::string &xml)
 }
 
 bool RelationshipsXml::UpdateCustomProperties() {
-    return false;
+  return false;
 }
 
 } // namespace file

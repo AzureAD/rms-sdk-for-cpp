@@ -11,6 +11,8 @@ dest/
 *.pdb
 *.obj
 .vscode/
+.vs/
+*.user
 
 
 # Qt Build Artifacts

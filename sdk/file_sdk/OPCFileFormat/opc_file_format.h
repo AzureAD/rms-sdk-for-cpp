@@ -10,10 +10,9 @@ namespace file {
 
 using std::shared_ptr;
 
-class OPCFileFormat : public FileFormat 
-{
+class OPCFileFormat : public FileFormat {
 public:
-  OPCFileFormat(shared_ptr<IStream> file, const std::string& extension);
+  OPCFileFormat(shared_ptr<IStream> file, const string& extension);
   void Commit(shared_ptr<IStream> file, string& newExtension) override;
 
 protected:

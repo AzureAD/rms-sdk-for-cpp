@@ -15,6 +15,8 @@ namespace file {
 class IFileFormat
 {
 public:
+  virtual ~IFileFormat() = default;
+
   // Returns the extension of the plain file if the file is protected
   virtual string GetOriginalExtension() = 0;
 
@@ -26,7 +28,6 @@ public:
 
   // Saves original file to the output file with tags and protection and sets the new file extension to newExtension parameter
   virtual void Commit(std::shared_ptr<IStream> file, string& newExtension) = 0;
-
 };
 
 } //namespace file
