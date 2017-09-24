@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -64,12 +64,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeBuildCommandLine>scons -j 6</NMakeBuildCommandLine>
-    <NMakeOutput>$(SolutionDir)bin\$(Configuration)\x86\sdk\file_sdk\file_sdk_unittest.exe</NMakeOutput>
+    <NMakeOutput>$(SolutionDir)bin\$(Configuration)\amd64\sdk\file_sdk\file_sdk_unittest.exe</NMakeOutput>
     <NMakeCleanCommandLine>scons -c</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>scons -c &amp;&amp; scons -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);C:\Qt\5.7\msvc2015\include\QtCore;C:\One\rms-sdk-for-cpp\sdk\rmscrypto_sdk\CryptoAPI;C:\One\rms-sdk-for-cpp\sdk\rms_sdk\ModernAPI\ext;C:\qt\5.7\msvc2015\include\QtTest</IncludePath>
-    <OutDir>$(SolutionDir)bins\$(Configuration)\x86</OutDir>
+    <OutDir>$(SolutionDir)bins\$(Configuration)\amd64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <NMakeBuildCommandLine>scons -j 8</NMakeBuildCommandLine>
@@ -81,12 +81,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>scons --release -j 6</NMakeBuildCommandLine>
-    <NMakeOutput>$(SolutionDir)bin\$(Configuration)\x86\sdk\file_sdk\file_sdk_unittest.exe</NMakeOutput>
+    <NMakeOutput>$(SolutionDir)bin\$(Configuration)\amd64\sdk\file_sdk\file_sdk_unittest.exe</NMakeOutput>
     <NMakeCleanCommandLine>scons --release -c</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>scons --release -c &amp;&amp; scons --release -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);C:\Qt\5.7\msvc2015\include\QtCore;C:\One\rms-sdk-for-cpp\sdk\rmscrypto_sdk\CryptoAPI;C:\One\rms-sdk-for-cpp\sdk\rms_sdk\ModernAPI\ext;C:\qt\5.7\msvc2015\include\QtTest</IncludePath>
-    <OutDir>$(SolutionDir)bins\$(Configuration)\x86</OutDir>
+    <OutDir>$(SolutionDir)bins\$(Configuration)\amd64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <NMakeBuildCommandLine>scons --release -j 8</NMakeBuildCommandLine>
