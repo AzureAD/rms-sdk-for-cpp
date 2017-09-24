@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         ("g,get-label", "Show the labels that applies on a file.")
         ("s,set-label", "Set a label with <labelId> and with owner <owner>. "
                         "If downgrading label - will apply <Justification message> as needed.", cxxopts::value<std::vector<std::string>>(), "lblId, owner, msg")
-        ("r,remove-label", "Remove the current label from the file with <Justification message>.", cxxopts::value<std::string>(), "msg")
+        ("r,remove-label", "Remove the current label from the file with <Justification message>.", cxxopts::value<std::string>()->implicit_value("User Justification"), "msg")
         ("l,list-labels", "Show all available labels with there Id's.")
         ("h,help", "Print help and exit.")
         ;
@@ -152,10 +152,12 @@ void SetLabels(std::string filePath, std::string labelId,std::string owner, std:
     auto inputStream = StdStreamAdapter::Create(std::static_pointer_cast<std::istream>(iFileStream));
     auto streamHandler = mip::file::IStreamHandler::Create(nullptr, inputStream, extension);
 
+    // Get the new file path
+    std::string newFilePath = filePath.substr(0, filePath.length() - extension.length()) + (labelId.empty() ? "_NotLabeled" : "_Labeled");
+
     // Create output stream
-    std::string addedString (labelId.empty() ? "NotLabeld_" : "Labeld_");
-    auto oFileStream = std::make_shared<std::ofstream>(addedString + filePath, std::ios::binary);
-    auto outputStream = StdStreamAdapter::Create(std::static_pointer_cast<std::ostream>(oFileStream));
+    auto outfile = std::make_shared<std::fstream>(newFilePath + extension, std::ios::binary| std::ios::in | std::ios::out | std::ios::trunc);
+    auto outputStream = StdStreamAdapter::Create(std::static_pointer_cast<std::iostream>(outfile));
 
     if (labelId.empty()) {
       streamHandler->DeleteLabel(justificationMessage);
