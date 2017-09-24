@@ -4,6 +4,7 @@ Import("""
     googlemock_lib
     googletest_lib
     file_lib
+    libxml2_lib
 """)
 
 src_files = ['unittest_main.cpp']
@@ -13,6 +14,7 @@ libs = [
     googlemock_lib,
     googletest_lib,
     file_lib,
+    libxml2_lib,
 ]
 
 file_sdk_unittest_obj = file_env.Object(source = src_files);
