@@ -7,15 +7,19 @@ PFileFileFormat::PFileFileFormat(std::shared_ptr<IStream> inputStream, const str
   : FileFormat(inputStream, extension) {
 }
 
-const vector<Tag> PFileFileFormat::ReadTags() {
-  return mTags;
-}
-
 string PFileFileFormat::GetOriginalExtension() {
   throw std::runtime_error("not implemented");
 }
 
+const vector<pair<std::string, std::string> > PFileFileFormat::GetProperties() {
+  throw std::runtime_error("not implemented");
+}
+
 void PFileFileFormat::Commit(std::shared_ptr<IStream> outputStream, string& newExtension) {
+  throw std::runtime_error("not implemented");
+}
+
+void PFileFileFormat::UpdateProperties(const std::vector<std::pair<std::string, std::string>>& propertiesToAdd, const std::vector<std::string>& keysToRemove) {
   throw std::runtime_error("not implemented");
 }
 
