@@ -4,10 +4,9 @@
 namespace mip {
 namespace file {
 
-TEST(OPCFileFormatTests, ReadTags)
-{
-	OPCFileFormat f(shared_ptr<mip::file::IStream>(), "docx");
-	f.GetTags();
+TEST(OPCFileFormatTests, ReadTags) {
+  OPCFileFormat f(shared_ptr<mip::file::IStream>(), "docx");
+  f.GetTags();
 }
 
 } // namespace mip
