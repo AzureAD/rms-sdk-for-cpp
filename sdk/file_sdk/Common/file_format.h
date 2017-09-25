@@ -11,28 +11,18 @@ namespace file {
 class FileFormat : public IFileFormat
 {
 public:
-  virtual string GetOriginalExtension();
-
-  virtual const vector<Tag> GetTags();
-
-  virtual void SetTags(const vector<Tag>& tags);
-
-  virtual void Commit(shared_ptr<IStream> outputStream, string& newExtension) = 0;
+  string GetOriginalExtension() override { return mExtension; }
 
 protected:
-  FileFormat(shared_ptr<IStream> file, const string& extension);
-
-  // Reads the tags from the file
-  virtual const vector<Tag> ReadTags() = 0;
+  FileFormat(shared_ptr<IStream> inputStream, const string& extension)
+  : mFile(inputStream),
+    mExtension(extension) {
+}
 
 protected:
   shared_ptr<IStream> mFile;
 
   string mExtension;
-
-  vector<Tag> mTags;
-
-  bool mHasTags;
 };
 
 } //namespace file
