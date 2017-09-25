@@ -30,9 +30,11 @@ public:
   virtual std::string GetNodeNamespace() const;
 
   bool operator==(const XmlNode& rhs) const { return mNode == rhs.mNode; }
-  /* TODO: writer support
-  void AppendChild(XmlNode newNode);
-  XmlNode RemoveChild(XmlNode oldChild);*/
+
+  virtual void AddAttribute(const std::string& attributeName, const std::string& attributeValue);
+  virtual void AddChild(XmlNode newNode);
+  virtual void AddContent(const std::string& content);
+  virtual void Delete();
 private:
   xmlNodePtr mNode;
 

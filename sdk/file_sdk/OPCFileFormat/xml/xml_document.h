@@ -35,8 +35,7 @@ private:
   UniquePtr<xmlDoc> mXmlDoc;
 
   /* TODO: writer support
-  XmlNode CreateElement(std::string name, std::string namespace);
-  void AppendAttribute(XmlNode node, std::string name, std::string value);*/
+  XmlNode CreateNode(std::string name, std::string namespace);*/
 };
 
 } // namepsace mip

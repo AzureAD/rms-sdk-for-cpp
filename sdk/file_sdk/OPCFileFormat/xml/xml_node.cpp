@@ -49,4 +49,30 @@ string XmlNode::GetNodeNamespace() const {
   return string();
 }
 
+void XmlNode::AddAttribute(const string& attributeName, const string& attributeValue) {
+  if (!mNode)
+    return;
+  xmlSetProp(mNode, ConvertXmlString(attributeName), ConvertXmlString(attributeValue));
+}
+
+void XmlNode::AddChild(XmlNode newNode) {
+  if (!mNode)
+    return;
+  xmlAddChild(mNode, newNode.mNode);
+}
+
+void XmlNode::AddContent(const string& content) {
+  if (!mNode)
+    return;
+  xmlAddChild(mNode, xmlNewText(ConvertXmlString(content)));
+}
+
+void XmlNode::Delete() {
+  if (!mNode)
+    return;
+  xmlUnlinkNode(mNode);
+  xmlFreeNode(mNode);
+  mNode = nullptr;
+}
+
 }  // namespace mip

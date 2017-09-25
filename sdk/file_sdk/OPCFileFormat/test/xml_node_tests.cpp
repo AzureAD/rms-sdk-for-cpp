@@ -133,3 +133,75 @@ TEST(XmlNodeTests, GetNodeNamespaceNodeWithNamespace_ReturnNodeNamespace) {
 
   EXPECT_STREQ(NAMESPACE_NAME.c_str(), XmlNode(node.get()).GetNodeNamespace().c_str());
 }
+
+TEST(XmlNodeTests, AddAttribute_NullNode_DoesNotThrow) {
+  EXPECT_NO_THROW(XmlNode().AddAttribute("",""));
+}
+
+TEST(XmlNodeTests, AddAttribute_ValidAttribute_AttributeAdded) {
+  auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
+  XmlNode xmlNode(node.get());
+  xmlNode.AddAttribute(ATTRIBUTE_NAME, CONTENT_VALUE);
+
+  EXPECT_STREQ(CONTENT_VALUE.c_str(), xmlNode.GetAttributeValue(ATTRIBUTE_NAME).c_str());
+}
+
+TEST(XmlNodeTests, AddChild_NullParentAndChildNode_DoesNotThrow) {
+  EXPECT_NO_THROW(XmlNode().AddChild(XmlNode()));
+}
+
+TEST(XmlNodeTests, AddChild_ValidChildNode_ChildAdded) {
+  auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
+  auto xmlNode = XmlNode(node.get());
+  auto xmlChildNode = XmlNode(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME + "Child")));
+
+  xmlNode.AddChild(xmlChildNode);
+
+  ASSERT_EQ(xmlChildNode, xmlNode.GetFirstChild());
+}
+
+TEST(XmlNodeTests, AddContent_NullNode_DoesNotThrow) {
+  EXPECT_NO_THROW(XmlNode().AddContent(CONTENT_VALUE));
+}
+
+TEST(XmlNodeTests, AddContent_ValidContent_ContentAdded) {
+  auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
+  auto xmlNode = XmlNode(node.get());
+
+  xmlNode.AddContent(CONTENT_VALUE);
+
+  EXPECT_STREQ(CONTENT_VALUE.c_str(), xmlNode.GetNodeInnerText().c_str());
+}
+
+TEST(XmlNodeTests, AddContent_ContentWithSpecialChars_ContentAdded) {
+  auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
+  auto xmlNode = XmlNode(node.get());
+
+  auto content = CONTENT_VALUE + "&<>";
+  xmlNode.AddContent(content);
+
+  EXPECT_STREQ(content.c_str(), xmlNode.GetNodeInnerText().c_str());
+}
+
+TEST(XmlNodeTests, Delete_NullNode_DoesNotThrow) {
+  EXPECT_NO_THROW(XmlNode().Delete());
+}
+
+TEST(XmlNodeTests, Delete_ValidNode_NodeIsNullAfterDelete) {
+  auto xmlNode = XmlNode(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)));
+
+  xmlNode.Delete();
+
+  EXPECT_EQ(XmlNode(), xmlNode);
+}
+
+TEST(XmlNodeTests, Delete_DeleteChildNode_ParentDoesNotHaveChildren) {
+  auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
+  auto xmlNode = XmlNode(node.get());
+  auto xmlChildNode = XmlNode(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME + "Child")));
+
+  xmlNode.AddChild(xmlChildNode);
+  xmlChildNode.Delete();
+
+  ASSERT_EQ(XmlNode(), xmlNode.GetFirstChild());
+}
