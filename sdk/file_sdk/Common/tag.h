@@ -47,8 +47,9 @@ public:
   const bool GetEnabled() const { return mEnabled; }
   const std::string& GetSiteId() const { return mSiteId; }
   const std::string& GetSetTime() const { return mSetTime; }
-  const Method GetMethod() const { return mMethod; }
-  const std::vector<ExtendedProperty>& GetExtendedProperties() const { return mExtendedProperties; }
+  Method GetMethod() const;
+  const std::vector<ExtendedProperty>& GetExtendedProperties() const { return mExtendedProperties; } 
+  void AddExtendedProperty(const ExtendedProperty& extendedProperty);
 
 private:
   // TODO: Add tests for these methods.
@@ -68,7 +69,6 @@ private:
   std::string mOwner;
   bool mEnabled;
   std::string mSiteId;
-  Method mMethod;
   std::string mSetTime;
   std::vector<ExtendedProperty> mExtendedProperties;
 };

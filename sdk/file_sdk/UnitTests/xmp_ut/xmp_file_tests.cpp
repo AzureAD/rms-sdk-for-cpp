@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <regex>
+#include <Common/tag.h>
 
 using std::static_pointer_cast;
 using std::make_shared;
@@ -28,7 +29,7 @@ static bool VerifyTags(Tag tag1, Tag tag2) {
       tag1.GetSiteId() == tag2.GetSiteId();
 }
 
-void VerifySetTags(string folder) {
+void VerifyUpdateProperties(string folder) {
   vector<mip::ExtendedProperty> properties;
   mip::ExtendedProperty property1;
   property1.key = "TestKey";
@@ -68,7 +69,13 @@ void VerifySetTags(string folder) {
       auto stream = StdStreamAdapter::Create(fileStream);
 
       XMPFileFormat xmpFileFormat(stream, extension);
-      xmpFileFormat.SetTags(tags);
+      auto currentProperties = xmpFileFormat.GetProperties();
+      vector<string> keysToRemove;
+      for(int i = 0; i <currentProperties.size(); i++){
+        keysToRemove.push_back(currentProperties[i].first);
+      }
+
+      xmpFileFormat.UpdateProperties(Tag::ToProperties(tags), keysToRemove);
 
       auto outputFileName = regex_replace(tempFile.toStdString(), std::regex(extension), "out" + extension);
       std::ofstream temp(outputFileName);
@@ -86,7 +93,7 @@ void VerifySetTags(string folder) {
       stream = StdStreamAdapter::Create(fileStream);
 
       XMPFileFormat xmpOut(stream, newExtention);
-      auto tags = xmpOut.GetTags();
+      vector<Tag> tags = Tag::FromProperties(xmpOut.GetProperties());
       QVERIFY2(tags.size() == 2, "Tags count shoud be 2");
       QVERIFY2(VerifyTags(tags[0], parent), "Tag1 is different than expected");
       QVERIFY2(VerifyTags(tags[1], child), "Tag2 is different than expected");
@@ -106,16 +113,16 @@ public:
   Xmp_Tests();
 
 private Q_SLOTS:
-  void GetTags_FileWithAutomaticTag_ReturnCorrectTag();
-  void GetTags_FileWithManualTag_ReturnCorrectTag();
-  void SetTags_FileWithNoTags_TagsSetSuccessfully();
-  void SetTags_FileWithExistingTags_TagsSetSuccessfully();
+  void GetProperties_FileWithAutomaticTag_ReturnCorrectTag();
+  void GetProperties_FileWithManualTag_ReturnCorrectTag();
+  void SetProperties_FileWithNoTags_TagsSetSuccessfully();
+  void SetProperties_FileWithExistingTags_TagsSetSuccessfully();
 };
 
 Xmp_Tests::Xmp_Tests() {
 }
 
-void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
+void Xmp_Tests::GetProperties_FileWithManualTag_ReturnCorrectTag() {
   try{
     mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "vakuras@microsoft.com", true, "", mip::Method::MANUAL, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
@@ -132,7 +139,7 @@ void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
         auto stream = StdStreamAdapter::Create(fileStream);
 
         XMPFileFormat xmpFileFormat(stream, extension);
-        auto tags = xmpFileFormat.GetTags();
+        auto tags = Tag::FromProperties(xmpFileFormat.GetProperties());
         QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
         mip::Tag tag = tags[0];
         QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
@@ -146,7 +153,7 @@ void Xmp_Tests::GetTags_FileWithManualTag_ReturnCorrectTag() {
   }
 }
 
-void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
+void Xmp_Tests::GetProperties_FileWithAutomaticTag_ReturnCorrectTag() {
   try{
     mip::Tag general( "f42aa342-8706-4288-bd11-ebb85995028c", "General", "", "shbaruch@microsoft.com", true, "", mip::Method::AUTOMATIC, "72f988bf-86f1-41af-91ab-2d7cd011db47");
 
@@ -164,8 +171,7 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
         auto stream = StdStreamAdapter::Create(std::static_pointer_cast<std::istream>(ifs));
 
         XMPFileFormat xmpFileFormat(stream, extension);
-        auto tags = xmpFileFormat.GetTags();
-
+        auto tags = Tag::FromProperties(xmpFileFormat.GetProperties());
         QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
         mip::Tag tag = tags[0];
         QVERIFY2(VerifyTags(tag, general), "Tag is different than expected");
@@ -181,12 +187,12 @@ void Xmp_Tests::GetTags_FileWithAutomaticTag_ReturnCorrectTag() {
   }
 }
 
-void Xmp_Tests::SetTags_FileWithNoTags_TagsSetSuccessfully() {
-  VerifySetTags(":xmp_not_labeled");
+void Xmp_Tests::SetProperties_FileWithNoTags_TagsSetSuccessfully() {
+  VerifyUpdateProperties(":xmp_not_labeled");
 }
 
-void Xmp_Tests::SetTags_FileWithExistingTags_TagsSetSuccessfully() {
-  VerifySetTags(":xmp_labeled_manual");
+void Xmp_Tests::SetProperties_FileWithExistingTags_TagsSetSuccessfully() {
+  VerifyUpdateProperties(":xmp_labeled_manual");
 }
 
 

@@ -10,8 +10,8 @@ namespace file {
 class DLL_PUBLIC_FILE StreamHandler : public IStreamHandler
 {
 private:
-  std::vector<Tag> mLabels; // holds the labels to commit; Tag will be raplaced with ILabel when impl
-
+  vector<pair<string, string>> mProperties; // holds the labels to commit; Tag will be replaced with ILabel when impl
+  vector<Tag> mTags;
   time_t GetCurrentTime();
 
 protected:

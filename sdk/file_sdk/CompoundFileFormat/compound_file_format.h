@@ -10,9 +10,10 @@ class CompoundFileFormat : public FileFormat
 {
 
 public:
-  CompoundFileFormat(std::shared_ptr<IStream> inputStream, const string& extension);
-  const vector<Tag> ReadTags();
-  void Commit(std::shared_ptr<IStream> outputStream, string& newExtension);
+  CompoundFileFormat(shared_ptr<IStream> inputStream, const string& extension);
+  const vector<pair<string, string>> GetProperties() override;
+  void UpdateProperties(const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove) override;
+  void Commit(shared_ptr<IStream> outputStream, string& newExtension) override;
 };
 
 } // namespace file

@@ -20,14 +20,14 @@ public:
   pfile_tests();
 
 private Q_SLOTS:
-  void GetTags_FileWithTag_ReturnCorrectTag();
-  void GetTags_FileWithoutTag_ReturnZeroTags();
+  void GetProperties_FileWithTag_ReturnCorrectTag();
+  void GetProperties_FileWithoutTag_ReturnZeroTags();
 };
 
 pfile_tests::pfile_tests() {
 }
 
-void pfile_tests::GetTags_FileWithTag_ReturnCorrectTag() {
+void pfile_tests::GetProperties_FileWithTag_ReturnCorrectTag() {
 
 //  QTemporaryDir tempDir;
 //  tempDir.autoRemove();
@@ -43,7 +43,7 @@ void pfile_tests::GetTags_FileWithTag_ReturnCorrectTag() {
 //    auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
 //    auto stream = rmscrypto::api::CreateStreamFromStdStream(std::static_pointer_cast<std::istream>(ifs));
 //    PFileFileFormat pFileFileFormat(stream, extension);
-//    auto tags = pFileFileFormat.GetTags();
+//    auto tags = pFileFileFormat.GetProperties();
 
 //    QVERIFY2(tags.size() == 1, "Tags count shoud be 1");
 //    mip::Tag tag = tags[0];
@@ -51,7 +51,7 @@ void pfile_tests::GetTags_FileWithTag_ReturnCorrectTag() {
 //  }
 }
 
-void pfile_tests::GetTags_FileWithoutTag_ReturnZeroTags() {
+void pfile_tests::GetProperties_FileWithoutTag_ReturnZeroTags() {
 
 //  QTemporaryDir tempDir;
 //  tempDir.autoRemove();
@@ -67,7 +67,7 @@ void pfile_tests::GetTags_FileWithoutTag_ReturnZeroTags() {
 //    auto ifs = std::make_shared<std::ifstream>(tempFile.toStdString(), std::ios_base::binary);
 //    auto stream = rmscrypto::api::CreateStreamFromStdStream(std::static_pointer_cast<std::istream>(ifs));
 //    PFileFileFormat pFileFileFormat(stream, extension);
-//    auto tags = pFileFileFormat.GetTags();
+//    auto tags = pFileFileFormat.GetProperties();
 
 //    QVERIFY2(tags.size() == 0, "Tags count shoud be 0");
 //  }
