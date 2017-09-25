@@ -10,14 +10,10 @@
 #define PLATFORMHTTPCLIENTTEST
 #include <QtTest>
 
-class PlatformHttpClientTest : public QObject
-{
-    Q_OBJECT
-public:
-    PlatformHttpClientTest();
+#include "gtest/gtest.h"
 
-private Q_SLOTS:
-    void testHttpClient(bool enabled = true);
+class PlatformHttpClientTest : public ::testing::TestWithParam<bool> {
+  
 };
 #endif // PLATFORMHTTPCLIENTTEST
 

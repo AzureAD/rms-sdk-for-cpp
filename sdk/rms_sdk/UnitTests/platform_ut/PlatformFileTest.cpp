@@ -6,100 +6,103 @@
  * ======================================================================
 */
 
-#include "PlatformFileTest.h"
-#include "../../Platform/Logger/Logger.h"
 #include "../../Platform/Filesystem/IFile.h"
-#include "../../Common/CommonTypes.h"
-#include <QFile>
+
 #include <sstream>
+#include <fstream>
+
+#include "../../Platform/Logger/Logger.h"
+#include "../../Common/CommonTypes.h"
+#include "gtest/gtest.h"
+
 
 using namespace std;
 using namespace rmscore::platform::filesystem;
 using namespace rmscore::common;
+using std::string;
 
-void PlatformFileTest::testRead()
-{
-    QString path1 = QString(SRCDIR) + "data/tmpread.txt";
-    QFile tmp(path1);
-    tmp.open(QIODevice::WriteOnly | QIODevice::Text);
-    QDataStream out(&tmp);
+TEST (PlatformFileTest, testRead) {
+    string path1 = string(SRCDIR) + "data/tmpread.txt";
+    std::ofstream out(path1, std::ofstream::out);
 
     std::string outdata = "This is test data stream !#$%";
-    auto wn = out.writeRawData(outdata.data(), (int)outdata.length());
-    tmp.close();
+    out.write(outdata.c_str(), outdata.length());
+    auto wn = out.tellp();
+    out.close();
 
-    auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_READ);
-    QVERIFY(pFile!=nullptr);
+    auto pFile = IFile::Create(path1, FileOpenModes::FILE_OPEN_READ);
+    EXPECT_NE(pFile, nullptr);
 
     CharArray bytes;
     auto rn = pFile->Read(bytes, wn);
     pFile->Close();
-    auto ok = QFile::remove(path1);
-    QVERIFY(ok);
+    auto ok = std::remove(path1.c_str());
+    EXPECT_EQ(ok, 0);
 
     std::string indata(bytes.data(), rn);
 
-    QCOMPARE(outdata, indata);
+    EXPECT_EQ(outdata, indata);
 }
-void PlatformFileTest::testWrite()
-{
-    QString path1 = QString(SRCDIR) + "data/tmpwrite.txt";
-    auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_WRITE);
-    QVERIFY(pFile!=nullptr);
+
+TEST (PlatformFileTest, testWrite) {
+    string path1 = string(SRCDIR) + "data/tmpwrite.txt";
+    auto pFile = IFile::Create(path1, FileOpenModes::FILE_OPEN_WRITE);
+    EXPECT_NE(pFile, nullptr);
 
     std::string outdata = "This is test data stream !#$%";
     auto wn = pFile->Write(outdata.data(), outdata.length());
     pFile->Close();
 
-    QFile tmp(path1);
-    tmp.open(QIODevice::ReadOnly | QIODevice::Text);
-    QDataStream in(&tmp);
+    std::ifstream in(path1, std::ifstream::in);
     CharArray bytes(wn);
-    auto rn = in.readRawData(bytes.data(), (int)wn);
+    in.read(bytes.data(), (int)wn);
+    auto rn = in.gcount();
 
-    tmp.close();
-    auto ok = QFile::remove(path1);
-    QVERIFY(ok);
+    in.close();
+    auto ok = std::remove(path1.c_str());
+    EXPECT_EQ(ok, 0);
 
     std::string indata(bytes.data(), rn);
-    QCOMPARE(outdata, indata);
+    EXPECT_EQ(outdata, indata);
 }
-void PlatformFileTest::testClear()
-{
-    QString path1 = QString(SRCDIR) + "data/tmpclear.txt";
-    auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_WRITE);
-    QVERIFY(pFile!=nullptr);
+
+TEST (PlatformFileTest, testClear) {
+    string path1 = string(SRCDIR) + "data/tmpclear.txt";
+    auto pFile = IFile::Create(path1, FileOpenModes::FILE_OPEN_WRITE);
+    EXPECT_NE(pFile, nullptr);
 
     std::string outdata = "This is test data stream !#$%";
     auto wn = pFile->Write(outdata.data(), outdata.length());
     auto size = pFile->GetSize();
-    QVERIFY(size==wn);
+    EXPECT_EQ(size, wn);
 
     pFile->Clear();
     auto size1 = pFile->GetSize();
-    QVERIFY(size1==0);
+    EXPECT_EQ(size1, 0);
     pFile->Close();
-    auto ok = QFile::remove(path1);
-    QVERIFY(ok);
+    auto ok = std::remove(path1.c_str());
+    EXPECT_EQ(ok, 0);
 }
-void PlatformFileTest::testReadAllAsText()
+
+TEST (PlatformFileTest, testReadAllAsText)
 {
-    QString path1 = QString(SRCDIR) + "data/testreadall.txt";
-    auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_READ);
-    QVERIFY(pFile!=nullptr);
+    string path1 = string(SRCDIR) + "data/testreadall.txt";
+    auto pFile = IFile::Create(path1, FileOpenModes::FILE_OPEN_READ);
+    EXPECT_NE(pFile, nullptr);
     auto text = pFile->ReadAllAsText();
     pFile->Close();
-    QFile tmp(path1);
-    tmp.open(QIODevice::ReadOnly| QIODevice::Text);
-    auto expectedText = string(tmp.readAll());
-    QCOMPARE(text, expectedText);
-    tmp.close();
+    std::ifstream in(path1, std::ifstream::in);
+    stringstream ss;
+    ss << in.rdbuf();
+    string expectedText = ss.str();
+    EXPECT_EQ(text, expectedText);
+    in.close();
 }
-void PlatformFileTest::testAppendText()
-{
-    QString path1 = QString(SRCDIR) + "data/tmpappend.txt";
-    auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_WRITE);
-    QVERIFY(pFile!=nullptr);
+
+TEST (PlatformFileTest, testAppendText) {
+    string path1 = string(SRCDIR) + "data/tmpappend.txt";
+    auto pFile = IFile::Create(path1, FileOpenModes::FILE_OPEN_WRITE);
+    EXPECT_NE(pFile, nullptr);
 
 
     std::string text;
@@ -124,24 +127,29 @@ void PlatformFileTest::testAppendText()
     ss.str("");
 
     pFile->Close();
-    QFile tmp(path1);
-    tmp.open(QIODevice::ReadOnly | QIODevice::Text);
-    auto expectedText = string(tmp.readAll());
-    tmp.close();
-    QCOMPARE(text, expectedText);
-    auto ok = QFile::remove(path1);
-    QVERIFY(ok);
+    std::ifstream in(path1, std::ifstream::in);
+    stringstream ss1;
+    ss1 << in.rdbuf();
+    string expectedText = ss1.str();
+    in.close();
+    EXPECT_EQ(text, expectedText);
+    auto ok = std::remove(path1.c_str());
+    EXPECT_EQ(ok, 0);
 }
-void PlatformFileTest::testGetSize()
-{
-    QString path1 = QString(SRCDIR) + "data/testsize.h";
-    auto pFile = IFile::Create(path1.toStdString(), FileOpenModes::FILE_OPEN_READ);
-    QVERIFY(pFile!=nullptr);
-    auto size = pFile->GetSize();
-    QFile qFile(path1);
 
-    auto expectedSize = (size_t)qFile.size();
-    QCOMPARE(size, expectedSize);
+TEST (PlatformFileTest, testGetSize) {
+    string path1 = string(SRCDIR) + "data/testsize.h";
+    auto pFile = IFile::Create(path1, FileOpenModes::FILE_OPEN_READ);
+    EXPECT_NE(pFile, nullptr);
+    auto size = pFile->GetSize();
+    ifstream file(path1.c_str(), ifstream::in | ifstream::binary);
+    
+    EXPECT_TRUE(file.is_open());
+
+    file.seekg(0, ios::end);
+    auto expectedSize = file.tellg();
+    file.close();
+    EXPECT_EQ(size, expectedSize);
 }
 
 

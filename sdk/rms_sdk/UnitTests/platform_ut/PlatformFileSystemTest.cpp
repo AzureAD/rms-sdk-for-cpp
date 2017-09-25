@@ -5,41 +5,43 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
-
-#include "PlatformFileSystemTest.h"
 #include "../../Platform/Filesystem/IFileSystem.h"
+
+#include <fstream>
+
 #include "../../Common/CommonTypes.h"
-#include <QDir>
+#include "gtest/gtest.h"
 
 using namespace rmscore::platform::filesystem;
+using std::string;
 
-void PlatformFileSystemTest::testOpenLocalStorageFile()
-{
-    QString path = QString(SRCDIR) + "data/doesnotexist.no";
+TEST(PlatformFileSystemTest, testOpenLocalStorageFile) {   
+    string path = string(SRCDIR) + "data/doesnotexist.no";
     auto fs = IFileSystem::Create();
-    auto pf = fs->OpenLocalStorageFile(path.toStdString(), FileOpenModes::FILE_OPEN_READ);
-    QVERIFY(pf == nullptr);
-
-    QString path1 = QString(SRCDIR) + "data/testRead.txt";
-    auto pf1 = fs->OpenLocalStorageFile(path1.toStdString(), FileOpenModes::FILE_OPEN_READ);
-    QVERIFY(pf1 != nullptr);
+    auto pf = fs->OpenLocalStorageFile(path, FileOpenModes::FILE_OPEN_READ);
+    EXPECT_EQ(pf, nullptr);
+  
+    string path1 = string(SRCDIR) + "data/testRead.txt";
+    auto pf1 = fs->OpenLocalStorageFile(path1, FileOpenModes::FILE_OPEN_READ);
+    EXPECT_NE(pf1, nullptr);
 }
-void PlatformFileSystemTest::testDeleteLocalStorageFile()
-{
+
+TEST(PlatformFileSystemTest, testDeleteLocalStorageFile) {
     auto fs = IFileSystem::Create();
-    QString path1 = QString(SRCDIR) + "data/tmpdelete.txt";
-    auto pf1 = fs->OpenLocalStorageFile(path1.toStdString(), FileOpenModes::FILE_OPEN_WRITE);
-    QVERIFY(pf1 != nullptr);
+    string path1 = string(SRCDIR) + "data/tmpdelete.txt";
+    auto pf1 = fs->OpenLocalStorageFile(path1, FileOpenModes::FILE_OPEN_WRITE);
+    EXPECT_NE(pf1, nullptr);
     pf1->Close();
-    fs->DeleteLocalStorageFile(path1.toStdString());
-    QDir dir;
-    QVERIFY(dir.exists(path1)==false);
+    fs->DeleteLocalStorageFile(path1);
+    std::ifstream infile(path1);
+    EXPECT_FALSE(infile.good());
+    infile.close();
 }
-void PlatformFileSystemTest::testQueryLocalStorageFiles()
-{
-    QString path1 = QString(SRCDIR) + "data/";
+
+TEST (PlatformFileSystemTest, testQueryLocalStorageFiles) {
+    string path1 = string(SRCDIR) + "data/";
     auto pfs = IFileSystem::Create();
-    auto l = pfs->QueryLocalStorageFiles(path1.toStdString(), "log_1213*.log");
-    QVERIFY(l.size() == 1);
-    QVERIFY(l[0] == std::string("log_121328-3103.log"));
+    auto l = pfs->QueryLocalStorageFiles(path1, "log_1213*.log");
+    EXPECT_EQ(l.size(), 1);
+    EXPECT_EQ(l[0], std::string("log_121328-3103.log"));
 }
