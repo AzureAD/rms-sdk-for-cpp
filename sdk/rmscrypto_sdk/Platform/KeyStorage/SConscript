@@ -14,20 +14,13 @@ if platform == 'win32':
       'sqlite3.c',
       'StorageAccessWindows.cpp',
   ]
-elif platform == '__linux__':
-  # CONFIG += link_pkgconfig
-  # PKGCONFIG += glib-2.0
-  crypto_platform_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  crypto_platform_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  crypto_platform_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+elif platform == 'linux2':
   src_files += ['KeyStoragePosix.cpp']  
 elif platform == 'darwin':
   src_files += ['KeyStorageOSX.cpp']
 
-# unix {
-#     target.path = /usr/lib
-#     INSTALLS += target
-# }
+if platform == 'linux2':
+    crypto_platform_env.ParseConfig('pkg-config --cflags --libs glib-2.0')
 
 crypto_platform_keystorage_obj = create_objs(crypto_platform_env, src_files)
 

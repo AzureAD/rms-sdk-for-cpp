@@ -4,6 +4,7 @@ Import("""
     googlemock_lib
     googletest_lib
     file_lib
+    platform
     libxml2_lib
 """)
 
@@ -16,6 +17,11 @@ libs = [
     file_lib,
     libxml2_lib,
 ]
+
+if platform == 'linux2':
+    libs += [
+        'pthread',
+    ]
 
 file_sdk_unittest_obj = file_env.Object(source = src_files);
 file_sdk_unittest_exe = file_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs])

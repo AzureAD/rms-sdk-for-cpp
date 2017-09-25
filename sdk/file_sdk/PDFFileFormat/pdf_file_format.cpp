@@ -3,16 +3,20 @@
 namespace mip {
 namespace file {
 
-PDFFileFormat::PDFFileFormat(std::shared_ptr<IStream> file, const string& extension)
-  : FileFormat(file, extension)
+PDFFileFormat::PDFFileFormat(std::shared_ptr<IStream> inputStream, const string& extension)
+  : FileFormat(inputStream, extension)
 {
 }
 
-const vector<Tag> PDFFileFormat::ReadTags() {
+const vector<pair<std::string, std::string> > PDFFileFormat::GetProperties() {
   throw std::runtime_error("not implemented");
 }
 
-void PDFFileFormat::Commit(std::shared_ptr<IStream> file, string& newExtension) {
+void PDFFileFormat::Commit(std::shared_ptr<IStream> outputStream, string& newExtension) {
+  throw std::runtime_error("not implemented");
+}
+
+void PDFFileFormat::UpdateProperties(const std::vector<std::pair<std::string, std::string>>& propertiesToAdd, const std::vector<std::string>& keysToRemove) {
   throw std::runtime_error("not implemented");
 }
 

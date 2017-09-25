@@ -13,10 +13,9 @@ using std::shared_ptr;
 class OPCFileFormat : public FileFormat {
 public:
   OPCFileFormat(shared_ptr<IStream> file, const string& extension);
-  void Commit(shared_ptr<IStream> file, string& newExtension) override;
-
-protected:
-  const vector<Tag> ReadTags() override;
+  const vector<pair<string, string>> GetProperties() override;
+  void UpdateProperties(const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove) override;
+  void Commit(shared_ptr<IStream> outputStream, string& newExtension) override;
 };
 
 } // namespace file

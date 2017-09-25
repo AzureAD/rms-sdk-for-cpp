@@ -12,9 +12,14 @@ namespace file {
 class XMPFileFormat : public FileFormat
 {
 public:
-  XMPFileFormat(shared_ptr<IStream> file, const std::string& extension);
-  const vector<Tag> ReadTags();
-  void Commit(shared_ptr<IStream> file, string& newExtension);
+  XMPFileFormat(shared_ptr<IStream> file, const string& extension);
+  const vector<pair<string, string>> GetProperties() override;
+  void UpdateProperties(const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove) override;
+  void Commit(shared_ptr<IStream> outputStream, string& newExtension) override;
+
+private:
+  vector<string> mKeysToRemove;
+  vector<pair<string, string>> mPropertiesToAdd;
 };
 
 } // namespace file

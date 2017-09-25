@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef _RMS_CRYPTO_EXPORT_H_
-#define _RMS_CRYPTO_EXPORT_H_
+#ifndef PROFILE_API_EXPORT_H_
+#define PROFILE_API_EXPORT_H_
 
 #ifdef _WIN32
   #define DLL_LOCAL_RMS 
@@ -26,4 +26,4 @@
   #endif 
 #endif
 
-#endif  // _RMS_CRYPTO_EXPORT_H_
+#endif  // PROFILE_API_EXPORT_H_

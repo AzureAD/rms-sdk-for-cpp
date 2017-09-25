@@ -11,10 +11,14 @@ fileapi_env.Append(CCFLAGS=Split('-DRMS_LIBRARY -DQT_NO_KEYWORDS'))
 fileapi_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY -DQT_NO_KEYWORDS'))
 
 src_files = Glob('*.cpp')
+fileapi_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+fileapi_env.Append(CPPPATH='#sdk/rms_sdk/Common')
+fileapi_env.Append(CPPPATH='#sdk/rms_sdk/Core')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/Platform/Logger')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/ModernAPI')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/OfficeProtector')
 fileapi_env.Append(CPPPATH='#sdk/rms_sdk/PFile')
+fileapi_env.Append(CPPPATH='#sdk/rms_sdk/FileAPI')
 
 if platform == 'win32':
     fileapi_env.Append(CPPPATH='#third_party/include/Libgsf')

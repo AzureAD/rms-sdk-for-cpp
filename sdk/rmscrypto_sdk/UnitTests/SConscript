@@ -1,21 +1,27 @@
-from build_config import *
-
 Import("""
-    configuration
+    build_flavor
     crypto_obj
     crypto_platform_keystorage_obj
     crypto_platform_crypto_obj
     crypto_platform_logger_obj
     crypto_platform_settings_obj
     crypto_api_obj
+    lib_path
     lib_suffix
     platform
     qt_lib_path
     rmscrypto_env
+    SetupUtMocs
 """)
 
+rmscrypto_ut_env =  rmscrypto_env.Clone()
+
 src_files = Glob('*.cpp')
-src_files += Glob(configuration + '/*.cpp')
+srcdir = Dir('.').srcnode().abspath
+
+SetupUtMocs(srcdir, build_flavor)
+
+src_files += Glob(build_flavor + '/*.cpp')
 
 objects = [
     crypto_api_obj,
@@ -31,44 +37,27 @@ libs = [
     'Qt5Widgets' + lib_suffix,
     'Qt5Gui' + lib_suffix,
 ] 
-lib_path = [
-    qt_lib_path,
-]
 
-rmscrypto_ut_env =  rmscrypto_env.Clone()
-srcdir = "\\\"" + Dir('.').srcnode().abspath + "/\\\""
-
-rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })
 rmscrypto_ut_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
-
+rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
+rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
 if platform == 'win32':
-  rmscrypto_ut_env.Append(CCFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
-  rmscrypto_ut_env.Append(CXXFLAGS=Split('-DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_TESTLIB_LIB'))
-  rmscrypto_ut_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
-  if configuration == 'debug':
-    rmscrypto_ut_env.Append(LINKFLAGS=Split('/DEBUG'))
-  elif configuration == 'release':
-    rmscrypto_ut_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
-  rmscrypto_ut_env.Append(CPPPATH='#third_party/include')
   libs += [
-    'libeay32',
-    'ssleay32',
-    'Advapi32',
-    'Gdi32',
-    'User32',
+      'libeay32',
+      'ssleay32',
+      'Advapi32',
+      'Gdi32',
+      'User32',
   ]
-  lib_path += [
-      '#third_party/lib/eay',
-  ]
-elif platform == '__linux__':
-  rmscrypto_ut_env.Append(CPPPATH='/usr/include/glib-2.0/')
-  rmscrypto_ut_env.Append(CPPPATH='/usr/include/libsecret-1/')
-  rmscrypto_ut_env.Append(CPPPATH='/usr/lib/x86_64-linux-gnu/glib-2.0/include/')
+elif platform == 'linux2':
   libs +=[
-      'ssl'
-      'crypto'
-      'secret-1'
-      'glib-2.0'
+      'ssl',
+      'crypto',
+      'secret-1',
+      'glib-2.0',
+      'pthread',
+      'GL',
   ]
 elif platform == 'darwin':
   libs +=[

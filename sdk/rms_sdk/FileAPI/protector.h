@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 #include "file_api_structures.h"
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace fileapi {

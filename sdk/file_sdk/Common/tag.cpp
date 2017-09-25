@@ -81,6 +81,15 @@ vector<string> Tag::GetAllIds(const vector<pair<string, string>>& properties) {
   return labelsIds;
 }
 
+void Tag::AddExtendedProperty(const ExtendedProperty& extendedProperty) {
+  auto it = ExtendedProperty::GetMatchingProperty(mExtendedProperties, extendedProperty);
+
+  if(it != mExtendedProperties.cend())
+    mExtendedProperties.erase(it, mExtendedProperties.cend());
+
+  mExtendedProperties.push_back(extendedProperty);
+}
+
 Tag::Tag(
     const string& labelId,
     const string& labelName,
@@ -97,7 +106,6 @@ Tag::Tag(
     mOwner(owner),
     mEnabled(enabled),
     mSiteId(siteId),
-    mMethod(method),
     mSetTime(setTime) {
   for (size_t i = 0; i < extendedProperties.size(); i++) {
     if (extendedProperties[i].key.length() > 255)
@@ -108,6 +116,9 @@ Tag::Tag(
 
     mExtendedProperties.push_back(extendedProperties[i]);
   }
+
+  ExtendedProperty property = {"MSFT", "Method", kMethodArray[(int)method]};
+  AddExtendedProperty(property);
 }
 
 bool Tag::operator== (const Tag& other) const {
@@ -119,7 +130,6 @@ bool Tag::operator== (const Tag& other) const {
       mLabelName == other.mLabelName &&
       mLabelParentId == other.mLabelParentId &&
       mEnabled == other.mEnabled &&
-      mMethod == other.mMethod &&
       mOwner == other.mOwner &&
       mSetTime == other.mSetTime &&
       mSiteId == other.mSiteId;
@@ -135,7 +145,7 @@ vector<pair<string, string>> Tag::ToProperties() const {
   result.push_back(pair<string, string>(GenerateLabelKey(id, "SetDate"), mSetTime));
   result.push_back(pair<string, string>(GenerateLabelKey(id, "Name"), mLabelName));
 
-  Method method = mMethod;
+  Method method = GetMethod();
   string methodAsString = kMethodArray[static_cast<size_t>(method)];
 
   result.push_back(pair<string, string>(GenerateExtendedKey(id, "MSFT", "Method"), methodAsString));
@@ -149,6 +159,25 @@ vector<pair<string, string>> Tag::ToProperties() const {
   }
 
   return result;
+}
+
+Method Tag::GetMethod() const
+{
+  ExtendedProperty property;
+  property.key = "MSFT";
+  property.value = "Method";
+  auto it = ExtendedProperty::GetMatchingProperty(mExtendedProperties, property);
+
+  if(it == mExtendedProperties.cend())
+    return Method::NONE;
+
+  if(EqualsIgnoreCase(it->value, "Automatic"))
+    return Method::AUTOMATIC;
+
+  if(EqualsIgnoreCase(it->value, "Manual"))
+    return Method::MANUAL;
+
+  return Method::NONE;
 }
 
 vector<pair<string, string>> Tag::ToProperties(const vector<Tag>& tags) {
@@ -196,7 +225,7 @@ vector<Tag> Tag::FromProperties(const vector<pair<string, string>>& properties) 
       pair<string, string> data = properties[j];
       string id = data.first;
       if (id.compare(methodKey) != 0 && !id.compare(0, extendedPropertyPrefix.size(), extendedPropertyPrefix)) {
-        string vendorAndKey = id.erase(0, extendedPropertyPrefix.size());
+        string vendorAndKey = id.erase(0, extendedPropertyPrefix.size() + 1);
         size_t index = vendorAndKey.find_first_of("_");
         if (index == string::npos)
           continue;

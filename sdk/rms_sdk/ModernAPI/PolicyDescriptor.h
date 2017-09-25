@@ -14,7 +14,7 @@
 #include <memory>
 #include <string>
 
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 #include "UserRoles.h"
 #include "UserRights.h"

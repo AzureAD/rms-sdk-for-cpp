@@ -21,7 +21,7 @@ XMPHelper::XMPHelper()
     if (!SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText))
       throw new Exception("SXMPFiles Error");
 
-    std::string actualPrefix;
+    string actualPrefix;
     SXMPMeta::RegisterNamespace(kMsipNamespace, "msip", &actualPrefix);
   }
   catch(XMP_Error ex){
@@ -29,16 +29,32 @@ XMPHelper::XMPHelper()
   }
 }
 
-vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {
+void XMPHelper::Serialize(SXMPMeta& metadata, const vector<pair<std::string, std::string>>& propertiesToAdd, const vector<string>& keysToRemove) {
+  string propertyPath;
+
+  metadata.DeleteProperty(kMsipNamespace, "Labels"); //delete all labels from old format
+
+  for(unsigned i =0; i< keysToRemove.size(); i++)
+    metadata.DeleteProperty(kMsipNamespace, keysToRemove[i].c_str());
+
+  for(unsigned j =0; j< propertiesToAdd.size(); j++){
+    string value = propertiesToAdd[j].first;
+    if (value.empty())
+      continue;
+
+    metadata.SetProperty(kMsipNamespace, propertiesToAdd[j].first.c_str(), propertiesToAdd[j].second);
+  }
+}
+
+vector<pair<string, string>> XMPHelper::Deserialize(const SXMPMeta& metadata) {
   string namespacePrefix;
-  vector<Tag> tags;
+  vector<pair<string, string>> properties;
 
   if (!metadata.GetNamespacePrefix(kMsipNamespace, &namespacePrefix))
-    return tags; // namespace doesn't exist
+    return properties; // namespace doesn't exist
 
   string propertyPath;
   string propertyValue;
-  vector<pair<string, string>> properties;
 
   SXMPIterator iterator(metadata, kMsipNamespace, kXMP_IterJustChildren | kXMP_IterOmitQualifiers | kXMP_IterJustLeafName);
   while (iterator.Next(nullptr, &propertyPath, &propertyValue))
@@ -52,35 +68,70 @@ vector<Tag> XMPHelper::Deserialize(const SXMPMeta& metadata) {
     properties.push_back(pair<string, string>(name, value));
   }
 
-
-  return Tag::FromProperties(properties);
+  return properties;
 }
 
-const vector<Tag> XMPHelper::GetTags(shared_ptr<IStream> fileStream) {
+const vector<pair<string, string>> XMPHelper::GetProperties(shared_ptr<IStream> fileStream) {
   XMPIOOverIStream xmpStream (fileStream);
 
   SXMPFiles file;
   if (!file.OpenFile(&xmpStream , kXMP_UnknownFile, kXMPFiles_OpenForRead | kXMPFiles_OpenUseSmartHandler) &&
       !file.OpenFile(&xmpStream , kXMP_UnknownFile, kXMPFiles_OpenForRead | kXMPFiles_OpenUsePacketScanning))
-    throw std::runtime_error("OpenFile failed");
+    throw Exception("OpenFile failed");
 
   try
   {
     SXMPMeta metadata;
     file.GetXMP(&metadata);
-    auto tags = Deserialize(metadata);
+    auto properties = Deserialize(metadata);
     file.CloseFile();
-    return tags;
+    return properties;
   }
   catch(XMP_Error error)
   {
     file.CloseFile();
-    throw std::runtime_error(error.GetErrMsg());
+    throw Exception(error.GetErrMsg());
   }
   catch(...)
   {
     file.CloseFile();
-    throw std::runtime_error("GetXMP failed");
+    throw Exception("GetXMP failed");
+  }
+}
+
+void XMPHelper::UpdateProperties(shared_ptr<IStream> stream, const vector<pair<std::string, std::string> >& propertiesToAdd, const vector<std::string>& keysToRemove) {
+  XMPIOOverIStream xmpStream (stream);
+
+  SXMPFiles file;
+  if (!file.OpenFile(&xmpStream , kXMP_UnknownFile, kXMPFiles_OpenForUpdate | kXMPFiles_OpenUseSmartHandler) &&
+      !file.OpenFile(&xmpStream , kXMP_UnknownFile, kXMPFiles_OpenForUpdate | kXMPFiles_OpenUsePacketScanning))
+    throw Exception("OpenFile failed");
+
+  try
+  {
+    SXMPMeta metadata;
+    file.GetXMP(&metadata);
+    Serialize(metadata, propertiesToAdd, keysToRemove);
+
+    if (!file.CanPutXMP(metadata))
+    {
+      file.CloseFile();
+      throw Exception("CanPutXMP failed");
+    }
+
+    stream->Seek(0);
+    file.PutXMP(metadata);
+    file.CloseFile();
+  }
+  catch(XMP_Error error)
+  {
+    file.CloseFile();
+    throw Exception(error.GetErrMsg());
+  }
+  catch(...)
+  {
+    file.CloseFile();
+    throw Exception("UpdateProperties faield");
   }
 }
 

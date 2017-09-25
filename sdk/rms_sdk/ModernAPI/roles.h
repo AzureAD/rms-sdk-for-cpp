@@ -10,7 +10,7 @@
 #define _RMS_LIB_ROLES_H_
 
 #include <string>
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace modernapi {

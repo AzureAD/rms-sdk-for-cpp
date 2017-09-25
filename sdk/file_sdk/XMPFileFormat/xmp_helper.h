@@ -10,11 +10,11 @@
 #include <time.h>
 #include <Common/string_utils.h>
 #include <mutex>
-#include "Common/tag.h"
 
 using std::string;
 using std::vector;
 using std::shared_ptr;
+using std::pair;
 
 namespace {
 const XMP_StringPtr kMsipNamespace = "http://www.microsoft.com/msip/1.0/";
@@ -28,9 +28,13 @@ class XMPHelper {
 public:
   static XMPHelper& GetInstance();
 
-  vector<Tag> Deserialize(const SXMPMeta& metadata);
+  vector<pair<string, string>> Deserialize(const SXMPMeta& metadata);
 
-  const vector<Tag> GetTags(shared_ptr<IStream> fileStream);
+  void Serialize(SXMPMeta& metadata, const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove);
+
+  const vector<pair<string, string>> GetProperties(shared_ptr<IStream> fileStream);
+
+  void UpdateProperties(shared_ptr<IStream> stream, const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove);
 
   XMPHelper(XMPHelper const&) = delete;
 
