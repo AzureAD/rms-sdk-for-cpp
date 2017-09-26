@@ -2,16 +2,19 @@
 #define OPCXML_H
 
 #include <string>
+#include "OPCFileFormat/xml/xml_document.h"
 
 namespace mip {
 namespace file {
 
 class OpcXml {
+public:
+  std::string Serialize() const;
+
 protected:
   OpcXml(const std::string& xml);
 
-public:
-  std::string Serialize();
+  XmlDocument mDocument;
 };
 
 } // namespace file

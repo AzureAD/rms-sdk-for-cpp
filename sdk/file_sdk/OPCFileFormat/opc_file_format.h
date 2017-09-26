@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <Common/file_format.h>
-#include <OPCFileFormat/xml/customproperties.h>
+#include <OPCFileFormat/xml/custom_properties.h>
 
 namespace mip {
 namespace file {

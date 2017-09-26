@@ -1,7 +1,7 @@
 #ifndef RELATIONSHIPS_H
 #define RELATIONSHIPS_H
 
-#include "OPCFileFormat/xml/opcxml.h"
+#include "OPCFileFormat/xml/opc_xml.h"
 #include <string>
 
 namespace mip {

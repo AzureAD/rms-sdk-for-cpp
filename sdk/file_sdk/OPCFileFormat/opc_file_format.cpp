@@ -1,5 +1,5 @@
 #include "OPCFileFormat/opc_file_format.h"
-#include "OPCFileFormat/xml/customproperties.h"
+#include "OPCFileFormat/xml/custom_properties.h"
 #include "OPCFileFormat/zip_file.h"
 
 namespace {
