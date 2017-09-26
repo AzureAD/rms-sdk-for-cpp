@@ -5,10 +5,10 @@ set msvcver=%2
 set build_type=%3
 
 IF /I "%msvcver%"=="msvc2015" (
-	set VCINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\
+	set VCINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\"
 )
 IF /I "%msvcver%"=="msvc2013" (
-	set VCINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\
+	set VCINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\"
 )
 
 IF /I "%msvcver%"=="msvc2015" (
