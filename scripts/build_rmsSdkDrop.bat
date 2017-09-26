@@ -3,21 +3,27 @@
 set buildtarget=%1
 set msvcver=%2
 set build_type=%3
-set VCINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\
 
-IF /I "%buildtarget%"=="amd64" (
-	IF /I "%msvcver%"=="msvc2015" (
+IF /I "%msvcver%"=="msvc2015" (
+	set VCINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\
+)
+IF /I "%msvcver%"=="msvc2013" (
+	set VCINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\
+)
+
+IF /I "%msvcver%"=="msvc2015" (
+	IF /I "%buildtarget%"=="amd64" (
 		set windeployqtpath=msvc2015_64
 	)
-	IF /I "%msvcver%"=="msvc2013" (
-		set windeployqtpath=msvc2013_64
-	)
-)
-IF /I "%buildtarget%"=="x86" (
-	IF /I "%msvcver%"=="msvc2015" (
+	IF /I "%buildtarget%"=="x86" (
 		set windeployqtpath=msvc2015
 	)
-	IF /I "%msvcver%"=="msvc2013" (
+)
+IF /I "%msvcver%"=="msvc2013" (
+	IF /I "%buildtarget%"=="amd64" (
+		set windeployqtpath=msvc2013_64
+	)
+	IF /I "%buildtarget%"=="x86" (
 		set windeployqtpath=msvc2013
 	)
 )

@@ -2,14 +2,24 @@
 
 ::reg Query "HKLM\Hardware\Description\System\CentralProcessor\0" | find /i "x86" > NUL && set OS=32BIT || set OS=64BIT
 set buildtarget=%1
+set msvcver=%2
 
-IF /I "%buildtarget%"=="amd64" (
-	set windeployqtpath=msvc2013_64
+IF /I "%msvcver%"=="msvc2015" (
+  IF /I "%buildtarget%"=="amd64" (
+    set windeployqtpath=msvc2015_64
+  )
+  IF /I "%buildtarget%"=="x86" (
+    set windeployqtpath=msvc2015
+  )
 )
-IF /I "%buildtarget%"=="x86" (
-	set windeployqtpath=msvc2013
+IF /I "%msvcver%"=="msvc2013" (
+  IF /I "%buildtarget%"=="amd64" (
+    set windeployqtpath=msvc2013_64
+  )
+  IF /I "%buildtarget%"=="x86" (
+    set windeployqtpath=msvc2013
+  )
 )
-
 ::Inside rms-sdk-for-cpp directory
 if exist deploy\ rd /q /s deploy\
 call mkdir deploy
