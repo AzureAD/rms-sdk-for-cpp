@@ -57,10 +57,10 @@ void StreamHandler::DeleteLabel(std::shared_ptr<IStream> outputStream, const std
   newExtention = UpdatePropertiesAndCommit(outputStream, Tag::ToProperties(newTags));
 }
 
-void StreamHandler::SetProtection(const UserPolicy& policy) {
+void StreamHandler::SetProtection(std::shared_ptr<IStream> outputStream, const CustomPermissionsOptions& customPermissionsOptions, std::string& newExtention) {
 }
 
-void StreamHandler::RemoveProtection() {
+void StreamHandler::RemoveProtection(std::shared_ptr<IStream> outputStream, std::string& newExtention) {
 }
 
 std::string StreamHandler::GetCurrentTime() {

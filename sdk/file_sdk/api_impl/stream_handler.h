@@ -26,8 +26,8 @@ public:
   virtual void SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions, std::string& newExtention) override;
   virtual void SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions, std::string& newExtention) override;
   virtual void DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage, std::string& newExtention) override;
-  virtual void SetProtection(const UserPolicy & policy) override;
-  virtual void RemoveProtection() override;
+  virtual void SetProtection(std::shared_ptr<IStream> outputStream, const CustomPermissionsOptions& customPermissionsOptions, std::string& newExtention) override;
+  virtual void RemoveProtection(std::shared_ptr<IStream> outputStream, std::string& newExtention) override;
 
   virtual ~StreamHandler() {
   }

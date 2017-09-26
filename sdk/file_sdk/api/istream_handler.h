@@ -4,13 +4,12 @@
 #include <memory>
 
 #include <Common/istream.h>
-#include <UserPolicy.h>
+#include "custom_permissions_options.h"
 #include "label.h"
 #include "fileapi_export.h"
 #include "ipolicy_engine.h"
 #include "labeling_options.h"
 
-using rmscore::modernapi::UserPolicy;
 using mip::file::ILabel;
 using mip::file::LabelingOptions;
 using mip::file::IPolicyEngine;
@@ -28,15 +27,15 @@ public:
 
   virtual std::shared_ptr<Tag> GetLabel() = 0;
 
-  virtual void SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions, std::string &newExtention) = 0;
+  virtual void SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions, std::string& newExtention) = 0;
 
-  virtual void SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions, std::string &newExtention) = 0;
+  virtual void SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions, std::string& newExtention) = 0;
 
   virtual void DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage, std::string &newExtention) = 0;
 
-  virtual void SetProtection(const UserPolicy& policy ) = 0;
+  virtual void SetProtection(std::shared_ptr<IStream> outputStream, const CustomPermissionsOptions& customPermissionsOptions, std::string& newExtention) = 0;
 
-  virtual void RemoveProtection() = 0;
+  virtual void RemoveProtection(std::shared_ptr<IStream> outputStream, std::string& newExtention) = 0;
 
   virtual ~ IStreamHandler () {
   }
