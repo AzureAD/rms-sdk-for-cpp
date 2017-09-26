@@ -14,6 +14,18 @@ const string USERID = "Your-User-Id";
 const string CLIENTID = "Your-Registered-Client-ID";
 const string REDIRECTURI = "Your-Registered-Redirection-URI://authorize";
 
+class Auth : public IAuthenticationCallback
+{
+private:
+  std::string clientId_;
+  std::string redirectUrl_;
+
+public:
+  Auth(const std::string& clientID, const std::string& redirectURL);
+  ~Auth();
+  virtual std::string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
+};
+
 std::string Auth::GetToken(std::shared_ptr< AuthenticationParameters > &ap)
 {
   return "Plug In Access Token";
