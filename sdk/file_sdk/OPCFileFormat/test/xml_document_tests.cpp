@@ -10,8 +10,8 @@ using std::unique_ptr;
 
 using namespace mip;
 
-const string xml =
-"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+const string CUSTOM_XML =
+"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 "<Properties xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\" xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/custom-properties\">"
   "<property fmtid=\"{D5CDD505-2E9C-101B-9397-08002B2CF9AE}\" pid=\"2\" name=\"MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Enabled\">"
     "<vt:lpwstr>True</vt:lpwstr>"
@@ -34,47 +34,127 @@ const string xml =
   "<property fmtid=\"{D5CDD505-2E9C-101B-9397-08002B2CF9AE}\" pid=\"8\" name=\"Sensitivity\">"
     "<vt:lpwstr>Label</vt:lpwstr>"
   "</property>"
-"</Properties>\n";
+"</Properties>";
 
-TEST(XmlDocumentTests, Ctor_InvalidXml_ThrowsInvalidArgument) {
-  EXPECT_THROW(XmlDocument doc("Not an XML"), std::invalid_argument);
+const string NODE_NAME = "nodeName";
+
+TEST(XmlDocumentTests, ParseXmlDocument_InvalidXml_ThrowsInvalidArgument) {
+  EXPECT_THROW(XmlDocument::ParseXmlDocument("Not an XML"), std::invalid_argument);
 }
 
-TEST(XmlDocumentTests, Ctor_ValidXml_NotThrows) {
-  EXPECT_NO_THROW(XmlDocument doc(xml));
+TEST(XmlDocumentTests, ParseXmlDocument_ValidXml_NotThrows) {
+  EXPECT_NO_THROW(XmlDocument::ParseXmlDocument(CUSTOM_XML));
 }
 
-TEST(XmlDocumentTests, GetXmlContent_StringDestroyed_XmlContentStaysTheSame) {
-  unique_ptr<const XmlDocument> doc;
-
-  {
-    const auto xmlCopy(xml);
-    doc.reset(new XmlDocument(xmlCopy));
-  }
-
-  EXPECT_STREQ(xml.c_str(), doc->GetXmlContent().c_str());
+TEST(XmlDocumentTests, CreateXmlDocument_CreateXml_CreatedXmlAsExpected) {
+  auto doc = XmlDocument::CreateXmlDocument("root", "DefaultNamespaceUri", "NamespacePrefix", "NamespaceUri");
+  EXPECT_STREQ(R"(<?xml version="1.0" encoding="utf-8"?><root xmlns:NamespacePrefix="NamespaceUri" xmlns="DefaultNamespaceUri"/>)", doc.GetXmlContent().c_str());
 }
 
 TEST(XmlDocumentTests, GetRootNode_CustomXml_RootNodeNameEqualsOuterMostNodeName) {
-  const XmlDocument doc(xml);
+  const auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
 
   EXPECT_STREQ("Properties", doc.GetRootNode().GetNodeName().c_str());
 }
 
 TEST(XmlDocumentTests, SelectNode_InvalidXPath_NullNodeSelected) {
-  const XmlDocument doc(xml);
+  const auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+
   const auto node = doc.SelectNode("//*[@name='S");
+
   EXPECT_EQ(XmlNode(), node);
 }
 
 TEST(XmlDocumentTests, SelectNode_ValidXPathWithoutResults_NullNodeSelected) {
-  const XmlDocument doc(xml);
+  const auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+
   const auto node = doc.SelectNode("//*[@name='NotExist']");
+
   EXPECT_EQ(XmlNode(), node);
 }
 
 TEST(XmlDocumentTests, SelectNode_ValidXPathWithResults_SensitivityNodeSelected) {
-  const XmlDocument doc(xml);
+  const auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+
   const auto node = doc.SelectNode("//*[@name='Sensitivity']");
+
   EXPECT_STREQ("Sensitivity", node.GetAttributeValue("name").c_str());
+}
+
+TEST(XmlDocumentTests, CreateNode_CreateValidNode_NodeCreatedWithoutNamespace) {
+  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+
+  auto node = doc.CreateNode(NODE_NAME);
+
+  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
+  EXPECT_STREQ("", node.GetNodeNamespace().c_str());
+}
+
+TEST(XmlDocumentTests, CreateNode_NamespaceNotInDocument_NodeCreatedWithoutNamespace) {
+  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+
+  auto node = doc.CreateNode(NODE_NAME, "nonamespace");
+
+  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
+  EXPECT_STREQ("", node.GetNodeNamespace().c_str());
+}
+
+TEST(XmlDocumentTests, CreateNode_EmptyNamespace_NodeCreatedWithoutNamespace) {
+  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+
+  auto node = doc.CreateNode(NODE_NAME, "");
+
+  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
+  EXPECT_STREQ("", node.GetNodeNamespace().c_str());
+}
+
+TEST(XmlDocumentTests, CreateNode_ValidNamespace_NodeCreated) {
+  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+  
+  auto node = doc.CreateNode(NODE_NAME, "vt");
+
+  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
+  EXPECT_STREQ("vt", node.GetNodeNamespace().c_str());
+}
+
+void AddPropertyNode(XmlDocument& doc, const string& fmtid, const string& pid, const string& name, const string& value) {
+  auto valueNode = doc.CreateNode("lpwstr", "vt");
+  valueNode.AddContent(value);
+
+  auto prop = doc.CreateNode("property");
+  prop.AddAttribute("fmtid", fmtid);
+  prop.AddAttribute("pid", pid);
+  prop.AddAttribute("name", name);
+  prop.AddChild(valueNode);
+
+  doc.GetRootNode().AddChild(prop);
+}
+
+TEST(XmlDocumentTests, Integration_CreateCustomXmlFromScratch_XmlCreatedAsExpected) {
+  auto content = CUSTOM_XML;
+  auto doc = XmlDocument::CreateXmlDocument("Properties", "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties", "vt", "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "2", "MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Enabled", "True");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "3", "MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Ref", "https://rmsibizaapidf.trafficmanager.net/api/72f988bf-86f1-41af-91ab-2d7cd011db47");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "4", "MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_AssignedBy", "user@microsoft.com");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "5", "MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_DateCreated", "2016-12-26T18:48:49.6421826+02:00");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "6", "MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Name", "Label");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "7", "MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Extended_MSFT_Method", "Manual");
+  AddPropertyNode(doc, "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}", "8", "Sensitivity", "Label");
+
+  EXPECT_STREQ(CUSTOM_XML.c_str(), doc.GetXmlContent().c_str());
+}
+
+TEST(XmlDocumentTests, Integration_RemoveAllMsipPropertiesFromCustomXml_XmlHasNoPropertiesLeft) {
+  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
+  auto properties = doc.GetRootNode();
+  auto property = properties.GetFirstChild();
+  while (!(property == XmlNode())) {
+    auto nextProperty = property.GetNextNode();
+    auto name = property.GetAttributeValue("name");
+    if (name.substr(0, 4) == "MSIP" || name == "Sensitivity")
+      property.Delete();
+    property = nextProperty;
+  }
+
+  EXPECT_STREQ(R"(<?xml version="1.0" encoding="utf-8"?><Properties xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes" xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"/>)", doc.GetXmlContent().c_str());
 }

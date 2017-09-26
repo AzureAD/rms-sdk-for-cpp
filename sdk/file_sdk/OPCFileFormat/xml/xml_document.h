@@ -24,18 +24,22 @@ namespace mip {
  */
 class XmlDocument {
 public:
-  explicit XmlDocument(const std::string& xmlContent);
+  static XmlDocument CreateXmlDocument(const std::string& rootNodeName, const std::string& defaultNamespaceUri, const std::string& namespacePrefix, const std::string& namespaceUri);
+  static XmlDocument ParseXmlDocument(const std::string& xmlContent);
+
   virtual XmlNode SelectNode(const std::string& xpath) const;
-
   virtual std::string GetXmlContent() const;
-
   virtual XmlNode GetRootNode() const;
+
+  virtual XmlNode CreateNode(const std::string& name);
+  virtual XmlNode CreateNode(const std::string& name, const std::string& namespaceName);
+
+protected:
+  XmlDocument();
 
 private:
   UniquePtr<xmlDoc> mXmlDoc;
 
-  /* TODO: writer support
-  XmlNode CreateNode(std::string name, std::string namespace);*/
 };
 
 } // namepsace mip

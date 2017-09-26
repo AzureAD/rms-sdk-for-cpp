@@ -15,11 +15,28 @@ using std::invalid_argument;
 
 namespace mip {
 
-XmlDocument::XmlDocument(const string& xmlContent)
-    : mXmlDoc(nullptr, DeleteXmlDoc) {
-  mXmlDoc.reset(xmlParseMemory(xmlContent.c_str(), xmlContent.length()));
-  if (!mXmlDoc)
+XmlDocument XmlDocument::CreateXmlDocument(const string& rootNodeName,
+    const string& defaultNamespaceUri,
+    const string& namespacePrefix,
+    const string& namespaceUri) {
+  XmlDocument xmlDoc;
+  xmlDoc.mXmlDoc.reset(xmlNewDoc(nullptr));
+  auto root = xmlNewNode(nullptr, ConvertXmlString(rootNodeName));
+  xmlDocSetRootElement(xmlDoc.mXmlDoc.get(), root);
+  xmlNewNs(root, ConvertXmlString(namespaceUri), ConvertXmlString(namespacePrefix));
+  xmlNewNs(root, ConvertXmlString(defaultNamespaceUri), nullptr);
+  return xmlDoc;
+}
+
+XmlDocument XmlDocument::ParseXmlDocument(const string& xmlContent) {
+  XmlDocument xmlDoc;
+  xmlDoc.mXmlDoc.reset(xmlParseMemory(xmlContent.c_str(), xmlContent.length()));
+  if (!xmlDoc.mXmlDoc)
     throw invalid_argument("xmlContent is not a valid XML");
+  return xmlDoc;
+}
+
+XmlDocument::XmlDocument() : mXmlDoc(nullptr, DeleteXmlDoc) {
 }
 
 XmlNode XmlDocument::SelectNode(const string& xpath) const {
@@ -46,13 +63,28 @@ XmlNode XmlDocument::SelectNode(const string& xpath) const {
 string XmlDocument::GetXmlContent() const {
   int length;
   xmlChar * buf;
-  xmlDocDumpMemory(mXmlDoc.get(), &buf, &length);
+  xmlDocDumpMemoryEnc(mXmlDoc.get(), &buf, &length, "utf-8");
   auto str = UniquePtr<xmlChar>(buf, DeleteXmlString);
-  return ConvertXmlString(str.get());
+  auto content = ConvertXmlString(str.get());
+  if (content.back() == '\n')
+    content.pop_back();
+  auto pos = content.find("?>\n");
+  if (pos != string::npos)
+    content.replace(pos, 3, "?>");
+  return content;
 }
 
 XmlNode XmlDocument::GetRootNode() const {
   return XmlNode(xmlDocGetRootElement(mXmlDoc.get()));
+}
+
+XmlNode XmlDocument::CreateNode(const string& name) {
+  return XmlNode(xmlNewDocNode(mXmlDoc.get(), nullptr, ConvertXmlString(name), nullptr));
+}
+
+XmlNode XmlDocument::CreateNode(const string& name, const string& namespaceName) {
+  const auto ns = xmlSearchNs(mXmlDoc.get(), GetRootNode().mNode, ConvertXmlString(namespaceName));
+  return XmlNode(xmlNewDocNode(mXmlDoc.get(), ns, ConvertXmlString(name), nullptr));
 }
 
 }  // namespace mip
