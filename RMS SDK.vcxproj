@@ -69,7 +69,8 @@
     <NMakeReBuildCommandLine>scons --x86 -c &amp;&amp; scons --x86 -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);$(SolutionDir)sdk\rmscrypto_sdk\CryptoAPI;$(SolutionDir)sdk\rms_sdk\ModernAPI\ext;C:\Qt\5.7\msvc2015\include\QtCore</IncludePath>
-    <OutDir>$(SolutionDir)bins\$(Configuration)\x86</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
+    <IntDir>bin\$(Configuration)\x86\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <NMakeBuildCommandLine>scons -j 6</NMakeBuildCommandLine>
@@ -78,7 +79,8 @@
     <NMakeReBuildCommandLine>scons -c &amp;&amp; scons -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);$(SolutionDir)sdk\rmscrypto_sdk\CryptoAPI;$(SolutionDir)sdk\rms_sdk\ModernAPI\ext;C:\Qt\5.7\msvc2015\include\QtCore</IncludePath>
-    <OutDir>$(SolutionDir)bins\$(Configuration)\amd64</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\amd64\</OutDir>
+    <IntDir>bin\$(Configuration)\amd64\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>scons --x86 --release -j 6</NMakeBuildCommandLine>
@@ -87,7 +89,8 @@
     <NMakeReBuildCommandLine>scons --x86 --release -c &amp;&amp; scons --x86 --release -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);$(SolutionDir)sdk\rmscrypto_sdk\CryptoAPI;$(SolutionDir)sdk\rms_sdk\ModernAPI\ext;C:\Qt\5.7\msvc2015\include\QtCore</IncludePath>
-    <OutDir>$(SolutionDir)bins\$(Configuration)\x86</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
+    <IntDir>bin\$(Configuration)\x86\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <NMakeBuildCommandLine>scons --release -j 6</NMakeBuildCommandLine>
@@ -96,9 +99,13 @@
     <NMakeReBuildCommandLine>scons --release -c &amp;&amp; scons --release -j 6</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>$(SolutionDir)googlemock\include;$(SolutionDir)googletest\include;$(SolutionDir)sdk\file_sdk;$(SolutionDir)third_party\include;$(IncludePath);$(SolutionDir)sdk\rmscrypto_sdk\CryptoAPI;$(SolutionDir)sdk\rms_sdk\ModernAPI\ext;C:\Qt\5.7\msvc2015\include\QtCore</IncludePath>
-    <OutDir>$(SolutionDir)bins\$(Configuration)\amd64</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\amd64\</OutDir>
+    <IntDir>bin\$(Configuration)\amd64\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
+    <BuildLog>
+      <Path>$(OutDir)$(MSBuildProjectName).log</Path>
+    </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="sdk\**\*.cpp" />

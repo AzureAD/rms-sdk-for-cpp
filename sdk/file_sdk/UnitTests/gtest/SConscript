@@ -1,4 +1,4 @@
-Import('file_env')
+Import('file_env bins')
 
 Import("""
     googlemock_lib
@@ -20,8 +20,9 @@ libs = [
 ]
 
 if platform == 'win32':
+    lib_gsf_path = '#third_party/lib/Libgsf'
     lib_path += [
-        '#third_party/lib/Libgsf',
+        lib_gsf_path
     ]
     libs += [
         'libgsf-1-114',
@@ -30,6 +31,8 @@ if platform == 'win32':
         'libglib-2.0-0',
         'libbz2-1'
     ]
+    gsf_dlls = Glob(lib_gsf_path + '/*.dll')
+    Install("#" + bins + '/sdk/file_sdk', gsf_dlls)
 elif platform == 'linux2':
     libs += [
         'pthread',

@@ -8,11 +8,8 @@ target_name = 'mip_upe_sdk'
 
 INCLUDE_PATH_BASE = [
     '#sdk',
-    '#googletest',
     '#googletest/include',
-    '#third_party',
     '#third_party/include',
-    '#googlemock',
     '#googlemock/include',
 ]
 
