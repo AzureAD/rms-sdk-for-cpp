@@ -4,23 +4,14 @@
 #include <fstream>
 
 #include "Common/istream.h"
-#include "Common/std_stream_adapter.h"
 #include "OPCFileFormat/zip_file.h"
+#include "UnitTests/gtest/test_utils.h"
+
+namespace mip {
+namespace file {
 
 using std::shared_ptr;
 using std::string;
-using mip::file::IStream;
-using mip::file::ZipFile;
-
-string GetResourceFile(const string& fileName);
-
-namespace {
-shared_ptr<IStream> GetIStreamFromFile(const string& fileName) {
-  string fullPath = GetResourceFile(fileName);
-  auto ifs = make_shared<std::ifstream>(fullPath, std::ios_base::binary);
-  return mip::file::StdStreamAdapter::Create(ifs);
-}
-}
 
 TEST(ZipTests, GetEntry_ReturnsXml) {
   shared_ptr<IStream> stream = GetIStreamFromFile("LabeledGeneral.docx");
@@ -33,10 +24,13 @@ TEST(ZipTests, GetEntry_ReturnsXml) {
 TEST(ZipTests, MissingEntry_ThrowsZipException) {
   auto stream = GetIStreamFromFile("LabeledGeneral.docx");
   ZipFile zipFile(stream);
-  EXPECT_THROW(zipFile.GetEntry("docProps/missing.xml"), mip::file::ZipEntryNotFoundException) << "The entry should not be in the zip file";
+  EXPECT_THROW(zipFile.GetEntry("docProps/missing.xml"), ZipEntryNotFoundException) << "The entry should not be in the zip file";
 }
 
 TEST(ZipTests, NotAZip_ThrowsZipException) {
   auto stream = GetIStreamFromFile("test.txt");
-  EXPECT_THROW(ZipFile f(stream), mip::file::ZipException) << "Should not create a ZipFile object with non-zip file";
+  EXPECT_THROW(ZipFile f(stream), ZipException) << "Should not create a ZipFile object with non-zip file";
 }
+
+} // namespace mip
+} // namespace file

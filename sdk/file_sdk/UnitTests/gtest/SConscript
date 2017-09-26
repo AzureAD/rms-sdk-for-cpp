@@ -11,7 +11,7 @@ Import("""
 file_ut_env = file_env.Clone()
 install_path = "#" + bins + '/sdk/file_sdk'
 
-src_files = ['unittest_main.cpp']
+src_files = ['unittest_main.cpp', 'test_utils.cpp']
 src_files += Glob('../../OPCFileFormat/test/*.cpp')
 
 Install(install_path, Dir('.').srcnode().Dir('../../OPCFileFormat/test/Resources'))

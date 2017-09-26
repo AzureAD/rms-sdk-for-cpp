@@ -2,6 +2,9 @@
 #include "OPCFileFormat/zip_file.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "Common/std_stream_adapter.h"
+#include <fstream>
+#include "UnitTests/gtest/test_utils.h"
 
 namespace mip {
 namespace file {
@@ -23,14 +26,19 @@ public:
 };
 
 TEST(OPCFileFormatTests, EmptyFile_GetProperties_ThrowsZipException) {
-
-  auto stream = std::make_shared<MockIStream>();
+  auto stream = make_shared<MockIStream>();
   auto& streamMock = *stream;
   EXPECT_CALL(streamMock, Size())
     .WillOnce(Return(0));
 
   OPCFileFormat f(stream, "docx");
   EXPECT_THROW(f.GetProperties(), ZipException);
+}
+
+TEST(OPCFileFormatTests, GetProperties) {
+  shared_ptr<IStream> stream = GetIStreamFromFile("LabeledGeneral.docx");
+  OPCFileFormat f(stream, "docx");
+  vector<pair<string, string>> props = f.GetProperties();
 }
 
 } // namespace mip

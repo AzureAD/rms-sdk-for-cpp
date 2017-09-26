@@ -108,7 +108,7 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="sdk\file_sdk\OPCFileFormat\test\zip_tests.cpp" />
+    <ClCompile Include="sdk\**\*.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sdk\**\*.h" />
