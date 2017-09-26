@@ -28,17 +28,15 @@ public:
 
   virtual std::shared_ptr<Tag> GetLabel() = 0;
 
-  virtual void SetLabel(const std::string& labelId, const LabelingOptions& labelingOptions) = 0;
+  virtual std::string SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions) = 0;
 
-  virtual void SetLabel(std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) = 0;
+  virtual std::string SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) = 0;
 
-  virtual void DeleteLabel(const std::string& justificationMessage) = 0;
+  virtual std::string DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage) = 0;
 
   virtual void SetProtection(const UserPolicy& policy ) = 0;
 
   virtual void RemoveProtection() = 0;
-
-  virtual void Commit(std::shared_ptr<IStream> outputStream, std::string& outputExtension) = 0;
 
   virtual ~ IStreamHandler () {
   }

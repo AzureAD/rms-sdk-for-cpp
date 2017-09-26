@@ -6,6 +6,7 @@
 
 #include <api/istream_handler.h>
 #include <Common/file_format_factory.h>
+#include <Common/exceptions.h>
 
 using mip::file::FileFormatFactory;
 
@@ -17,14 +18,15 @@ DLL_PUBLIC_FILE std::shared_ptr<IStreamHandler> IStreamHandler::Create(std::shar
 }
 
 StreamHandler::StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string &inputExtension) {
+  if (inputStream->Size() = 0) {
+    throw mip::file::Exception("inputStream size is 0 (zero)");
+  }
   mEngine = engine;
   mFileFormat = FileFormatFactory::Create(inputStream, inputExtension);
-  mProperties = mFileFormat->GetProperties();
-  mTags = Tag::FromProperties(mProperties);
 }
 
 bool StreamHandler::IsLabeled() {
-  return mProperties.size() > 0 && mTags[0].GetEnabled();
+  return mFileFormat->GetProperties().size() > 0 && Tag::FromProperties(mFileFormat->GetProperties())[0].GetEnabled();
 }
 
 bool StreamHandler::IsProtected() {
@@ -35,31 +37,27 @@ std::shared_ptr<Tag> StreamHandler::GetLabel() {
   return std::make_shared<Tag>(Tag::FromProperties(mFileFormat->GetProperties())[0]);
 }
 
-void StreamHandler::SetLabel(const std::string& labelId, const LabelingOptions& labelingOptions) {
+std::string StreamHandler::SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions) {
   std::time_t now = GetCurrentTime();
+  // will be replaced with label and UPE data
+  Tag newTag(labelId, "labelName", "parent", labelingOptions.GetOwner(), true, std::ctime(&now), labelingOptions.GetAssingmentMethod());
 
-  mTags.clear(); // need to clear all previous labels that was set.
-  mTags.push_back(Tag(labelId, "Label", "parentId", labelingOptions.GetOwner(), true, std::ctime(&now))); //will get all the missing data such as label name from UPE when impl;
+  return UpdatePropertiesAndCommit(outputStream, newTag.ToProperties());
 }
 
-void StreamHandler::SetLabel(std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) {
-  SetLabel(label->GetId(), labelingOptions);
+std::string StreamHandler::SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) {
+  return SetLabel(outputStream, label->GetId(), labelingOptions);
 }
 
-void StreamHandler::DeleteLabel(const std::string& justificationMessage) {
-  std::vector<Tag> newLabels;
-  for (const auto &label : mTags){
-    newLabels.push_back(Tag(label.GetLabelId(),
-                            label.GetLabelName(),
-                            label.GetLabelParentId(),
-                            label.GetOwner(),
-                            false,
-                            label.GetSetTime(),
-                            label.GetMethod(),
-                            label.GetSiteId(),
-                            label.GetExtendedProperties()));
+
+
+std::string StreamHandler::DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage) {
+  vector<Tag> newTags(Tag::FromProperties(mFileFormat->GetProperties()));
+  for (Tag &tag : newTags) {
+    tag.SetEnabled(false);
   }
-  mTags = newLabels;
+
+  return UpdatePropertiesAndCommit(outputStream, Tag::ToProperties(newTags));
 }
 
 void StreamHandler::SetProtection(const UserPolicy& policy) {
@@ -68,13 +66,21 @@ void StreamHandler::SetProtection(const UserPolicy& policy) {
 void StreamHandler::RemoveProtection() {
 }
 
-void StreamHandler::Commit(std::shared_ptr<IStream> outputStream, std::string& outputExtension) {
-  mFileFormat->UpdateProperties(mProperties, {});
-  mFileFormat->Commit(outputStream, outputExtension);
-}
-
 time_t StreamHandler::GetCurrentTime() {
   return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+}
+
+std::string StreamHandler::UpdatePropertiesAndCommit(std::shared_ptr<IStream> outputStream, vector<pair<string,string>> newProperties) {
+  vector<string> keysToRemove;
+  for(pair<string,string> const& property: mFileFormat->GetProperties()) {
+    keysToRemove.push_back(property.first);
+  }
+
+  mFileFormat->UpdateProperties(newProperties, keysToRemove);
+  std::string newExtention;
+  mFileFormat->Commit(outputStream, newExtention);
+
+  return newExtention;
 }
 
 } //namespace file

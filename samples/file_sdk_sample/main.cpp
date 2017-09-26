@@ -142,7 +142,7 @@ std::string GetExtenstion(const std::string& filePath) {
   }
 }
 
-void SetLabels(std::string filePath, std::string labelId,std::string owner, std::string justificationMessage) {
+void SetLabels(std::string filePath, std::string labelId, std::string owner, std::string justificationMessage) {
   try {
     std::string extension = GetExtenstion(filePath);
     LabelingOptions labelingOptions(justificationMessage, mip::Method::MANUAL, owner);
@@ -160,15 +160,16 @@ void SetLabels(std::string filePath, std::string labelId,std::string owner, std:
     auto outputStream = StdStreamAdapter::Create(std::static_pointer_cast<std::iostream>(outfile));
 
     if (labelId.empty()) {
-      streamHandler->DeleteLabel(justificationMessage);
+      streamHandler->DeleteLabel(outputStream, justificationMessage);
     }
     else {
-      streamHandler->SetLabel(labelId, labelingOptions);
+      streamHandler->SetLabel(outputStream, labelId, labelingOptions);
     }
-
-    streamHandler->Commit(outputStream, extension);
   } catch (std::runtime_error ex) {
     cout << "Something bad happend. " << ex.what() << std::endl;
+    exit(-1);
+  } catch (std::exception ex) {
+    cout << "Error: " << ex.what() << std::endl;
     exit(-1);
   }
 }
