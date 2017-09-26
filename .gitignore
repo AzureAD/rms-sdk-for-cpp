@@ -1,6 +1,5 @@
 # Build Artifacts
 *.o
-build/
 bin/
 dest/
 *.deb
@@ -13,6 +12,8 @@ dest/
 .vscode/
 .vs/
 *.user
+*.opendb
+*.db
 
 
 # Qt Build Artifacts
@@ -34,4 +35,3 @@ docs/html/
 .DS_Store
 *.dat
 third_party**
-

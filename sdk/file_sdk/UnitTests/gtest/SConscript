@@ -11,6 +11,7 @@ Import("""
 src_files = ['unittest_main.cpp']
 src_files += Glob('../../OPCFileFormat/test/*.cpp')
 
+lib_path = []
 libs = [
     googlemock_lib,
     googletest_lib,
@@ -18,11 +19,22 @@ libs = [
     libxml2_lib,
 ]
 
-if platform == 'linux2':
+if platform == 'win32':
+    lib_path += [
+        '#third_party/lib/Libgsf',
+    ]
+    libs += [
+        'libgsf-1-114',
+        'zlib1',
+        'libgobject-2.0-0',
+        'libglib-2.0-0',
+        'libbz2-1'
+    ]
+elif platform == 'linux2':
     libs += [
         'pthread',
     ]
 
 file_sdk_unittest_obj = file_env.Object(source = src_files);
-file_sdk_unittest_exe = file_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs])
+file_sdk_unittest_exe = file_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs], LIBPATH = lib_path)
 Return('file_sdk_unittest_exe')

@@ -17,8 +17,7 @@ const vector<pair<std::string, std::string> > OPCFileFormat::GetProperties() {
   ZipFile file(mFile);
   string entry = file.GetEntry(kCustomPropertiesEntry);
   CustomPropertiesXml xml(entry);
-  auto props = xml.GetProperties();
-  return Tag::FromProperties(props);
+  return xml.GetProperties();
 }
 
 void OPCFileFormat::Commit(std::shared_ptr<IStream> outputStream, string& newExtension) {

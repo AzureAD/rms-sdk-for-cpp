@@ -203,7 +203,7 @@ Export("""
 #---------------------------------------------------------------
 if platform == 'win32':
     lib_xml_dir_format = Dir('#').abspath + '/third_party/lib/libxml/{0}/{1}/libxml2_a_dll.lib'
-    libxml2_lib = str.format(lib_xml_dir_format, configuration, build_arch, msvc_dir)
+    libxml2_lib = str.format(lib_xml_dir_format, build_flavor, build_arch)
 else: #Mac or Linux
     libxml2_lib = 'xml2'
 

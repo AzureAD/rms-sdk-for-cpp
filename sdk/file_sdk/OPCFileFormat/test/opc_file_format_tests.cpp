@@ -6,7 +6,7 @@ namespace file {
 
 TEST(OPCFileFormatTests, ReadTags) {
   OPCFileFormat f(shared_ptr<mip::file::IStream>(), "docx");
-  f.GetTags();
+  f.GetProperties();
 }
 
 } // namespace mip

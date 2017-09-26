@@ -17,6 +17,6 @@ if platform == 'win32':
     opc_env.Append(CPPPATH='#third_party/include/Libgsf')
 else:
     opc_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
-	
+
 opc_obj = create_objs(opc_env, src_files)
 Return('opc_obj')
