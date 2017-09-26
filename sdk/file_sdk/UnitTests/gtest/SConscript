@@ -9,8 +9,12 @@ Import("""
 """)
 
 file_ut_env = file_env.Clone()
+install_path = "#" + bins + '/sdk/file_sdk'
+
 src_files = ['unittest_main.cpp']
 src_files += Glob('../../OPCFileFormat/test/*.cpp')
+
+Install(install_path, Dir('.').srcnode().Dir('../../OPCFileFormat/test/Resources'))
 
 lib_path = []
 libs = [
@@ -33,8 +37,7 @@ if platform == 'win32':
         'libglib-2.0-0',
         'libbz2-1'
     ]
-    gsf_dlls = Glob(lib_gsf_path + '/*.dll')
-    Install("#" + bins + '/sdk/file_sdk', gsf_dlls)
+    Install(install_path, Glob(lib_gsf_path + '/*.dll'))
 elif platform == 'linux2':
     file_ut_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
     libs += [

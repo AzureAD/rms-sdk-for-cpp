@@ -8,6 +8,11 @@
 
 #include "gtest/gtest.h"
 
+std::string GetResourceFile(const std::string& fileName) {
+  std::string path("Resources\\"); // TODO: use path relative to executable
+  return path + fileName;
+}
+
 int main(int argc, char** argv) {
   std::cout << "test";
   testing::InitGoogleTest(&argc, argv);

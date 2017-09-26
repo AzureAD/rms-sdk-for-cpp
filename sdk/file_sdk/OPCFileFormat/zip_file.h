@@ -57,7 +57,7 @@ struct GError_deleter {
 
 class ZipFile {
 public:
-  ZipFile(std::shared_ptr<IStream> inputStream);
+  explicit ZipFile(std::shared_ptr<IStream> inputStream);
   std::string GetEntry(const std::string& entryPath);
   void SetEntry(const std::string& entryPath, const std::string& content);
   void Commit(std::shared_ptr<IStream> outputStream);
@@ -69,13 +69,13 @@ private:
 class ZipException : public Exception {
 public:
   ZipException(const std::string& error, const std::string& message) : Exception(error, message){}
-  ZipException(const std::string& error) : ZipException(error, ""){}
+  explicit ZipException(const std::string& error) : ZipException(error, ""){}
 };
 
 class ZipEntryNotFoundException : public ZipException {
 public:
   ZipEntryNotFoundException(const std::string& error, const std::string& message) : ZipException(error, message){}
-  ZipEntryNotFoundException(const std::string& error) : ZipEntryNotFoundException(error, ""){}
+  explicit ZipEntryNotFoundException(const std::string& error) : ZipEntryNotFoundException(error, ""){}
 };
 
 } // namespace file
