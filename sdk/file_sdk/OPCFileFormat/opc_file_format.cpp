@@ -9,15 +9,20 @@ namespace {
 namespace mip {
 namespace file {
 
-OPCFileFormat::OPCFileFormat(std::shared_ptr<IStream> inputStream, const string& extension)
+OPCFileFormat::OPCFileFormat(shared_ptr<IStream> inputStream, const string& extension)
   : FileFormat(inputStream, extension) {
 }
 
-const vector<pair<std::string, std::string> > OPCFileFormat::GetProperties() {
+void OPCFileFormat::ReadCustomProperties() {
   ZipFile file(mFile);
   string entry = file.GetEntry(kCustomPropertiesEntry);
-  CustomPropertiesXml xml(entry);
-  return xml.GetProperties();
+  mCustomProperties = std::make_shared<CustomPropertiesXml>(entry);
+}
+
+const vector<pair<std::string, std::string> > OPCFileFormat::GetProperties() {
+  ReadCustomProperties();
+  auto props = mCustomProperties->GetProperties();
+  return props;
 }
 
 void OPCFileFormat::Commit(std::shared_ptr<IStream> outputStream, string& newExtension) {

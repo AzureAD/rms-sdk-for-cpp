@@ -1,9 +1,9 @@
 ﻿#ifndef OPC_FILE_FORMAT_H
 #define OPC_FILE_FORMAT_H
 
-#include <Common/file_format.h>
-
 #include <memory>
+#include <Common/file_format.h>
+#include <OPCFileFormat/xml/customproperties.h>
 
 namespace mip {
 namespace file {
@@ -16,6 +16,12 @@ public:
   const vector<pair<string, string>> GetProperties() override;
   void UpdateProperties(const vector<pair<string, string>>& propertiesToAdd, const vector<string>& keysToRemove) override;
   void Commit(shared_ptr<IStream> outputStream, string& newExtension) override;
+
+private:
+  void ReadCustomProperties();
+
+private:
+  shared_ptr<CustomPropertiesXml> mCustomProperties;
 };
 
 } // namespace file

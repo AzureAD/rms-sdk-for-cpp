@@ -8,6 +8,7 @@ Import("""
     libxml2_lib
 """)
 
+file_ut_env = file_env.Clone()
 src_files = ['unittest_main.cpp']
 src_files += Glob('../../OPCFileFormat/test/*.cpp')
 
@@ -20,6 +21,7 @@ libs = [
 ]
 
 if platform == 'win32':
+    file_ut_env.Append(CPPPATH='#third_party/include/Libgsf')
     lib_gsf_path = '#third_party/lib/Libgsf'
     lib_path += [
         lib_gsf_path
@@ -34,10 +36,11 @@ if platform == 'win32':
     gsf_dlls = Glob(lib_gsf_path + '/*.dll')
     Install("#" + bins + '/sdk/file_sdk', gsf_dlls)
 elif platform == 'linux2':
+    file_ut_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
     libs += [
         'pthread',
     ]
 
-file_sdk_unittest_obj = file_env.Object(source = src_files);
-file_sdk_unittest_exe = file_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs], LIBPATH = lib_path)
+file_sdk_unittest_obj = file_ut_env.Object(source = src_files);
+file_sdk_unittest_exe = file_ut_env.Program("file_sdk_unittest", source = file_sdk_unittest_obj, LIBS = [libs], LIBPATH = lib_path)
 Return('file_sdk_unittest_exe')
