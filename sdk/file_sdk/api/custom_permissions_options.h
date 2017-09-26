@@ -15,7 +15,7 @@ class CustomPermissionsOptions
 private:
   PolicyDescriptor mPolicyDescriptor;
 public:
-  CustomPermissionsOptions(PolicyDescriptor& policyDescriptor = PolicyDescriptor(std::vector<UserRights>()))
+  CustomPermissionsOptions(PolicyDescriptor const &policyDescriptor = PolicyDescriptor(std::vector<UserRights>()))
                          : mPolicyDescriptor(policyDescriptor){}
 
   const PolicyDescriptor GetPolicyDescriptor() const { return mPolicyDescriptor; }
