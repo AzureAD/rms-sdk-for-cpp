@@ -75,7 +75,7 @@ const shared_ptr<LicenseParserResult> LicenseParser::ParsePublishingLicenseInner
         throw exceptions::RMSNetworkException("Invalid publishing license encoding",
                                               exceptions::RMSNetworkException::InvalidPL);
     }
-    //Logger::Hidden("Publishing License in LicenseParser: %s", publishLicense.c_str());
+    Logger::Hidden("Publishing License in LicenseParser: %s", publishLicense.c_str());
     size_t finalSize = publishLicense.size();
 
     string publishLicenseWithRoot;
