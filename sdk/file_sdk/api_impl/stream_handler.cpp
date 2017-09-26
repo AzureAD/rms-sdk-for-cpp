@@ -18,7 +18,7 @@ DLL_PUBLIC_FILE std::shared_ptr<IStreamHandler> IStreamHandler::Create(std::shar
 }
 
 StreamHandler::StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string &inputExtension) {
-  if (inputStream->Size() = 0) {
+  if (inputStream->Size() == 0) {
     throw mip::file::Exception("inputStream size is 0 (zero)");
   }
   mEngine = engine;
@@ -37,27 +37,24 @@ std::shared_ptr<Tag> StreamHandler::GetLabel() {
   return std::make_shared<Tag>(Tag::FromProperties(mFileFormat->GetProperties())[0]);
 }
 
-std::string StreamHandler::SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions) {
-  std::time_t now = GetCurrentTime();
+void StreamHandler::SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions, std::string &newExtention) {
   // will be replaced with label and UPE data
-  Tag newTag(labelId, "labelName", "parent", labelingOptions.GetOwner(), true, std::ctime(&now), labelingOptions.GetAssingmentMethod());
+  Tag newTag(labelId, "labelName", "parent", labelingOptions.GetOwner(), true, GetCurrentTime(), labelingOptions.GetAssingmentMethod());
 
-  return UpdatePropertiesAndCommit(outputStream, newTag.ToProperties());
+  newExtention = UpdatePropertiesAndCommit(outputStream, newTag.ToProperties());
 }
 
-std::string StreamHandler::SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) {
-  return SetLabel(outputStream, label->GetId(), labelingOptions);
+void StreamHandler::SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions, std::string &newExtention) {
+  SetLabel(outputStream, label->GetId(), labelingOptions, newExtention);
 }
 
-
-
-std::string StreamHandler::DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage) {
+void StreamHandler::DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage, std::string& newExtention) {
   vector<Tag> newTags(Tag::FromProperties(mFileFormat->GetProperties()));
   for (Tag &tag : newTags) {
     tag.SetEnabled(false);
   }
 
-  return UpdatePropertiesAndCommit(outputStream, Tag::ToProperties(newTags));
+  newExtention = UpdatePropertiesAndCommit(outputStream, Tag::ToProperties(newTags));
 }
 
 void StreamHandler::SetProtection(const UserPolicy& policy) {
@@ -66,8 +63,12 @@ void StreamHandler::SetProtection(const UserPolicy& policy) {
 void StreamHandler::RemoveProtection() {
 }
 
-time_t StreamHandler::GetCurrentTime() {
-  return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+std::string StreamHandler::GetCurrentTime() {
+  time_t now = time(&now);
+  tm* utcTime = gmtime(&now);
+  char setTime[40];
+  strftime(setTime, 40, "%F %T.000 %z", utcTime);
+  return std::string(setTime);
 }
 
 std::string StreamHandler::UpdatePropertiesAndCommit(std::shared_ptr<IStream> outputStream, vector<pair<string,string>> newProperties) {
