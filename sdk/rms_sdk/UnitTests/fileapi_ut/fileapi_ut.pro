@@ -10,6 +10,12 @@ QT       -= gui
 CONFIG   += console c++11 debug_and_release warn_on
 CONFIG   -= app_bundle
 
+INCLUDEPATH += $$REPO_ROOT/sdk/rmsauth_sdk/rmsauth
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/
+INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/FileAPI
+
 LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/platform
 
 INCLUDEPATH += $$REPO_ROOT/googlemock/

@@ -18,6 +18,12 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace fileapi {
 
+std::unique_ptr<IProtectorSelector> IProtectorSelector::Create(const std::string& filePath)
+{
+    std::unique_ptr<IProtectorSelector> protectorSelector(new ProtectorSelector(filePath));
+    return protectorSelector;
+}
+
 ProtectorSelector::ProtectorSelector(const std::string& filePath)
     : m_fileExtension(".pfile"),
       m_pType(ProtectorType::PFILE)
