@@ -16,10 +16,10 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/xmp
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled
+    LIBS +=  -lrmsd -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled
     win32:LIBS += -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
-    LIBS +=  -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile
+    LIBS +=  -lrms -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile
     win32:LIBS += -lXMPCoreStatic -lXMPFilesStatic
 }
 

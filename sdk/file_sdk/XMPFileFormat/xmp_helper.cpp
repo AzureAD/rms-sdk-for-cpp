@@ -30,8 +30,6 @@ XMPHelper::XMPHelper()
 }
 
 void XMPHelper::Serialize(SXMPMeta& metadata, const vector<pair<std::string, std::string>>& propertiesToAdd, const vector<string>& keysToRemove) {
-  string propertyPath;
-
   metadata.DeleteProperty(kMsipNamespace, "Labels"); //delete all labels from old format
 
   for(unsigned i =0; i< keysToRemove.size(); i++)
@@ -42,7 +40,7 @@ void XMPHelper::Serialize(SXMPMeta& metadata, const vector<pair<std::string, std
     if (value.empty())
       continue;
 
-    metadata.SetProperty(kMsipNamespace, propertiesToAdd[j].first.c_str(), propertiesToAdd[j].second);
+    metadata.SetProperty(kMsipNamespace, propertiesToAdd[j].first.c_str(), propertiesToAdd[j].second.c_str());
   }
 }
 
