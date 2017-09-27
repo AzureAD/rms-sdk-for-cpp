@@ -10,13 +10,11 @@ namespace file {
 class DLL_PUBLIC_FILE StreamHandler : public IStreamHandler
 {
 private:
-  vector<pair<string, string>> mProperties; // holds the labels to commit; Tag will be replaced with ILabel when impl
-  vector<Tag> mTags;
-  time_t GetCurrentTime();
-
-protected:
   std::shared_ptr<IPolicyEngine> mEngine;
   std::shared_ptr<IFileFormat> mFileFormat;
+
+  std::string GetCurrentTime();
+  std::string UpdatePropertiesAndCommit(std::shared_ptr<IStream> outputStream, vector<pair<std::string, std::string> > newProperties);
 
 public:
   StreamHandler(std::shared_ptr<IPolicyEngine> engine, std::shared_ptr<IStream> inputStream, const std::string &inputExtension);
@@ -25,12 +23,11 @@ public:
   virtual bool IsLabeled() override;
   virtual bool IsProtected() override;
   virtual std::shared_ptr<Tag> GetLabel() override;
-  virtual void SetLabel(const std::string& labelId, const LabelingOptions& labelingOptions) override;
-  virtual void SetLabel(std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) override;
-  virtual void DeleteLabel(const std::string& justificationMessage) override;
-  virtual void SetProtection(const UserPolicy & policy) override;
-  virtual void RemoveProtection() override;
-  virtual void Commit(std::shared_ptr<IStream> outputStream, std::string& outputExtension) override;
+  virtual void SetLabel(std::shared_ptr<IStream> outputStream, const std::string& labelId, const LabelingOptions& labelingOptions, std::string& newExtention) override;
+  virtual void SetLabel(std::shared_ptr<IStream> outputStream, std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions, std::string& newExtention) override;
+  virtual void DeleteLabel(std::shared_ptr<IStream> outputStream, const std::string& justificationMessage, std::string& newExtention) override;
+  virtual void SetProtection(std::shared_ptr<IStream> outputStream, const CustomPermissionsOptions& customPermissionsOptions, std::string& newExtention) override;
+  virtual void RemoveProtection(std::shared_ptr<IStream> outputStream, std::string& newExtention) override;
 
   virtual ~StreamHandler() {
   }

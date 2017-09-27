@@ -142,7 +142,7 @@ std::string GetExtenstion(const std::string& filePath) {
   }
 }
 
-void SetLabels(std::string filePath, std::string labelId,std::string owner, std::string justificationMessage) {
+void SetLabels(std::string filePath, std::string labelId, std::string owner, std::string justificationMessage) {
   try {
     std::string extension = GetExtenstion(filePath);
     LabelingOptions labelingOptions(justificationMessage, mip::Method::MANUAL, owner);
@@ -156,19 +156,26 @@ void SetLabels(std::string filePath, std::string labelId,std::string owner, std:
     std::string newFilePath = filePath.substr(0, filePath.length() - extension.length()) + (labelId.empty() ? "_NotLabeled" : "_Labeled");
 
     // Create output stream
-    auto outfile = std::make_shared<std::fstream>(newFilePath + extension, std::ios::binary| std::ios::in | std::ios::out | std::ios::trunc);
+    auto outfile = std::make_shared<std::fstream>(newFilePath, std::ios::binary| std::ios::in | std::ios::out | std::ios::trunc);
     auto outputStream = StdStreamAdapter::Create(std::static_pointer_cast<std::iostream>(outfile));
 
+    std::string newExtention;
     if (labelId.empty()) {
-      streamHandler->DeleteLabel(justificationMessage);
+      streamHandler->DeleteLabel(outputStream, justificationMessage, newExtention);
     }
     else {
-      streamHandler->SetLabel(labelId, labelingOptions);
+      streamHandler->SetLabel(outputStream, labelId, labelingOptions, newExtention);
     }
 
-    streamHandler->Commit(outputStream, extension);
+    outfile->close();
+    remove((newFilePath + newExtention).c_str()); // remove file if exsit. same as pass ios::trunc to fstream
+    rename(newFilePath.c_str(), (newFilePath + newExtention).c_str());
+    cout << "New file created: " << newFilePath + newExtention << std::endl;
   } catch (std::runtime_error ex) {
     cout << "Something bad happend. " << ex.what() << std::endl;
+    exit(-1);
+  } catch (std::exception ex) {
+    cout << "Error: " << ex.what() << std::endl;
     exit(-1);
   }
 }

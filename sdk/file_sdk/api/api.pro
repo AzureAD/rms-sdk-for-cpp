@@ -11,6 +11,7 @@ HEADERS += \
     label.h \
     istream_handler.h \
     ipolicy_engine.h \
-    labeling_options.h
+    labeling_options.h \
+    custom_permissions_options.h
 
 SOURCES +=

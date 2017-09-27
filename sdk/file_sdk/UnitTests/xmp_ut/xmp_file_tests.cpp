@@ -71,7 +71,7 @@ void VerifyUpdateProperties(string folder) {
       XMPFileFormat xmpFileFormat(stream, extension);
       auto currentProperties = xmpFileFormat.GetProperties();
       vector<string> keysToRemove;
-      for(int i = 0; i <currentProperties.size(); i++){
+      for(int i = 0; i < currentProperties.size(); i++){
         keysToRemove.push_back(currentProperties[i].first);
       }
 
