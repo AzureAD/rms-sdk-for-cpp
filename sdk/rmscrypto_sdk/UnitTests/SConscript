@@ -8,6 +8,7 @@ Import("""
     crypto_api_obj
     lib_path
     lib_suffix
+    googletest_lib
     platform
     qt_lib_path
     rmscrypto_env
@@ -16,12 +17,17 @@ Import("""
 
 rmscrypto_ut_env =  rmscrypto_env.Clone()
 
-src_files = Glob('*.cpp')
+src_files = [
+    'main.cpp',
+    'CryptedStreamTests.cpp',
+]
+
+# src_files = Glob('*.cpp')
 srcdir = Dir('.').srcnode().abspath
 
-SetupUtMocs(srcdir, build_flavor)
+# SetupUtMocs(srcdir, build_flavor)
 
-src_files += Glob(build_flavor + '/*.cpp')
+# src_files += Glob(build_flavor + '/*.cpp')
 
 objects = [
     crypto_api_obj,
@@ -36,6 +42,7 @@ libs = [
     'Qt5Test' + lib_suffix,
     'Qt5Widgets' + lib_suffix,
     'Qt5Gui' + lib_suffix,
+    googletest_lib,
 ] 
 
 rmscrypto_ut_env.Append(CPPDEFINES = { 'SRCDIR' : "\\\"" + srcdir + "/\\\"" })

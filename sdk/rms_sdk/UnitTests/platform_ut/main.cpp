@@ -17,19 +17,16 @@
 using namespace std;
 using std::vector;
 using std::string;
-using ::testing::TestWithParam;
-using ::testing::Bool;
 using ::testing::Values;
-using ::testing::Combine;
 
 bool pHCT = true;
-INSTANTIATE_TEST_CASE_P(Enabled, PlatformHttpClientTest, testing::Values(pHCT));
+INSTANTIATE_TEST_CASE_P(Enabled, PlatformHttpClientTest, Values(pHCT));
 
 bool pJOTEnabled = true;
-INSTANTIATE_TEST_CASE_P(Enabled, PlatformJsonObjectTest, testing::Values(pJOTEnabled));
+INSTANTIATE_TEST_CASE_P(Enabled, PlatformJsonObjectTest, Values(pJOTEnabled));
 
 bool pXTEnabled = true;
-INSTANTIATE_TEST_CASE_P(XmlAsString, PlatformXmlTest, testing::Values(pXTEnabled));
+INSTANTIATE_TEST_CASE_P(XmlAsString, PlatformXmlTest, Values(pXTEnabled));
 
  int main(int argc, char *argv[])
  {

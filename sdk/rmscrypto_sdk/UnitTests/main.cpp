@@ -7,19 +7,24 @@
 */
 
 #include<QApplication>
-#include "KeyStorageTests.h"
-#include "CryptedStreamTests.h"
-#include "CryptoAPITests.h"
+#include "gtest/gtest.h"
+// #include "KeyStorageTests.h"
+// #include "CryptedStreamTests.h"
+// #include "CryptoAPITests.h"
+using namespace std;
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    int res = 0;
+    testing::InitGoogleTest(&argc, argv);
+    RUN_ALL_TESTS();
 
-    res += QTest::qExec(new CryptoAPITests(), argc, argv);
-    res += QTest::qExec(new KeyStorageTests(), argc, argv);
-    res += QTest::qExec(new CryptedStreamTests(), argc, argv);
+    // int res = 0;
 
-    return res;
+    // res += QTest::qExec(new CryptoAPITests(), argc, argv);
+    // res += QTest::qExec(new KeyStorageTests(), argc, argv);
+    // res += QTest::qExec(new CryptedStreamTests(), argc, argv);
+
+    // return res;
 }
