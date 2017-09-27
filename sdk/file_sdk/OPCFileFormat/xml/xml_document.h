@@ -3,16 +3,7 @@
 
 #include <memory>
 #include <string>
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif // __cplusplus
 #include "libxml/tree.h"
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-
 #include "OPCFileFormat/xml/xml_helper.h"
 #include "OPCFileFormat/xml/xml_node.h"
 

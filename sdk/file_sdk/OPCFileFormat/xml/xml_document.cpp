@@ -1,14 +1,6 @@
 #include "OPCFileFormat/xml/xml_document.h"
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif // __cplusplus
 #include "libxml/parser.h"
 #include "libxml/xpath.h"
-#ifdef __cplusplus
-}
-#endif // __cplusplus
 
 using std::string;
 using std::invalid_argument;

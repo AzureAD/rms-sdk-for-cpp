@@ -2,15 +2,7 @@
 #define OPCFILEFORMAT_XML_XML_NODE_H_
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif // __cplusplus
 #include "libxml/tree.h"
-#ifdef __cplusplus
-}
-#endif // __cplusplus
 
 namespace mip {
 namespace file {

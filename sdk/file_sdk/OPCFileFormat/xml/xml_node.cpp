@@ -1,14 +1,5 @@
 #include "OPCFileFormat/xml/xml_node.h"
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif // __cplusplus
 #include "libxml/globals.h"
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-
 #include "OPCFileFormat/xml/xml_helper.h"
 
 using std::string;

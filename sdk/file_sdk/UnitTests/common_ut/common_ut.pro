@@ -14,6 +14,13 @@ TEMPLATE = app
 
 INCLUDEPATH = $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
+
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/Libgsf
+
+win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
+
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/Libgsf -llibgsf-1-114 -lzlib1 -llibgobject-2.0-0 -llibglib-2.0-0 -llibbz2-1
+
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include/xmp
 unix:!mac:INCLUDEPATH += /usr/include/xmp/
 
@@ -23,9 +30,11 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/xmp
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled -lmodfilecommond
+    win32:LIBS += -L$$REPO_ROOT/third_party/lib/libxml/debug/x64 -llibxml2_a_dll
     win32:LIBS += -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
     LIBS += -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile -lmodfilecommon
+    win32:LIBS += -L$$REPO_ROOT/third_party/lib/libxml/release/x64 -llibxml2_a_dll
     win32:LIBS += -lXMPCoreStatic -lXMPFilesStatic
 }
 
