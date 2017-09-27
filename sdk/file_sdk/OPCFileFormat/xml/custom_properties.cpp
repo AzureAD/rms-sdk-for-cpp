@@ -13,8 +13,12 @@ CustomPropertiesXml::CustomPropertiesXml(const string &xml)
 vector<CustomProperty> CustomPropertiesXml::GetProperties() const {
   vector<CustomProperty> result;
   for (auto node = mDocument.GetRootNode().GetFirstChild(); !(node == XmlNode()); node = node.GetNextNode()) {
-    auto subNode = node.GetFirstChild();
-    result.push_back(make_pair(node.GetAttributeValue("name"), subNode.GetNodeInnerText()));
+    if (node.GetNodeName() == "property") {
+      auto subNode = node.GetFirstChild();
+      if (subNode.GetNodeNamespace() == "vt") {
+        result.push_back(make_pair(node.GetAttributeValue("name"), subNode.GetNodeInnerText()));
+      }
+    }
   }
   return result;
 }
