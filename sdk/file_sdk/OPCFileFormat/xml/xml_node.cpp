@@ -14,6 +14,7 @@ extern "C"
 using std::string;
 
 namespace mip {
+namespace file {
 
 string XmlNode::GetAttributeValue(const string& attributeName) const {
   if (!mNode)
@@ -75,4 +76,5 @@ void XmlNode::Delete() {
   mNode = nullptr;
 }
 
+} // namespace file
 }  // namespace mip

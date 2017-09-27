@@ -13,6 +13,7 @@ extern "C"
 #endif // __cplusplus
 
 namespace mip {
+namespace file {
 
 /**
 * \brief defines abstraction over XML node.
@@ -41,6 +42,7 @@ private:
   friend class XmlDocument;
 };
 
+} // namespace file
 } // namepsace mip
 
 #endif // OPCFILEFORMAT_XML_XML_NODE_H_

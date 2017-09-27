@@ -14,6 +14,7 @@ using std::string;
 using std::invalid_argument;
 
 namespace mip {
+namespace file {
 
 XmlDocument XmlDocument::CreateXmlDocument(const string& rootNodeName,
     const string& defaultNamespaceUri,
@@ -87,4 +88,5 @@ XmlNode XmlDocument::CreateNode(const string& name, const string& namespaceName)
   return XmlNode(xmlNewDocNode(mXmlDoc.get(), ns, ConvertXmlString(name), nullptr));
 }
 
-}  // namespace mip
+} // namespace file
+} // namespace mip

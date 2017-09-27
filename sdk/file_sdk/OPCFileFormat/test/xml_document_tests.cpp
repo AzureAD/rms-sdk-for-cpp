@@ -8,7 +8,7 @@
 using std::string;
 using std::unique_ptr;
 
-using namespace mip;
+using namespace mip::file;
 
 const string CUSTOM_XML =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>"

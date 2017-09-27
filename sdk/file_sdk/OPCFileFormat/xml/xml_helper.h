@@ -14,6 +14,7 @@ extern "C"
 #endif // __cplusplus
 
 namespace mip {
+namespace file {
 
 template<class T>
 using UniquePtr = std::unique_ptr<T, void(*)(T*)>;
@@ -29,6 +30,7 @@ inline const xmlChar* ConvertXmlString(const std::string& str) {
 void DeleteXmlString(xmlChar* str);
 void DeleteXmlDoc(xmlDocPtr doc);
 
+} // namespace file
 } // namepsace mip
 
 #endif // OPCFILEFORMAT_XML_XML_HELPER_H_

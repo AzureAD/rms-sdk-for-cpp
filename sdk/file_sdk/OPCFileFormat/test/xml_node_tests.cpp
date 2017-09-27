@@ -4,7 +4,7 @@
 
 using std::string;
 
-using namespace mip;
+using namespace mip::file;
 
 const string NODE_NAME = "nodeName";
 const string ATTRIBUTE_NAME = "attributeName";

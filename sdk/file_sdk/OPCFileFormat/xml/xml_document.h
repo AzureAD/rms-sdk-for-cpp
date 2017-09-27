@@ -17,6 +17,7 @@ extern "C"
 #include "OPCFileFormat/xml/xml_node.h"
 
 namespace mip {
+namespace file {
 
 /**
  * \brief defines abstraction over XML document.
@@ -42,6 +43,7 @@ private:
 
 };
 
+} // namespace file
 } // namepsace mip
 
 #endif // OPCFILEFORMAT_XML_XML_DOCUMENT_H_

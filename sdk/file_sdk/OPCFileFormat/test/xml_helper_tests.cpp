@@ -5,7 +5,7 @@
 
 using std::string;
 
-using namespace mip;
+using namespace mip::file;
 
 TEST(XmlHelperTests, DeleteXmlString_DeleteNull_DeleteNotFailed) {
   DeleteXmlString(nullptr);
