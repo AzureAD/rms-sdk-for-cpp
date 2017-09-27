@@ -5,7 +5,7 @@ TARGET    = file_sdk_sample
 TEMPLATE = app
 CONFIG += console c++11 debug_and_release
 CONFIG -= app_bundle
-CONFIG -= qt
+CONFIG += qt core
 
 INCLUDEPATH += $$REPO_ROOT/sdk/file_sdk $$REPO_ROOT/sdk/file_sdk/Common $$REPO_ROOT/sdk/rms_sdk/ModernAPI/ext $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI $$REPO_ROOT/sdk/rms_sdk/ModernAPI $$REPO_ROOT/sdk/rms_sdk/Profile
 unix:!mac:INCLUDEPATH += /usr/include/xmp/
