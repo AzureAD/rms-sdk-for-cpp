@@ -1,11 +1,11 @@
 #include "OPCFileFormat/xml/opc_xml.h"
 
+using std::string;
+
 namespace mip {
 namespace file {
 
-  using std::string;
-
-OpcXml::OpcXml(const string &xml) : mDocument(XmlDocument::ParseXmlDocument(xml)) {
+OpcXml::OpcXml(const string& xml) : mDocument(XmlDocument::ParseXmlDocument(xml)) {
 }
 
 string OpcXml::Serialize() const {

@@ -1,5 +1,5 @@
-#ifndef OPCXML_H
-#define OPCXML_H
+#ifndef OPCFILEFORMAT_XML_OPC_XML_H
+#define OPCFILEFORMAT_XML_OPC_XML_H
 
 #include <string>
 #include "OPCFileFormat/xml/xml_document.h"
@@ -20,4 +20,4 @@ protected:
 } // namespace file
 } // namespace mip
 
-#endif // OPCXML_H
+#endif // OPCFILEFORMAT_XML_OPC_XML_H

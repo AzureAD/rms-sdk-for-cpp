@@ -3,11 +3,13 @@
 #include "OPCFileFormat/xml/custom_properties.h"
 
 using std::string; 
+using namespace mip::file;
+
 const string emptyXml = R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes" />)";
 
-TEST(CustomProperties, EmptyProperties_EmptyTags) {
-  auto customProperties = mip::file::CustomPropertiesXml{ emptyXml };
+TEST(CustomProperties, GetProperties_EmptyProperties_EmptyTags) {
+  CustomPropertiesXml customProperties { emptyXml };
   auto tags = customProperties.GetProperties();
   EXPECT_EQ(0, tags.size());
 }
@@ -19,11 +21,11 @@ const string singlePropertyXml = R"(<?xml version="1.0" encoding="UTF-8" standal
   </property>
 </Properties>)";
 
-TEST(CustomProperties, SingleProperty_SingleTag) {
-  auto customProperties = mip::file::CustomPropertiesXml{ singlePropertyXml };
+TEST(CustomProperties, GetProperties_SingleProperty_SingleTag) {
+  CustomPropertiesXml customProperties{ singlePropertyXml };
   auto tags = customProperties.GetProperties();
   EXPECT_EQ(1, tags.size());
-  EXPECT_EQ(tags[0], mip::file::CustomProperty("PropName", "PropValue"));
+  EXPECT_EQ(tags[0], CustomProperty("PropName", "PropValue"));
 }
 
 const string multiPropertyXml = R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -38,11 +40,11 @@ const string multiPropertyXml = R"(<?xml version="1.0" encoding="UTF-8" standalo
     <vt:lpwstr>PropValue2</vt:lpwstr>
   </property>
 </Properties>)";
-TEST(CustomProperties, MultipleProperties_MultipleTags) {
-  auto customProperties = mip::file::CustomPropertiesXml{ multiPropertyXml };
+TEST(CustomProperties, GetProperties_MultipleProperties_MultipleTags) {
+  CustomPropertiesXml customProperties{ multiPropertyXml };
   auto tags = customProperties.GetProperties();
   EXPECT_EQ(3, tags.size());
-  EXPECT_EQ(tags[0], mip::file::CustomProperty("PropName0", "PropValue0"));
-  EXPECT_EQ(tags[1], mip::file::CustomProperty("PropName1", "PropValue1"));
-  EXPECT_EQ(tags[2], mip::file::CustomProperty("PropName2", "PropValue2"));
+  EXPECT_EQ(tags[0], CustomProperty("PropName0", "PropValue0"));
+  EXPECT_EQ(tags[1], CustomProperty("PropName1", "PropValue1"));
+  EXPECT_EQ(tags[2], CustomProperty("PropName2", "PropValue2"));
 }

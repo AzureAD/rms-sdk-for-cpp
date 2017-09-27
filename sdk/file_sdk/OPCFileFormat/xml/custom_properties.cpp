@@ -1,25 +1,26 @@
 #include "OPCFileFormat/xml/custom_properties.h"
 
+using std::string;
+using std::vector;
+
 namespace mip {
 namespace file {
 
-CustomPropertiesXml::CustomPropertiesXml(const std::string &xml)
+CustomPropertiesXml::CustomPropertiesXml(const string &xml)
     : OpcXml(xml) {
 }
 
-std::vector<CustomProperty> CustomPropertiesXml::GetProperties()
-{
-  std::vector<CustomProperty> result;
+vector<CustomProperty> CustomPropertiesXml::GetProperties() const {
+  vector<CustomProperty> result;
   for (auto node = mDocument.GetRootNode().GetFirstChild(); !(node == XmlNode()); node = node.GetNextNode()) {
     auto subNode = node.GetFirstChild();
-    CustomProperty cp = std::make_pair(node.GetAttributeValue("name"), subNode.GetNodeInnerText());
-    result.push_back(cp);
+    result.push_back(make_pair(node.GetAttributeValue("name"), subNode.GetNodeInnerText()));
   }
   return result;
 }
 
-void CustomPropertiesXml::UpdateProperties(std::vector<CustomProperty> propertiesToAdd, std::vector<std::string> keysToRemove) {
-
+void CustomPropertiesXml::UpdateProperties(vector<CustomProperty> propertiesToAdd, vector<string> keysToRemove) {
+  throw std::runtime_error("not implemented");
 }
 
 } // namespace file
