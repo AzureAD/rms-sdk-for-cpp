@@ -15,10 +15,10 @@ LIBS      +=  -L$$DESTDIR -L$$DESTDIR/rms -L$$DESTDIR/file
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/xmp
 
 CONFIG(debug, debug|release) {
-    LIBS +=  -lrmsd -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled -lmip_file_sdkd
+    LIBS += -lrmscryptod -lrmsd -lmodfilecommond -lmodcompoundfiled -lmoddefaultfiled -lmodopcfiled -lmodpdffiled -lmodpfilefiled -lmodxmpfiled -lmip_file_sdkd
     win32:LIBS += -lXMPCoreStaticD -lXMPFilesStaticD
 } else {
-    LIBS +=  -lrms -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile -lmip_file_sdk
+    LIBS += -lrmscrypto -lrms -lmodfilecommon -lmodcompoundfile -lmoddefaultfile -lmodopcfile -lmodpdffile -lmodpfilefile -lmodxmpfile -lmip_file_sdk
     win32:LIBS += -lXMPCoreStatic -lXMPFilesStatic
 }
 
