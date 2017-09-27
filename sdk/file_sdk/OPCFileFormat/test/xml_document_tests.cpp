@@ -14,7 +14,7 @@ const string CUSTOM_XML =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 "<Properties xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\" xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/custom-properties\">"
   "<property fmtid=\"{D5CDD505-2E9C-101B-9397-08002B2CF9AE}\" pid=\"2\" name=\"MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Enabled\">"
-    "<vt:lpwstr>True</vt:lpwstr>"
+    "<vt:lpwstr>True</vt:lpwstr>\n"
   "</property>"
   "<property fmtid=\"{D5CDD505-2E9C-101B-9397-08002B2CF9AE}\" pid=\"3\" name=\"MSIP_Label_87867195-f2b8-4ac2-b0b6-8e099f4731fa_Ref\">"
     "<vt:lpwstr>https://rmsibizaapidf.trafficmanager.net/api/72f988bf-86f1-41af-91ab-2d7cd011db47</vt:lpwstr>"
@@ -44,6 +44,12 @@ TEST(XmlDocumentTests, ParseXmlDocument_InvalidXml_ThrowsInvalidArgument) {
 
 TEST(XmlDocumentTests, ParseXmlDocument_ValidXml_NotThrows) {
   EXPECT_NO_THROW(XmlDocument::ParseXmlDocument(CUSTOM_XML));
+}
+
+TEST(XmlDocumentTests, ParseXmlDocument_ValidXmlWithNewlinesAndTabs_ParseAndIgnoreWhitespaceNodes) {
+  auto xml = XmlDocument::ParseXmlDocument("<root>\n\t<node>value</node>\n</root>");
+
+  EXPECT_STREQ(R"(<?xml version="1.0" encoding="utf-8"?><root><node>value</node></root>)", xml.GetXmlContent().c_str());
 }
 
 TEST(XmlDocumentTests, CreateXmlDocument_CreateXml_CreatedXmlAsExpected) {

@@ -30,6 +30,7 @@ XmlDocument XmlDocument::CreateXmlDocument(const string& rootNodeName,
 }
 
 XmlDocument XmlDocument::ParseXmlDocument(const string& xmlContent) {
+  xmlKeepBlanksDefault(0);
   XmlDocument xmlDoc;
   xmlDoc.mXmlDoc.reset(xmlParseMemory(xmlContent.c_str(), xmlContent.length()));
   if (!xmlDoc.mXmlDoc)
