@@ -12,6 +12,11 @@ CONFIG   -= app_bundle
 
 LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/platform
 
+INCLUDEPATH += $$REPO_ROOT/googlemock/
+INCLUDEPATH += $$REPO_ROOT/googlemock/include
+INCLUDEPATH += $$REPO_ROOT/googletest/
+INCLUDEPATH += $$REPO_ROOT/googletest/include
+
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lrmsd -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
@@ -33,4 +38,6 @@ HEADERS += \
 
 SOURCES += \
     FileAPIProtectorSelectorTest.cpp \
-    main.cpp
+    main.cpp \
+    $$REPO_ROOT/googletest/src/gtest-all.cc \
+    $$REPO_ROOT/googlemock/src/gmock-all.cc
