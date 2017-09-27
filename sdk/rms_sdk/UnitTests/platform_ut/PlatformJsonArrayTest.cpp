@@ -6,7 +6,11 @@
  * ======================================================================
 */
 
-#include "PlatformJsonArrayTest.h"
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "gmock/gmock.h"
 #include "../../Platform/Logger/Logger.h"
 #include "../../Platform/Json/IJsonParser.h"
 #include "../../Platform/Json/IJsonObject.h"
@@ -14,66 +18,49 @@
 
 using namespace rmscore::platform::json;
 using namespace rmscore::platform::logger;
+using std::pair;
+using std::string;
+using std::vector;
 
-void PlatformJsonArrayTest::testGetStringAt_data()
-{
-  QTest::addColumn<QString>("jsonAsString");
-  QTest::addColumn<int>(    "index");
-  QTest::addColumn<QString>("expectedValue");
+#define TestData vector<pair<int, string>>
 
-  auto jsonAsString1 = "[\"python\",\"c++\",\"ruby\"]";
+TEST (PlatformJsonArrayTest, testGetStringAt) {
 
-  QTest::newRow("0")
-    << jsonAsString1
-    << 0
-    << "python";
-
-  QTest::newRow("1")
-    << jsonAsString1
-    << 1
-    << "c++";
-
-  QTest::newRow("2")
-    << jsonAsString1
-    << 2
-    << "ruby";
-}
-
-void PlatformJsonArrayTest::testGetStringAt()
-{
-  QFETCH(QString, jsonAsString);
-  QFETCH(int,     index);
-  QFETCH(QString, expectedValue);
-
-  auto jsonArr = jsonAsString.toUtf8();
+  TestData test_data {
+    std::make_pair(0, "python"),
+    std::make_pair(1, "c++"),
+    std::make_pair(2, "ruby")
+  };
 
   auto pparser = IJsonParser::Create();
-  auto p_arr   =
-    pparser->ParseArray(rmscore::common::ByteArray(jsonArr.begin(),
-                                                  jsonArr.end()));
-  QVERIFY(p_arr != nullptr);
 
-  try
-  {
-    QVERIFY(p_arr->GetStringAt(index) == expectedValue.toStdString());
+  // jsonAsString is ["python","c++","ruby"]
+  rmscore::common::ByteArray jsonAsString {
+    0x5B, 0x22, 0x70, 0x79, 0x74, 0x68, 0x6F, 0x6E, 0x22, 0x2C, 0x22, 0x63, 0x2B, 0x2B, 0x22,
+    0x2C, 0x22, 0x72, 0x75, 0x62, 0x79, 0x22, 0x5D
+  };
+  auto p_arr   =
+    pparser->ParseArray(jsonAsString);
+
+  EXPECT_NE(p_arr, nullptr);
+  for(TestData::iterator it = test_data.begin(); it != test_data.end(); it++) {
+    try
+    {
+      EXPECT_EQ(p_arr->GetStringAt(it->first), it->second);
+    }
+    catch (std::invalid_argument& e)
+    {
+      Logger::Error("Exception: %s", e.what());
+    }
   }
-  catch (std::invalid_argument& e)
-  {
-    Logger::Error("Exception: %s", e.what());
-  }
+  
 }
 
-// void  PlatformJsonArrayTest::testGetObjectAt()
-// {
-//    QVERIFY2(false, "Not implemented");
-// }
-// void  PlatformJsonArrayTest::testGetObjectAt_data()
-// {
-//    QVERIFY2(false, "Not implemented");
+// TEST (PlatformJsonArrayTest, testGetObjectAt) {
+//    EXPECT_TRUE(false) << "Not implemented";
 // }
 
-void PlatformJsonArrayTest::testAppendObject()
-{
+TEST (PlatformJsonArrayTest, testAppendObject) {
   auto pJsonObject1 = IJsonObject::Create();
 
   pJsonObject1->SetNamedString("myString", "MyStringValue");
@@ -85,21 +72,29 @@ void PlatformJsonArrayTest::testAppendObject()
   pJsonArray->Append(*pJsonObject1);
   pJsonArray->Append(*pJsonObject2);
   rmscore::common::ByteArray stringified = pJsonArray->Stringify();
-  QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
-  QString jsonAsString = "[{\"myString\":\"MyStringValue\"},{\"myBool\":true,\"myNum\":1515}]";
-  auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
-  QCOMPARE(actualRes, expectedRes);
+
+  // expectedRes is [{"myString":"MyStringValue"},{"myBool":true,"myNum":1515}]
+  rmscore::common::ByteArray expectedRes {
+      0x5B, 0x7B, 0x22, 0x6D, 0x79, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x22, 0x3A, 0x22,
+      0x4D, 0x79, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x22,
+      0x7D, 0x2C, 0x7B, 0x22, 0x6D, 0x79, 0x42, 0x6F, 0x6F, 0x6C, 0x22, 0x3A, 0x74, 0x72,
+      0x75, 0x65, 0x2C, 0x22, 0x6D, 0x79, 0x4E, 0x75, 0x6D, 0x22, 0x3A, 0x31, 0x35, 0x31,
+      0x35, 0x7D, 0x5D
+  };
+  EXPECT_THAT(stringified, testing::ContainerEq(expectedRes));
 }
 
-void PlatformJsonArrayTest::testAppendString()
-{
+TEST (PlatformJsonArrayTest, testAppendString) {
   auto pJsonArray = IJsonArray::Create();
 
   pJsonArray->Append("string1");
   pJsonArray->Append("string2");
   rmscore::common::ByteArray stringified = pJsonArray->Stringify();
-  QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
-  QString jsonAsString = "[\"string1\",\"string2\"]";
-  auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
-  QCOMPARE(actualRes, expectedRes);
+  
+  // expectedRes is ["string1","string2"]
+  rmscore::common::ByteArray expectedRes { 
+      0x5B, 0x22, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x31, 0x22, 0x2C, 0x22, 0x73, 0x74, 0x72,
+      0x69, 0x6E, 0x67, 0x32, 0x22, 0x5D
+  };
+  EXPECT_THAT(stringified, testing::ContainerEq(expectedRes));
 }

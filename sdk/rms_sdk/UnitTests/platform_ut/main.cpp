@@ -7,19 +7,29 @@
 */
 
 #include<QCoreApplication>
-#include"PlatformUriTest.h"
+#include "gtest/gtest.h"
+// #include"PlatformUriTest.h"
 #include"PlatformHttpClientTest.h"
-#include"PlatformDnsTest.h"
-#include"PlatformJsonArrayTest.h"
+// #include"PlatformDnsTest.h"
 #include"PlatformXmlTest.h"
 #include"PlatformJsonObjectTest.h"
-#include"PlatformJsonArrayTest.h"
-// #include"PlatformFileTest.h"
-// #include"PlatformFileSystemTest.h"
 
-#include "gtest/gtest.h"
+using namespace std;
+using std::vector;
+using std::string;
+using ::testing::TestWithParam;
+using ::testing::Bool;
+using ::testing::Values;
+using ::testing::Combine;
 
-INSTANTIATE_TEST_CASE_P(Enabled, PlatformHttpClientTest, testing::Values(true));
+bool pHCT = true;
+INSTANTIATE_TEST_CASE_P(Enabled, PlatformHttpClientTest, testing::Values(pHCT));
+
+bool pJOTEnabled = true;
+INSTANTIATE_TEST_CASE_P(Enabled, PlatformJsonObjectTest, testing::Values(pJOTEnabled));
+
+bool pXTEnabled = true;
+INSTANTIATE_TEST_CASE_P(XmlAsString, PlatformXmlTest, testing::Values(pXTEnabled));
 
  int main(int argc, char *argv[])
  {
@@ -27,16 +37,4 @@ INSTANTIATE_TEST_CASE_P(Enabled, PlatformHttpClientTest, testing::Values(true));
 
      testing::InitGoogleTest(&argc, argv);
      RUN_ALL_TESTS();
-
-    // int res = 0;
-    //res += QTest::qExec(new PlatformUriTest(), argc, argv);
-    //res += QTest::qExec(new PlatformDnsTest(), argc, argv);
-    // res += QTest::qExec(new PlatformHttpClientTest(), argc, argv);
-    // res += QTest::qExec(new PlatformXmlTest(), argc, argv);
-    // res += QTest::qExec(new PlatformJsonObjectTest(), argc, argv);
-    // res += QTest::qExec(new PlatformJsonArrayTest(), argc, argv);
-    // res += QTest::qExec(new PlatformFileSystemTest(), argc, argv);
-    // res += QTest::qExec(new PlatformFileTest(), argc, argv);
-
-    // return res;
 }

@@ -8,27 +8,14 @@
 
 #ifndef PLATFORMJSONOBJECTTEST
 #define PLATFORMJSONOBJECTTEST
-#include <QtTest>
 
-class PlatformJsonObjectTest : public QObject
-{
-    Q_OBJECT
-private Q_SLOTS:
-    void testGetNamedString(bool enabled = true);
-    void testGetNamedString_data();
+#include "gtest/gtest.h"
 
-    void testGetNamedBool(bool enabled = true);
-    void testGetNamedBool_data();
+using ::testing::TestWithParam;
 
-    void testGetNamedObject(bool enabled = true);
-    void testGetNamedObject_data();
+class PlatformJsonObjectTest : public TestWithParam <bool> {
 
-    void testStringify();
-    void testStringify_data();
-
-    void testSetNamedString();
-    void testSetNamedObject();
-    void testSetNamedArray();
 };
+
 #endif // PLATFORMJSONOBJECTTEST
 

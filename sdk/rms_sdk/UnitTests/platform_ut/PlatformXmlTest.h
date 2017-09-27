@@ -8,17 +8,13 @@
 
 #ifndef PLATFORMXMLTEST
 #define PLATFORMXMLTEST
-#include <QtTest>
 
-class PlatformXmlTest : public QObject
-{
-    Q_OBJECT
-public:
-    PlatformXmlTest();
+#include "gtest/gtest.h"
 
-private Q_SLOTS:
-    void testSelectSingleNode(bool enabled = true);
-    void testSelectSingleNode_data();
+using ::testing::TestWithParam;
+
+class PlatformXmlTest : public TestWithParam <bool> {
+
 };
 #endif // PLATFORMXMLTEST
 

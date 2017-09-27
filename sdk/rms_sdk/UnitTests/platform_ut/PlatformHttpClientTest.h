@@ -8,11 +8,12 @@
 
 #ifndef PLATFORMHTTPCLIENTTEST
 #define PLATFORMHTTPCLIENTTEST
-#include <QtTest>
 
 #include "gtest/gtest.h"
 
-class PlatformHttpClientTest : public ::testing::TestWithParam<bool> {
+using ::testing::TestWithParam;
+
+class PlatformHttpClientTest : public TestWithParam <bool> {
   
 };
 #endif // PLATFORMHTTPCLIENTTEST

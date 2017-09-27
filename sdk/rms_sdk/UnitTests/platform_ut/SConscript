@@ -29,18 +29,12 @@ Import("""
     rms_platform_xml_obj
 """)
 
-src_files = [
-    'main.cpp',
-    'PlatformFileSystemTest.cpp',
-    'PlatformFileTest.cpp',
-    'PlatformHttpClientTest.cpp',
-]
-# src_files = Glob('*.cpp')
+src_files = Glob('*.cpp')
 srcdir = Dir('.').srcnode().abspath
 
 # SetupUtMocs(srcdir, build_flavor)
 
-src_files += Glob(build_flavor + '/*.cpp')
+# src_files += Glob(build_flavor + '/*.cpp')
 
 rmsplatform_env = rms_env.Clone()
 

@@ -7,6 +7,15 @@
 */
 
 #include "PlatformJsonObjectTest.h"
+
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include "../../Platform/Logger/Logger.h"
 #include "../../Platform/Json/IJsonParser.h"
 #include "../../Platform/Json/IJsonObject.h"
@@ -16,268 +25,291 @@
 using namespace rmscore::platform::json;
 using namespace rmscore::platform::logger;
 using namespace rmscore;
+using std::pair;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 static const char *s_strDefaultVal = "someDefaultValue";
 static const char *STR_EXCEPTION   = "WHEN STR EXCEPTION SHOULD HAPPEN";
-
 static const bool s_boolDefaultVal = false;
 static const bool BOOL_EXCEPTION   = false;
+#define TestDataString std::vector<std::pair<std::string, std::string>>
+#define TestDataBool std::vector<std::pair<std::string, bool>>
 
-void PlatformJsonObjectTest::testGetNamedString_data()
-{
-  QTest::addColumn<QString>("jsonAsString");
-  QTest::addColumn<QString>("name");
-  QTest::addColumn<QString>("expectedValue");
+// TODO: check if this test is correct
+// jsonArr is the following json from data/testJson1.json
+// {
+// "encoding":"UTF-8",
+// "plug-ins":[
+//   "python",
+//   "c++",
+//   "ruby"
+//   ],
+// "indent":{ 
+//   "length":3, 
+//   "use_space":true 
+//   },
+// "obj1":{ 
+//   "int-value":100000,
+//   "str-value":"string 1",
+//   "bool-value":true
+//   },
+// "obj2":{
+//   "int-value":2,
+//   "bool-value":false,
+//   "str-value":"string 2"
+//   },
+// "int-value": 158,
+// "bool-value": true,
+// "str-int-value":"158",
+// "str-bool-value":"true"
+// }
 
-  QString path1 = QString(SRCDIR) + "data/testJson1.json";
-  QFile   file1(path1);
+rmscore::common::ByteArray jsonArr {
+  0x7B, 0x0A, 0x22, 0x65, 0x6E, 0x63, 0x6F, 0x64, 0x69, 0x6E, 0x67, 0x22, 0x3A, 0x22, 0x55, 0x54, 0x46,
+  0x2D, 0x38, 0x22, 0x2C, 0x0A, 0x22, 0x70, 0x6C, 0x75, 0x67, 0x2D, 0x69, 0x6E, 0x73, 0x22, 0x3A, 0x5B,
+  0x0A, 0x09, 0x22, 0x70, 0x79, 0x74, 0x68, 0x6F, 0x6E, 0x22, 0x2C, 0x0A, 0x09, 0x22, 0x63, 0x2B, 0x2B,
+  0x22, 0x2C, 0x0A, 0x09, 0x22, 0x72, 0x75, 0x62, 0x79, 0x22, 0x0A, 0x09, 0x5D, 0x2C, 0x0A, 0x22, 0x69,
+  0x6E, 0x64, 0x65, 0x6E, 0x74, 0x22, 0x3A, 0x7B, 0x20, 0x0A, 0x09, 0x22, 0x6C, 0x65, 0x6E, 0x67, 0x74,
+  0x68, 0x22, 0x3A, 0x33, 0x2C, 0x20, 0x0A, 0x09, 0x22, 0x75, 0x73, 0x65, 0x5F, 0x73, 0x70, 0x61, 0x63,
+  0x65, 0x22, 0x3A, 0x74, 0x72, 0x75, 0x65, 0x20, 0x0A, 0x09, 0x7D, 0x2C, 0x0A, 0x22, 0x6F, 0x62, 0x6A,
+  0x31, 0x22, 0x3A, 0x7B, 0x20, 0x0A, 0x09, 0x22, 0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65,
+  0x22, 0x3A, 0x31, 0x30, 0x30, 0x30, 0x30, 0x30, 0x2C, 0x0A, 0x09, 0x22, 0x73, 0x74, 0x72, 0x2D, 0x76,
+  0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x22, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x20, 0x31, 0x22, 0x2C,
+  0x0A, 0x09, 0x22, 0x62, 0x6F, 0x6F, 0x6C, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x74, 0x72,
+  0x75, 0x65, 0x0A, 0x09, 0x7D, 0x2C, 0x0A, 0x22, 0x6F, 0x62, 0x6A, 0x32, 0x22, 0x3A, 0x7B, 0x0A, 0x09,
+  0x22, 0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x32, 0x2C, 0x0A, 0x09, 0x22,
+  0x62, 0x6F, 0x6F, 0x6C, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x66, 0x61, 0x6C, 0x73, 0x65,
+  0x2C, 0x0A, 0x09, 0x22, 0x73, 0x74, 0x72, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x22, 0x73,
+  0x74, 0x72, 0x69, 0x6E, 0x67, 0x20, 0x32, 0x22, 0x0A, 0x09, 0x7D, 0x2C, 0x0A, 0x22, 0x69, 0x6E, 0x74,
+  0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x20, 0x31, 0x35, 0x38, 0x2C, 0x0A, 0x22, 0x62, 0x6F,
+  0x6F, 0x6C, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x20, 0x74, 0x72, 0x75, 0x65, 0x2C, 0x0A,
+  0x22, 0x73, 0x74, 0x72, 0x2D, 0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x22,
+  0x31, 0x35, 0x38, 0x22, 0x2C, 0x0A, 0x22, 0x73, 0x74, 0x72, 0x2D, 0x62, 0x6F, 0x6F, 0x6C, 0x2D, 0x76,
+  0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x22, 0x74, 0x72, 0x75, 0x65, 0x22, 0x0A, 0x7D
+};
 
-  QVERIFY(file1.open(QIODevice::ReadOnly | QIODevice::Text));
-  auto jsonAsString1 = QString(file1.readAll());
-
-  QTest::newRow("encoding")
-    << jsonAsString1
-    << "encoding"
-    << "UTF-8";
-
-  QTest::newRow("array key")
-    << jsonAsString1
-    << "plug-ins"
-    << STR_EXCEPTION;
-
-  QTest::newRow("object key")
-    << jsonAsString1
-    << "indent"
-    << STR_EXCEPTION;
-
-  QTest::newRow("default val")
-    << jsonAsString1
-    << "some undefined key"
-    << s_strDefaultVal;
-
-  QTest::newRow("str-int value")
-    << jsonAsString1
-    << "str-int-value"
-    << "158";
-}
-
-void PlatformJsonObjectTest::testGetNamedString(bool enabled)
-{
+TEST_P (PlatformJsonObjectTest, testGetNamedString) {
+  bool enabled = GetParam();
   if (!enabled) return;
+  
+  // pair <input, expected_value>
+  TestDataString test_data {
+      pair<string, string>("encoding", "UTF-8"),
+      pair<string, string>("plug-ins", STR_EXCEPTION),
+      pair<string, string>("indent", STR_EXCEPTION),
+      pair<string, string>("some undefined key", s_strDefaultVal),
+      pair<string, string>("str-int-value", "158")
+    };
 
-  QFETCH(QString, jsonAsString);
-  QFETCH(QString, name);
-  QFETCH(QString, expectedValue);
+  string path1 = string(SRCDIR) + "data/testJson1.json";
+  std::ifstream file1(path1, std::ifstream::in);
 
-  auto jsonArr = jsonAsString.toUtf8();
-
+  EXPECT_TRUE(file1.is_open());
+  stringstream ss;
+  ss << file1.rdbuf();
+  auto jsonAsString1 = ss.str();
+  
   auto pparser   = IJsonParser::Create();
   auto p_rootObj =
     pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
                                              jsonArr.end()));
-  QVERIFY(p_rootObj != nullptr);
+  EXPECT_NE(p_rootObj, nullptr);
 
-  std::string value;
-  try {
-    value = p_rootObj->GetNamedString(name.toStdString(), s_strDefaultVal);
+  for (TestDataString::iterator it = test_data.begin(); it != test_data.end(); it++) {
+    string value;
+    try {
+      value = p_rootObj->GetNamedString(it->first, s_strDefaultVal);
+    }
+    catch (exceptions::RMSInvalidArgumentException& e) {
+      Logger::Hidden("Convertion exception: %s", e.what());
+      value = STR_EXCEPTION;
+    }
+    EXPECT_EQ(it->second, value);
   }
-  catch (exceptions::RMSInvalidArgumentException& e) {
-    Logger::Hidden("Convertion exception: %s", e.what());
-    value = STR_EXCEPTION;
-  }
-  QVERIFY(expectedValue.toStdString() == value);
 }
 
-void PlatformJsonObjectTest::testGetNamedBool_data()
-{
-  QTest::addColumn<QString>("jsonAsString");
-  QTest::addColumn<QString>("name");
-  QTest::addColumn<bool>(   "expectedValue");
-
-  QString path1 = QString(SRCDIR) + "data/testJson1.json";
-  QFile   file1(path1);
-
-  QVERIFY(file1.open(QIODevice::ReadOnly | QIODevice::Text));
-  auto jsonAsString1 = QString(file1.readAll());
-
-  QTest::newRow("encoding")
-    << jsonAsString1
-    << "bool-value"
-    << true;
-
-  QTest::newRow("array key")
-    << jsonAsString1
-    << "plug-ins"
-    << BOOL_EXCEPTION;
-
-  QTest::newRow("object key")
-    << jsonAsString1
-    << "indent"
-    << BOOL_EXCEPTION;
-
-  QTest::newRow("default val")
-    << jsonAsString1
-    << "some undefined key"
-    << s_boolDefaultVal;
-
-  QTest::newRow("int value")
-    << jsonAsString1
-    << "int-value"
-    << BOOL_EXCEPTION;
-}
-
-void PlatformJsonObjectTest::testGetNamedBool(bool enabled)
-{
+TEST_P (PlatformJsonObjectTest, testGetNamedBool) {
+  bool enabled = GetParam();
   if (!enabled) return;
 
-  QFETCH(QString, jsonAsString);
-  QFETCH(QString, name);
-  QFETCH(bool,    expectedValue);
+  TestDataBool test_data {
+    pair<string, bool>("bool-value", true),
+    pair<string, bool>("plug-ins", BOOL_EXCEPTION),
+    pair<string, bool>("indent", BOOL_EXCEPTION),
+    pair<string, bool>("some undefined key", s_boolDefaultVal),
+    pair<string, bool>("int-value", s_boolDefaultVal)
+  };
 
-  auto jsonArr = jsonAsString.toUtf8();
+  string path1 = string(SRCDIR) + "data/testJson1.json";
+  std::ifstream file1(path1, std::ifstream::in);
+
+  EXPECT_TRUE(file1.is_open());
+  stringstream ss;
+  ss << file1.rdbuf();
+  auto jsonAsString1 = ss.str();
+
+  auto pparser = IJsonParser::Create();
+  auto p_rootObj = pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
+                                                            jsonArr.end()));
+  EXPECT_NE(p_rootObj, nullptr);
+  for (TestDataBool::iterator it = test_data.begin(); it != test_data.end(); it++) {
+    try {
+      auto value = p_rootObj->GetNamedBool(it->first, s_boolDefaultVal);
+      EXPECT_EQ (it->second, value);
+    }
+    catch (exceptions::RMSInvalidArgumentException& e) {
+      Logger::Hidden("Convertion exception: %s", e.what());
+      EXPECT_EQ(std::string(e.what()),
+          std::string("JsonObjectQt::GetNamedBool: convertion error"));
+    }
+  }
+}
+
+TEST_P (PlatformJsonObjectTest, testGetNamedObject) {
+  bool enabled = GetParam();
+  if (!enabled) return;
+
+  TestDataBool test_data {
+    pair<string, bool>("obj2", true),
+    pair<string, bool>("obj233", false),
+    pair<string, bool>("obj1", true),
+  };
+
+  string path1 = string(SRCDIR) + "data/testJson1.json";
+  std::ifstream file1(path1, std::ifstream::in);
+
+  EXPECT_TRUE(file1.is_open());
+  stringstream ss;
+  ss << file1.rdbuf();
+  auto jsonAsString1 = ss.str();
+  
   auto pparser   = IJsonParser::Create();
   auto p_rootObj = pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
                                                             jsonArr.end()));
-  QVERIFY(p_rootObj != nullptr);
+  EXPECT_NE(p_rootObj, nullptr);
 
-  try {
-    auto value = p_rootObj->GetNamedBool(name.toStdString(), s_boolDefaultVal);
-    QVERIFY(expectedValue == value);
-  }
-  catch (exceptions::RMSInvalidArgumentException& e) {
-    Logger::Hidden("Convertion exception: %s", e.what());
-    QVERIFY(std::string(e.what()) ==
-            std::string("JsonObjectQt::GetNamedBool: convertion error"));
-  }
-}
+  for (TestDataBool::iterator it = test_data.begin(); it != test_data.end(); it++) {    
+    auto p_namedObj = p_rootObj->GetNamedObject(it->first);
+    bool exsists    = p_namedObj != nullptr;
 
-void PlatformJsonObjectTest::testGetNamedObject_data()
-{
-  QTest::addColumn<QString>("jsonAsString");
-  QTest::addColumn<QString>("name");
-  QTest::addColumn<bool>(   "expectedExsists");
-
-  QString path1 = QString(SRCDIR) + "data/testJson1.json";
-  QFile   file1(path1);
-
-  QVERIFY(file1.open(QIODevice::ReadOnly | QIODevice::Text));
-  auto jsonAsString1 = QString(file1.readAll());
-
-  QTest::newRow("exists")
-    << jsonAsString1
-    << "obj2"
-    << true;
-
-  QTest::newRow("not exists")
-    << jsonAsString1
-    << "obj233"
-    << false;
-
-  QTest::newRow("exists")
-    << jsonAsString1
-    << "obj1"
-    << true;
-}
-
-void PlatformJsonObjectTest::testGetNamedObject(bool enabled)
-{
-  if (!enabled) return;
-
-  QFETCH(QString, jsonAsString);
-  QFETCH(QString, name);
-  QFETCH(bool,    expectedExsists);
-
-  auto jsonArr = jsonAsString.toUtf8();
-
-  auto pparser   = IJsonParser::Create();
-  auto p_rootObj = pparser->Parse(rmscore::common::ByteArray(jsonArr.begin(),
-                                                            jsonArr.end()));
-  QVERIFY(p_rootObj != nullptr);
-
-  auto p_namedObj = p_rootObj->GetNamedObject(name.toStdString());
-  bool exsists    = p_namedObj != nullptr;
-
-  if (exsists)
-  {
-    try
+    if (exsists)
     {
-      Logger::Hidden("val: %s", p_namedObj->GetNamedString("str-value").data());
-      Logger::Hidden("val: %i", p_namedObj->GetNamedBool("bool-value"));
+      try
+      {
+        Logger::Hidden("val: %s", p_namedObj->GetNamedString("str-value").data());
+        Logger::Hidden("val: %i", p_namedObj->GetNamedBool("bool-value"));
+      }
+      catch (exceptions::RMSInvalidArgumentException& e)
+      {
+        auto res = std::string(e.what());
+      }
     }
-    catch (exceptions::RMSInvalidArgumentException& e)
-    {
-      auto res = std::string(e.what());
-    }
+    EXPECT_EQ(exsists, it->second);
   }
-  QVERIFY(exsists == expectedExsists);
 }
 
-void PlatformJsonObjectTest::testStringify_data()
-{
-  QTest::addColumn<QString>("jsonAsString");
-
-  QString path1 = QString(SRCDIR) + "data/testJson1.json";
-  QFile   file1(path1);
-
-  QVERIFY(file1.open(QIODevice::ReadOnly | QIODevice::Text));
-  auto jsonAsString1 = QString(file1.readAll());
-
-  QTest::newRow("root obj")
-    << jsonAsString1;
-}
-
-void PlatformJsonObjectTest::testStringify()
-{
-  QFETCH(QString, jsonAsString);
-
-  auto jsonArr = jsonAsString.toUtf8();
+TEST (PlatformJsonObjectTest, testStringify) {
+  // expectedRes is:
+  // {
+  //   "bool-value":true,
+  //   "encoding":"UTF-8",
+  //   "indent":{
+  //     "length":3,
+  //     "use_space":true
+  //   },
+  //   "int-value":158,
+  //   "obj1":{
+  //     "bool-value":true,
+  //     "int-value":100000,
+  //     "str-value":"string1"
+  //   },
+  //   "obj2":{
+  //     "bool-value":false,
+  //     "int-value":2,
+  //     "str-value":"string2"
+  //   },
+  //   "plug-ins":[
+  //     "python",
+  //     "c++",
+  //     "ruby"
+  //   ],
+  //   "str-bool-value":"true",
+  //   "str-int-value":"158"
+  // }
+  rmscore::common::ByteArray expectedRes {
+    0x7B, 0x22, 0x62, 0x6F, 0x6F, 0x6C, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x74,
+    0x72, 0x75, 0x65, 0x2C, 0x22, 0x65, 0x6E, 0x63, 0x6F, 0x64, 0x69, 0x6E, 0x67, 0x22, 0x3A,
+    0x22, 0x55, 0x54, 0x46, 0x2D, 0x38, 0x22, 0x2C, 0x22, 0x69, 0x6E, 0x64, 0x65, 0x6E, 0x74,
+    0x22, 0x3A, 0x7B, 0x22, 0x6C, 0x65, 0x6E, 0x67, 0x74, 0x68, 0x22, 0x3A, 0x33, 0x2C, 0x22,
+    0x75, 0x73, 0x65, 0x5F, 0x73, 0x70, 0x61, 0x63, 0x65, 0x22, 0x3A, 0x74, 0x72, 0x75, 0x65,
+    0x7D, 0x2C, 0x22, 0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x31,
+    0x35, 0x38, 0x2C, 0x22, 0x6F, 0x62, 0x6A, 0x31, 0x22, 0x3A, 0x7B, 0x22, 0x62, 0x6F, 0x6F,
+    0x6C, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x74, 0x72, 0x75, 0x65, 0x2C, 0x22,
+    0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x31, 0x30, 0x30, 0x30,
+    0x30, 0x30, 0x2C, 0x22, 0x73, 0x74, 0x72, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A,
+    0x22, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x20, 0x31, 0x22, 0x7D, 0x2C, 0x22, 0x6F, 0x62, 0x6A,
+    0x32, 0x22, 0x3A, 0x7B, 0x22, 0x62, 0x6F, 0x6F, 0x6C, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65,
+    0x22, 0x3A, 0x66, 0x61, 0x6C, 0x73, 0x65, 0x2C, 0x22, 0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61,
+    0x6C, 0x75, 0x65, 0x22, 0x3A, 0x32, 0x2C, 0x22, 0x73, 0x74, 0x72, 0x2D, 0x76, 0x61, 0x6C,
+    0x75, 0x65, 0x22, 0x3A, 0x22, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x20, 0x32, 0x22, 0x7D, 0x2C,
+    0x22, 0x70, 0x6C, 0x75, 0x67, 0x2D, 0x69, 0x6E, 0x73, 0x22, 0x3A, 0x5B, 0x22, 0x70, 0x79,
+    0x74, 0x68, 0x6F, 0x6E, 0x22, 0x2C, 0x22, 0x63, 0x2B, 0x2B, 0x22, 0x2C, 0x22, 0x72, 0x75,
+    0x62, 0x79, 0x22, 0x5D, 0x2C, 0x22, 0x73, 0x74, 0x72, 0x2D, 0x62, 0x6F, 0x6F, 0x6C, 0x2D,
+    0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A, 0x22, 0x74, 0x72, 0x75, 0x65, 0x22, 0x2C, 0x22,
+    0x73, 0x74, 0x72, 0x2D, 0x69, 0x6E, 0x74, 0x2D, 0x76, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x3A,
+    0x22, 0x31, 0x35, 0x38, 0x22, 0x7D
+  };
   auto pJsonParser = IJsonParser::Create();
   auto pJsonObject = pJsonParser->Parse(rmscore::common::ByteArray(jsonArr.begin(), jsonArr.end()));
-  QVERIFY(pJsonObject != nullptr);
+  EXPECT_NE(pJsonObject, nullptr);
   auto stringified = pJsonObject->Stringify();
-  QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
-  auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
-
-  QCOMPARE(actualRes, expectedRes);
+  
+  EXPECT_THAT(stringified, testing::ContainerEq(expectedRes));
 }
 
-void PlatformJsonObjectTest::testSetNamedString()
-{
+TEST (PlatformJsonObjectTest, testSetNamedString) {
   auto pJsonObject = IJsonObject::Create();
   pJsonObject->SetNamedString("myString", "MyStringValue");
   auto stringified = pJsonObject->Stringify();
-  QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
-  QString jsonAsString = "{\"myString\":\"MyStringValue\"}";
-  auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
+  // QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
+  // QString jsonAsString = "{\"myString\":\"MyStringValue\"}";
+  // auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
+  rmscore::common::ByteArray expectedRes {
+      0x7B, 0x22, 0x6D, 0x79, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x22, 0x3A, 0x22, 0x4D, 0x79,
+      0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x7D
+  };
 
-  QCOMPARE(actualRes, expectedRes);
+  EXPECT_THAT(stringified, testing::ContainerEq(expectedRes));
 }
 
-void PlatformJsonObjectTest::testSetNamedObject()
-{
+TEST (PlatformJsonObjectTest, testSetNamedObject) {
   auto pJsonObject = IJsonObject::Create();
   pJsonObject->SetNamedString("myString", "MyStringValue");
   auto pJsonObject1 = IJsonObject::Create();
   pJsonObject1->SetNamedObject("myObject", *pJsonObject);
   auto stringified = pJsonObject1->Stringify();
-  QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
-  QString jsonAsString = "{\"myObject\":{\"myString\":\"MyStringValue\"}}";
-  auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
-
-  QCOMPARE(actualRes, expectedRes);
+  rmscore::common::ByteArray expectedRes {
+      0x7B, 0x22, 0x6D, 0x79, 0x4F, 0x62, 0x6A, 0x65, 0x63, 0x74, 0x22, 0x3A, 0x7B, 0x22, 0x6D,
+      0x79, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x22, 0x3A, 0x22, 0x4D, 0x79, 0x53, 0x74, 0x72,
+      0x69, 0x6E, 0x67, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x22, 0x7D, 0x7D
+  };
+  EXPECT_THAT(stringified, testing::ContainerEq(expectedRes));
 }
 
-void PlatformJsonObjectTest::testSetNamedArray()
-{
+TEST (PlatformJsonObjectTest, testSetNamedArray) {
   auto pJsonArray = IJsonArray::Create();
   pJsonArray->Append("string1");
   pJsonArray->Append("string2");
   auto pJsonObject = IJsonObject::Create();
   pJsonObject->SetNamedArray("myArray", *pJsonArray);
   auto stringified = pJsonObject->Stringify();
-  QByteArray actualRes((const char *)stringified.data(), (int)stringified.size());
-  QString jsonAsString = "{\"myArray\":[\"string1\",\"string2\"]}";
-  auto expectedRes = QJsonDocument::fromJson(jsonAsString.toUtf8()).toJson(QJsonDocument::Compact);
-
-  QCOMPARE(actualRes, expectedRes);
+  // expectedRes is {"myArray":["string1","string2"]}
+  rmscore::common::ByteArray expectedRes {
+      0x7B, 0x22, 0x6D, 0x79, 0x41, 0x72, 0x72, 0x61, 0x79, 0x22, 0x3A, 0x5B, 0x22, 0x73,
+      0x74, 0x72, 0x69, 0x6E, 0x67, 0x31, 0x22, 0x2C, 0x22, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67,
+      0x32, 0x22, 0x5D, 0x7D
+  };
+  EXPECT_THAT(stringified, testing::ContainerEq(expectedRes));
 }

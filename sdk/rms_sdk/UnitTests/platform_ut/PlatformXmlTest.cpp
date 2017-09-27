@@ -7,59 +7,69 @@
 */
 
 #include "PlatformXmlTest.h"
+
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
 #include "../../Platform/Logger/Logger.h"
 #include "../../Platform/Xml/IDomDocument.h"
 #include "../../Platform/Xml/IDomNode.h"
 #include "../../Platform/Xml/IDomElement.h"
 
 using namespace rmscore::platform::logger;
+using std::string;
+using std::tuple;
+using std::vector;
 
+#define TestData vector<tuple<string, string, string>>
 
-PlatformXmlTest::PlatformXmlTest()
-{
-}
-void PlatformXmlTest::testSelectSingleNode_data()
-{
-    QTest::addColumn<QString>("xmlAsString");
-    QTest::addColumn<QString>("xPathRequest");
-    QTest::addColumn<QString>("expectedResult");
+TEST_P (PlatformXmlTest, testSelectSingleNode) {
+  bool enabled = GetParam();
+  if (!enabled) return;
 
-    QString path1 = QString(SRCDIR) + "data/testXPath1.xml";
-    QFile file1(path1);
-    QVERIFY(file1.open(QIODevice::ReadOnly | QIODevice::Text));
-    QTest::newRow("xpath1")
-        << QString(file1.readAll())
-        << "kml/Document/Placemark[last()]/GeometryCollection/LineString/coordinates"
-        << "0.000010,0.000020,0.000030";
+  string path1 = string(SRCDIR) + "data/testXPath1.xml";
+  std::ifstream file1(path1, std::ifstream::in);
+  EXPECT_TRUE(file1.is_open());
+  std::stringstream ss;
+  ss << file1.rdbuf();
+  auto file1AsString = ss.str();
 
-    QString path2 = QString(SRCDIR) + "data/testXPath2.xml";
-    QFile file2(path2);
-    QVERIFY(file2.open(QIODevice::ReadOnly | QIODevice::Text));
-    auto file2AsString = QString(file2.readAll());
-    QTest::newRow("xpath2")
-        << file2AsString
-        << "bookstore/book/author[last-name = \"Bob\" and first-name = \"Joe\"]/award"
-        << "Trenton Literary Review Honorable Mention";
-}
-void PlatformXmlTest::testSelectSingleNode(bool enabled)
-{
-    if (!enabled) return;
+  ss.str(std::string());
+  ss.clear();
+  string path2 = string(SRCDIR) + "data/testXPath2.xml";
+  std::ifstream file2(path2, std::ifstream::in);
+  EXPECT_TRUE(file2.is_open());
+  ss << file2.rdbuf();
+  auto file2AsString = ss.str();
 
-    auto doc = IDomDocument::create();
-    std::string errorMsg;
-    int errorLine = 0;
-    int errorColumn = 0;
+  TestData test_data { 
+      std::make_tuple (
+          file1AsString, 
+          "kml/Document/Placemark[last()]/GeometryCollection/LineString/coordinates", 
+          "0.000010,0.000020,0.000030"
+        ),
+      std::make_tuple (
+          file2AsString,
+          "bookstore/book/author[last-name = \"Bob\" and first-name = \"Joe\"]/award",
+          "Trenton Literary Review Honorable Mention"
+      )
+  };
+  
+  auto doc = IDomDocument::create();
+  std::string errorMsg;
+  int errorLine = 0;
+  int errorColumn = 0;
 
-    QFETCH(QString, xmlAsString);
-    QFETCH(QString, xPathRequest);
-    QFETCH(QString, expectedResult);
+  for(TestData::iterator it = test_data.begin(); it != test_data.end(); it++) {
+    auto ok = doc->setContent(std::get<0>(*it), errorMsg, errorLine, errorColumn);
+    EXPECT_TRUE(ok) << errorMsg.data();
 
-    auto ok = doc->setContent(xmlAsString.toStdString(), errorMsg, errorLine, errorColumn);
-    QVERIFY2(ok, errorMsg.data());
-
-    auto pnode = doc->SelectSingleNode(xPathRequest.toStdString());
+    auto pnode = doc->SelectSingleNode(std::get<1>(*it));
     auto realResult = pnode->toElement()->text();
-    Logger::Hidden("expc: %s", expectedResult.toStdString().data());
+    Logger::Hidden("expc: %s", std::get<2>(*it).data());
     Logger::Hidden("real: %s", realResult.data());
-    QVERIFY(realResult == expectedResult.toStdString());
+    EXPECT_EQ(realResult, std::get<2>(*it));
+  }
 }

@@ -6,15 +6,13 @@
  * ======================================================================
 */
 
-#include "../../Platform/Filesystem/IFile.h"
-
 #include <sstream>
 #include <fstream>
 
+#include "gtest/gtest.h"
+#include "../../Platform/Filesystem/IFile.h"
 #include "../../Platform/Logger/Logger.h"
 #include "../../Common/CommonTypes.h"
-#include "gtest/gtest.h"
-
 
 using namespace std;
 using namespace rmscore::platform::filesystem;

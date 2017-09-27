@@ -5,12 +5,13 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
-#include "../../Platform/Filesystem/IFileSystem.h"
 
 #include <fstream>
+#include <string>
 
-#include "../../Common/CommonTypes.h"
 #include "gtest/gtest.h"
+#include "../../Common/CommonTypes.h"
+#include "../../Platform/Filesystem/IFileSystem.h"
 
 using namespace rmscore::platform::filesystem;
 using std::string;
