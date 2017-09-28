@@ -8,13 +8,17 @@
 
 #include<QCoreApplication>
 #include"FileAPIProtectorSelectorTest.h"
-
+#include <gtest/gtest.h>
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     int res = 0;
     res += QTest::qExec(new FileAPIProtectorSelectorTest(), argc, argv);
 
-    return res;
+    testing::GTEST_FLAG(output) = "xml:./TestReport.xml";
+    testing::GTEST_FLAG(filter) ="**.*";
+    testing::InitGoogleTest(&argc,argv);
+    RUN_ALL_TESTS();
+    return 0;
 }
