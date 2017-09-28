@@ -1,0 +1,47 @@
+from build_config import *
+
+Import('file_env bins build_flavor')
+
+Import("""
+    file_lib
+    platform
+    libxml2_lib
+""")
+
+samples_env = file_env.Clone()
+install_path = "#" + bins + '/samples'
+
+src_files = Glob('*.cpp')
+
+samples_env.Append(LIBS=[file_lib, libxml2_lib])
+
+if platform == 'win32':
+    samples_env.Append(CPPPATH='#third_party/include/Libgsf')
+    lib_gsf_path = '#third_party/lib/Libgsf'
+    samples_env.Append(LIBPATH= [lib_gsf_path, '#third_party/lib/xmp'])
+    if build_flavor == 'debug':
+        samples_env.Append(LIBS= Split('XMPCoreStaticD XMPFilesStaticD'))
+    else:
+        samples_env.Append(LIBS= Split('XMPCoreStatic XMPFilesStatic'))
+    samples_env.Append(LIBS=[
+        'libgsf-1-114',
+        'zlib1',
+        'libgobject-2.0-0',
+        'libglib-2.0-0',
+        'libbz2-1',
+    ])
+    Install(install_path, Glob(lib_gsf_path + '/*.dll'))
+elif platform == 'linux2':
+    samples_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
+    samples_env.Append(LIBPATH=['/usr/lib/xmp'])
+    samples_env.Append(LIBS=[
+        'pthread',
+        'stdc++fs',
+        'XMPCore',
+        'XMPFiles',
+        'dl',
+    ])
+
+file_sdk_sample_obj = samples_env.Object(source = src_files);
+file_sdk_sample_exe = samples_env.Program("file_sdk_sample", source = file_sdk_sample_obj)
+Return('file_sdk_sample_exe')

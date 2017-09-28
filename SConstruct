@@ -211,5 +211,6 @@ Export('libxml2_lib')
 #---------------------------------------------------------------
 
 env.SConscript('sdk/SConscript',variant_dir = bins + '/sdk', duplicate=0)
+env.SConscript('samples/file_sdk_sample/SConscript',variant_dir = bins + '/samples', duplicate=0)
 # if samples:
 #   env.SConscript('samples/SConscript',variant_dir = bins + '/samples', duplicate=0)
