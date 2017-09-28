@@ -1,4 +1,5 @@
 #include "OPCFileFormat/xml/custom_properties.h"
+#include <unordered_set>
 
 using std::string;
 using std::vector;
@@ -6,7 +7,7 @@ using std::vector;
 namespace mip {
 namespace file {
 
-CustomPropertiesXml::CustomPropertiesXml(const string &xml)
+CustomPropertiesXml::CustomPropertiesXml(const string& xml)
     : OpcXml(xml) {
 }
 
@@ -23,8 +24,30 @@ vector<CustomProperty> CustomPropertiesXml::GetProperties() const {
   return result;
 }
 
-void CustomPropertiesXml::UpdateProperties(vector<CustomProperty> propertiesToAdd, vector<string> keysToRemove) {
-  throw std::runtime_error("not implemented");
+void CustomPropertiesXml::UpdateProperties(vector<CustomProperty>& propertiesToAdd, vector<string>& keysToRemove) {
+  // Remove keys
+  for (const auto& keyToRemove : keysToRemove){
+    mDocument.SelectNode("/*[local-name()='Properties']/*[local-name()='property' and @name='" + keyToRemove + "']").Delete();
+  }
+
+  // Add properties
+  auto rootNode = mDocument.GetRootNode();
+  for (const auto& propertyToAdd : propertiesToAdd) {
+    auto node = mDocument.CreateNode("property");
+    node.AddAttribute("fmtid", "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}");
+    node.AddAttribute("pid", "_"); //Prepares pid attribute in "standard position"
+    node.AddAttribute("name", propertyToAdd.first);
+    auto subNode = mDocument.CreateNode("lpwstr", "vt");
+    subNode.AddContent(propertyToAdd.second);
+    node.AddChild(subNode);
+    rootNode.AddChild(node);
+  }
+
+  // Fix pid attribute
+  auto i = 2;
+  for (auto node = rootNode.GetFirstChild(); !(node == XmlNode()); node = node.GetNextNode()) {
+    node.AddAttribute("pid", std::to_string(i++));
+  }
 }
 
 } // namespace file
