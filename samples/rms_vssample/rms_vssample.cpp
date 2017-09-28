@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "rmssdk\rms.h"
+#include "rmssdk\rmscore.h"
 
 using namespace rmscore::modernapi;
 using namespace rmscore::core;
