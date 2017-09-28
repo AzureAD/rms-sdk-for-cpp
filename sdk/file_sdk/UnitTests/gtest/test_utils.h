@@ -7,6 +7,8 @@
 namespace mip {
 namespace file {
 
+void InitUnitTests(int argc, char** argv);
+
 std::string GetResourceFile(const std::string& fileName);
 
 std::shared_ptr<IStream> GetIStreamFromFile(const std::string& fileName);

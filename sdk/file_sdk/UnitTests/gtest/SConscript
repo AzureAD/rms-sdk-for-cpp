@@ -11,7 +11,7 @@ Import("""
 file_ut_env = file_env.Clone()
 install_path = "#" + bins + '/sdk/file_sdk'
 
-src_files = ['unittest_main.cpp', 'test_utils.cpp']
+src_files = Glob('*.cpp')
 src_files += Glob('../../OPCFileFormat/test/*.cpp')
 
 Install(install_path, Dir('.').srcnode().Dir('../../OPCFileFormat/test/Resources'))
@@ -43,6 +43,7 @@ elif platform == 'linux2':
     libs += file_ut_env['LIBS']
     libs += [
         'pthread',
+        'stdc++fs',
     ]
 
 file_sdk_unittest_obj = file_ut_env.Object(source = src_files);
