@@ -51,13 +51,15 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="sdk\**\*.c*" />
+    <ClCompile Include="samples\**\*.c*" />
     <ClCompile Include="googletest\**\*.c*" />
     <ClCompile Include="googlemock\**\*.c*" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sdk\**\*.h" />
-    <ClCompile Include="googletest\**\*.h" />
-    <ClCompile Include="googlemock\**\*.h" />
+    <ClInclude Include="sdk\**\*.h*" />
+    <ClInclude Include="samples\**\*.h*" />
+    <ClCompile Include="googletest\**\*.h*" />
+    <ClCompile Include="googlemock\**\*.h*" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SConstruct" />
