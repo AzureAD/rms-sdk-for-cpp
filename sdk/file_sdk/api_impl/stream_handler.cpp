@@ -62,8 +62,8 @@ void StreamHandler::DeleteLabel(const std::string& justificationMessage) {
   mTags = newLabels;
 }
 
-void StreamHandler::SetProtection(const UserPolicy& policy) {
-}
+//void StreamHandler::SetProtection(const UserPolicy& policy) {
+//}
 
 void StreamHandler::RemoveProtection() {
 }

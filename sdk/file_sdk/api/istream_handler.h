@@ -4,13 +4,13 @@
 #include <memory>
 
 #include <Common/istream.h>
-#include <UserPolicy.h>
+//#include <ModernAPI/UserPolicy.h>
 #include "label.h"
 #include "fileapi_export.h"
 #include "ipolicy_engine.h"
 #include "labeling_options.h"
 
-using rmscore::modernapi::UserPolicy;
+//using rmscore::modernapi::UserPolicy;
 using mip::file::ILabel;
 using mip::file::LabelingOptions;
 using mip::file::IPolicyEngine;
@@ -34,7 +34,7 @@ public:
 
   virtual void DeleteLabel(const std::string& justificationMessage) = 0;
 
-  virtual void SetProtection(const UserPolicy& policy ) = 0;
+//  virtual void SetProtection(const UserPolicy& policy ) = 0;
 
   virtual void RemoveProtection() = 0;
 

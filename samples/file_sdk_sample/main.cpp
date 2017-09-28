@@ -8,7 +8,7 @@
 #include <Common/std_stream_adapter.h>
 #include <api/istream_handler.h>
 #include <Common/tag.h>
-#include <CryptoAPI.h>
+//#include <CryptoAPI.h>
 #include "utils.h"
 
 using std::cout;

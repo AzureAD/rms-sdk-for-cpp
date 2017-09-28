@@ -28,7 +28,7 @@ public:
   virtual void SetLabel(const std::string& labelId, const LabelingOptions& labelingOptions) override;
   virtual void SetLabel(std::shared_ptr<ILabel> label, const LabelingOptions& labelingOptions) override;
   virtual void DeleteLabel(const std::string& justificationMessage) override;
-  virtual void SetProtection(const UserPolicy & policy) override;
+//  virtual void SetProtection(const UserPolicy & policy) override;
   virtual void RemoveProtection() override;
   virtual void Commit(std::shared_ptr<IStream> outputStream, std::string& outputExtension) override;
 
