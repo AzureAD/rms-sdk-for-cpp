@@ -6,19 +6,16 @@
 #include <string>
 #include <vector>
 
-using std::string;
-using std::vector;
-
 namespace mip {
 namespace file {
 
-using CustomProperty = std::pair<string, string>;
+using CustomProperty = std::pair<std::string, std::string>;
 
 class CustomPropertiesXml : public OpcXml {
 public:
-  CustomPropertiesXml(const string& xml);
-  vector<CustomProperty> GetProperties() const;
-  void UpdateProperties(vector<CustomProperty> propertiesToAdd, vector<string> keysToRemove);
+  CustomPropertiesXml(const std::string& xml);
+  std::vector<CustomProperty> GetProperties() const;
+  void UpdateProperties(std::vector<CustomProperty>& propertiesToAdd, std::vector<std::string>& keysToRemove);
 };
 
 } // namespace file
