@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RMS SDK", "RMS SDK.vcxproj", "{25C403A2-9C13-4303-897B-0543F2D85A37}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "linux", "linux.vcxproj", "{66D1DAF7-DD26-40A7-9D34-C73161373F7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,11 @@ Global
 		{25C403A2-9C13-4303-897B-0543F2D85A37}.Release|amd64.Build.0 = Release|x64
 		{25C403A2-9C13-4303-897B-0543F2D85A37}.Release|x86.ActiveCfg = Release|Win32
 		{25C403A2-9C13-4303-897B-0543F2D85A37}.Release|x86.Build.0 = Release|Win32
+		{66D1DAF7-DD26-40A7-9D34-C73161373F7F}.Debug|amd64.ActiveCfg = Debug|x64
+		{66D1DAF7-DD26-40A7-9D34-C73161373F7F}.Debug|amd64.Build.0 = Debug|x64
+		{66D1DAF7-DD26-40A7-9D34-C73161373F7F}.Debug|x86.ActiveCfg = Debug|x64
+		{66D1DAF7-DD26-40A7-9D34-C73161373F7F}.Release|amd64.ActiveCfg = Release|x64
+		{66D1DAF7-DD26-40A7-9D34-C73161373F7F}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
