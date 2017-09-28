@@ -1,0 +1,12 @@
+from build_config import *
+
+Import('rms_env')
+
+logger_env = rms_env.Clone()
+
+src_files = Glob('*.cpp')
+
+logger_env.Append(CPPPATH='#sdk/rms_sdk/external/easyloggingpp')
+
+logger_obj = create_objs(logger_env, src_files)
+Return('logger_obj')

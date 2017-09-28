@@ -1,11 +1,20 @@
 # Build Artifacts
 *.o
-build/
 bin/
 dest/
 *.deb
 *.bz2
 *build.log
+*.dblite
+*.pyc
+*.pdb
+*.obj
+.vscode/
+.vs/
+*.user
+*.opendb
+*.db
+
 
 # Qt Build Artifacts
 Makefile*
@@ -26,4 +35,3 @@ docs/html/
 .DS_Store
 *.dat
 third_party**
-

@@ -10,7 +10,7 @@
 #define USERRIGHTS
 #include <vector>
 #include <string>
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace modernapi {

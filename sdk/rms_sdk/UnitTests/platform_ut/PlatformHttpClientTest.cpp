@@ -9,7 +9,6 @@
 #include "PlatformHttpClientTest.h"
 #include "../../Platform/Logger/Logger.h"
 #include "../../Platform/Http/IHttpClient.h"
-#include "../../Common/FrameworkSpecificTypes.h"
 
 using namespace rmscore::platform;
 

@@ -12,7 +12,7 @@
 #include <string>
 #include "IConsentCallbackImpl.h"
 #include "IConsentCallback.h"
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 namespace rmscore {
 namespace modernapi {

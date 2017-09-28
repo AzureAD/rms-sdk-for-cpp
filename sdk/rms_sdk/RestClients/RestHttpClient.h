@@ -14,7 +14,6 @@
 
 #include "AuthenticationHandler.h"
 
-#include "../Common/FrameworkSpecificTypes.h"
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../Platform/Http/IHttpClient.h"
 
@@ -41,7 +40,7 @@ public:
 
 private:
 
-    enum HttpRequestType
+    enum class HttpRequestType
     {
       HTTP_GET,
       HTTP_POST,

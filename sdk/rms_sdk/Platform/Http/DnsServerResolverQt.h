@@ -10,17 +10,12 @@
 #define DNSSERVERRESOLVERQT
 #include "IDnsServerResolver.h"
 
-class QUdpSocket;
-
 namespace rmscore {
 namespace platform {
 namespace http {
 class DnsServerResolverQt : public IDnsServerResolver {
 public:
     std::string lookup(const std::string& dnsRequest) override;
-
-private:
-    std::string doLookup(const std::string& dnsRequest);
 };
 } // namespace http
 } // namespace platform

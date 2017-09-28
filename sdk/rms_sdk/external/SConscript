@@ -1,0 +1,9 @@
+from build_config import *
+
+Import('rms_env bins')
+
+easylogger_obj = rms_env.SConscript('easyloggingpp/SConscript', duplicate=0)
+
+Export("""
+  easylogger_obj  
+""")

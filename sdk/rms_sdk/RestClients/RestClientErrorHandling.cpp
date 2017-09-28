@@ -37,11 +37,11 @@ void HandleRestClientError(StatusCode         httpStatusCode,
 
   case StatusCode::NOT_FOUND:
     throw exceptions::RMSNetworkException("RMS service - resource not available.",
-                                          exceptions::RMSNetworkException::ServiceNotAvailable);
+                                          exceptions::RMSNetworkException::Reason::ServiceNotAvailable);
 
   case StatusCode::BAD_GATEWAY:
     throw exceptions::RMSNetworkException("RMS service is unavailable.",
-                                          exceptions::RMSNetworkException::ServiceNotAvailable);
+                                          exceptions::RMSNetworkException::Reason::ServiceNotAvailable);
 
   case StatusCode::BAD_REQUEST:
   case StatusCode::INTERNAL_SERVER_ERROR:
@@ -56,7 +56,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     catch (exceptions::RMSException)
     {
       throw exceptions::RMSNetworkException("RMS service error.",
-                                            exceptions::RMSNetworkException::ServerError);
+                                            exceptions::RMSNetworkException::Reason::ServerError);
     }
     Logger::Hidden("Service error response: code='%s', message='%s'",
                    response.code.c_str(),
@@ -73,14 +73,14 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     {
       throw exceptions::RMSNetworkException(
               "Content protected by the on prem servers is not supported in this version.",
-              exceptions::RMSNetworkException::OnPremNotSupported);
+              exceptions::RMSNetworkException::Reason::OnPremNotSupported);
     }
     else if (0 ==
               _stricmp("Microsoft.RightsManagement.Exceptions.BadInputException",
                       response.code.c_str()))
     {
       throw exceptions::RMSNetworkException("Invalid PL",
-                                            exceptions::RMSNetworkException::InvalidPL);
+                                            exceptions::RMSNetworkException::Reason::InvalidPL);
     }
     else if (0 ==
               _stricmp(
@@ -89,7 +89,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     {
       throw exceptions::RMSNetworkException(
               "REST Service is disabled for publishing for this user.",
-              exceptions::RMSNetworkException::ServiceDisabled);
+              exceptions::RMSNetworkException::Reason::ServiceDisabled);
     }
     else if ((0 ==
               _stricmp(
@@ -102,7 +102,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     {
       throw exceptions::RMSNetworkException(
               "REST Service is disabled for this device",
-              exceptions::RMSNetworkException::DeviceRejected);
+              exceptions::RMSNetworkException::Reason::DeviceRejected);
     }
     else if (0 ==
               _stricmp(
@@ -111,7 +111,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     {
       throw exceptions::RMSNetworkException(
               "REST Service is disabled for this platform",
-              exceptions::RMSNetworkException::ServiceDisabled);
+              exceptions::RMSNetworkException::Reason::ServiceDisabled);
     }
     else if (0 ==
               _stricmp(
@@ -120,7 +120,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
     {
       throw exceptions::RMSNetworkException(
               "REST Service is disabled for this tenant",
-              exceptions::RMSNetworkException::ServiceDisabled);
+              exceptions::RMSNetworkException::Reason::ServiceDisabled);
     }
 
     // else go to the default case
@@ -128,7 +128,7 @@ void HandleRestClientError(StatusCode         httpStatusCode,
 
   default:
     throw exceptions::RMSNetworkException("RMS service error.",
-                                          exceptions::RMSNetworkException::ServerError);
+                                          exceptions::RMSNetworkException::Reason::ServerError);
   }
 }
 } // namespace restclients

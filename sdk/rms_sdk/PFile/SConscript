@@ -1,0 +1,15 @@
+from build_config import *
+
+Import('rms_env')
+
+pfile_env = rms_env.Clone()
+src_files = Glob('*.cpp')
+pfile_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+pfile_env.Append(CPPPATH='#sdk/rms_sdk/Common')
+pfile_env.Append(CPPPATH='#sdk/rms_sdk/Core')
+pfile_env.Append(CPPPATH='#sdk/rms_sdk/Platform/Logger')
+pfile_env.Append(CPPPATH='#sdk/rms_sdk/ModernAPI')
+pfile_env.Append(CPPPATH='#sdk/rms_sdk/FileAPI')
+
+pfile_obj = create_objs(pfile_env, src_files)
+Return('pfile_obj')

@@ -93,7 +93,7 @@ common::StringArray RestClientCache::Lookup(
         if (iis) {
           // create input protected stream
           auto ips = m_type ==
-                     CACHE_ENCRYPTED ? rmscrypto::api::
+                     CacheType::CACHE_ENCRYPTED ? rmscrypto::api::
                      CreateCryptoStreamWithAutoKey(
             rmscrypto::api::CIPHER_MODE_CBC4K, filePath, iis) : iis;
 
@@ -194,7 +194,7 @@ void RestClientCache::Store(
     if (ois) {
       // create output protected stream
       auto ops = m_type ==
-                 CACHE_ENCRYPTED ? rmscrypto::api::CreateCryptoStreamWithAutoKey(
+                 CacheType::CACHE_ENCRYPTED ? rmscrypto::api::CreateCryptoStreamWithAutoKey(
         rmscrypto::api::CIPHER_MODE_CBC4K, filePath, ois) : ois;
 
       if (ops) {
@@ -491,7 +491,7 @@ string RestClientCache::GetFileName(
 }
 
 // parses the expiry time from the filename
-common::DateTime RestClientCache::GetExpiryTimeFromFileName(
+std::time_t RestClientCache::GetExpiryTimeFromFileName(
   const string& cacheName, const string& fileName)
 {
   size_t nFileNameLength  = fileName.length();
@@ -516,7 +516,7 @@ common::DateTime RestClientCache::GetExpiryTimeFromFileName(
 
   SELF::ReplaceBackNotAllowedCharactersInDateTime(strExpires);
 
-  return common::DateTime::fromString(strExpires.c_str(), Qt::ISODate);
+  return  common::GetTimeFromString(strExpires.c_str(),"%FT%TZ");
 }
 
 // delete the file
@@ -546,11 +546,13 @@ bool RestClientCache::DeleteIfExpired(
 {
   auto expires = SELF::GetExpiryTimeFromFileName(cacheName, fileName);
 
-  if (expires.isNull()) return false;
+  if (expires == NULL)
+      return false;
 
-  common::DateTime now = common::DateTime::currentDateTime();
+  time_t currentTime;
+  time(&currentTime);
 
-  if (now > expires)
+  if (currentTime > expires)
   {
     SELF::DeleteCacheFile(fileName);
     return true;

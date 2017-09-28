@@ -14,7 +14,7 @@
 #include <memory>
 #include <string>
 
-#include "ModernAPIExport.h"
+#include "api_export.h"
 
 #include "UserRoles.h"
 #include "UserRights.h"
@@ -173,7 +173,7 @@ private:
 /**
  * @brief Constants for PolicyDescriptor.OfflineCacheLifetimeInDays property.
  */
-enum OfflineCacheLifetimeConstants {
+enum class OfflineCacheLifetimeConstants {
   NoCache           = 0,
   CacheNeverExpires = -1
 };

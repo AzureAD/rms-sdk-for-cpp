@@ -1,0 +1,61 @@
+Import("""
+    build_arch
+    build_flavor
+    lib_suffix
+    platform
+    qt_lib_path
+    env
+    target_arch
+""")
+
+Import("""
+    apiimpl_obj
+    common_obj
+    compound_obj
+    default_obj
+    opc_obj
+    pdf_obj
+    pfile_obj
+    xmp_obj
+""")
+
+filedll_env = env.Clone()
+
+lib_path = [
+    qt_lib_path,
+]
+objects = [
+    apiimpl_obj,
+    common_obj,
+    compound_obj,
+    default_obj,
+    opc_obj,
+    pdf_obj,
+    pfile_obj,
+    xmp_obj,
+]
+libs = []
+
+if platform == 'win32':
+    filedll_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /DLL /MACHINE:'+build_arch+' /SUBSYSTEM:WINDOWS'))
+    if build_flavor == 'debug':
+        filedll_env.Append(LINKFLAGS=Split('/DEBUG'))
+    elif build_flavor == 'release':
+        filedll_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+    lib_path += [
+        '#third_party/lib/Libgsf',
+    ]
+    libs += [
+        'libgsf-1-114',
+        'zlib1',
+        'libgobject-2.0-0',
+        'libglib-2.0-0',
+        'libbz2-1'
+    ]
+elif platform == 'linux2':
+    filedll_env.ParseConfig('pkg-config --cflags --libs libgsf-1')
+elif platform == 'darwin':
+    pass
+
+file_lib = filedll_env.Library(target = "file", source = objects, LIBS = libs, LIBPATH = lib_path)
+Return('file_lib')

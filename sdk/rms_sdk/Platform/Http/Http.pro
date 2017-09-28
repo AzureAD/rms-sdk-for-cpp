@@ -6,6 +6,8 @@ TEMPLATE = lib
 
 DEFINES += QTFRAMEWORK
 
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
+
 CONFIG += staticlib warn_on c++11 debug_and_release
 
 QT += core network
@@ -14,6 +16,8 @@ QT -= gui
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
 }
+
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/ -ldnsapi
 
 SOURCES += \
     HttpClientQt.cpp \

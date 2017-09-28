@@ -1,0 +1,68 @@
+import os.path
+from build_config import *
+
+Import("""
+    build_arch
+    build_flavor
+    lib_suffix
+    platform
+    qt_lib_path
+    file_env
+    target_arch
+""")
+
+Import("""
+    common_obj
+    compound_obj
+    default_obj
+    opc_obj
+    pdf_obj
+    pfile_obj
+    xmp_obj
+""")
+
+src_files = Glob('*.cpp')
+
+filecommon_env_env = file_env.Clone()
+
+filecommon_env_env.Append(CCFLAGS=Split('-DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_TESTLIB_LIB'))
+
+srcdir = '\\\"' + Dir('.').srcnode().abspath.replace('\\','/') + '/\\\"'
+filecommon_env_env.Append(CPPDEFINES = { 'SRCDIR' : srcdir })
+  
+lib_path = [
+      qt_lib_path, 
+      '#bin/' + build_flavor + '/' + target_arch + '/file_sdk',
+  ]
+
+objects = [
+    common_obj,
+    compound_obj,
+    default_obj,
+    opc_obj,
+    pdf_obj,
+    pfile_obj,
+    xmp_obj,
+]
+libs = [
+      'Qt5Test' + lib_suffix,
+      'file', 
+]
+
+if platform == 'win32':
+  filecommon_env_env.Append(LINKFLAGS=Split('/NOLOGO /DYNAMICBASE /NXCOMPAT /SUBSYSTEM:CONSOLE'))
+  if build_flavor == 'debug':
+    filecommon_env_env.Append(LINKFLAGS=Split('/DEBUG'))
+  elif build_flavor == 'release':
+    filecommon_env_env.Append(LINKFLAGS=Split('/INCREMENTAL:NO'))
+  lib_path += []
+  libs += []
+elif platform == 'linux2':
+  libs += []
+elif platform == 'darwin':
+  libs += []
+
+common_ut_obj = filecommon_env_env.Object(source = src_files)
+common_ut_test = filecommon_env_env.Program(target = "common_ut", \
+    source = [common_ut_obj] + objects, LIBS = [libs], LIBPATH = lib_path)
+Return('common_ut_test')

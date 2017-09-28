@@ -1,0 +1,10 @@
+from build_config import *
+
+Import('file_env')
+
+src_files = Glob('*.cpp')
+
+default_env = file_env.Clone()
+
+default_obj = create_objs(default_env, src_files)
+Return('default_obj')
