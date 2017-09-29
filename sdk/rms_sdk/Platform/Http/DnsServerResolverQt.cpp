@@ -90,6 +90,7 @@ std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
       return "";
     }
     return string(dnsName);
+  }
 }
 #endif
 
