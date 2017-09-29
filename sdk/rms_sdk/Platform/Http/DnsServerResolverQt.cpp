@@ -9,6 +9,8 @@
 #ifdef QTFRAMEWORK
 
 #include "DnsServerResolverQt.h"
+#include <QCoreApplication>
+#include <QTimer>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -89,9 +91,9 @@ std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
       return "";
     }
     return string(dnsName);
+#endif
 
-std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
-{
+std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
   // If a QCoreApplication does not exist, create a temporary instance.
   // QCoreApplication is a singleton, but it can keep getting created and destroyed.
   // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
@@ -100,16 +102,12 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
       char name[] = "DnsServerResolverQt::lookup";
       char* argv = &name[0];
       QCoreApplication a(argc, &argv);
-
       auto result = doLookup(dnsRequest);
-
       QTimer::singleShot(0, &a, SLOT(quit()));
       a.exec();
-
       return result;
   }
 }
-#endif
 
 }// namespace http
 }// namespace platform
