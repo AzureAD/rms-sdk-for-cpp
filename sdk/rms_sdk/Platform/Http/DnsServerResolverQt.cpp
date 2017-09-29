@@ -36,7 +36,6 @@ shared_ptr<IDnsServerResolver>IDnsServerResolver::Create() {
   return make_shared<DnsServerResolverQt>();
 }
 
-
 #ifdef _WIN32
 std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
   PDNS_RECORD dnsRecord;
@@ -91,6 +90,7 @@ std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
       return "";
     }
     return string(dnsName);
+}
 #endif
 
 std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
