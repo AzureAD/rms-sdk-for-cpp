@@ -84,7 +84,7 @@ common::StringArray RestClientCache::Lookup(
         auto filePath = SELF::cacheFolderName + (*iFileName);
 
         // open file stream
-        auto ifs = std::make_shared<ifstream>(filePath, ios_base::in);
+        auto ifs = std::make_shared<ifstream>(filePath, ios_base::in | ios_base::binary);
 
         // convert to input IStream
         auto iis = rmscrypto::api::CreateStreamFromStdStream(
@@ -184,7 +184,7 @@ void RestClientCache::Store(
     // api.aadrm.com
     // open file stream
     auto ofs =
-      std::make_shared<fstream>(filePath, ios_base::out | ios_base::trunc);
+      std::make_shared<fstream>(filePath, ios_base::out | ios_base::binary | ios_base::trunc);
 
     // convert to output IStream
     auto ois =

@@ -36,7 +36,7 @@ shared_ptr<IDnsServerResolver>IDnsServerResolver::Create() {
 
 
 #ifdef _WIN32
-std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
+std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
   PDNS_RECORD dnsRecord;
   DNS_STATUS dnsStatus = ERROR_SUCCESS;
   std::wstring request(dnsRequest.begin(),dnsRequest.end());
@@ -58,7 +58,7 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
 }
 
 #elif __linux__
-std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
+std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
   //Initialize dns lookup query
   res_init();
   unsigned char queryResult[1024];
@@ -89,6 +89,24 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
       return "";
     }
     return string(dnsName);
+
+std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
+{
+  // If a QCoreApplication does not exist, create a temporary instance.
+  // QCoreApplication is a singleton, but it can keep getting created and destroyed.
+  // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
+  if (!QCoreApplication::instance()){
+      int argc = 1;
+      char name[] = "DnsServerResolverQt::lookup";
+      char* argv = &name[0];
+      QCoreApplication a(argc, &argv);
+
+      auto result = doLookup(dnsRequest);
+
+      QTimer::singleShot(0, &a, SLOT(quit()));
+      a.exec();
+
+      return result;
   }
 }
 #endif
