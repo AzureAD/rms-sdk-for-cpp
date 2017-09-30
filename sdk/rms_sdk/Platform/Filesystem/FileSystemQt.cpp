@@ -50,6 +50,8 @@ void IFileSystem::CreateDirectory(const std::string& dirPath) {
 
 std::vector<std::string> FileSystemQt::QueryLocalStorageFiles(const std::string& folder, const std::string& pattern)
 {
+    Logger::Info("+FileSystemQt::QueryLocalStorageFiles");
+    Logger::Hidden("Looking for pattern %s in folder %s.\n", pattern.c_str(), folder.c_str());
     QStringList filters;
     filters << pattern.c_str();
     QDir dir(folder.c_str());
@@ -59,6 +61,7 @@ std::vector<std::string> FileSystemQt::QueryLocalStorageFiles(const std::string&
     {
         res.push_back(f.toStdString());
     }
+    Logger::Info("-FileSystemQt::QueryLocalStorageFiles");
     return res;
 }
 

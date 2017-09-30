@@ -70,9 +70,10 @@ shared_ptr<IHttpClient> IHttpClient::Create() {
   // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
   if(!QCoreApplication::instance())
   {
-    int argc = 0;
-    QCoreApplication a(argc, nullptr);
-
+    int argc = 1;
+    char name[] = "IHttpClient::Create";
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return doCreate();
   }
 
@@ -190,9 +191,10 @@ StatusCode HttpClientQt::Post(const string& url,
   // QCoreApplication is a singleton, but it can keep getting created and destroyed.
   // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
   if (!QCoreApplication::instance()) {
-    int argc = 0;
-    QCoreApplication a(argc, nullptr);
-
+    int argc = 1;
+    char name[] = "HttpClientQt::Post";
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return doPost(url, request, mediaType, response, cancelState);
   }
   return doPost(url, request, mediaType, response, cancelState);
@@ -273,9 +275,10 @@ StatusCode HttpClientQt::Get(const string& url,
   // QCoreApplication is a singleton, but it can keep getting created and destroyed.
   // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
   if (!QCoreApplication::instance()) {
-    int argc = 0;
-    QCoreApplication a(argc, nullptr);
-
+    int argc = 1;
+    char name[] = "HttpClientQt::Get";
+    char* argv = &name[0];
+    QCoreApplication a(argc, &argv);
     return doGet(url, response, cancelState);
   }
 
