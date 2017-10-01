@@ -7,6 +7,11 @@
 namespace mip {
 namespace file {
 
+struct XmlNamespace {
+  const std::string prefix;
+  const std::string uri;
+};
+
 /**
 * \brief defines abstraction over XML node.
 * Derive from this class only for tests mocks.
@@ -20,7 +25,7 @@ public:
   virtual XmlNode GetFirstChild() const;
   virtual std::string GetNodeName() const;
   virtual std::string GetNodeInnerText() const;
-  virtual std::string GetNodeNamespace() const;
+  virtual XmlNamespace GetNodeNamespace() const;
 
   bool operator==(const XmlNode& rhs) const { return mNode == rhs.mNode; }
   bool IsNull() const { return mNode == nullptr; }

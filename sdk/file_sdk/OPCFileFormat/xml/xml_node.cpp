@@ -35,10 +35,16 @@ string XmlNode::GetNodeInnerText() const {
   return string();
 }
 
-string XmlNode::GetNodeNamespace() const {
-  if (mNode && mNode->ns && mNode->ns->prefix)
-    return ConvertXmlString(mNode->ns->prefix);
-  return string();
+XmlNamespace XmlNode::GetNodeNamespace() const {
+  xmlNsPtr ns = nullptr;
+  if (mNode && mNode->ns)
+    ns = mNode->ns;
+  else if (mNode && mNode->doc)
+    ns = xmlSearchNs(mNode->doc, xmlDocGetRootElement(mNode->doc), nullptr);
+
+  if (ns)
+    return XmlNamespace { ConvertXmlString(ns->prefix), ConvertXmlString(ns->href) };
+  return XmlNamespace();
 }
 
 void XmlNode::AddAttribute(const string& attributeName, const string& attributeValue) {

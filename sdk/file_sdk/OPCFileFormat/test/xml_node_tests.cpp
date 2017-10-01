@@ -8,11 +8,11 @@ using std::string;
 using namespace mip::file;
 
 const string NODE_NAME = "nodeName";
+const string CHILD_NODE_NAME = "nodeNameChild";
 const string ATTRIBUTE_NAME = "attributeName";
 const string NAMESPACE_NAME = "namespaceName";
 const string CONTENT_VALUE = "value";
 const string NAMESPACE_URL = "NamespaceURL";
-const string NAMESPACE_PREFIX = "NamespacePrefix";
 
 TEST(XmlNodeTests, GetAttributeValue_NullNode_ReturnEmptyString) {
   EXPECT_EQ("", XmlNode().GetAttributeValue(ATTRIBUTE_NAME));
@@ -119,22 +119,57 @@ TEST(XmlNodeTests, GetNodeInnerText_NodeWithChildTextNode_ReturnChildTextValue) 
   EXPECT_EQ(CONTENT_VALUE, XmlNode(node.get()).GetNodeInnerText());
 }
 
-TEST(XmlNodeTests, GetNodeNamespace_NullNode_ReturnEmptyString) {
-  EXPECT_EQ("", XmlNode().GetNodeNamespace());
+void TestNamespace(const XmlNamespace& expected, const XmlNamespace& actual) {
+  EXPECT_EQ(expected.prefix, actual.prefix);
+  EXPECT_EQ(expected.uri, actual.uri);
 }
 
-TEST(XmlNodeTests, GetNodeNamespace_NodeWithoutNamespace_ReturnEmptyString) {
+TEST(XmlNodeTests, GetNodeNamespace_NullNode_ReturnEmptyNamespace) {
+  TestNamespace(XmlNamespace(), XmlNode().GetNodeNamespace());
+}
+
+TEST(XmlNodeTests, GetNodeNamespace_NodeWithoutNamespace_ReturnEmptyNamespace) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_EQ("", XmlNode(node.get()).GetNodeNamespace());
+  TestNamespace(XmlNamespace(), XmlNode(node.get()).GetNodeNamespace());
 }
 
 TEST(XmlNodeTests, GetNodeNamespace_NodeWithNamespace_ReturnNodeNamespace) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
-  const auto ns = xmlNewNs(node.get(), ConvertXmlString("http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"), ConvertXmlString(NAMESPACE_NAME));
+  XmlNamespace xmlNamespace { NAMESPACE_NAME, NAMESPACE_URL };
+  const auto ns = xmlNewNs(node.get(), ConvertXmlString(xmlNamespace.uri), ConvertXmlString(xmlNamespace.prefix));
   xmlSetNs(node.get(), ns);
 
-  EXPECT_EQ(NAMESPACE_NAME, XmlNode(node.get()).GetNodeNamespace());
+  TestNamespace(xmlNamespace, XmlNode(node.get()).GetNodeNamespace());
+}
+
+TEST(XmlNodeTests, GetNodeNamespace_NodeWithoutNamespaceInDocWithoutDefaultNamespace_ReturnEmptyNamespace) {
+  UniquePtr<xmlDoc> doc(xmlNewDoc(nullptr), xmlFreeDoc);
+  auto root = xmlNewNode(nullptr, ConvertXmlString(NODE_NAME));
+  xmlDocSetRootElement(doc.get(), root);
+
+  auto child = xmlNewDocNode(doc.get(), nullptr, ConvertXmlString(CHILD_NODE_NAME), nullptr);
+  XmlNode childNode(child);
+  xmlAddChild(root, child);
+
+  EXPECT_EQ(nullptr, child->ns);
+  TestNamespace(XmlNamespace(), childNode.GetNodeNamespace());
+}
+
+TEST(XmlNodeTests, GetNodeNamespace_NodeWithoutNamespaceInDocWithDefaultNamespace_ReturnDocDefaultNamespace) {
+  UniquePtr<xmlDoc> doc(xmlNewDoc(nullptr), xmlFreeDoc);
+  auto root = xmlNewNode(nullptr, ConvertXmlString(NODE_NAME));
+  xmlDocSetRootElement(doc.get(), root);
+
+  XmlNamespace defaultNamespace { string(), NAMESPACE_URL };
+  xmlNewNs(root, ConvertXmlString(defaultNamespace.uri), nullptr);
+
+  auto child = xmlNewDocNode(doc.get(), nullptr, ConvertXmlString(CHILD_NODE_NAME), nullptr);
+  XmlNode childNode(child);
+  xmlAddChild(root, child);
+
+  EXPECT_EQ(nullptr, child->ns);
+  TestNamespace(defaultNamespace, childNode.GetNodeNamespace());
 }
 
 TEST(XmlNodeTests, AddAttribute_NullNode_DoesNotThrow) {
@@ -169,7 +204,7 @@ TEST(XmlNodeTests, AddNewChild_NodeWithoutDoc_ChildNotAddedAndReturnsNullChild) 
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   auto xmlNode = XmlNode(node.get());
 
-  auto xmlChildNode = xmlNode.AddNewChild(NODE_NAME + "Child");
+  auto xmlChildNode = xmlNode.AddNewChild(CHILD_NODE_NAME);
 
   EXPECT_TRUE(xmlNode.GetFirstChild().IsNull());
   EXPECT_TRUE(xmlChildNode.IsNull());
@@ -180,7 +215,8 @@ void TestAddNewChild(const char* namespaceName) {
   auto root = xmlNewNode(nullptr, ConvertXmlString(NODE_NAME));
   XmlNode rootNode(root);
   xmlDocSetRootElement(doc.get(), root);
-  xmlNewNs(root, ConvertXmlString(NAMESPACE_URL), ConvertXmlString(NAMESPACE_PREFIX));
+  XmlNamespace xmlNamespace { NAMESPACE_NAME, NAMESPACE_URL };
+  xmlNewNs(root, ConvertXmlString(xmlNamespace.uri), ConvertXmlString(xmlNamespace.prefix));
   
   XmlNode childNode;
   if (namespaceName)
@@ -191,10 +227,10 @@ void TestAddNewChild(const char* namespaceName) {
   EXPECT_EQ(NODE_NAME, childNode.GetNodeName());
   EXPECT_EQ(childNode, rootNode.GetFirstChild());
 
-  if (namespaceName && NAMESPACE_PREFIX == namespaceName)
-    EXPECT_EQ(NAMESPACE_PREFIX, childNode.GetNodeNamespace());
+  if (namespaceName && NAMESPACE_NAME == namespaceName)
+    TestNamespace(xmlNamespace, childNode.GetNodeNamespace());
   else
-    EXPECT_TRUE(childNode.GetNodeNamespace().empty());
+    EXPECT_TRUE(childNode.GetNodeNamespace().uri.empty());
 }
 
 TEST(XmlDocumentTests, AddNewChild_NodeWithoutNamepsace_NodeCreatedWithoutNamespace) {
@@ -210,7 +246,7 @@ TEST(XmlDocumentTests, AddNewChild_EmptyNamespace_NodeCreatedWithoutNamespace) {
 }
 
 TEST(XmlDocumentTests, AddNewChild_ValidNamespace_NodeCreatedAndAdded) {
-  TestAddNewChild(NAMESPACE_PREFIX.c_str());
+  TestAddNewChild(NAMESPACE_NAME.c_str());
 }
 
 TEST(XmlNodeTests, AddContent_NullNode_DoesNotThrow) {
@@ -251,7 +287,7 @@ TEST(XmlNodeTests, Delete_ValidNode_NodeIsNullAfterDelete) {
 TEST(XmlNodeTests, Delete_DeleteChildNode_ParentDoesNotHaveChildren) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   auto xmlNode = XmlNode(node.get());
-  auto xmlChildNode = xmlNode.AddNewChild(NODE_NAME + "Child");
+  auto xmlChildNode = xmlNode.AddNewChild(CHILD_NODE_NAME);
 
   xmlChildNode.Delete();
 

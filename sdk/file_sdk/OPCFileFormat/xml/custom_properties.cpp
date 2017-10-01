@@ -16,7 +16,7 @@ vector<CustomProperty> CustomPropertiesXml::GetProperties() const {
   for (auto node = mDocument.GetRootNode().GetFirstChild(); !(node == XmlNode()); node = node.GetNextNode()) {
     if (node.GetNodeName() == "property") {
       auto subNode = node.GetFirstChild();
-      if (subNode.GetNodeNamespace() == "vt") {
+      if (subNode.GetNodeNamespace().prefix == "vt") {
         result.push_back(make_pair(node.GetAttributeValue("name"), subNode.GetNodeInnerText()));
       }
     }
