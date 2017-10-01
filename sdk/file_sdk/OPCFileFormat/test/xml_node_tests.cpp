@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "OPCFileFormat/xml/xml_document.h"
+#include "OPCFileFormat/xml/xml_node.h"
+#include "OPCFileFormat/xml/xml_helper.h"
 
 using std::string;
 
@@ -10,39 +11,41 @@ const string NODE_NAME = "nodeName";
 const string ATTRIBUTE_NAME = "attributeName";
 const string NAMESPACE_NAME = "namespaceName";
 const string CONTENT_VALUE = "value";
+const string NAMESPACE_URL = "NamespaceURL";
+const string NAMESPACE_PREFIX = "NamespacePrefix";
 
 TEST(XmlNodeTests, GetAttributeValue_NullNode_ReturnEmptyString) {
-  EXPECT_STREQ("", XmlNode().GetAttributeValue(ATTRIBUTE_NAME).c_str());
+  EXPECT_EQ("", XmlNode().GetAttributeValue(ATTRIBUTE_NAME));
 }
 
 TEST(XmlNodeTests, GetAttributeValue_NoAttributes_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetAttributeValue(ATTRIBUTE_NAME).c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetAttributeValue(ATTRIBUTE_NAME));
 }
 
 TEST(XmlNodeTests, GetAttributeValue_NoAttributeWithGivenName_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   xmlNewProp(node.get(), ConvertXmlString(ATTRIBUTE_NAME), ConvertXmlString(CONTENT_VALUE));
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetAttributeValue("noAttr").c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetAttributeValue("noAttr"));
 }
 
 TEST(XmlNodeTests, GetAttributeValue_NodeWithGivenAttributeName_ReturnAttributeValue) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   xmlNewProp(node.get(), ConvertXmlString(ATTRIBUTE_NAME), ConvertXmlString(CONTENT_VALUE));
 
-  EXPECT_STREQ(CONTENT_VALUE.c_str(), XmlNode(node.get()).GetAttributeValue(ATTRIBUTE_NAME).c_str());
+  EXPECT_EQ(CONTENT_VALUE, XmlNode(node.get()).GetAttributeValue(ATTRIBUTE_NAME));
 }
 
 TEST(XmlNodeTests, GetNextNode_NullNode_ReturnNullNode) {
-  EXPECT_EQ(XmlNode(), XmlNode().GetNextNode());
+  EXPECT_TRUE(XmlNode().GetNextNode().IsNull());
 }
 
 TEST(XmlNodeTests, GetNextNode_NoNextNode_ReturnNullNode) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_EQ(XmlNode(), XmlNode(node.get()).GetNextNode());
+  EXPECT_TRUE(XmlNode(node.get()).GetNextNode().IsNull());
 }
 
 TEST(XmlNodeTests, GetNextNode_HasNextNode_ReturnNextNode) {
@@ -53,13 +56,13 @@ TEST(XmlNodeTests, GetNextNode_HasNextNode_ReturnNextNode) {
 }
 
 TEST(XmlNodeTests, GetFirstChild_NullNode_ReturnNullNode) {
-  EXPECT_EQ(XmlNode(), XmlNode().GetFirstChild());
+  EXPECT_TRUE(XmlNode().GetFirstChild().IsNull());
 }
 
 TEST(XmlNodeTests, GetFirstChild_NoChildren_ReturnNullNode) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_EQ(XmlNode(), XmlNode(node.get()).GetFirstChild());
+  EXPECT_TRUE(XmlNode(node.get()).GetFirstChild().IsNull());
 }
 
 TEST(XmlNodeTests, GetFirstChild_HasChildren_ReturnFirstChildNode) {
@@ -70,72 +73,72 @@ TEST(XmlNodeTests, GetFirstChild_HasChildren_ReturnFirstChildNode) {
 }
 
 TEST(XmlNodeTests, GetNodeName_NullNode_ReturnEmptyString) {
-  EXPECT_STREQ("", XmlNode().GetNodeName().c_str());
+  EXPECT_EQ("", XmlNode().GetNodeName());
 }
 
 TEST(XmlNodeTests, GetNodeName_NoNodeName_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, nullptr), xmlFreeNode);
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetNodeName().c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetNodeName());
 }
 
 TEST(XmlNodeTests, GetNodeName_NodeWithName_ReturnNodeName) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_STREQ(NODE_NAME.c_str(), XmlNode(node.get()).GetNodeName().c_str());
+  EXPECT_EQ(NODE_NAME, XmlNode(node.get()).GetNodeName());
 }
 
 TEST(XmlNodeTests, GetNodeInnerText_NullNode_ReturnEmptyString) {
-  EXPECT_STREQ("", XmlNode().GetNodeInnerText().c_str());
+  EXPECT_EQ("", XmlNode().GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, GetNodeInnerText_NoChildNode_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetNodeInnerText().c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, GetNodeInnerText_ChildNodeIsNotTextNode_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   xmlAddChild(node.get(), xmlNewNode(nullptr, ConvertXmlString(NODE_NAME + "Child")));
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetNodeInnerText().c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, GetNodeInnerText_NoChildNodeContent_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   xmlAddChild(node.get(), xmlNewText(nullptr));
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetNodeInnerText().c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, GetNodeInnerText_NodeWithChildTextNode_ReturnChildTextValue) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   xmlAddChild(node.get(), xmlNewText(ConvertXmlString(CONTENT_VALUE)));
 
-  EXPECT_STREQ(CONTENT_VALUE.c_str(), XmlNode(node.get()).GetNodeInnerText().c_str());
+  EXPECT_EQ(CONTENT_VALUE, XmlNode(node.get()).GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, GetNodeNamespace_NullNode_ReturnEmptyString) {
-  EXPECT_STREQ("", XmlNode().GetNodeNamespace().c_str());
+  EXPECT_EQ("", XmlNode().GetNodeNamespace());
 }
 
 TEST(XmlNodeTests, GetNodeNamespace_NodeWithoutNamespace_ReturnEmptyString) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
 
-  EXPECT_STREQ("", XmlNode(node.get()).GetNodeNamespace().c_str());
+  EXPECT_EQ("", XmlNode(node.get()).GetNodeNamespace());
 }
 
-TEST(XmlNodeTests, GetNodeNamespaceNodeWithNamespace_ReturnNodeNamespace) {
+TEST(XmlNodeTests, GetNodeNamespace_NodeWithNamespace_ReturnNodeNamespace) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   const auto ns = xmlNewNs(node.get(), ConvertXmlString("http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"), ConvertXmlString(NAMESPACE_NAME));
   xmlSetNs(node.get(), ns);
 
-  EXPECT_STREQ(NAMESPACE_NAME.c_str(), XmlNode(node.get()).GetNodeNamespace().c_str());
+  EXPECT_EQ(NAMESPACE_NAME, XmlNode(node.get()).GetNodeNamespace());
 }
 
 TEST(XmlNodeTests, AddAttribute_NullNode_DoesNotThrow) {
-  EXPECT_NO_THROW(XmlNode().AddAttribute("",""));
+  EXPECT_NO_THROW(XmlNode().AddAttribute("", ""));
 }
 
 TEST(XmlNodeTests, AddAttribute_ValidAttribute_AttributeAdded) {
@@ -143,21 +146,71 @@ TEST(XmlNodeTests, AddAttribute_ValidAttribute_AttributeAdded) {
   XmlNode xmlNode(node.get());
   xmlNode.AddAttribute(ATTRIBUTE_NAME, CONTENT_VALUE);
 
-  EXPECT_STREQ(CONTENT_VALUE.c_str(), xmlNode.GetAttributeValue(ATTRIBUTE_NAME).c_str());
+  EXPECT_EQ(CONTENT_VALUE, xmlNode.GetAttributeValue(ATTRIBUTE_NAME));
 }
 
-TEST(XmlNodeTests, AddChild_NullParentAndChildNode_DoesNotThrow) {
-  EXPECT_NO_THROW(XmlNode().AddChild(XmlNode()));
+TEST(XmlNodeTests, AddNewChild_NullParentAndEmptyChildName_DoesNotThrowAndReturnsNullChild) {
+  EXPECT_NO_THROW(XmlNode().AddNewChild(""));
 }
 
-TEST(XmlNodeTests, AddChild_ValidChildNode_ChildAdded) {
+TEST(XmlNodeTests, AddNewChild_NullParentAndEmptyChildNameAndNamesace_DoesNotThrowAndReturnsNullChild) {
+  EXPECT_NO_THROW(XmlNode().AddNewChild("", ""));
+}
+
+TEST(XmlNodeTests, AddNewChild_NullParentAndEmptyChildName_ReturnsNullChild) {
+  EXPECT_TRUE(XmlNode().AddNewChild("").IsNull());
+}
+
+TEST(XmlNodeTests, AddNewChild_NullParentAndEmptyChildNameAndNamesace_ReturnsNullChild) {
+  EXPECT_TRUE(XmlNode().AddNewChild("", "").IsNull());
+}
+
+TEST(XmlNodeTests, AddNewChild_NodeWithoutDoc_ChildNotAddedAndReturnsNullChild) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   auto xmlNode = XmlNode(node.get());
-  auto xmlChildNode = XmlNode(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME + "Child")));
 
-  xmlNode.AddChild(xmlChildNode);
+  auto xmlChildNode = xmlNode.AddNewChild(NODE_NAME + "Child");
 
-  ASSERT_EQ(xmlChildNode, xmlNode.GetFirstChild());
+  EXPECT_TRUE(xmlNode.GetFirstChild().IsNull());
+  EXPECT_TRUE(xmlChildNode.IsNull());
+}
+
+void TestAddNewChild(const char* namespaceName) {
+  UniquePtr<xmlDoc> doc(xmlNewDoc(nullptr), xmlFreeDoc);
+  auto root = xmlNewNode(nullptr, ConvertXmlString(NODE_NAME));
+  XmlNode rootNode(root);
+  xmlDocSetRootElement(doc.get(), root);
+  xmlNewNs(root, ConvertXmlString(NAMESPACE_URL), ConvertXmlString(NAMESPACE_PREFIX));
+  
+  XmlNode childNode;
+  if (namespaceName)
+    childNode = rootNode.AddNewChild(NODE_NAME, namespaceName);
+  else
+    childNode = rootNode.AddNewChild(NODE_NAME);
+
+  EXPECT_EQ(NODE_NAME, childNode.GetNodeName());
+  EXPECT_EQ(childNode, rootNode.GetFirstChild());
+
+  if (namespaceName && NAMESPACE_PREFIX == namespaceName)
+    EXPECT_EQ(NAMESPACE_PREFIX, childNode.GetNodeNamespace());
+  else
+    EXPECT_TRUE(childNode.GetNodeNamespace().empty());
+}
+
+TEST(XmlDocumentTests, AddNewChild_NodeWithoutNamepsace_NodeCreatedWithoutNamespace) {
+  TestAddNewChild(nullptr);
+}
+
+TEST(XmlDocumentTests, AddNewChild_NamespaceNotInDocument_NodeCreatedWithoutNamespace) {
+  TestAddNewChild("nonamespace");
+}
+
+TEST(XmlDocumentTests, AddNewChild_EmptyNamespace_NodeCreatedWithoutNamespace) {
+  TestAddNewChild("");
+}
+
+TEST(XmlDocumentTests, AddNewChild_ValidNamespace_NodeCreatedAndAdded) {
+  TestAddNewChild(NAMESPACE_PREFIX.c_str());
 }
 
 TEST(XmlNodeTests, AddContent_NullNode_DoesNotThrow) {
@@ -170,7 +223,7 @@ TEST(XmlNodeTests, AddContent_ValidContent_ContentAdded) {
 
   xmlNode.AddContent(CONTENT_VALUE);
 
-  EXPECT_STREQ(CONTENT_VALUE.c_str(), xmlNode.GetNodeInnerText().c_str());
+  EXPECT_EQ(CONTENT_VALUE, xmlNode.GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, AddContent_ContentWithSpecialChars_ContentAdded) {
@@ -180,7 +233,7 @@ TEST(XmlNodeTests, AddContent_ContentWithSpecialChars_ContentAdded) {
   auto content = CONTENT_VALUE + "&<>";
   xmlNode.AddContent(content);
 
-  EXPECT_STREQ(content.c_str(), xmlNode.GetNodeInnerText().c_str());
+  EXPECT_EQ(content, xmlNode.GetNodeInnerText());
 }
 
 TEST(XmlNodeTests, Delete_NullNode_DoesNotThrow) {
@@ -192,16 +245,15 @@ TEST(XmlNodeTests, Delete_ValidNode_NodeIsNullAfterDelete) {
 
   xmlNode.Delete();
 
-  EXPECT_EQ(XmlNode(), xmlNode);
+  EXPECT_TRUE(xmlNode.IsNull());
 }
 
 TEST(XmlNodeTests, Delete_DeleteChildNode_ParentDoesNotHaveChildren) {
   auto node = UniquePtr<xmlNode>(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME)), xmlFreeNode);
   auto xmlNode = XmlNode(node.get());
-  auto xmlChildNode = XmlNode(xmlNewNode(nullptr, ConvertXmlString(NODE_NAME + "Child")));
+  auto xmlChildNode = xmlNode.AddNewChild(NODE_NAME + "Child");
 
-  xmlNode.AddChild(xmlChildNode);
   xmlChildNode.Delete();
 
-  ASSERT_EQ(XmlNode(), xmlNode.GetFirstChild());
+  EXPECT_TRUE(xmlNode.GetFirstChild().IsNull());
 }

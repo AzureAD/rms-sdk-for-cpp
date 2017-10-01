@@ -72,14 +72,5 @@ XmlNode XmlDocument::GetRootNode() const {
   return XmlNode(xmlDocGetRootElement(mXmlDoc.get()));
 }
 
-XmlNode XmlDocument::CreateNode(const string& name) {
-  return XmlNode(xmlNewDocNode(mXmlDoc.get(), nullptr, ConvertXmlString(name), nullptr));
-}
-
-XmlNode XmlDocument::CreateNode(const string& name, const string& namespaceName) {
-  const auto ns = xmlSearchNs(mXmlDoc.get(), GetRootNode().mNode, ConvertXmlString(namespaceName));
-  return XmlNode(xmlNewDocNode(mXmlDoc.get(), ns, ConvertXmlString(name), nullptr));
-}
-
 } // namespace file
 } // namespace mip

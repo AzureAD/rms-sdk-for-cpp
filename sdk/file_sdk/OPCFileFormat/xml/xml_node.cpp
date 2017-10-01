@@ -47,10 +47,23 @@ void XmlNode::AddAttribute(const string& attributeName, const string& attributeV
   xmlSetProp(mNode, ConvertXmlString(attributeName), ConvertXmlString(attributeValue));
 }
 
-void XmlNode::AddChild(XmlNode newNode) {
-  if (!mNode)
-    return;
-  xmlAddChild(mNode, newNode.mNode);
+XmlNode XmlNode::AddNewChild(const string& name) {
+  if (!mNode || !mNode->doc)
+    return XmlNode();
+  return AddNewChildImpl(name, nullptr);
+}
+
+XmlNode XmlNode::AddNewChild(const string& name, const string& namespaceName) {
+  if (!mNode || !mNode->doc)
+    return XmlNode();
+  const auto ns = xmlSearchNs(mNode->doc, xmlDocGetRootElement(mNode->doc), ConvertXmlString(namespaceName));
+  return AddNewChildImpl(name, ns);
+}
+
+XmlNode XmlNode::AddNewChildImpl(const string& name, xmlNsPtr ns) {
+  XmlNode newChild(xmlNewDocNode(mNode->doc, ns, ConvertXmlString(name), nullptr));
+  xmlAddChild(mNode, newChild.mNode);
+  return newChild;
 }
 
 void XmlNode::AddContent(const string& content) {

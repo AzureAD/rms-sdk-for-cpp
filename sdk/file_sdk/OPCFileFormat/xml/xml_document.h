@@ -23,9 +23,6 @@ public:
   virtual std::string GetXmlContent() const;
   virtual XmlNode GetRootNode() const;
 
-  virtual XmlNode CreateNode(const std::string& name);
-  virtual XmlNode CreateNode(const std::string& name, const std::string& namespaceName);
-
 protected:
   XmlDocument();
 

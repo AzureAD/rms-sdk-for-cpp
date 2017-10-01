@@ -68,7 +68,7 @@ TEST(XmlDocumentTests, SelectNode_InvalidXPath_NullNodeSelected) {
 
   const auto node = doc.SelectNode("//*[@name='S");
 
-  EXPECT_EQ(XmlNode(), node);
+  EXPECT_TRUE(node.IsNull());
 }
 
 TEST(XmlDocumentTests, SelectNode_ValidXPathWithoutResults_NullNodeSelected) {
@@ -76,7 +76,7 @@ TEST(XmlDocumentTests, SelectNode_ValidXPathWithoutResults_NullNodeSelected) {
 
   const auto node = doc.SelectNode("//*[@name='NotExist']");
 
-  EXPECT_EQ(XmlNode(), node);
+  EXPECT_TRUE(node.IsNull());
 }
 
 TEST(XmlDocumentTests, SelectNode_ValidXPathWithResults_SensitivityNodeSelected) {
@@ -87,53 +87,14 @@ TEST(XmlDocumentTests, SelectNode_ValidXPathWithResults_SensitivityNodeSelected)
   EXPECT_STREQ("Sensitivity", node.GetAttributeValue("name").c_str());
 }
 
-TEST(XmlDocumentTests, CreateNode_CreateValidNode_NodeCreatedWithoutNamespace) {
-  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
-
-  auto node = doc.CreateNode(NODE_NAME);
-
-  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
-  EXPECT_STREQ("", node.GetNodeNamespace().c_str());
-}
-
-TEST(XmlDocumentTests, CreateNode_NamespaceNotInDocument_NodeCreatedWithoutNamespace) {
-  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
-
-  auto node = doc.CreateNode(NODE_NAME, "nonamespace");
-
-  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
-  EXPECT_STREQ("", node.GetNodeNamespace().c_str());
-}
-
-TEST(XmlDocumentTests, CreateNode_EmptyNamespace_NodeCreatedWithoutNamespace) {
-  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
-
-  auto node = doc.CreateNode(NODE_NAME, "");
-
-  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
-  EXPECT_STREQ("", node.GetNodeNamespace().c_str());
-}
-
-TEST(XmlDocumentTests, CreateNode_ValidNamespace_NodeCreated) {
-  auto doc = XmlDocument::ParseXmlDocument(CUSTOM_XML);
-  
-  auto node = doc.CreateNode(NODE_NAME, "vt");
-
-  EXPECT_STREQ(NODE_NAME.c_str(), node.GetNodeName().c_str());
-  EXPECT_STREQ("vt", node.GetNodeNamespace().c_str());
-}
-
 void AddPropertyNode(XmlDocument& doc, const string& fmtid, const string& pid, const string& name, const string& value) {
-  auto valueNode = doc.CreateNode("lpwstr", "vt");
-  valueNode.AddContent(value);
-
-  auto prop = doc.CreateNode("property");
+  auto prop = doc.GetRootNode().AddNewChild("property");
   prop.AddAttribute("fmtid", fmtid);
   prop.AddAttribute("pid", pid);
   prop.AddAttribute("name", name);
-  prop.AddChild(valueNode);
 
-  doc.GetRootNode().AddChild(prop);
+  auto valueNode = prop.AddNewChild("lpwstr", "vt");
+  valueNode.AddContent(value);
 }
 
 TEST(XmlDocumentTests, Integration_CreateCustomXmlFromScratch_XmlCreatedAsExpected) {

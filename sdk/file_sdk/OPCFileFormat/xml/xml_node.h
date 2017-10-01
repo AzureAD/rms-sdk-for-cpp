@@ -23,12 +23,17 @@ public:
   virtual std::string GetNodeNamespace() const;
 
   bool operator==(const XmlNode& rhs) const { return mNode == rhs.mNode; }
+  bool IsNull() const { return mNode == nullptr; }
 
   virtual void AddAttribute(const std::string& attributeName, const std::string& attributeValue);
-  virtual void AddChild(XmlNode newNode);
+  virtual XmlNode AddNewChild(const std::string& name);
+  virtual XmlNode AddNewChild(const std::string& name, const std::string& namespaceName);
   virtual void AddContent(const std::string& content);
   virtual void Delete();
+
 private:
+  XmlNode XmlNode::AddNewChildImpl(const std::string& name, xmlNsPtr ns);
+
   xmlNodePtr mNode;
 
   friend class XmlDocument;
