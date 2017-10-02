@@ -5,7 +5,7 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
  */
-/*
+
 #include "PlatformUriTest.h"
 #include "../../Platform/Http/IUri.h"
 #include "../../Platform/Logger/Logger.h"
@@ -32,4 +32,4 @@ void PlatformUriTest::testUri(bool enabled) {
   QVERIFY2(schemeString == "https",
            "url->GetScheme: Uri to scheme doesn't match scheme on creation.");
 }
-*/
+

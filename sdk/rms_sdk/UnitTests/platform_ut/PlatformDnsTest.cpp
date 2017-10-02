@@ -5,7 +5,7 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
  */
-/*
+
 #include "PlatformDnsTest.h"
 #include "../../Platform/Logger/Logger.h"
 #include "../../Platform/Http/IDnsServerResolver.h"
@@ -25,4 +25,4 @@ void PlatformDnsTest::testDns(bool enabled)
   QVERIFY2(response == "api.aadrm.com", response.c_str());
 
 }
-*/
+
