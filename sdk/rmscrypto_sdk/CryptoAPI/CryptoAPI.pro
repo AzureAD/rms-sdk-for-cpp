@@ -54,7 +54,8 @@ HEADERS += \
     ICryptoKey.h \
     CryptoAPIExport.h \
     RMSCryptoExceptions.h \
-    IRMSCryptoEnvironment.h
+    IRMSCryptoEnvironment.h \
+    rmscrypto.rc
 
 SOURCES += \
     BlockBasedProtectedStream.cpp \
@@ -63,6 +64,3 @@ SOURCES += \
     CryptoAPI.cpp \
     StdStreamAdapter.cpp \
     IRMSCryptoEnvironment.cpp
-
-DISTFILES += \
-    rmscrypto.rc

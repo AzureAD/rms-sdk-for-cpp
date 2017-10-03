@@ -82,5 +82,3 @@ unix {
         INSTALLS += target
     }
 }
-
-DISTFILES +=
