@@ -7,11 +7,14 @@
 */
 
 #include "LicenseParserTest.h"
+
+#include <QFile>
+#include <sstream>
+#include <stdint.h>
+
 #include "LicenseParserTestConstants.h"
 #include "../../RestClients/LicenseParser.h"
 #include "../../Common/CommonTypes.h"
-#include <QFile>
-#include <sstream>
 
 using namespace std;
 using namespace rmscore::common;
