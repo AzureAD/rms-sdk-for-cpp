@@ -108,9 +108,7 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
       a.exec();
       return result;
   }
-  else{
-    return doLookup(dnsRequest);
-  }
+  return doLookup(dnsRequest);
 }
 
 }// namespace http

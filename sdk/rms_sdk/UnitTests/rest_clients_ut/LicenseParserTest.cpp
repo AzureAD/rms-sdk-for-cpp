@@ -9,8 +9,8 @@
 #include "LicenseParserTest.h"
 
 #include <QFile>
-#include <stdint.h>
 #include <sstream>
+#include <stdint.h>
 
 #include "LicenseParserTestConstants.h"
 #include "../../RestClients/LicenseParser.h"
