@@ -35,6 +35,8 @@ CONFIG(debug, debug|release) {
 win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32 -ldnsapi
 else:LIBS  += -lssl -lcrypto
 
+win32:RC_FILE = rmscore.rc
+
 SOURCES += \
     UserPolicy.cpp \
     TemplateDescriptor.cpp \
@@ -82,3 +84,6 @@ unix {
         INSTALLS += target
     }
 }
+
+DISTFILES += \
+    rmscore.rc
