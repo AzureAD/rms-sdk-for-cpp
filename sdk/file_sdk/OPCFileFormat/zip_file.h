@@ -2,10 +2,8 @@
 #define ZIPAPI_H
 
 #include <Common/exceptions.h>
-#include <Common/gsf_input_istream.h>
 #include <Common/istream.h>
 #include <map>
-#include <string>
 #include <memory>
 #include <gsf/gsf.h>
 
@@ -22,6 +20,15 @@ struct GsfOutput_deleter {
 };
 
 struct GsfOutfile_deleter {
+  void operator()(GsfOutfile* obj) const {
+    if (!gsf_output_is_closed(GSF_OUTPUT(obj))) {
+      gsf_output_close(GSF_OUTPUT(obj));
+    }
+    g_object_unref(G_OBJECT(obj));
+  }
+};
+
+struct GsfOutfile_deleter1 {
   void operator()(GsfOutfile* obj) const {
     if (!gsf_output_is_closed(GSF_OUTPUT(obj))) {
       gsf_output_close(GSF_OUTPUT(obj));
@@ -58,12 +65,18 @@ struct GError_deleter {
 class ZipFile {
 public:
   explicit ZipFile(std::shared_ptr<IStream> inputStream);
-  std::string GetEntry(const std::string& entryPath);
+  std::string GetEntry(const std::string& entryPath) const;
   void SetEntry(const std::string& entryPath, const std::string& content);
   void Commit(std::shared_ptr<IStream> outputStream);
 
 private:
+  static void Clone(std::unique_ptr<GsfInfile, GsfInfile_deleter>& in, std::unique_ptr<GsfOutfile, GsfOutfile_deleter>& out, const std::string& path, std::map<std::string, std::string>& map);
+  static void CloneDirEntry(GsfInput* input, GsfOutput* output, const std::string& path, std::map<std::string, std::string>& map);
+  static void CloneFileEntry(GsfInput* input, GsfOutput* output, const std::string& path, std::map<std::string, std::string>& map);
+  static void AddNewEntries(std::unique_ptr<GsfOutfile, GsfOutfile_deleter>& outfile, std::map<std::string, std::string>& entries);
+
   std::unique_ptr<GsfInfile, GsfInfile_deleter> mGsfZipStream;
+  std::map<std::string, std::string> mEntries;
 };
 
 class ZipException : public Exception {

@@ -32,5 +32,18 @@ TEST(ZipTests, NotAZip_ThrowsZipException) {
   EXPECT_THROW(ZipFile f(stream), ZipException) << "Should not create a ZipFile object with non-zip file";
 }
 
+TEST(ZipTests, SetEntry_EntrySet) {
+  auto stream = GetIStreamFromFile("LabeledGeneral.docx");
+  ZipFile zipFile(stream);
+  zipFile.SetEntry("docProps/custom.xml", "Ameer assi");
+  zipFile.SetEntry("docProps/custom1.xml", "Ameer assi1");
+  zipFile.SetEntry("docProps/custom2.xml", "Ameer assi2");
+  zipFile.SetEntry("docProps/custom3.xml", "Ameer assi3");
+
+  zipFile.Commit(nullptr);
+  string entry = zipFile.GetEntry("docProps/custom.xml");
+  EXPECT_EQ(entry, "Ameer assi");
+}
+
 } // namespace mip
 } // namespace file

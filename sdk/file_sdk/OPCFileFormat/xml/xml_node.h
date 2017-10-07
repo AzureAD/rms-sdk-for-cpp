@@ -37,7 +37,7 @@ public:
   virtual void Delete();
 
 private:
-  XmlNode XmlNode::AddNewChildImpl(const std::string& name, xmlNsPtr ns);
+  XmlNode AddNewChildImpl(const std::string& name, xmlNsPtr ns);
 
   xmlNodePtr mNode;
 
