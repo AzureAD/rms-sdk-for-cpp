@@ -33,7 +33,7 @@ class PDFProtector;
 class PDFCryptoHandlerImpl : public PDFCryptoHandler
 {
 public:
-    PDFCryptoHandlerImpl(PDFProtector* pPDFProtector);
+    PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
     virtual ~PDFCryptoHandlerImpl();
 
     virtual uint32_t DecryptGetSize(uint32_t src_size);
@@ -55,7 +55,7 @@ public:
     virtual bool ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf);
 
 private:
-    PDFProtector* m_pPDFProtector;
+    std::shared_ptr<PDFProtector> m_pPDFProtector;
 
     //for decryption
     std::shared_ptr<std::stringstream> m_dataToDecrypted;
@@ -76,7 +76,7 @@ private:
 class PDFSecurityHandlerImpl : public PDFSecurityHandler
 {
 public:
-    PDFSecurityHandlerImpl(PDFProtector* pPDFProtector,
+    PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector,
                          const UserContext& userContext,
                          const UnprotectOptions& options,
                          std::shared_ptr<std::atomic<bool>> cancelState);
@@ -87,7 +87,7 @@ public:
     virtual PDFCryptoHandler* CreateCryptoHandler();
 
 private:
-    PDFProtector* m_pPDFProtector;
+    std::shared_ptr<PDFProtector> m_pPDFProtector;
     PDFCryptoHandlerImpl* m_pCryptoHandler;
     UserContext m_userContext;
     UnprotectOptions m_options;

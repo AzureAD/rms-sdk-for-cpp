@@ -24,7 +24,7 @@ namespace fileapi {
 
 ////////////////////////////////////////////////////////////////////////////
 /// class PDFProtector
-PDFCryptoHandlerImpl::PDFCryptoHandlerImpl(PDFProtector *pPDFProtector)
+PDFCryptoHandlerImpl::PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector)
 {
     m_pPDFProtector = pPDFProtector;
     m_bProgressiveStart = false;
@@ -220,8 +220,7 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf)
 ////////////////////////////////////////////////////////////////////////////
 /// class PDFSecurityHandlerImpl
 
-PDFSecurityHandlerImpl::PDFSecurityHandlerImpl(
-        PDFProtector* pPDFProtector,
+PDFSecurityHandlerImpl::PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector,
         const UserContext &userContext,
         const UnprotectOptions &options,
         std::shared_ptr<std::atomic<bool> > cancelState)
@@ -438,7 +437,13 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& userContext,
     auto outputDecrypted = rmscrypto::api::CreateStreamFromStdStream(outputDecryptedIO);
 
     std::string filterName = PDF_PROTECTOR_FILTER_NAME;
-    PDFSecurityHandlerImpl securityHander(this, userContext, options, cancelState);
+
+    std::shared_ptr<PDFProtector> sharedPDFProtector(this, [=](PDFProtector* pPDFProtector)
+    {
+        pPDFProtector = nullptr;
+    });
+
+    PDFSecurityHandlerImpl securityHander(sharedPDFProtector, userContext, options, cancelState);
     uint32_t result = m_pdfCreator->UnprotectCustomEncryptedFile(
                 outputPayload,
                 filterName,
@@ -496,7 +501,13 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
     auto outputEncrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
 
     std::string filterName = PDF_PROTECTOR_FILTER_NAME;
-    PDFCryptoHandlerImpl cryptoHander(this);
+
+    std::shared_ptr<PDFProtector> sharedPDFProtector(this, [=](PDFProtector* pPDFProtector)
+    {
+        pPDFProtector = nullptr;
+    });
+
+    PDFCryptoHandlerImpl cryptoHander(sharedPDFProtector);
     uint32_t result = m_pdfCreator->CreateCustomEncryptedFile(
                 m_originalFilePath,
                 filterName,
