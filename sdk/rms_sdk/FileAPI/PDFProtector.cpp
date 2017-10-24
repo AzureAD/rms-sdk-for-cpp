@@ -120,7 +120,8 @@ bool PDFCryptoHandlerImpl::EncryptContent(uint32_t objnum, uint32_t version, cha
     if(!m_pPDFProtector) return false;
 
     uint64_t contentSizeAddPre = src_size + 4;
-    char* contentAddPre = new char[contentSizeAddPre];
+    std::shared_ptr<char> sharedContentAddPre(new char[contentSizeAddPre]);
+    char* contentAddPre = sharedContentAddPre.get();
     contentAddPre[3] = ((char*)&src_size)[0];
     contentAddPre[2] = ((char*)&src_size)[1];
     contentAddPre[1] = ((char*)&src_size)[2];
@@ -139,7 +140,6 @@ bool PDFCryptoHandlerImpl::EncryptContent(uint32_t objnum, uint32_t version, cha
     int64_t dataRead = outputSharedStream->Read(reinterpret_cast<uint8_t*>(dest_buf), nSize);
     *dest_size = nSize;
 
-    delete [] contentAddPre;
     return true;
 }
 
@@ -161,7 +161,9 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(uint32_t objnum, uint32_t v
     if(m_bProgressiveStart)
     {
         contentSizeAddPre = src_size + 4;
-        contentAddPre = new char[contentSizeAddPre];
+        std::shared_ptr<char> sharedContentAddPre(new char[contentSizeAddPre]);
+        contentAddPre = sharedContentAddPre.get();
+
         contentAddPre[3] = ((char*)&src_size)[0];
         contentAddPre[2] = ((char*)&src_size)[1];
         contentAddPre[1] = ((char*)&src_size)[2];
@@ -182,11 +184,6 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(uint32_t objnum, uint32_t v
 
     m_pPDFProtector->EncryptStream(contentAddPre, contentSizeAddPre, m_sharedProtectedStream, false);
 
-    if(m_bProgressiveStart)
-    {
-        delete [] contentAddPre;
-    }
-
     m_bProgressiveStart = false;
 
     return true;
@@ -199,12 +196,11 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf)
     m_outputSharedStream->Seek(std::ios::beg);
     auto nSize = m_outputSharedStream->Size();
 
-    char* pDataRead = new char[nSize];
+    std::shared_ptr<char> sharedDataRead(new char[nSize]);
+    char* pDataRead = sharedDataRead.get();
     int64_t dataRead = m_outputSharedStream->Read(reinterpret_cast<uint8_t*>(pDataRead), nSize);
 
     dest_buf->AppendBlock(pDataRead, nSize);
-
-    delete [] pDataRead;
 
     m_sharedProtectedStream.reset();
     m_outputIOS.reset();
