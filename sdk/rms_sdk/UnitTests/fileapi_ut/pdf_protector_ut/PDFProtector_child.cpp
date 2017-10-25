@@ -24,7 +24,7 @@ namespace fileapi {
 
 ////////////////////////////////////////////////////////////////////////////
 /// class PDFProtector_unit
-PDFCryptoHandler_child::PDFCryptoHandler_child(PDFProtector_unit *pPDFProtector_unit)
+PDFCryptoHandler_child::PDFCryptoHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit)
 {
     m_pPDFProtector_unit = pPDFProtector_unit;
     m_bProgressiveStart = false;
@@ -47,20 +47,19 @@ uint32_t PDFCryptoHandler_child::DecryptGetSize(uint32_t src_size)
     return src_size;
 }
 
-void* PDFCryptoHandler_child::DecryptStart(uint32_t objnum, uint32_t gennum)
+void PDFCryptoHandler_child::DecryptStart(uint32_t objnum, uint32_t gennum)
 {
     m_objnum = objnum;
     m_dataToDecrypted = std::make_shared<std::stringstream>();
-    return nullptr;
 }
 
-bool PDFCryptoHandler_child::DecryptStream(void* context, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandler_child::DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf)
 {
     m_dataToDecrypted->write(src_buf, src_size);
     return true;
 }
 
-bool PDFCryptoHandler_child::DecryptFinish(void* context, PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandler_child::DecryptFinish(PDFBinaryBuf* dest_buf)
 {
     m_dataToDecrypted->seekg(0, std::ios::end);
     uint64_t count = m_dataToDecrypted->tellg();
@@ -120,7 +119,8 @@ bool PDFCryptoHandler_child::EncryptContent(uint32_t objnum, uint32_t version, c
     if(!m_pPDFProtector_unit) return false;
 
     uint64_t contentSizeAddPre = src_size + 4;
-    char* contentAddPre = new char[contentSizeAddPre];
+    std::shared_ptr<char> sharedContentAddPre(new char[contentSizeAddPre]);
+    char* contentAddPre = sharedContentAddPre.get();
     contentAddPre[3] = ((char*)&src_size)[0];
     contentAddPre[2] = ((char*)&src_size)[1];
     contentAddPre[1] = ((char*)&src_size)[2];
@@ -139,7 +139,6 @@ bool PDFCryptoHandler_child::EncryptContent(uint32_t objnum, uint32_t version, c
     int64_t dataRead = outputSharedStream->Read(reinterpret_cast<uint8_t*>(dest_buf), nSize);
     *dest_size = nSize;
 
-    delete [] contentAddPre;
     return true;
 }
 
@@ -161,7 +160,9 @@ bool PDFCryptoHandler_child::ProgressiveEncryptContent(uint32_t objnum, uint32_t
     if(m_bProgressiveStart)
     {
         contentSizeAddPre = src_size + 4;
-        contentAddPre = new char[contentSizeAddPre];
+        std::shared_ptr<char> sharedContentAddPre(new char[contentSizeAddPre]);
+        contentAddPre = sharedContentAddPre.get();
+
         contentAddPre[3] = ((char*)&src_size)[0];
         contentAddPre[2] = ((char*)&src_size)[1];
         contentAddPre[1] = ((char*)&src_size)[2];
@@ -182,11 +183,6 @@ bool PDFCryptoHandler_child::ProgressiveEncryptContent(uint32_t objnum, uint32_t
 
     m_pPDFProtector_unit->EncryptStream(contentAddPre, contentSizeAddPre, m_sharedProtectedStream, false);
 
-    if(m_bProgressiveStart)
-    {
-        delete [] contentAddPre;
-    }
-
     m_bProgressiveStart = false;
 
     return true;
@@ -199,12 +195,11 @@ bool PDFCryptoHandler_child::ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf)
     m_outputSharedStream->Seek(std::ios::beg);
     auto nSize = m_outputSharedStream->Size();
 
-    char* pDataRead = new char[nSize];
+    std::shared_ptr<char> sharedDataRead(new char[nSize]);
+    char* pDataRead = sharedDataRead.get();
     int64_t dataRead = m_outputSharedStream->Read(reinterpret_cast<uint8_t*>(pDataRead), nSize);
 
     dest_buf->AppendBlock(pDataRead, nSize);
-
-    delete [] pDataRead;
 
     m_sharedProtectedStream.reset();
     m_outputIOS.reset();
@@ -220,8 +215,7 @@ bool PDFCryptoHandler_child::ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf)
 ////////////////////////////////////////////////////////////////////////////
 /// class PDFSecurityHandler_child
 
-PDFSecurityHandler_child::PDFSecurityHandler_child(
-        PDFProtector_unit* pPDFProtector_unit,
+PDFSecurityHandler_child::PDFSecurityHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit,
         const UserContext &userContext,
         const UnprotectOptions &options,
         std::shared_ptr<std::atomic<bool> > cancelState)
@@ -235,11 +229,8 @@ PDFSecurityHandler_child::PDFSecurityHandler_child(
 
 PDFSecurityHandler_child::~PDFSecurityHandler_child()
 {
-    if(m_pCryptoHandler)
-    {
-        delete m_pCryptoHandler;
-        m_pCryptoHandler = nullptr;
-    }
+    m_pCryptoHandler.reset();
+    m_pCryptoHandler = nullptr;
 }
 
 bool PDFSecurityHandler_child::OnInit(unsigned char *publishingLicense, uint32_t plSize)
@@ -292,9 +283,9 @@ bool PDFSecurityHandler_child::OnInit(unsigned char *publishingLicense, uint32_t
     return true;
 }
 
-PDFCryptoHandler* PDFSecurityHandler_child::CreateCryptoHandler()
+std::shared_ptr<PDFCryptoHandler> PDFSecurityHandler_child::CreateCryptoHandler()
 {
-    m_pCryptoHandler = new PDFCryptoHandler_child(m_pPDFProtector_unit);
+    m_pCryptoHandler = std::make_shared<PDFCryptoHandler_child>(m_pPDFProtector_unit);
     return m_pCryptoHandler;
 }
 
@@ -426,11 +417,17 @@ UnprotectResult PDFProtector_unit::Unprotect(const UserContext& userContext,
     auto outputDecrypted = rmscrypto::api::CreateStreamFromStdStream(outputDecryptedIO);
 
     std::string filterName = PDF_PROTECTOR_FILTER_NAME;
-    PDFSecurityHandler_child securityHander(this, userContext, options, cancelState);
+
+    std::shared_ptr<PDFProtector_unit> sharedPDFProtector(this, [=](PDFProtector_unit* pPDFProtector)
+    {
+        pPDFProtector = nullptr;
+    });
+    auto securityHander = std::make_shared<PDFSecurityHandler_child>(sharedPDFProtector, userContext, options, cancelState);
+
     uint32_t result = m_pdfCreator->UnprotectCustomEncryptedFile(
                 outputPayload,
                 filterName,
-                &securityHander,
+                securityHander,
                 outputDecrypted);
     if(PDFCREATOR_ERR_SUCCESS != result)
     {
@@ -484,12 +481,18 @@ void PDFProtector_unit::Protect(const std::shared_ptr<std::fstream>& outputStrea
     auto outputEncrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
 
     std::string filterName = PDF_PROTECTOR_FILTER_NAME;
-    PDFCryptoHandler_child cryptoHander(this);
+
+    std::shared_ptr<PDFProtector_unit> sharedPDFProtector(this, [=](PDFProtector_unit* pPDFProtector)
+    {
+        pPDFProtector = nullptr;
+    });
+
+    auto cryptoHander = std::make_shared<PDFCryptoHandler_child>(sharedPDFProtector);
     uint32_t result = m_pdfCreator->CreateCustomEncryptedFile(
                 m_originalFilePath,
                 filterName,
                 publishingLicense,
-                &cryptoHander,
+                cryptoHander,
                 outputEncrypted);
     if(PDFCREATOR_ERR_SUCCESS != result)
     {

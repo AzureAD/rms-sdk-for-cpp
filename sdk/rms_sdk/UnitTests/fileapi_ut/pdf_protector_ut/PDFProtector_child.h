@@ -33,16 +33,16 @@ class PDFProtector_unit;
 class PDFCryptoHandler_child : public PDFCryptoHandler
 {
 public:
-    PDFCryptoHandler_child(PDFProtector_unit* pPDFProtector_unit);
+    PDFCryptoHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit);
     virtual ~PDFCryptoHandler_child();
 
     virtual uint32_t DecryptGetSize(uint32_t src_size);
 
-    virtual void* DecryptStart(uint32_t objnum, uint32_t gennum);
+    virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
 
-    virtual bool DecryptStream(void* context, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
+    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
 
-    virtual bool DecryptFinish(void* context, PDFBinaryBuf* dest_buf);
+    virtual bool DecryptFinish(PDFBinaryBuf* dest_buf);
 
     virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
 
@@ -55,7 +55,7 @@ public:
     virtual bool ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf);
 
 private:
-    PDFProtector_unit* m_pPDFProtector_unit;
+    std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
 
     //for decryption
     std::shared_ptr<std::stringstream> m_dataToDecrypted;
@@ -76,7 +76,7 @@ private:
 class PDFSecurityHandler_child : public PDFSecurityHandler
 {
 public:
-    PDFSecurityHandler_child(PDFProtector_unit* pPDFProtector_unit,
+    PDFSecurityHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit,
                          const UserContext& userContext,
                          const UnprotectOptions& options,
                          std::shared_ptr<std::atomic<bool>> cancelState);
@@ -84,11 +84,11 @@ public:
 
     virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
 
-    virtual PDFCryptoHandler* CreateCryptoHandler();
+    virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler();
 
 private:
-    PDFProtector_unit* m_pPDFProtector_unit;
-    PDFCryptoHandler* m_pCryptoHandler;
+    std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
+    std::shared_ptr<PDFCryptoHandler> m_pCryptoHandler;
     UserContext m_userContext;
     UnprotectOptions m_options;
     std::shared_ptr<std::atomic<bool>> m_cancelState;

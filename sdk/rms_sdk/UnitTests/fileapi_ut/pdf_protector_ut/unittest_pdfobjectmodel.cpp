@@ -97,10 +97,10 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
 
       std::string originalFileExtension=".pFile";
 
-      PDFProtector_unit p_PDFprotector(fileIn,originalFileExtension,inFile);
-      PDFCryptoHandler_child cryptoHander(&p_PDFprotector);
+      auto p_PDFprotector = std::make_shared<PDFProtector_unit>(fileIn,originalFileExtension,inFile);
+      auto cryptoHander = std::make_shared<PDFCryptoHandler_child>(p_PDFprotector);
 
-      p_PDFprotector.SetUserPolicy(m_userPolicy);
+      p_PDFprotector->SetUserPolicy(m_userPolicy);
 
       std::string filterName = TParam.filterName;
       std::vector<unsigned char> publishingLicense = m_userPolicy->SerializedPolicy();
@@ -110,7 +110,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
           ret = m_pdfCreator->CreateCustomEncryptedFile(fileIn,
                                                         filterName,
                                                         publishingLicense,
-                                                        &cryptoHander,
+                                                        cryptoHander,
                                                         outputEncrypted);
       }
       catch (const rmsauth::Exception& e)
@@ -215,7 +215,9 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
     auto inFile = make_shared<fstream>(
       fileIn, ios_base::in | ios_base::out | ios_base::binary);
     std::string originalFileExtension=".pFile";
-    PDFProtector_unit p_PDFprotector(fileIn,originalFileExtension,inFile);
+
+    auto p_PDFprotector = std::make_shared<PDFProtector_unit>(fileIn,originalFileExtension,inFile);
+
     //******************
     PDFModuleMgr::Initialize();
 
@@ -226,7 +228,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
     rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth,consent);
     std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
     //*****************************************
-    PDFSecurityHandler_child securityHander(&p_PDFprotector,ut,upt,cancelState);
+    auto securityHander = std::make_shared<PDFSecurityHandler_child>(p_PDFprotector,ut,upt,cancelState);
     //**************************************************************
     std::unique_ptr<PDFCreator> m_pdfCreator = PDFCreator::Create();
     //****************
@@ -253,7 +255,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
         ret= m_pdfCreator->UnprotectCustomEncryptedFile(
             outputPayload,
             filterName,
-            &securityHander,
+            securityHander,
             outputDecrypted);
 
     }
@@ -642,10 +644,10 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
 
     std::string originalFileExtension=".pFile";
 
-    PDFProtector_unit p_PDFprotector(fileIn,originalFileExtension,inFile);
-    PDFCryptoHandler_child cryptoHander(&p_PDFprotector);
+    auto p_PDFprotector = std::make_shared<PDFProtector_unit>(fileIn,originalFileExtension,inFile);
+    auto cryptoHander = std::make_shared<PDFCryptoHandler_child>(p_PDFprotector);
 
-    p_PDFprotector.SetUserPolicy(m_userPolicy);
+    p_PDFprotector->SetUserPolicy(m_userPolicy);
 
     std::string filterName = PDF_PROTECTOR_FILTER_NAME;
     std::vector<unsigned char> publishingLicense = m_userPolicy->SerializedPolicy();
@@ -654,7 +656,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
     ret = m_pdfCreator->CreateCustomEncryptedFile(fileIn,
                                                   filterName,
                                                   publishingLicense,
-                                                  &cryptoHander,
+                                                  cryptoHander,
                                                   outputEncrypted);
 
     std::string wrapperIn= GetCurrentInputFile() +"Input/wrapper.pdf";
