@@ -18,7 +18,7 @@ namespace pdfobjectmodel {
 class CustomCryptoHandler : public CPDF_CryptoHandler
 {
 public:
-    CustomCryptoHandler(PDFCryptoHandler* pPDFCryptoHandler);
+    CustomCryptoHandler(std::shared_ptr<PDFCryptoHandler> pPDFCryptoHandler);
 	virtual ~CustomCryptoHandler();
 
 public:
@@ -44,7 +44,7 @@ public:
 	virtual FX_BOOL     ProgressiveEncryptFinish(CFX_BinaryBuf& dest_buf);
 
 protected:
-    PDFCryptoHandler* m_pPDFCryptoHandler;
+    std::shared_ptr<PDFCryptoHandler> m_pPDFCryptoHandler;
 };
 
 /**
@@ -91,7 +91,7 @@ public:
 class CustomSecurityHandler : public CPDF_SecurityHandler
 {
 public:
-    CustomSecurityHandler(PDFSecurityHandler* pPDFSecHandler);
+    CustomSecurityHandler(std::shared_ptr<PDFSecurityHandler> pPDFSecHandler);
 
     virtual ~CustomSecurityHandler();
 
@@ -108,7 +108,7 @@ public:
     virtual CPDF_CryptoHandler* CreateCryptoHandler();
 
 private:
-    PDFSecurityHandler* m_pPDFSecHandler;
+    std::shared_ptr<PDFSecurityHandler> m_pPDFSecHandler;
     bool m_bEncryptMetadata;
 };
 
@@ -125,13 +125,12 @@ public:
     virtual uint32_t CreateCustomEncryptedFile(const std::string& inputFilePath,
             const std::string& filterName,
             const std::vector<unsigned char>& publishingLicense,
-            PDFCryptoHandler* cryptoHander,
+            std::shared_ptr<PDFCryptoHandler> cryptoHander,
             rmscrypto::api::SharedStream outputIOS);
 
-    virtual uint32_t UnprotectCustomEncryptedFile(
-            rmscrypto::api::SharedStream inputIOS,
+    virtual uint32_t UnprotectCustomEncryptedFile(rmscrypto::api::SharedStream inputIOS,
             const std::string& filterName,
-            PDFSecurityHandler* securityHander,
+            std::shared_ptr<PDFSecurityHandler> securityHander,
             rmscrypto::api::SharedStream outputIOS);
 protected:
     //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
@@ -142,7 +141,7 @@ protected:
     uint32_t ParsePDFFile(CPDF_Parser* pPDFParser);
     uint32_t CreatePDFFile(CPDF_Parser* pPDFParser,
                            CPDF_Dictionary *pEncryptionDic,
-                           PDFCryptoHandler* cryptoHander,
+                           std::shared_ptr<PDFCryptoHandler> cryptoHander,
                            rmscrypto::api::SharedStream outputIOS);
 
     CPDF_Dictionary* CreateEncryptionDict(const std::string& filterName, const std::vector<unsigned char>& publishingLicense);

@@ -194,11 +194,11 @@ public:
      */
     virtual uint32_t DecryptGetSize(uint32_t src_size) = 0;
 
-    virtual void* DecryptStart(uint32_t objnum, uint32_t gennum) = 0;
+    virtual void DecryptStart(uint32_t objnum, uint32_t gennum) = 0;
 
-    virtual bool DecryptStream(void* context, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf) = 0;
+    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf) = 0;
 
-    virtual bool DecryptFinish(void* context, PDFBinaryBuf* dest_buf) = 0;
+    virtual bool DecryptFinish(PDFBinaryBuf* dest_buf) = 0;
 
     /**
      * @brief The PDF object model passes the plain data size to PDF protector and the
@@ -238,7 +238,7 @@ public:
      */
     virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize) = 0;
 
-    virtual PDFCryptoHandler* CreateCryptoHandler() = 0;
+    virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler() = 0;
 };
 
 #define PDFCREATOR_ERR_SUCCESS				0
@@ -274,7 +274,7 @@ public:
             const std::string& inputFilePath,
             const std::string& filterName,
             const std::vector<unsigned char>& publishingLicense,
-            PDFCryptoHandler* cryptoHander,
+            std::shared_ptr<PDFCryptoHandler> cryptoHander,
             rmscrypto::api::SharedStream outputIOS) = 0;
 
     /**
@@ -289,7 +289,7 @@ public:
     virtual uint32_t UnprotectCustomEncryptedFile(
             rmscrypto::api::SharedStream inputIOS,
             const std::string& filterName,
-            PDFSecurityHandler* securityHander,
+            std::shared_ptr<PDFSecurityHandler> securityHander,
             rmscrypto::api::SharedStream outputIOS) = 0;
 
     virtual ~PDFCreator(){}

@@ -38,11 +38,11 @@ public:
 
     virtual uint32_t DecryptGetSize(uint32_t src_size);
 
-    virtual void* DecryptStart(uint32_t objnum, uint32_t gennum);
+    virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
 
-    virtual bool DecryptStream(void* context, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
+    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
 
-    virtual bool DecryptFinish(void* context, PDFBinaryBuf* dest_buf);
+    virtual bool DecryptFinish(PDFBinaryBuf* dest_buf);
 
     virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
 
@@ -84,11 +84,11 @@ public:
 
     virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
 
-    virtual PDFCryptoHandler* CreateCryptoHandler();
+    virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler();
 
 private:
     std::shared_ptr<PDFProtector> m_pPDFProtector;
-    PDFCryptoHandlerImpl* m_pCryptoHandler;
+    std::shared_ptr<PDFCryptoHandlerImpl> m_pCryptoHandler;
     UserContext m_userContext;
     UnprotectOptions m_options;
     std::shared_ptr<std::atomic<bool>> m_cancelState;

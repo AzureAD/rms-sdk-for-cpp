@@ -15,13 +15,13 @@ namespace pdfobjectmodel {
 class PDFBinaryBufImpl : public PDFBinaryBuf
 {
 public:
-    PDFBinaryBufImpl(CFX_BinaryBuf* pBinBuf);
+    PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> pBinBuf);
 	virtual ~PDFBinaryBufImpl();
 
 	virtual bool AppendBlock(const void* pBuf, uint32_t size);
 
 private:
-    CFX_BinaryBuf* m_pBinBuf;
+    std::shared_ptr<CFX_BinaryBuf> m_pBinBuf;
 };
 
 /**

@@ -22,12 +22,12 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapperDocStre
     m_payloadSize = 0;
     m_wsFileName = L"";
 
-    m_wrapperFileStream = new FileStreamImpl(wrapperDocStream);
-    FX_DWORD parseResult = m_pdfParser.StartParse(m_wrapperFileStream);
+    m_wrapperFileStream = std::make_shared<FileStreamImpl>(wrapperDocStream);
+    FX_DWORD parseResult = m_pdfParser.StartParse(m_wrapperFileStream.get());
     if(PDFPARSE_ERROR_SUCCESS == parseResult)
     {
         CPDF_Document* pDoc = m_pdfParser.GetDocument();
-        m_wrapperDoc = new CPDF_WrapperDoc(pDoc);
+        m_wrapperDoc = std::make_shared<CPDF_WrapperDoc>(pDoc);
 
         m_wrapperType = m_wrapperDoc->GetWrapperType();
         if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV1)
@@ -62,17 +62,11 @@ PDFWrapperDocImpl::~PDFWrapperDocImpl()
 {
     m_pdfParser.CloseParser();
 
-    if(m_wrapperFileStream)
-    {
-       delete m_wrapperFileStream;
-       m_wrapperFileStream = nullptr;
-    }
+    m_wrapperFileStream.reset();
+    m_wrapperFileStream = nullptr;
 
-    if(m_wrapperDoc)
-    {
-        delete m_wrapperDoc;
-        m_wrapperDoc = nullptr;
-    }
+    m_wrapperDoc.reset();
+    m_wrapperDoc = nullptr;
 }
 
 uint32_t PDFWrapperDocImpl::GetWrapperType() const
@@ -129,8 +123,8 @@ PDFUnencryptedWrapperCreatorImpl::PDFUnencryptedWrapperCreatorImpl(rmscrypto::ap
     m_pPDFWrapper20Creator = nullptr;
     m_payloadFileStream = nullptr;
 
-    m_wrapperFileStream = new FileStreamImpl(wrapperDocStream);
-    FX_DWORD parseResult = m_pdfParser.StartParse(m_wrapperFileStream);
+    m_wrapperFileStream = std::make_shared<FileStreamImpl>(wrapperDocStream);
+    FX_DWORD parseResult = m_pdfParser.StartParse(m_wrapperFileStream.get());
     if(PDFPARSE_ERROR_SUCCESS == parseResult)
     {
         CPDF_Document* pDoc = m_pdfParser.GetDocument();
@@ -142,15 +136,12 @@ PDFUnencryptedWrapperCreatorImpl::~PDFUnencryptedWrapperCreatorImpl()
 {
      m_pdfParser.CloseParser();
 
-    if(m_wrapperFileStream)
-    {
-        delete m_wrapperFileStream;
-        m_wrapperFileStream = nullptr;
-    }
+    m_wrapperFileStream.reset();
+    m_wrapperFileStream = nullptr;
 
     if(m_payloadFileStream)
     {
-        delete m_payloadFileStream;
+        m_payloadFileStream.reset();
         m_payloadFileStream = nullptr;
     }
 
@@ -180,11 +171,11 @@ void PDFUnencryptedWrapperCreatorImpl::SetPayLoad(rmscrypto::api::SharedStream i
 
     if(m_payloadFileStream)
     {
-        delete m_payloadFileStream;
+        m_payloadFileStream.reset();
         m_payloadFileStream = nullptr;
     }
-    m_payloadFileStream = new FileStreamImpl(inputStream);
-    m_pPDFWrapper20Creator->SetPayLoad(m_payloadFileStream);
+    m_payloadFileStream = std::make_shared<FileStreamImpl>(inputStream);
+    m_pPDFWrapper20Creator->SetPayLoad(m_payloadFileStream.get());
 }
 
 bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(rmscrypto::api::SharedStream outputStream)

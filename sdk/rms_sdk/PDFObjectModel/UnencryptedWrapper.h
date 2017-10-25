@@ -36,10 +36,10 @@ public:
     virtual bool StartGetPayload(rmscrypto::api::SharedStream outputStream);
 
 private:
-    FileStreamImpl* m_wrapperFileStream;
+    std::shared_ptr<FileStreamImpl> m_wrapperFileStream;
     CPDF_Parser m_pdfParser;
     //this is just for IRM V2. we have to parse IRM V1 self.
-    CPDF_WrapperDoc* m_wrapperDoc;
+    std::shared_ptr<CPDF_WrapperDoc> m_wrapperDoc;
 
     uint32_t m_wrapperType;
     std::wstring m_wsGraphicFilter;
@@ -70,10 +70,10 @@ public:
     virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream outputStream);
 
 private:
-    FileStreamImpl* m_wrapperFileStream;
+    std::shared_ptr<FileStreamImpl> m_wrapperFileStream;
     CPDF_Parser m_pdfParser;
     IPDF_UnencryptedWrapperCreator* m_pPDFWrapper20Creator;
-    FileStreamImpl* m_payloadFileStream;
+    std::shared_ptr<FileStreamImpl> m_payloadFileStream;
 };
 
 } // namespace pdfobjectmodel

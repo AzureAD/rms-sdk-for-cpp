@@ -5,7 +5,7 @@ namespace pdfobjectmodel {
 
 //////////////////////////////////////////////////////////////////////////
 // class PDFBinaryBufImpl
-PDFBinaryBufImpl::PDFBinaryBufImpl(CFX_BinaryBuf *pBinBuf)
+PDFBinaryBufImpl::PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> pBinBuf)
 {
     m_pBinBuf = pBinBuf;
 }
