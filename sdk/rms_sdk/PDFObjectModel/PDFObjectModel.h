@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef RMS_SDK_PDF_OBJECT_MODEL_H
-#define RMS_SDK_PDF_OBJECT_MODEL_H
+#ifndef RMSSDK_PDFOBJECTMODEL_H_
+#define RMSSDK_PDFOBJECTMODEL_H_
 
 #include <string>
 #include <memory>
@@ -301,5 +301,5 @@ protected:
 } // namespace pdfobjectmodel
 } // namespace rmscore
 
-#endif // RMS_SDK_PDF_OBJECT_MODEL_H
+#endif // RMSSDK_PDFOBJECTMODEL_H_
 

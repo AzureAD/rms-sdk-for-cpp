@@ -40,7 +40,7 @@ else:
 #end fxcore
 
 HEADERS += \
-    CoreInc.h \
+    Core.inc \
     PDFObjectModel.h \
     PDFModuleMgr.h \
     Basic.h \

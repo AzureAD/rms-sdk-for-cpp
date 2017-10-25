@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef RMS_SDK_FILE_API_PDFPROTECTOR_H
-#define RMS_SDK_FILE_API_PDFPROTECTOR_H
+#ifndef RMS_SDK_FILE_API_PDFPROTECTOR_H_
+#define RMS_SDK_FILE_API_PDFPROTECTOR_H_
 
 #include "Protector.h"
 #include "BlockBasedProtectedStream.h"
@@ -22,77 +22,6 @@ namespace rmscore {
 namespace fileapi {
 
 #define MIN_RAW_SIZE 64 * 1024 * 1024
-
-class PDFProtector;
-
-/**
- * @brief The implementaion class of interface class PDFCryptoHandler defined by PDF object model.
- * Please refer to comments of PDFCryptoHandler.
- * The interface header file of PDF object model is PDFObjectModel.h.
- */
-class PDFCryptoHandlerImpl : public PDFCryptoHandler
-{
-public:
-    PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
-    virtual ~PDFCryptoHandlerImpl();
-
-    virtual uint32_t DecryptGetSize(uint32_t src_size);
-
-    virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
-
-    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
-
-    virtual bool DecryptFinish(PDFBinaryBuf* dest_buf);
-
-    virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
-
-    virtual bool EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size);
-
-    virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size);
-
-    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
-
-    virtual bool ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf);
-
-private:
-    std::shared_ptr<PDFProtector> m_pPDFProtector;
-
-    //for decryption
-    std::shared_ptr<std::stringstream> m_dataToDecrypted;
-    uint32_t m_objnum;
-
-    //for encryption
-    bool m_bProgressiveStart;
-    std::shared_ptr<std::iostream> m_outputIOS;
-    rmscrypto::api::SharedStream m_outputSharedStream;
-    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> m_sharedProtectedStream;
-};
-
-/**
- * @brief The implementaion class of interface class PDFSecurityHandler defined by PDF object model.
- * Please refer to comments of PDFSecurityHandler.
- * The interface header file of PDF object model is PDFObjectModel.h.
- */
-class PDFSecurityHandlerImpl : public PDFSecurityHandler
-{
-public:
-    PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector,
-                         const UserContext& userContext,
-                         const UnprotectOptions& options,
-                         std::shared_ptr<std::atomic<bool>> cancelState);
-    virtual ~PDFSecurityHandlerImpl();
-
-    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
-
-    virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler();
-
-private:
-    std::shared_ptr<PDFProtector> m_pPDFProtector;
-    std::shared_ptr<PDFCryptoHandlerImpl> m_pCryptoHandler;
-    UserContext m_userContext;
-    UnprotectOptions m_options;
-    std::shared_ptr<std::atomic<bool>> m_cancelState;
-};
 
 /**
  * @brief The wrapper info used to create the unencrypted wrapper document
@@ -228,8 +157,77 @@ private:
     std::unique_ptr<PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
 };
 
+/**
+ * @brief The implementaion class of interface class PDFCryptoHandler defined by PDF object model.
+ * Please refer to comments of PDFCryptoHandler.
+ * The interface header file of PDF object model is PDFObjectModel.h.
+ */
+class PDFCryptoHandlerImpl : public PDFCryptoHandler
+{
+public:
+    PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
+    virtual ~PDFCryptoHandlerImpl();
+
+    virtual uint32_t DecryptGetSize(uint32_t src_size);
+
+    virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
+
+    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
+
+    virtual bool DecryptFinish(PDFBinaryBuf* dest_buf);
+
+    virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
+
+    virtual bool EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size);
+
+    virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size);
+
+    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
+
+    virtual bool ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf);
+
+private:
+    std::shared_ptr<PDFProtector> m_pPDFProtector;
+
+    //for decryption
+    std::shared_ptr<std::stringstream> m_dataToDecrypted;
+    uint32_t m_objnum;
+
+    //for encryption
+    bool m_bProgressiveStart;
+    std::shared_ptr<std::iostream> m_outputIOS;
+    rmscrypto::api::SharedStream m_outputSharedStream;
+    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> m_sharedProtectedStream;
+};
+
+/**
+ * @brief The implementaion class of interface class PDFSecurityHandler defined by PDF object model.
+ * Please refer to comments of PDFSecurityHandler.
+ * The interface header file of PDF object model is PDFObjectModel.h.
+ */
+class PDFSecurityHandlerImpl : public PDFSecurityHandler
+{
+public:
+    PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector,
+                         const UserContext& userContext,
+                         const UnprotectOptions& options,
+                         std::shared_ptr<std::atomic<bool>> cancelState);
+    virtual ~PDFSecurityHandlerImpl();
+
+    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
+
+    virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler();
+
+private:
+    std::shared_ptr<PDFProtector> m_pPDFProtector;
+    std::shared_ptr<PDFCryptoHandlerImpl> m_pCryptoHandler;
+    UserContext m_userContext;
+    UnprotectOptions m_options;
+    std::shared_ptr<std::atomic<bool>> m_cancelState;
+};
+
 } // namespace fileapi
 } // namespace rmscore
 
-#endif // RMS_SDK_FILE_API_PDFPROTECTOR_H
+#endif // RMS_SDK_FILE_API_PDFPROTECTOR_H_
 

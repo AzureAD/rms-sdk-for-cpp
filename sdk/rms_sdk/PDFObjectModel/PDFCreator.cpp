@@ -1,7 +1,9 @@
 #include "PDFCreator.h"
+
+#include <cstdio>
+
 #include "PDFModuleMgr.h"
 #include "Basic.h"
-#include <cstdio>
 
 namespace rmscore {
 namespace pdfobjectmodel {

@@ -1,3 +1,4 @@
+#include "unittest_pdfobjectmodel.h"
 #include "Auth.h"
 #include "depend.h"
 #include "PDFObjectModel/PDFObjectModel.h"
@@ -12,15 +13,7 @@ using namespace rmscore::fileapi;
 using namespace rmscore::core;
 using namespace rmscore::modernapi;
 
-
-class PDFCreator_CreateCustomEncryptedFile;
-class PDFCreator_UnprotectCustomEncryptedFile;
-class PDFWrapperDoc_GetWrapperType;
-class PDFWrapperDoc_GetCryptographicFilter;
-class PDFWrapperDoc_GetPayLoadSize;
-class PDFWrapperDoc_GetPayloadFileName;
 std::shared_ptr<UserPolicy> m_userPolicy;
-
 void SetUserPolicy()
 {
     PDFModuleMgr::Initialize();//init
@@ -49,36 +42,13 @@ void SetUserPolicy()
                                                                             cancelState);
 }
 
-struct CreateCustomEncryptedFile_P{
-      CreateCustomEncryptedFile_P(std::string fileIn_,
-                                  std::string fileout_,
-                                  std::string filterName_,
-                                  std::string ExceptionsMess_,
-                                  uint32_t ret_)
-       {
-           fileIn = fileIn_;
-           fileout =fileout_;
-           filterName = filterName_;
-           ret = ret_;
-           ExceptionsMess=ExceptionsMess_;
-       }
-           std::string fileIn;
-           std::string fileout;
-           std::string filterName;
-           std::string ExceptionsMess;
-           uint32_t ret;
- };
-
-class PDFCreator_CreateCustomEncryptedFile:public ::testing::TestWithParam<CreateCustomEncryptedFile_P>
-{
-public:
- static void SetUpTestCase() {
+void PDFCreator_CreateCustomEncryptedFile::SetUpTestCase() {
     SetUserPolicy();
- }
- static void TearDownTestCase() {
+}
 
- }
-};
+void PDFCreator_CreateCustomEncryptedFile::TearDownTestCase() {
+
+}
 
 TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
 {
@@ -179,35 +149,15 @@ INSTANTIATE_TEST_CASE_P(,PDFCreator_CreateCustomEncryptedFile,testing::Values(
 
       ));
 
-struct UnprotectCustomEncryptedFile_P
-{
-    UnprotectCustomEncryptedFile_P(std::string fileIn_,std::string fileout_,std::string filterName_,std::string Exceptionmess_,uint32_t ret_)
-    {
-        fileIn = fileIn_;
-        fileout =fileout_;
-        filterName = filterName_;
-        ExceptionsMess = Exceptionmess_;
-        ret = ret_;
-
-    }
-        std::string fileIn;
-        std::string fileout;
-        std::string filterName;
-        std::string ExceptionsMess;
-        uint32_t ret;
-
-};
-class PDFCreator_UnprotectCustomEncryptedFile:public ::testing::TestWithParam<UnprotectCustomEncryptedFile_P>
-{
-public:
- static void SetUpTestCase() {
+void PDFCreator_UnprotectCustomEncryptedFile::SetUpTestCase() {
 
 
- }
- static void TearDownTestCase() {
+}
 
- }
-};
+void PDFCreator_UnprotectCustomEncryptedFile::TearDownTestCase() {
+
+}
+
 TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
 {
     UnprotectCustomEncryptedFile_P TParam = GetParam();
@@ -301,24 +251,7 @@ INSTANTIATE_TEST_CASE_P(,PDFCreator_UnprotectCustomEncryptedFile,testing::Values
  UnprotectCustomEncryptedFile_P("Input/Protector/MaxOwner.pdf","OutPut/UnprotectCustomEncryptedFile/MaxOwner.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SUCCESS),
  UnprotectCustomEncryptedFile_P("Input/Protector/phantomOfficeT.pdf","OutPut/UnprotectCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"Only the owner has the right to unprotect the document.",PDFCREATOR_ERR_UNKNOWN)
                             ));
-struct GetWrapperType_P{
-    GetWrapperType_P(std::string fileIn_,
-             std::string Exceptions_,
-             uint32_t ret_)
-    {
-        fileIn = fileIn_;
-        ExceptionsMess=Exceptions_;
-        ret = ret_;
-    }
-    std::string fileIn;
-    std::string ExceptionsMess;
-    uint32_t ret;
-};
 
-class PDFWrapperDoc_GetWrapperType:public ::testing::TestWithParam<GetWrapperType_P>
-{
-
-};
 TEST_P(PDFWrapperDoc_GetWrapperType,GetWrapperType_T)
 {
     GetWrapperType_P TParam=GetParam();
@@ -354,29 +287,7 @@ GetWrapperType_P("Input/Protector/password.pdf","No Exception",0),
 GetWrapperType_P("Input/Errorr/Error.pdf","No Exception",0),
 GetWrapperType_P("Input/unprotector.pdf","No Exception",0)
 ));
-struct GetCryptographicFilter_P{
-    GetCryptographicFilter_P(std::string fileIn_,
-    std::wstring wsGraphicFilter_,
-    float fVersion_,
-    bool ret_,
-    std::string ExceptionsMess_)
-    {
-        fileIn =fileIn_;
-        wsGraphicFilter = wsGraphicFilter_;
-        fVersion =fVersion_;
-        ret = ret_;
-        ExceptionsMess = ExceptionsMess_;
-    }
-    std::string fileIn;
-    std::wstring wsGraphicFilter;
-    float fVersion;
-    bool ret;
-    std::string ExceptionsMess;
-};
-class PDFWrapperDoc_GetCryptographicFilter:public ::testing::TestWithParam<GetCryptographicFilter_P>
-{
 
-};
 TEST_P(PDFWrapperDoc_GetCryptographicFilter,GetCryptographicFilter_T)
 {
     GetCryptographicFilter_P TParam=GetParam();
@@ -420,24 +331,7 @@ GetCryptographicFilter_P("Input/Protector/anyone.pdf",L"MicrosoftIRMServices",2,
 
 
 ));
-struct GetPayLoadSize_P{
-    GetPayLoadSize_P(std::string fileIn_,
-    uint32_t PayLoadSize_,
-    std::string ExceptionMess_)
-    {
-        fileIn =fileIn_;
-        PayLoadSize = PayLoadSize_;
-        ExceptionMess = ExceptionMess_;
-    }
-    std::string fileIn;
-    uint32_t PayLoadSize;
-    std::string ExceptionMess;
 
-};
-class PDFWrapperDoc_GetPayLoadSize:public ::testing::TestWithParam<GetPayLoadSize_P>
-{
-
-};
 TEST_P(PDFWrapperDoc_GetPayLoadSize,GetPayLoadSize_T)
 {
     GetPayLoadSize_P TParam=GetParam();
@@ -473,26 +367,7 @@ GetPayLoadSize_P("Input/Protector/customerTemplate.pdf",26488,""),
 GetPayLoadSize_P("Input/Protector/V1V1.pdf",55728,""),
 GetPayLoadSize_P("Input/Protector/anyone.pdf",25699,"")
 ));
-struct GetPayloadFileName_P{
-    GetPayloadFileName_P(std::string fileIn_,
-    std::wstring wsFileName_,
-    bool ret_,
-    std::string ExceptionMess_)
-    {
-        fileIn = fileIn_;
-        wsFileName = wsFileName_;
-        ret = ret_;
-        ExceptionMess = ExceptionMess_;
-    }
-    std::string fileIn;
-    std::wstring wsFileName;
-    bool ret;
-    std::string ExceptionMess;
-};
-class PDFWrapperDoc_GetPayloadFileName:public ::testing::TestWithParam<GetPayloadFileName_P>
-{
 
-};
 TEST_P(PDFWrapperDoc_GetPayloadFileName,GetPayloadFileName_T)
 {
     GetPayloadFileName_P TParam=GetParam();
@@ -529,27 +404,6 @@ GetPayloadFileName_P("Input/Protector/V1V1.pdf",L"",true,""),//V1
 GetPayloadFileName_P("Input/Protector/cer.pdf",L"",true,""),
 GetPayloadFileName_P("Input/Protector/anyone.pdf",L"MicrosoftIRMServices Protected PDF.pdf",true,"")
 ));
-struct CreateUnencryptedWrapper_P{
-    CreateUnencryptedWrapper_P(std::string fileIn_,
-                              // std::string fileOut_,
-                               bool ret_,
-                               std::string ExceptionMess_)
-    {
-        fileIn = fileIn_;
-        //fileout = fileOut_;
-        ret = ret_;
-        ExceptionMess= ExceptionMess_;
-    }
-    std::string fileIn;
-    //std::string fileout;
-    bool ret;
-    std::string ExceptionMess;
-};
-
-class PDFUnencryptedWrapperCreator_CreateUnencryptedWrapper:public::testing::TestWithParam<CreateUnencryptedWrapper_P>
-{
-
-};
 
 TEST_P(PDFUnencryptedWrapperCreator_CreateUnencryptedWrapper,CreateUnencryptedWrapper_T)
 {
@@ -593,39 +447,13 @@ CreateUnencryptedWrapper_P("Input/Test.txt",0,"")
 
                             ));
 
-struct SetPayloadInfo_P{
-    SetPayloadInfo_P(std::wstring wsSubType_,
-                     std::wstring wsFileName_,
-                     std::wstring wsDescription_,
-                     std::string outfile_,
-                     float fVersion_,
-                     std::string ExceptionMess_)
-    {
-        wsSubType = wsSubType_;
-        wsFileName= wsFileName_;
-        wsDescription = wsDescription_;
-        fileout = outfile_;
-        fVersion = fVersion_;
-        ExceptionsMess = ExceptionMess_;
-    }
-    std::wstring wsSubType;
-    std::wstring wsFileName;
-    std::wstring wsDescription;
-    std::string fileout;
-    float fVersion;
-    std::string ExceptionsMess;
-};
-class PDFUnencryptedWrapperCreator_SetPayloadInfo:public::testing::TestWithParam<SetPayloadInfo_P>
-{
-public:
- static void SetUpTestCase() {
-
+void PDFUnencryptedWrapperCreator_SetPayloadInfo::SetUpTestCase() {
      SetUserPolicy();
- }
- static void TearDownTestCase() {
+}
 
- }
-};
+void PDFUnencryptedWrapperCreator_SetPayloadInfo::TearDownTestCase() {
+
+}
 
 TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
 {

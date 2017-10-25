@@ -1,38 +1,11 @@
+#include "unittest_protector.h"
 #include "Auth.h"
 #include "depend.h"
 using namespace std;
 using namespace rmsauth;
 
-class ProtectorWithWrapper_IsProtected;
-class ProtectorWithWrapper_Create;
-class Protector_Create;
-class Protector_Unprotector;
-class ProtectorWithWrapper_ProtectWithTemplate;
-class ProtectorWithWrapper_ProtectWithCustomRights;
-class ProtectorWithWrapper_SetWrapper;
-
 //****************WithWrapperCreate Test***************************************************
 
-struct Create_P{
-    Create_P(std::string fileIn_,
-             std::string outputFileName_,
-             std::string Exceptions_,
-             bool ret_)
-    {
-        fileIn = fileIn_;
-        outputFileName = outputFileName_;
-        ExceptionsMess=Exceptions_;
-        ret = ret_;
-    }
-    std::string fileIn;
-    std::string outputFileName;
-    std::string ExceptionsMess;
-    bool ret;
-};
-class ProtectorWithWrapper_Create:public ::testing::TestWithParam<Create_P>
-{
-
-};
 TEST_P(ProtectorWithWrapper_Create,Create_T)
 {
     Create_P TParam=GetParam();
@@ -91,23 +64,7 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_Create,testing::Values(
 #endif
 
 //****************IsProtected Test***************************************************
-struct IsProtected_P{
-    IsProtected_P(std::string fileIn_,
-                  std::string ExceptionsMess_,
-    bool ret_)
-    {
-        fileIn = fileIn_;
-        ret = ret_;
-        ExceptionsMess=ExceptionsMess_;
-    }
-    std::string fileIn;
-    std::string ExceptionsMess;
-    bool ret;
-};
-class ProtectorWithWrapper_IsProtected:public ::testing::TestWithParam<IsProtected_P>
-{
 
-};
 TEST_P(ProtectorWithWrapper_IsProtected,IsProtected_T)
 {
     IsProtected_P TParam=GetParam();
@@ -142,28 +99,7 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_IsProtected,testing::Values(
     ));
 
 //********************protector***********************************************
-struct Unprotector_P{
-    Unprotector_P(std::string fileIn_,
-                  std::string fileout_,
-                  std::string ExceptionsMess_,
-                  bool cancelState_)
-    {
-        fileIn = fileIn_;
-        fileout =fileout_;
-        ExceptionsMess=ExceptionsMess_;
-        cancelState = cancelState_;
 
-
-    }
-    std::string fileIn;
-    std::string fileout;
-    std::string ExceptionsMess;
-    bool cancelState;
-};
-class ProtectorWithWrapper_Unprotector:public ::testing::TestWithParam<Unprotector_P>
-{
-
-};
 TEST_P(ProtectorWithWrapper_Unprotector,Unprotector_T)
 {
     Unprotector_P TParam = GetParam();
@@ -233,29 +169,7 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_Unprotector,testing::Values(
 
 ));
 //************ProtectWithTemplate********************************************
-struct ProtectWithTemplate_P{
-    ProtectWithTemplate_P(std::string fileIn_,
-                           std::string fileout_,
-                           std::string ExceptionsMess_,
-                           bool cancelState_,
-                           bool ret_)
-             {
-                 fileIn = fileIn_;
-                 fileout =fileout_;
-                 ExceptionsMess=ExceptionsMess_;
-                 cancelState = cancelState_;
-                 ret =ret_;
-             }
-    std::string fileIn;
-    std::string fileout;
-    std::string ExceptionsMess;
-    bool cancelState;
-    bool ret;
-};
-class ProtectorWithWrapper_ProtectWithTemplate:public ::testing::TestWithParam<ProtectWithTemplate_P>
-{
 
-};
 TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T)
 {
     ProtectWithTemplate_P TParam =GetParam();
@@ -345,40 +259,9 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_ProtectWithTemplate,testing::Value
 
                             //
 ));
+
 //************ProtectWithTemplate********************************************
-struct ProtectWithCustomRights_P{
-    ProtectWithCustomRights_P(std::string fileIn_,
-                           std::string fileout_,
-                           //std::string CLIENTEMAIL_,
-                           std::string UserLists_,
-                           std::string RightList_,
-                           std::string ExceptionsMess_,
 
-                           bool cancelState_,
-                           bool ret_)
-             {
-                 fileIn = fileIn_;
-                 fileout =fileout_;
-                // CLIENTEMAIL=CLIENTEMAIL_;
-                 ExceptionsMess=ExceptionsMess_;
-                 UserLists = UserLists_;
-                 RightList = RightList_;
-                 cancelState = cancelState_;
-                 ret =ret_;
-             }
-    std::string fileIn;
-    std::string fileout;
-    //std::string CLIENTEMAIL;
-    std::string UserLists;
-    std::string RightList;
-    std::string ExceptionsMess;
-    bool cancelState;
-    bool ret;
-};
-class ProtectorWithWrapper_ProtectWithCustomRights:public ::testing::TestWithParam<ProtectWithCustomRights_P>
-{
-
-};
 TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
 {
     ProtectWithCustomRights_P TParam = GetParam();
@@ -503,26 +386,7 @@ ProtectWithCustomRights_P("Input/Protector/MaxOwner.pdf","OutPut/protectWithCust
 ProtectWithCustomRights_P("Input/Protector/customerTemplate.pdf","OutPut/protectWithCustomeRight/customerTemplate.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","NO Exception",false,true)
 //ProtectWithCustomRights_P("Input/Protector/phantomOfficeT.pdf","OutPut/protectWithCustomeRight/phantomOfficeT.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","File is already protected",false,false)
                             ));
-struct SetWrapper_P{
-    SetWrapper_P(std::string wrapperin_,
-                 std::string outfile_,
-                 std::string ExceptionsMess_,
-                 bool ret_)
-            {
-                wrapperin = wrapperin_;
-                outfile = outfile_;
-                ExceptionsMess= ExceptionsMess_;
-                ret =ret_;
-            }
-    std::string wrapperin;
-    std::string outfile;
-    std::string ExceptionsMess;
-    bool ret;
-};
-class ProtectorWithWrapper_SetWrapper:public ::testing::TestWithParam<SetWrapper_P>
-{
 
-};
 TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate)
 {
     SetWrapper_P TParam =GetParam();

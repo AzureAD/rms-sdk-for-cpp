@@ -52,7 +52,9 @@ HEADERS += \
     FileAPIProtectorSelectorTest.h \
     pdf_protector_ut/depend.h \
     pdf_protector_ut/Auth.h \
-    pdf_protector_ut/PDFProtector_child.h
+    pdf_protector_ut/PDFProtector_child.h \
+    pdf_protector_ut/unittest_protector.h \
+    pdf_protector_ut/unittest_pdfobjectmodel.h
 
 SOURCES += \
     FileAPIProtectorSelectorTest.cpp \
@@ -61,5 +63,6 @@ SOURCES += \
     $$REPO_ROOT/googlemock/src/gmock-all.cc \
     pdf_protector_ut/unittest_protector.cpp \
     pdf_protector_ut/Auth.cpp \
+    pdf_protector_ut/depend.cpp \
     pdf_protector_ut/PDFProtector_child.cpp \
     pdf_protector_ut/unittest_pdfobjectmodel.cpp

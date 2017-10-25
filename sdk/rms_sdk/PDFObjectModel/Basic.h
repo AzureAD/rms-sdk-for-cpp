@@ -1,8 +1,8 @@
-#ifndef RMS_SDK_PDF_BASIC_H
-#define RMS_SDK_PDF_BASIC_H
+#ifndef RMSSDK_PDFOBJECTMODEL_BASIC_H_
+#define RMSSDK_PDFOBJECTMODEL_BASIC_H_
 
 #include "PDFObjectModel.h"
-#include "CoreInc.h"
+#include "Core.inc"
 
 namespace rmscore {
 namespace pdfobjectmodel {
@@ -83,4 +83,4 @@ public:
 } // namespace pdfobjectmodel
 } // namespace rmscore
 
-#endif // RMS_SDK_PDF_BASIC_H
+#endif // RMSSDK_PDFOBJECTMODEL_BASIC_H_

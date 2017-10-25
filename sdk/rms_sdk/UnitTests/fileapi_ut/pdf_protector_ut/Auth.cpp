@@ -5,6 +5,8 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
  */
+#include "Auth.h"
+
 #include <QMessageBox>
 #include <QFileDialog>
 
@@ -18,7 +20,6 @@
 #include <rmsauth/Exceptions.h>
 #include <ModernAPI/HttpHelper.h>
 #include <ModernAPI/RMSExceptions.h>
-#include "Auth.h"
 #include "FileAPI/Protector.h"
 #include "FileAPI/FileAPIStructures.h"
 using namespace std;

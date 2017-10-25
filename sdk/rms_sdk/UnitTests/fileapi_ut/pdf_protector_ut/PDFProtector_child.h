@@ -6,8 +6,8 @@
  * ======================================================================
 */
 
-#ifndef RMS_SDK_FILE_API_PDFProtector_unit_H
-#define RMS_SDK_FILE_API_PDFProtector_unit_H
+#ifndef RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_PDFPROTECTOR_CHILD_H_
+#define RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_PDFPROTECTOR_CHILD_H_
 
 #include "Protector.h"
 #include "BlockBasedProtectedStream.h"
@@ -231,5 +231,5 @@ private:
 } // namespace fileapi
 } // namespace rmscore
 
-#endif // RMS_SDK_FILE_API_PDFProtector_unit_H
+#endif // RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_PDFPROTECTOR_CHILD_H_
 

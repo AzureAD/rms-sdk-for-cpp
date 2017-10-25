@@ -1,8 +1,8 @@
-#ifndef RMS_SDK_PDF_CREATOR_H
-#define RMS_SDK_PDF_CREATOR_H
+#ifndef RMSSDK_PDFOBJECTMODEL_PDFCREATOR_H_
+#define RMSSDK_PDFOBJECTMODEL_PDFCREATOR_H_
 
 #include "PDFObjectModel.h"
-#include "CoreInc.h"
+#include "Core.inc"
 
 namespace rmscore {
 namespace pdfobjectmodel {
@@ -153,4 +153,4 @@ private:
 } // namespace pdfobjectmodel
 } // namespace rmscore
 
-#endif // RMS_SDK_PDF_CREATOR_H
+#endif // RMSSDK_PDFOBJECTMODEL_PDFCREATOR_H_

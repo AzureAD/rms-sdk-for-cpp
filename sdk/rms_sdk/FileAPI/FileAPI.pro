@@ -13,6 +13,7 @@ QMAKE_CFLAGS_WARN_ON += -W4
 QT       += core xml xmlpatterns widgets network
 QT 	     -= gui
 
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Pole
 INCLUDEPATH += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/ModernAPI

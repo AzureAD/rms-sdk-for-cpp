@@ -1,8 +1,8 @@
-#ifndef RMS_SDK_PDF_UNENCRYPTED_WRAPPER_H
-#define RMS_SDK_PDF_UNENCRYPTED_WRAPPER_H
+#ifndef RMSSDK_PDFOBJECTMODEL_UNENCRYPTEDWRAPPER_H_
+#define RMSSDK_PDFOBJECTMODEL_UNENCRYPTEDWRAPPER_H_
 
 #include "PDFObjectModel.h"
-#include "CoreInc.h"
+#include "Core.inc"
 #include "Basic.h"
 
 namespace rmscore {
@@ -79,4 +79,4 @@ private:
 } // namespace pdfobjectmodel
 } // namespace rmscore
 
-#endif // RMS_SDK_PDF_UNENCRYPTED_WRAPPER_H
+#endif // RMSSDK_PDFOBJECTMODEL_UNENCRYPTEDWRAPPER_H_

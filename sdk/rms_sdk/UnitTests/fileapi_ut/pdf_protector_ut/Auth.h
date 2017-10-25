@@ -6,10 +6,8 @@
  * ======================================================================
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-
+#ifndef RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_AUTH_H_
+#define RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_AUTH_H_
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -19,16 +17,18 @@
 #include <iomanip>
 #include <chrono>
 #include <ctime>
-#include <rmsauth/HttpHelper.h>
-#include <rmsauth/Exceptions.h>
-#include <ModernAPI/HttpHelper.h>
-#include <ModernAPI/RMSExceptions.h>
+
 #include <QString>
 #include <QMainWindow>
 #include <QList>
 #include <QNetworkReply>
 #include <QSslError>
 #include <QThread>
+
+#include <rmsauth/HttpHelper.h>
+#include <rmsauth/Exceptions.h>
+#include <ModernAPI/HttpHelper.h>
+#include <ModernAPI/RMSExceptions.h>
 
 #include <rmsauth/AuthenticationContext.h>
 #include <ModernAPI/AuthenticationCallbackImpl.h>
@@ -38,6 +38,7 @@
 
 #include <UserRights.h>
 #include <rights.h>
+
 using namespace rmscore::modernapi;
 using namespace std;
 
@@ -76,4 +77,4 @@ public:
 
   virtual ConsentList Consents(ConsentList& consents) override;
 };
-#endif
+#endif // RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_AUTH_H_

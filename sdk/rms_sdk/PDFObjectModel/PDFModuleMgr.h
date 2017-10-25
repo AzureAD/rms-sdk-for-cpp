@@ -6,11 +6,11 @@
  * ======================================================================
 */
 
-#ifndef RMS_SDK_PDF_MODULE_MGR_H
-#define RMS_SDK_PDF_MODULE_MGR_H
+#ifndef RMSSDK_PDFOBJECTMODEL_PDFMODULEMGR_H_
+#define RMSSDK_PDFOBJECTMODEL_PDFMODULEMGR_H_
 
 #include "PDFObjectModel.h"
-#include "CoreInc.h"
+#include "Core.inc"
 #include "PDFCreator.h"
 
 namespace rmscore {
@@ -39,5 +39,5 @@ public:
 } // namespace pdfobjectmodel
 } // namespace rmscore
 
-#endif // RMS_SDK_PDF_MODULE_MGR_H
+#endif // RMSSDK_PDFOBJECTMODEL_PDFMODULEMGR_H_
 

@@ -13,11 +13,8 @@
 #include <vector>
 #include "BlockBasedProtectedStream.h"
 #include "RMSExceptions.h"
-#include "../Common/CommonTypes.h"
-#include "../Core/ProtectionPolicy.h"
-//#include "../Platform/Logger/Logger.h"
-
-//using namespace rmscore::platform::logger;
+#include "Common/CommonTypes.h"
+#include "Core/ProtectionPolicy.h"
 
 namespace rmscore {
 namespace fileapi {

@@ -5,17 +5,18 @@
  * See LICENSE.md in the project root for license information.
  * ======================================================================
 */
-
 #include "PDFProtector.h"
+
 #include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <vector>
+
 #include "BlockBasedProtectedStream.h"
-#include "RMSExceptions.h"
-#include "../Common/CommonTypes.h"
-#include "../Core/ProtectionPolicy.h"
-#include "../Platform/Logger/Logger.h"
+#include "ModernAPI/RMSExceptions.h"
+#include "Common/CommonTypes.h"
+#include "Core/ProtectionPolicy.h"
+#include "Platform/Logger/Logger.h"
 
 using namespace rmscore::platform::logger;
 
