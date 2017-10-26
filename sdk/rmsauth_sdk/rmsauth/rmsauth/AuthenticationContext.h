@@ -37,6 +37,7 @@ class RMSAUTH_EXPORT AuthenticationContext
 
     AuthenticatorPtr authenticator_;
     TokenCachePtr tokenCache_;
+    String serverProvidedParameters_;
 
 public:
     AuthenticationContext(const String& authority, TokenCachePtr tokenCache);
@@ -54,6 +55,8 @@ private:
     AuthenticationResultPtr acquireTokenCommonAsync(const String& resource, ClientCredentialPtr clientCredential, bool callSync = false);
 
     static IWebUIPtr createWebAuthenticationDialog(PromptBehavior promptBehavior);
+    static String getQueryParameters(const String& resource);
+    static String removeQueryParameters(const String& resource);
 };
 
 } // namespace rmsauth {

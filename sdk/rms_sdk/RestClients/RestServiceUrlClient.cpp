@@ -351,6 +351,10 @@ GetServiceDiscoveryDetails(
                discoveryUrl);
   }
 
+  map<string, string> discoveryParams;
+
+  discoveryParams.insert(make_pair("email", sEmail));
+
   // Query Discovery service for services details.
   shared_ptr<IServiceDiscoveryClient> serviceDiscoveryClient =
     IServiceDiscoveryClient::Create();
@@ -359,6 +363,7 @@ GetServiceDiscoveryDetails(
       pServerPublicCertificate,
       authenticationCallback,
       discoveryUrl,
+      discoveryParams,
       cancelState);
 
   auto serviceDiscoveryDetails = make_shared<ServiceDiscoveryDetails>();

@@ -214,6 +214,15 @@ static pair<string, string>ParseNameValuePair(const string& str)
         // trim whitespace and double quotes from both name and value
         return make_pair(TrimString(TrimWhiteSpace(split[0]), "\""), TrimString(TrimWhiteSpace(split[1]), "\""));
     }
+    else if (2 < split.size() && 0 == _strcmpi("authorization", split.at(0).c_str()))
+    {
+        string urlWithParameters = split.at(1);
+        for (int i = 2; i < split.size(); i++) 
+        {
+            urlWithParameters = urlWithParameters + "=" + split.at(i);
+        }
+        return make_pair(TrimString(TrimWhiteSpace(split[0]), "\""), TrimString(TrimWhiteSpace(urlWithParameters), "\""));
+    }
     else
     {
     // not a valid name and value pair so return empty

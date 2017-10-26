@@ -82,6 +82,24 @@ StringArray StringUtils::split(const String& src, const char delim)
     return std::move(arr);
 }
 
+
+StringMap StringUtils::urlSplitParameters(const String& src) 
+{
+    StringArray split = StringUtils::split(src, '&');
+    StringMap parameters = StringMap();
+
+    for_each(begin(split), end(split), [&parameters](const String& str)
+    {
+        int delimiterIndex = str.find("=");
+        std::pair<String, String> pair = make_pair(str.substr(0, delimiterIndex), str.substr(delimiterIndex + 1));
+        if (!pair.first.empty())
+        {
+            parameters.insert(pair);
+        }
+    });
+    return parameters;
+}
+
 String StringUtils::replace(const String& src, const String& from, const String& to)
 {
     if(src.empty()) return src;

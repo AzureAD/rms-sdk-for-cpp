@@ -11,7 +11,7 @@
 
 namespace rmsauth {
 
-AcquireTokenInteractiveHandler::AcquireTokenInteractiveHandler(AuthenticatorPtr authenticator, TokenCachePtr tokenCache, const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, UserIdentifierPtr userId, const String& extraQueryParameters, IWebUIPtr webUI, bool callSync)
+AcquireTokenInteractiveHandler::AcquireTokenInteractiveHandler(AuthenticatorPtr authenticator, TokenCachePtr tokenCache, const String& resource, const String& clientId, const String& redirectUri, PromptBehavior promptBehavior, UserIdentifierPtr userId, const String& serverProvidedParameters, IWebUIPtr webUI, bool callSync)
     : AcquireTokenHandlerBase(authenticator, tokenCache, resource, std::make_shared<ClientKey>(clientId), TokenSubjectType::User, callSync)
 {
     Logger::info(Tag(), "AcquireTokenInteractiveHandler");
@@ -39,12 +39,12 @@ AcquireTokenInteractiveHandler::AcquireTokenInteractiveHandler(AuthenticatorPtr 
 
     promptBehavior_ = promptBehavior;
 
-    if (!extraQueryParameters.empty() && extraQueryParameters[0] == '&')
+    if (!serverProvidedParameters.empty() && serverProvidedParameters[0] == '&')
     {
-        extraQueryParameters_ = extraQueryParameters.substr(1);
+        serverProvidedParameters_ = serverProvidedParameters.substr(1);
     }
 
-    extraQueryParameters_ = extraQueryParameters;
+    serverProvidedParameters_ = serverProvidedParameters;
 
     webUi_ = webUI;
 
@@ -62,6 +62,9 @@ void AcquireTokenInteractiveHandler::addAditionalRequestParameters(RequestParame
     requestParameters.addParam(OAuthConstants::oAuthParameter().GrantType, OAuthConstants::oAuthGrantType().AuthorizationCode);
     requestParameters.addParam(OAuthConstants::oAuthParameter().Code, authorizationResult_->code());
     requestParameters.addParam(OAuthConstants::oAuthParameter().RedirectUri, redirectUriRequestParameter_);
+    if (!serverProvidedParameters_.empty()) {
+        requestParameters.setServerProvidedParameters(serverProvidedParameters_);
+    }
 }
 
 void AcquireTokenInteractiveHandler::postTokenRequest(AuthenticationResultPtr result)
@@ -103,7 +106,7 @@ String AcquireTokenInteractiveHandler::createAuthorizationUri(bool includeFormsA
 
     RequestParameters requestParameters = createAuthorizationRequest(loginHint, includeFormsAuthParam);
 
-    String urlString = authenticator_->authorizationUri() + "?" + requestParameters.toString();
+    String urlString = authenticator_->authorizationUri() + "?" + requestParameters.toString()+ "&scope=openid";
 //        auto authorizationUri = std::make_shared<Url>(urlString);
 //        authorizationUri = new Uri(HttpHelper.CheckForExtraQueryParameter(authorizationUri.AbsoluteUri));
 
@@ -151,10 +154,9 @@ RequestParameters AcquireTokenInteractiveHandler::createAuthorizationRequest(con
     AcquireTokenInteractiveHandler::addHeadersToRequestParameters(authorizationRequestParameters, RmsauthIdHelper::getProductHeaders());
     AcquireTokenInteractiveHandler::addHeadersToRequestParameters(authorizationRequestParameters, RmsauthIdHelper::getPlatformHeaders());
 
-    if (!extraQueryParameters_.empty())
+    if (!serverProvidedParameters_.empty())
     {
-// TODO.shch: Checks for extraQueryParameters duplicating standard parameters
-        authorizationRequestParameters.extraQueryParameter(extraQueryParameters_);
+        authorizationRequestParameters.setServerProvidedParameters(serverProvidedParameters_);
     }
 
     return authorizationRequestParameters;

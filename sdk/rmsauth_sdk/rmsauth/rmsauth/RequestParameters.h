@@ -24,8 +24,9 @@ public:
     void addParam(const String& key, const String& value);
     String toString() const;
 
-    const String& extraQueryParameter() const {return extraQueryParameter_;}
-    void extraQueryParameter(const String& val) {extraQueryParameter_ = val;}
+    const StringMap& serverProvidedParameters() const {return serverProvidedParameters_;}
+    String serverProvidedQueryParametersToString() const;
+    void setServerProvidedParameters(const String& val);
 
     static String uriEncode(const String& value);
 
@@ -34,7 +35,7 @@ private:
 
 private:
     StringMap params_;
-    String extraQueryParameter_;
+    StringMap serverProvidedParameters_;
 };
 
 } // namespace rmsauth {

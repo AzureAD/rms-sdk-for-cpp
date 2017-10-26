@@ -29,7 +29,7 @@ class AcquireTokenInteractiveHandler : public AcquireTokenHandlerBase
     String redirectUri_;
     String redirectUriRequestParameter_;
     PromptBehavior promptBehavior_;
-    String extraQueryParameters_;
+    String serverProvidedParameters_;
     IWebUIPtr webUi_ = nullptr;
     UserIdentifierPtr userId_ = nullptr;
 

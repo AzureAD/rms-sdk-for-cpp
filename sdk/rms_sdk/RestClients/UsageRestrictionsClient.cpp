@@ -76,7 +76,7 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
     cancelState);
 
   auto httpRequestResult = RestHttpClient::Post(
-    endUserLicenseUrl,
+    endUserLicenseUrl+"?email="+email,
     move(serializedRequest),
     authCallback,
     cancelState);

@@ -7,6 +7,10 @@
 */
 
 #include <RequestParameters.h>
+#include <utils.h>
+#include <vector>
+#include <qpair>
+#include <QUrlQuery>
 
 namespace rmsauth {
 
@@ -35,11 +39,39 @@ void RequestParameters::addParam(const String & key, const String & value)
     params_.insert(make_pair(key, value));
 }
 
+
+void RequestParameters::setServerProvidedParameters(const String& param)
+{
+    serverProvidedParameters_ = StringUtils::urlSplitParameters(param);
+}
+
+String RequestParameters::serverProvidedQueryParametersToString() const
+{
+    StringStream ss;
+    bool first = true;
+    for (auto& pair : serverProvidedParameters_)
+    {
+        if (!first) 
+            ss << "&";
+        ss << pair.first << "=" << pair.second;
+        first = false;
+    }
+    return ss.str();
+}
+
+
 String RequestParameters::toString() const
 {
     StringStream ss;
     bool first = true;
-    for(auto& pair : params_)
+    //extra params coming from server should override params_
+    StringMap aggregatedParams = serverProvidedParameters_;
+    for (auto& pair : params_)
+    {
+        aggregatedParams.insert(pair);
+    }
+
+    for(auto& pair : aggregatedParams)
     {
         if (!first) ss << "&";
         ss << pair.first << "=" << pair.second;

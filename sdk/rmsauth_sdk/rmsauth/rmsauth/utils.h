@@ -24,6 +24,7 @@ public:
     static String removeQuoteInHeaderValue(const String& src);
     static String toLower(const String& src);
     static StringArray split(const String& src, const char delim);
+    static StringMap urlSplitParameters(const String& src);
     static String replace(const String& src, const String& form, const String& to);
     static String replaceAll(const String& src, const String& form, const String& to);
     static String replaceAll(const String& src, const char form, const char to);

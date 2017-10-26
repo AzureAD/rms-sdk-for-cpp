@@ -154,8 +154,7 @@ TokenResponsePtr HttpHelper::sendPostRequestAndDeserializeJsonResponseAsync(cons
     Logger::info(Tag(), "sendPostRequestAndDeserializeJsonResponseAsync");
 
     QNetworkRequest request = HttpHelperQt::createRequest();
-
-    request.setUrl(QUrl(url.data()));
+    request.setUrl(QUrl((url+ "?" + requestParameters.serverProvidedQueryParametersToString()).data()));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
     HttpHelperQt::addHeadersToRequest(request, RmsauthIdHelper::getProductHeaders());

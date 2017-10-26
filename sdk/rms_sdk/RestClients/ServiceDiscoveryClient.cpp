@@ -38,9 +38,10 @@ ServiceDiscoveryListResponse ServiceDiscoveryClient::GetServiceDiscoveryDetails(
     const std::shared_ptr<std::string>& pServerPublicCertificate,
     modernapi::IAuthenticationCallbackImpl& authenticationCallback,
     const std::string& discoveryUrl,
+    const std::map<std::string, std::string>& discoveryParams,
     std::shared_ptr<std::atomic<bool>> cancelState)
 {
-    auto url = this->CreateGetRequest(discoveryUrl, domain);
+    auto url = this->CreateGetRequest(discoveryUrl, domain, discoveryParams);
     // Make sure stParams is filled, and get the original domain input used to generate the domain
 
     std::string publicCertificate(pServerPublicCertificate.get() == nullptr ? "" : *pServerPublicCertificate);
@@ -72,7 +73,8 @@ static bool CharEqual(char first, char second)
 
 std::string ServiceDiscoveryClient::CreateGetRequest(
   const std::string& discoveryUrl,
-  const Domain     & domain)
+  const Domain     & domain,
+  const std::map<std::string, std::string>& discoveryParams)
 {
   const std::string HTTPS_PROTOCOL = "https://";
   std::stringstream ss;
@@ -140,14 +142,17 @@ std::string ServiceDiscoveryClient::CreateGetRequest(
     ss << discoveryUrl << RestServiceUrls::GetDefaultTenant() << RestServiceUrls::GetServiceDiscoverySuffix();
   }
 
+  std::string domainType = "";
   switch (domain.GetType())
   {
   case DomainType::Email:
     ss << EMAIL_URL_PARAM;
+    domainType = EMAIL_URL_PARAM;
     break;
 
   case DomainType::Url:
     ss << DOMAIN_URL_PARAM;
+    domainType = DOMAIN_URL_PARAM;
     break;
 
   default:
@@ -155,6 +160,14 @@ std::string ServiceDiscoveryClient::CreateGetRequest(
   }
 
   ss << domain.GetOriginalInput();
+
+  for (const std::pair<std::string, std::string>& paramPair : discoveryParams)
+  {
+      if (paramPair.first != domainType)
+      {
+          ss << "&" << paramPair.first << "=" << paramPair.second;
+      }
+  }
 
   return ss.str();
 }
