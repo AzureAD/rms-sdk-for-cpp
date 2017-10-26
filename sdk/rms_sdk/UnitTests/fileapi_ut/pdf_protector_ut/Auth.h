@@ -39,13 +39,10 @@
 #include <UserRights.h>
 #include <rights.h>
 
-using namespace rmscore::modernapi;
-using namespace std;
-
 void postToMainThread(const std::function<void()>& func,
                       QObject                     *mainApp);
 
-class AuthCallback : public IAuthenticationCallback {
+class AuthCallback : public rmscore::modernapi::IAuthenticationCallback {
 private:
 
   std::shared_ptr<rmsauth::FileCache> FileCachePtr;
@@ -56,10 +53,10 @@ public:
 
   AuthCallback(const std::string& clientId,
                const std::string& redirectUrl);
-  virtual std::string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
+  virtual std::string GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) override;
 };
 
-class AuthCallbackUI : public IAuthenticationCallback {
+class AuthCallbackUI : public rmscore::modernapi::IAuthenticationCallback {
 private:
 
   QObject *_mainApp;
@@ -70,11 +67,11 @@ public:
   AuthCallbackUI(QObject           *mainApp,
                  const std::string& clientId,
                  const std::string& redirectUrl);
-  virtual std::string GetToken(shared_ptr<AuthenticationParameters>& ap) override;
+  virtual std::string GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) override;
 };
-class ConsentCallback : public IConsentCallback {
+class ConsentCallback : public rmscore::modernapi::IConsentCallback {
 public:
 
-  virtual ConsentList Consents(ConsentList& consents) override;
+  virtual rmscore::modernapi::ConsentList Consents(rmscore::modernapi::ConsentList& consents) override;
 };
 #endif // RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_AUTH_H_

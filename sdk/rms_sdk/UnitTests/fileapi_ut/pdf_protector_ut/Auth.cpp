@@ -22,8 +22,6 @@
 #include <ModernAPI/RMSExceptions.h>
 #include "FileAPI/Protector.h"
 #include "FileAPI/FileAPIStructures.h"
-using namespace std;
-using namespace rmsauth;
 
 void postToMainThread(const std::function<void()>& func,
                       QObject                     *mainApp) {
@@ -34,14 +32,14 @@ void postToMainThread(const std::function<void()>& func,
   });
 }
 
-AuthCallback::AuthCallback(const string& clientId, const string& redirectUrl)
+AuthCallback::AuthCallback(const std::string& clientId, const std::string& redirectUrl)
   : clientId_(clientId)
   , redirectUrl_(redirectUrl)
 {
-  FileCachePtr = make_shared<FileCache>();
+  FileCachePtr = std::make_shared<rmsauth::FileCache>();
 }
 
-string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap)
+std::string AuthCallback::GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap)
 {
   try
   {
@@ -54,8 +52,8 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap)
       throw rmscore::exceptions::RMSInvalidArgumentException("client Id is empty");
     }
 
-    AuthenticationContext authContext(
-      ap->Authority(), AuthorityValidationType::False, FileCachePtr);
+    rmsauth::AuthenticationContext authContext(
+      ap->Authority(), rmsauth::AuthorityValidationType::False, FileCachePtr);
 
     auto result = authContext.acquireToken(ap->Resource(),
                                            clientId_,
@@ -72,13 +70,13 @@ string AuthCallback::GetToken(shared_ptr<AuthenticationParameters>& ap)
 }
 
 AuthCallbackUI::AuthCallbackUI(QObject      *mainApp,
-                               const string& clientId,
-                               const string& redirectUrl)
+                               const std::string& clientId,
+                               const std::string& redirectUrl)
   : _mainApp(mainApp), _callback(clientId, redirectUrl)
 {}
 
-string AuthCallbackUI::GetToken(shared_ptr<AuthenticationParameters>& ap) {
-  promise<string> prom;
+std::string AuthCallbackUI::GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) {
+  std::promise<std::string> prom;
   auto res = prom.get_future();
 
   // readdress call to main UI thread
@@ -90,7 +88,7 @@ string AuthCallbackUI::GetToken(shared_ptr<AuthenticationParameters>& ap) {
   return res.get();
 }
 
-ConsentList ConsentCallback::Consents(ConsentList& consents) {
+rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::ConsentList& consents) {
   QStringList columnsNames { "User", "URLs", "Type", "Domain" };
 
   static QMap<QString, QStringList> preventsList;
@@ -98,7 +96,7 @@ ConsentList ConsentCallback::Consents(ConsentList& consents) {
   bool added = false;
 
   for (size_t row = 0, rowMax = consents.size(); row < rowMax; ++row) {
-    std::shared_ptr<IConsent> consent = consents[row];
+    std::shared_ptr<rmscore::modernapi::IConsent> consent = consents[row];
 
     // check for preventing
     auto user = consent->User();
@@ -146,7 +144,7 @@ ConsentList ConsentCallback::Consents(ConsentList& consents) {
 
       case 2:
         val = QString::fromStdString(
-          consent->Type() == ConsentType::DocumentTrackingConsent ?
+          consent->Type() == rmscore::modernapi::ConsentType::DocumentTrackingConsent ?
           "DocumentTracking" : "ServiceUrl");
         break;
 
@@ -160,7 +158,7 @@ ConsentList ConsentCallback::Consents(ConsentList& consents) {
   }
   bool accepted = true ;
   for (auto& consent : consents) {
-    ConsentResult result(accepted, false);
+    rmscore::modernapi::ConsentResult result(accepted, false);
     consent->Result(result);
   }
   return consents;

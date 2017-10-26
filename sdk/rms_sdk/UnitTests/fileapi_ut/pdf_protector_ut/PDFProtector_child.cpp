@@ -50,13 +50,13 @@ void PDFCryptoHandler_child::DecryptStart(uint32_t objnum, uint32_t gennum)
     m_dataToDecrypted = std::make_shared<std::stringstream>();
 }
 
-bool PDFCryptoHandler_child::DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandler_child::DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf)
 {
     m_dataToDecrypted->write(src_buf, src_size);
     return true;
 }
 
-bool PDFCryptoHandler_child::DecryptFinish(PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandler_child::DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf)
 {
     m_dataToDecrypted->seekg(0, std::ios::end);
     uint64_t count = m_dataToDecrypted->tellg();
@@ -149,7 +149,7 @@ bool PDFCryptoHandler_child::ProgressiveEncryptStart(uint32_t objnum, uint32_t v
     return false;
 }
 
-bool PDFCryptoHandler_child::ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandler_child::ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf)
 {
     uint64_t contentSizeAddPre = 0;
     char* contentAddPre = nullptr;
@@ -185,7 +185,7 @@ bool PDFCryptoHandler_child::ProgressiveEncryptContent(uint32_t objnum, uint32_t
     return true;
 }
 
-bool PDFCryptoHandler_child::ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandler_child::ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf)
 {
     m_pPDFProtector_unit->EncryptStream(nullptr, 0, m_sharedProtectedStream, true);
 
@@ -280,7 +280,7 @@ bool PDFSecurityHandler_child::OnInit(unsigned char *publishingLicense, uint32_t
     return true;
 }
 
-std::shared_ptr<PDFCryptoHandler> PDFSecurityHandler_child::CreateCryptoHandler()
+std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> PDFSecurityHandler_child::CreateCryptoHandler()
 {
     m_pCryptoHandler = std::make_shared<PDFCryptoHandler_child>(m_pPDFProtector_unit);
     return m_pCryptoHandler;
@@ -296,8 +296,8 @@ PDFProtector_unit::PDFProtector_unit(const std::string& originalFilePath,
       m_inputStream(inputStream),
       m_originalFilePath(originalFilePath)
 {
-    PDFModuleMgr::Initialize();
-    m_pdfCreator = PDFCreator::Create();
+    pdfobjectmodel::PDFModuleMgr::Initialize();
+    m_pdfCreator = pdfobjectmodel::PDFCreator::Create();
     m_inputWrapperStream = nullptr;
 }
 
@@ -389,7 +389,7 @@ UnprotectResult PDFProtector_unit::Unprotect(const UserContext& userContext,
     std::shared_ptr<std::iostream> inputEncryptedIO = m_inputStream;
     auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
 
-    std::unique_ptr<PDFWrapperDoc> pdfWrapperDoc =  PDFWrapperDoc::Create(inputEncrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
     uint32_t wrapperType = pdfWrapperDoc->GetWrapperType();
     uint32_t payloadSize = pdfWrapperDoc->GetPayLoadSize();
     std::wstring wsGraphicFilter;
@@ -445,7 +445,7 @@ bool PDFProtector_unit::IsProtected() const
     std::shared_ptr<std::iostream> inputEncryptedIO = m_inputStream;
     auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
 
-    std::unique_ptr<PDFWrapperDoc> pdfWrapperDoc =  PDFWrapperDoc::Create(inputEncrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
     uint32_t wrapperType = pdfWrapperDoc->GetWrapperType();
     uint32_t payloadSize = pdfWrapperDoc->GetPayLoadSize();
     std::wstring wsGraphicFilter;
@@ -507,7 +507,7 @@ void PDFProtector_unit::Protect(const std::shared_ptr<std::fstream>& outputStrea
     }
     std::shared_ptr<std::iostream> inputWrapperIO = m_inputWrapperStream;
     auto inputWrapper = rmscrypto::api::CreateStreamFromStdStream(inputWrapperIO);
-    m_pdfWrapperCreator = PDFUnencryptedWrapperCreator::Create(inputWrapper);
+    m_pdfWrapperCreator = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(inputWrapper);
     m_pdfWrapperCreator->SetPayloadInfo(
                 PDF_PROTECTOR_WRAPPER_SUBTYPE,
                 PDF_PROTECTOR_WRAPPER_FILENAME,

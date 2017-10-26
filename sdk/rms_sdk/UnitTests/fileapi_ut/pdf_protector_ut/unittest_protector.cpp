@@ -1,8 +1,6 @@
 #include "unittest_protector.h"
 #include "Auth.h"
 #include "depend.h"
-using namespace std;
-using namespace rmsauth;
 
 //****************WithWrapperCreate Test***************************************************
 
@@ -10,8 +8,8 @@ TEST_P(ProtectorWithWrapper_Create,Create_T)
 {
     Create_P TParam=GetParam();
     std::string fileIn= GetCurrentInputFile() +TParam.fileIn;
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
     std::string filename = fileIn;
     std::string newFilename = "";
@@ -70,8 +68,8 @@ TEST_P(ProtectorWithWrapper_IsProtected,IsProtected_T)
     IsProtected_P TParam=GetParam();
     std::string fileIn= GetCurrentInputFile() +TParam.fileIn;
 
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
     std::string filename = fileIn;//fileIn.substr(fileIn.find_last_of("\\/") + 1);
     std::string newFilename = "";
@@ -104,19 +102,19 @@ TEST_P(ProtectorWithWrapper_Unprotector,Unprotector_T)
 {
     Unprotector_P TParam = GetParam();
     std::string fileIn = GetCurrentInputFile()+TParam.fileIn;
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::binary);
     try{
         std::string filename = fileIn;
         std::string newFilename = "";
         std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                     filename, inFile, newFilename);
 
-        string fileOut = GetCurrentInputFile() +TParam.fileout;
+        std::string fileOut = GetCurrentInputFile() +TParam.fileout;
 
         // create streams
-        auto outFile = make_shared<fstream>(
-          fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+        auto outFile = std::make_shared<std::fstream>(
+          fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
         AuthCallback auth(CLIENTID, REDIRECTURL);
         ConsentCallback consent;
         std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
@@ -175,14 +173,14 @@ TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T)
     ProtectWithTemplate_P TParam =GetParam();
     std::string fileIn = GetCurrentInputFile()+TParam.fileIn;
     std::string wrapperIn =GetCurrentInputFile()+"Input/wrapper.pdf";
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
     std::string filename = fileIn;
     std::string newFilename = "";
-    string fileOut= GetCurrentInputFile() +TParam.fileout;
-    auto outFile = make_shared<fstream>(
-      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    std::string fileOut= GetCurrentInputFile() +TParam.fileout;
+    auto outFile = std::make_shared<std::fstream>(
+      fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     try
     {
         std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
@@ -193,8 +191,8 @@ TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T)
         rmscore::modernapi::AppDataHashMap signedData;
         std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
         std::shared_ptr<std::atomic<bool> > cancelState2(new std::atomic<bool>(true));
-        auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
-          CLIENTEMAIL, auth, launch::deferred, cancelState);
+        auto templatesFuture = rmscore::modernapi::TemplateDescriptor::GetTemplateListAsync(
+          CLIENTEMAIL, auth, std::launch::deferred, cancelState);
 
         auto templates = templatesFuture.get();
 
@@ -203,8 +201,8 @@ TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T)
 
         rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth, consent);
 
-        auto inWrapper = make_shared<fstream>(
-          wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+        auto inWrapper = std::make_shared<std::fstream>(
+          wrapperIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
         if(TParam.cancelState)
            cancelState=cancelState2;
@@ -231,8 +229,8 @@ TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T)
         return;
     }
 
-    outFile = make_shared<fstream>(
-                fileOut, ios_base::in | ios_base::out | ios_base::binary);
+    outFile = std::make_shared<std::fstream>(
+                fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::unique_ptr<rmscore::fileapi::Protector> outobj = rmscore::fileapi::Protector::Create(
                  fileOut, outFile, filename);
     bool ret=false;
@@ -267,16 +265,16 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
     ProtectWithCustomRights_P TParam = GetParam();
     std::string fileIn = GetCurrentInputFile()+TParam.fileIn;
     std::string wrapperIn =GetCurrentInputFile() +"Input/wrapper.pdf";;
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
     std::string filename = fileIn;
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                 filename, inFile, newFilename);
-    string fileOut = GetCurrentInputFile() +TParam.fileout;
-    auto outFile = make_shared<fstream>(
-      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    std::string fileOut = GetCurrentInputFile() +TParam.fileout;
+    auto outFile = std::make_shared<std::fstream>(
+      fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     //auto self = shared_from_this();
     AuthCallback auth(CLIENTID, REDIRECTURL);
     ConsentCallback consent;
@@ -284,8 +282,8 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
     std::shared_ptr<std::atomic<bool> > cancelState2(new std::atomic<bool>(true));
     std::string UserLists = TParam.UserLists;
     std::string RightLists = TParam.RightList;
-    auto endValidation = chrono::system_clock::now() + chrono::hours(480);
-    vector<UserRights> userRights;
+    auto endValidation = std::chrono::system_clock::now() + std::chrono::hours(480);
+    std::vector<rmscore::modernapi::UserRights> userRights;
     for(;;)
     {
         rmscore::modernapi::UserList  users;
@@ -310,10 +308,10 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
         int rlen=RightLists.length();
         UserLists = UserLists.substr(upos+1,ulen-1);
         RightLists = RightLists.substr(rpos+1,rlen-1);
-        userRights.push_back(UserRights(users   , rights));
+        userRights.push_back(rmscore::modernapi::UserRights(users   , rights));
     }
-    PolicyDescriptor desc(userRights);
-    desc.Referrer(make_shared<string>("https://client.test.app"));
+    rmscore::modernapi::PolicyDescriptor desc(userRights);
+    desc.Referrer(std::make_shared<std::string>("https://client.test.app"));
     desc.ContentValidUntil(endValidation);
     desc.AllowOfflineAccess(false);
     desc.Name("Test Name");
@@ -325,8 +323,8 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
 
     rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth, consent);
 
-    auto inWrapper = make_shared<fstream>(
-      wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inWrapper = std::make_shared<std::fstream>(
+      wrapperIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     obj->SetWrapper(inWrapper);
     if(TParam.cancelState)
        cancelState=cancelState2;
@@ -353,8 +351,8 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
         EXPECT_EQ(TParam.ExceptionsMess,message);
         return;
     }
-    outFile = make_shared<fstream>(
-                fileOut, ios_base::in | ios_base::out | ios_base::binary);
+    outFile = std::make_shared<std::fstream>(
+                fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::unique_ptr<rmscore::fileapi::Protector> outobj = rmscore::fileapi::Protector::Create(
                  fileOut, outFile, filename);
 
@@ -392,23 +390,23 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate)
     SetWrapper_P TParam =GetParam();
     std::string wrapperIn = GetCurrentInputFile()+TParam.wrapperin;
     std::string fileIn=GetCurrentInputFile() +"Input/unprotector.pdf";
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string filename = fileIn;
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                 filename, inFile, newFilename);
-    string fileOut = GetCurrentInputFile()+TParam.outfile;
-    auto outFile = make_shared<fstream>(
-      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    std::string fileOut = GetCurrentInputFile()+TParam.outfile;
+    auto outFile = std::make_shared<std::fstream>(
+      fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     //auto self = shared_from_this();
 
     AuthCallback auth(CLIENTID, REDIRECTURL);
     ConsentCallback consent;
     rmscore::modernapi::AppDataHashMap signedData;
     std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
-    auto templatesFuture = TemplateDescriptor::GetTemplateListAsync(
-       CLIENTEMAIL, auth, launch::deferred, cancelState);
+    auto templatesFuture = rmscore::modernapi::TemplateDescriptor::GetTemplateListAsync(
+       CLIENTEMAIL, auth, std::launch::deferred, cancelState);
 
     auto templates = templatesFuture.get();
 
@@ -417,8 +415,8 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate)
 
     rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth, consent);
 
-    auto inWrapper = make_shared<fstream>(
-      wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inWrapper = std::make_shared<std::fstream>(
+      wrapperIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     try
     {
         int len=TParam.wrapperin.length();
@@ -451,8 +449,8 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate)
         EXPECT_EQ(TParam.ExceptionsMess,message);
         return;
     }
-    outFile = make_shared<fstream>(
-                fileOut, ios_base::in | ios_base::out | ios_base::binary);
+    outFile = std::make_shared<std::fstream>(
+                fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::unique_ptr<rmscore::fileapi::Protector> outobj = rmscore::fileapi::Protector::Create(
                  fileOut, outFile, filename);
 
@@ -466,30 +464,30 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithCustomRights)
     SetWrapper_P TParam =GetParam();
     std::string wrapperIn = GetCurrentInputFile()+TParam.wrapperin;
     std::string fileIn=GetCurrentInputFile() +"Input/unprotector.pdf";
-    auto inFile = make_shared<fstream>(
-      fileIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inFile = std::make_shared<std::fstream>(
+      fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string filename = fileIn;
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                 filename, inFile, newFilename);
-    string fileOut = GetCurrentInputFile()+TParam.outfile;
-    auto outFile = make_shared<fstream>(
-      fileOut, ios_base::in | ios_base::out | ios_base::trunc | ios_base::binary);
+    std::string fileOut = GetCurrentInputFile()+TParam.outfile;
+    auto outFile = std::make_shared<std::fstream>(
+      fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     //auto self = shared_from_this();
 
     AuthCallback auth(CLIENTID, REDIRECTURL);
     ConsentCallback consent;
     std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
     std::shared_ptr<std::atomic<bool> > cancelState2(new std::atomic<bool>(true));
-    auto endValidation = chrono::system_clock::now() + chrono::hours(480);
-    vector<UserRights> userRights;
+    auto endValidation = std::chrono::system_clock::now() + std::chrono::hours(480);
+    std::vector<rmscore::modernapi::UserRights> userRights;
     rmscore::modernapi::UserList  users;
     rmscore::modernapi::RightList rights;
     users.push_back(CLIENTEMAIL);
     rights.push_back("VIEW");
-    userRights.push_back(UserRights(users   , rights));
-    PolicyDescriptor desc(userRights);
-    desc.Referrer(make_shared<string>("https://client.test.app"));
+    userRights.push_back(rmscore::modernapi::UserRights(users   , rights));
+    rmscore::modernapi::PolicyDescriptor desc(userRights);
+    desc.Referrer(std::make_shared<std::string>("https://client.test.app"));
     desc.ContentValidUntil(endValidation);
     desc.AllowOfflineAccess(false);
     desc.Name("Test Name");
@@ -501,8 +499,8 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithCustomRights)
 
     rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth, consent);//此处的Email并没有什么用处，
 
-    auto inWrapper = make_shared<fstream>(
-      wrapperIn, ios_base::in | ios_base::out | ios_base::binary);
+    auto inWrapper = std::make_shared<std::fstream>(
+      wrapperIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     try
     {
         int len=TParam.wrapperin.length();
@@ -535,8 +533,8 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithCustomRights)
         EXPECT_EQ(TParam.ExceptionsMess,message);
         return;
     }
-    outFile = make_shared<fstream>(
-                fileOut, ios_base::in | ios_base::out | ios_base::binary);
+    outFile = std::make_shared<std::fstream>(
+                fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::unique_ptr<rmscore::fileapi::Protector> outobj = rmscore::fileapi::Protector::Create(
                  fileOut, outFile, filename);
 

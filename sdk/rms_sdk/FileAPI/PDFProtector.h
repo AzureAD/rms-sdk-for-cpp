@@ -16,7 +16,7 @@
 #include "PDFObjectModel.h"
 #include "CryptoAPI.h"
 
-using namespace rmscore::pdfobjectmodel;
+namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 
 namespace rmscore {
 namespace fileapi {
@@ -153,8 +153,8 @@ private:
     std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
 
     std::shared_ptr<std::fstream> m_inputWrapperStream;
-    std::unique_ptr<PDFCreator> m_pdfCreator;
-    std::unique_ptr<PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
+    std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator;
+    std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
 };
 
 /**
@@ -162,7 +162,7 @@ private:
  * Please refer to comments of PDFCryptoHandler.
  * The interface header file of PDF object model is PDFObjectModel.h.
  */
-class PDFCryptoHandlerImpl : public PDFCryptoHandler
+class PDFCryptoHandlerImpl : public pdfobjectmodel::PDFCryptoHandler
 {
 public:
     PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
@@ -172,9 +172,9 @@ public:
 
     virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
 
-    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
+    virtual bool DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
-    virtual bool DecryptFinish(PDFBinaryBuf* dest_buf);
+    virtual bool DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
     virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
 
@@ -182,9 +182,9 @@ public:
 
     virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size);
 
-    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf);
+    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
-    virtual bool ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf);
+    virtual bool ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
 private:
     std::shared_ptr<PDFProtector> m_pPDFProtector;
@@ -205,7 +205,7 @@ private:
  * Please refer to comments of PDFSecurityHandler.
  * The interface header file of PDF object model is PDFObjectModel.h.
  */
-class PDFSecurityHandlerImpl : public PDFSecurityHandler
+class PDFSecurityHandlerImpl : public pdfobjectmodel::PDFSecurityHandler
 {
 public:
     PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector,
@@ -216,7 +216,7 @@ public:
 
     virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
 
-    virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler();
+    virtual std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> CreateCryptoHandler();
 
 private:
     std::shared_ptr<PDFProtector> m_pPDFProtector;
