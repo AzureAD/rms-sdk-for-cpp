@@ -30,7 +30,7 @@ public:
 
     virtual  ~PDFModuleMgrImpl();
 
-public:
+private:
     CPDF_ModuleMgr* m_pModuleMgr;
     CCodec_ModuleMgr* m_pCodecModule;
     CustomSecurityHandler* m_pCusSecHandler;
