@@ -26,7 +26,7 @@ public:
 
 	virtual uint32_t GetWrapperType() const;
 
-	virtual bool GetCryptographicFilter(std::wstring& wsGraphicFilter, float &fVersion) const;
+    virtual bool GetCryptographicFilter(std::wstring& graphic_filter, float &version_num) const;
 
 	virtual uint32_t GetPayLoadSize() const;
 
@@ -63,7 +63,7 @@ public:
             const std::wstring& wsSubType,
             const std::wstring& wsFileName,
             const std::wstring& wsDescription,
-            float fVersion);
+            float version_num);
 
     virtual void SetPayLoad(rmscrypto::api::SharedStream inputStream);
 

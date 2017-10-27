@@ -27,8 +27,8 @@ namespace fileapi {
 
 PFileProtector::PFileProtector(const std::string& originalFileExtension,
                                std::shared_ptr<std::fstream> inputStream)
-    : m_originalFileExtension(originalFileExtension),
-      m_inputStream(inputStream)
+    : original_file_extension_(originalFileExtension),
+      input_stream_(inputStream)
 {
 }
 
@@ -57,7 +57,7 @@ void PFileProtector::ProtectWithTemplate(const UserContext& userContext,
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
-    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
+    user_policy_ = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
                                                                        userContext.userId,
                                                                        userContext.authenticationCallback,
                                                                        userPolicyCreationOptions,
@@ -88,7 +88,7 @@ void PFileProtector::ProtectWithCustomRights(const UserContext& userContext,
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
-    m_userPolicy = modernapi::UserPolicy::Create(
+    user_policy_ = modernapi::UserPolicy::Create(
                 const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
                 userContext.userId,
                 userContext.authenticationCallback,
@@ -110,12 +110,12 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
         throw exceptions::RMSStreamException("Output stream invalid");
     }
 
-    std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);    
+    std::shared_ptr<std::iostream> inputIO = input_stream_;
+    auto input_shared_stream = rmscrypto::api::CreateStreamFromStdStream(inputIO);    
     std::shared_ptr<pfile::PfileHeader> header = nullptr;
     try
     {
-      header =  ReadHeader(inputSharedStream);
+      header =  ReadHeader(input_shared_stream);
     }
     catch (exceptions::RMSException&)
     {
@@ -148,15 +148,15 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
                                             exceptions::RMSPFileException::CorruptFile);
     }
 
-    m_userPolicy = policyRequest->Policy;
-    if (m_userPolicy.get() == nullptr)
+    user_policy_ = policyRequest->Policy;
+    if (user_policy_.get() == nullptr)
     {
         Logger::Error("User Policy acquisition failed");
         throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
     }
 
-    auto protectedStream = CreateProtectedStream(inputSharedStream, header);
-    DecryptStream(outputStream, protectedStream, header->GetOriginalFileSize());
+    auto protected_stream = CreateProtectedStream(input_shared_stream, header);
+    DecryptStream(outputStream, protected_stream, header->GetOriginalFileSize());
 
     Logger::Hidden("+PFileProtector::UnProtect");
     return (UnprotectResult)policyRequest->Status;
@@ -165,11 +165,11 @@ UnprotectResult PFileProtector::Unprotect(const UserContext& userContext,
 bool PFileProtector::IsProtected() const
 {
     Logger::Hidden("+PFileProtector::IsProtected");
-    std::shared_ptr<std::iostream> inputIO = m_inputStream;
-    auto inputSharedStream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
+    std::shared_ptr<std::iostream> inputIO = input_stream_;
+    auto input_shared_stream = rmscrypto::api::CreateStreamFromStdStream(inputIO);
     try
     {
-      ReadHeader(inputSharedStream);
+      ReadHeader(input_shared_stream);
     }
     catch (exceptions::RMSException&)
     {
@@ -183,29 +183,29 @@ bool PFileProtector::IsProtected() const
 
 void PFileProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
 {
-    if (m_userPolicy.get() == nullptr)
+    if (user_policy_.get() == nullptr)
     {
         Logger::Error("User Policy creation failed");
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
     }
 
     std::shared_ptr<std::iostream> outputIO = outputStream;
-    auto outputSharedStream = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-    //std::string ext = m_originalFileExtension.empty() ? ".pfile" : m_originalFileExtension;
+    auto output_shared_stream = rmscrypto::api::CreateStreamFromStdStream(outputIO);
+    //std::string ext = original_file_extension_.empty() ? ".pfile" : original_file_extension_;
 
-    m_inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = m_inputStream->tellg();
+    input_stream_->seekg(0, std::ios::end);
+    uint64_t originalFileSize = input_stream_->tellg();
     //Write Header
-    auto header = WriteHeader(outputSharedStream, originalFileSize);
-    auto protectedStream = CreateProtectedStream(outputSharedStream, header);
-    EncryptStream(m_inputStream, protectedStream, originalFileSize);
+    auto header = WriteHeader(output_shared_stream, originalFileSize);
+    auto protected_stream = CreateProtectedStream(output_shared_stream, header);
+    EncryptStream(input_stream_, protected_stream, originalFileSize);
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::CreateProtectedStream(
         const rmscrypto::api::SharedStream& stream,
         const std::shared_ptr<pfile::PfileHeader>& header)
 {
-    auto protectionPolicy = m_userPolicy->GetImpl();
+    auto protectionPolicy = user_policy_->GetImpl();
     if ((protectionPolicy->GetCipherMode() == rmscrypto::api::CipherMode::CIPHER_MODE_ECB  ) &&
             (header->GetMajorVersion() <= rmscore::pfile::MaxMajorVerionsCBC4KIsForced))
     {
@@ -213,10 +213,10 @@ std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PFileProtector::Creat
         protectionPolicy->ReinitilizeCryptoProvider(rmscrypto::api::CipherMode::CIPHER_MODE_CBC4K);
     }
 
-    auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
-    m_blockSize = cryptoProvider->GetBlockSize();
+    auto cryptoProvider = user_policy_->GetImpl()->GetCryptoProvider();
+    block_size_ = cryptoProvider->GetBlockSize();
     // Cache block size to be 512 for cbc512, 4096 for cbc4k and ecb
-    uint64_t protectedStreamBlockSize = m_blockSize == 512 ? 512 : 4096;
+    uint64_t protectedStreamBlockSize = block_size_ == 512 ? 512 : 4096;
     auto contentStartPosition = header->GetContentStartPosition();
     auto backingStreamImpl = stream->Clone();
     return rmscrypto::api::BlockBasedProtectedStream::Create(cryptoProvider,
@@ -231,28 +231,28 @@ void PFileProtector::EncryptStream(
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
-    uint64_t readPosition  = 0;
-    uint64_t writePosition = 0;
-    bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
-    uint64_t totalSize = isECB? ((originalFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
+    uint64_t buf_size_temp = 4096;    //should be a multiple of AES block size (16)
+    std::vector<uint8_t> buffer(buf_size_temp);
+    uint64_t read_position  = 0;
+    uint64_t write_position = 0;
+    bool isECB = user_policy_->DoesUseDeprecatedAlgorithms();
+    uint64_t total_size = isECB? ((originalFileSize + block_size_ - 1) & ~(block_size_ - 1)) :
                                 originalFileSize;
-    while(totalSize - readPosition > 0)
+    while(total_size - read_position > 0)
     {
-        uint64_t offsetRead  = readPosition;
-        uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
-        readPosition  += toProcess;
-        writePosition += toProcess;
+        uint64_t offset_read  = read_position;
+        uint64_t offset_write = write_position;
+        uint64_t to_process   = std::min(buf_size_temp, total_size - read_position);
+        read_position  += to_process;
+        write_position += to_process;
 
-        stdStream->seekg(offsetRead);
-        stdStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
+        stdStream->seekg(offset_read);
+        stdStream->read(reinterpret_cast<char *>(&buffer[0]), to_process);
 
         auto written = pStream->WriteAsync(
-                    buffer.data(), toProcess, offsetWrite, std::launch::deferred).get();
+                    buffer.data(), to_process, offset_write, std::launch::deferred).get();
 
-        if (written != toProcess)
+        if (written != to_process)
         {
           throw exceptions::RMSStreamException("Error while writing data");
         }
@@ -264,29 +264,29 @@ void PFileProtector::DecryptStream(const std::shared_ptr<std::fstream> &stdStrea
         const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
         uint64_t originalFileSize)
 {
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
-    uint64_t readPosition  = 0;
-    uint64_t writePosition = 0;
-    uint64_t totalSize = pStream->Size();
-    while(totalSize - readPosition > 0)
+    uint64_t buf_size_temp = 4096;    //should be a multiple of AES block size (16)
+    std::vector<uint8_t> buffer(buf_size_temp);
+    uint64_t read_position  = 0;
+    uint64_t write_position = 0;
+    uint64_t total_size = pStream->Size();
+    while(total_size - read_position > 0)
     {
-        uint64_t offsetRead  = readPosition;
-        uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(bufSize, originalFileSize - readPosition);
-        readPosition  += toProcess;
-        writePosition += toProcess;
+        uint64_t offset_read  = read_position;
+        uint64_t offset_write = write_position;
+        uint64_t to_process   = std::min(buf_size_temp, total_size - read_position);
+        uint64_t original_remaining = std::min(buf_size_temp, originalFileSize - read_position);
+        read_position  += to_process;
+        write_position += to_process;
 
         auto read = pStream->ReadAsync(
-                    &buffer[0], toProcess, offsetRead, std::launch::deferred).get();
+                    &buffer[0], to_process, offset_read, std::launch::deferred).get();
         if (read == 0)
         {
           break;
         }
 
-        stdStream->seekp(offsetWrite);
-        stdStream->write(reinterpret_cast<const char *>(buffer.data()), originalRemaining);
+        stdStream->seekp(offset_write);
+        stdStream->write(reinterpret_cast<const char *>(buffer.data()), original_remaining);
     }
     stdStream->flush();
 }
@@ -297,15 +297,15 @@ std::shared_ptr<pfile::PfileHeader> PFileProtector::WriteHeader(
 {
     std::shared_ptr<pfile::PfileHeader> pHeader;
     auto headerWriter = pfile::IPfileHeaderWriter::Create();
-    auto publishingLicense = m_userPolicy->SerializedPolicy();
+    auto publishing_license = user_policy_->SerializedPolicy();
     common::ByteArray metadata; // No metadata as of now.
 
     // calculate content size
-    uint32_t contentStartPosition = static_cast<uint32_t>(m_originalFileExtension.size() +
-                                                          publishingLicense.size() +
+    uint32_t contentStartPosition = static_cast<uint32_t>(original_file_extension_.size() +
+                                                          publishing_license.size() +
                                                           metadata.size() + 454);
-    pHeader = std::make_shared<pfile::PfileHeader>(move(publishingLicense),
-                                                   m_originalFileExtension,
+    pHeader = std::make_shared<pfile::PfileHeader>(move(publishing_license),
+                                                   original_file_extension_,
                                                    contentStartPosition,
                                                    originalFileSize, //
                                                    move(metadata),

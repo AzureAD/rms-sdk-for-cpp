@@ -11,7 +11,7 @@ namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 namespace fileapi = rmscore::fileapi;
 namespace modernapi = rmscore::modernapi;
 
-static std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+static std::shared_ptr<modernapi::UserPolicy> user_policy_;
 static void SetUserPolicy()
 {
     pdfobjectmodel::PDFModuleMgr::Initialize();//init
@@ -32,7 +32,7 @@ static void SetUserPolicy()
                           userPolicyCreationOptions |
                           rmscore::modernapi::UserPolicyCreationOptions::USER_PreferDeprecatedAlgorithms);
 
-    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(pt.templateDescriptor,
+    user_policy_ = modernapi::UserPolicy::CreateFromTemplateDescriptor(pt.templateDescriptor,
                                                                              ut.userId,
                                                                              ut.authenticationCallback,
                                                                              userPolicyCreationOptions,
@@ -57,29 +57,29 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
       auto inFile = std::make_shared<std::fstream>(
         fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
-      std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator = pdfobjectmodel::PDFCreator::Create();
+      std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_ = pdfobjectmodel::PDFCreator::Create();
 
       auto encryptedSS = std::make_shared<std::stringstream>();
       std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
-      auto outputEncrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
+      auto output_encrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
 
       std::string originalFileExtension=".pFile";
 
       auto p_PDFprotector = std::make_shared<fileapi::PDFProtector_unit>(fileIn,originalFileExtension,inFile);
-      auto cryptoHander = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
+      auto crypto_hander = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
 
-      p_PDFprotector->SetUserPolicy(m_userPolicy);
+      p_PDFprotector->SetUserPolicy(user_policy_);
 
-      std::string filterName = TParam.filterName;
-      std::vector<unsigned char> publishingLicense = m_userPolicy->SerializedPolicy();
+      std::string filter_name = TParam.filter_name;
+      std::vector<unsigned char> publishing_license = user_policy_->SerializedPolicy();
 
       uint32_t ret;
       try{
-          ret = m_pdfCreator->CreateCustomEncryptedFile(fileIn,
-                                                        filterName,
-                                                        publishingLicense,
-                                                        cryptoHander,
-                                                        outputEncrypted);
+          ret = pdf_creator_->CreateCustomEncryptedFile(fileIn,
+                                                        filter_name,
+                                                        publishing_license,
+                                                        crypto_hander,
+                                                        output_encrypted);
       }
       catch (const rmsauth::Exception& e)
       {
@@ -108,23 +108,23 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
 
           auto inwrapper = std::make_shared<std::fstream>(
             wrapperIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-          std::shared_ptr<std::iostream> inputWrapperIO = inwrapper;
-          auto inputWrapper = rmscrypto::api::CreateStreamFromStdStream(inputWrapperIO);
-          std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> m_pdfWrapperCreator = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(inputWrapper);
-          m_pdfWrapperCreator = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(inputWrapper);
-          m_pdfWrapperCreator->SetPayloadInfo(
+          std::shared_ptr<std::iostream> input_wrapper_IO = inwrapper;
+          auto input_wrapper = rmscrypto::api::CreateStreamFromStdStream(input_wrapper_IO);
+          std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
+          pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
+          pdf_wrapper_creator_->SetPayloadInfo(
                       PDF_PROTECTOR_WRAPPER_SUBTYPE,
                       PDF_PROTECTOR_WRAPPER_FILENAME,
                       PDF_PROTECTOR_WRAPPER_DES,
                       PDF_PROTECTOR_WRAPPER_VERSION);
-          m_pdfWrapperCreator->SetPayLoad(outputEncrypted);
+          pdf_wrapper_creator_->SetPayLoad(output_encrypted);
 
           std::string fileOut = unittests::dependency::GetCurrentInputFile()+TParam.fileout;
           auto outputStream = std::make_shared<std::fstream>(
             fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
           std::shared_ptr<std::iostream> outputIO = outputStream;
-          auto outputWrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-          bool bResult = m_pdfWrapperCreator->CreateUnencryptedWrapper(outputWrapper);
+          auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
+          bool bResult = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
           EXPECT_EQ(1,bResult);
       }
 }
@@ -176,35 +176,35 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
     rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth,consent);
     std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
     //*****************************************
-    auto securityHander = std::make_shared<fileapi::PDFSecurityHandler_child>(p_PDFprotector,ut,upt,cancelState);
+    auto security_hander = std::make_shared<fileapi::PDFSecurityHandler_child>(p_PDFprotector,ut,upt,cancelState);
     //**************************************************************
-    std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator = pdfobjectmodel::PDFCreator::Create();
+    std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_ = pdfobjectmodel::PDFCreator::Create();
     //****************
     std::string fileOut = unittests::dependency::GetCurrentInputFile() +TParam.fileout;
     // create streams
     auto outputStream = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-    std::shared_ptr<std::iostream> outputDecryptedIO = outputStream;
-    auto outputDecrypted = rmscrypto::api::CreateStreamFromStdStream(outputDecryptedIO);
-    std::string filterName = TParam.filterName;
+    std::shared_ptr<std::iostream> output_decrypted_IO = outputStream;
+    auto output_decrypted = rmscrypto::api::CreateStreamFromStdStream(output_decrypted_IO);
+    std::string filter_name = TParam.filter_name;
 
 
-    std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
-    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
-    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
+    std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
+    auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
     auto payloadSS = std::make_shared<std::stringstream>();
     std::shared_ptr<std::iostream> payloadIOS = payloadSS;
-    auto outputPayload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
-    bool bGetPayload = pdfWrapperDoc->StartGetPayload(outputPayload);
+    auto output_payload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
+    bool bGetPayload = pdf_wrapper_doc->StartGetPayload(output_payload);
     //******************
 
     uint32_t ret ;
     try{
-        ret= m_pdfCreator->UnprotectCustomEncryptedFile(
-            outputPayload,
-            filterName,
-            securityHander,
-            outputDecrypted);
+        ret= pdf_creator_->UnprotectCustomEncryptedFile(
+            output_payload,
+            filter_name,
+            security_hander,
+            output_decrypted);
 
     }
     catch (const rmsauth::Exception& e)
@@ -257,13 +257,13 @@ TEST_P(PDFWrapperDoc_GetWrapperType,GetWrapperType_T)
     std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
-    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+    std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
+    auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     uint32_t ret;
     try{
-    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
 
-    ret =pdfWrapperDoc->GetWrapperType();
+    ret =pdf_wrapper_doc->GetWrapperType();
     }
     catch(const rmsauth::Exception& e)
     {
@@ -293,15 +293,15 @@ TEST_P(PDFWrapperDoc_GetCryptographicFilter,GetCryptographicFilter_T)
     std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
-    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+    std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
+    auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     bool ret;
-    std::wstring wsGraphicFilter;
-    float fVersion;
+    std::wstring graphic_filter;
+    float version_num;
     try{
-    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
 
-    ret =pdfWrapperDoc->GetCryptographicFilter(wsGraphicFilter,fVersion);
+    ret =pdf_wrapper_doc->GetCryptographicFilter(graphic_filter,version_num);
     }
     catch(const rmsauth::Exception& e)
     {
@@ -312,8 +312,8 @@ TEST_P(PDFWrapperDoc_GetCryptographicFilter,GetCryptographicFilter_T)
     EXPECT_EQ(TParam.ret,ret);
     if(TParam.ret == true)
     {
-        EXPECT_EQ(TParam.wsGraphicFilter,wsGraphicFilter);
-        EXPECT_EQ(TParam.fVersion,fVersion);
+        EXPECT_EQ(TParam.graphic_filter,graphic_filter);
+        EXPECT_EQ(TParam.version_num,version_num);
     }
 
 }
@@ -337,13 +337,13 @@ TEST_P(PDFWrapperDoc_GetPayLoadSize,GetPayLoadSize_T)
     std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
-    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+    std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
+    auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     uint32_t PayLoadSize;
     try{
-    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
 
-    PayLoadSize =pdfWrapperDoc->GetPayLoadSize();
+    PayLoadSize =pdf_wrapper_doc->GetPayLoadSize();
     }
     catch(const rmsauth::Exception& e)
     {
@@ -373,13 +373,13 @@ TEST_P(PDFWrapperDoc_GetPayloadFileName,GetPayloadFileName_T)
     std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
-    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+    std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
+    auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     bool ret;
     std::wstring wsFileName;
     try{
-        std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
-        ret =pdfWrapperDoc->GetPayloadFileName(wsFileName);
+        std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
+        ret =pdf_wrapper_doc->GetPayloadFileName(wsFileName);
     }
     catch(const rmsauth::Exception& e)
     {
@@ -411,14 +411,14 @@ TEST_P(PDFUnencryptedWrapperCreator_CreateUnencryptedWrapper,CreateUnencryptedWr
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string fileOut = "OutPut/CreateUnencryptedWrapper/anyone.pdf";
     auto outFile = std::make_shared<std::fstream>(fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-    std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
-    auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+    std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
+    auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     uint32_t ret;
     try{
-        std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdfWrapperDoc =  pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(inputEncrypted);
-        std::shared_ptr<std::iostream> inputEncryptedIO = outFile;
-        auto outputStream = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
-        ret =pdfWrapperDoc->CreateUnencryptedWrapper(outputStream);
+        std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_doc =  pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_encrypted);
+        std::shared_ptr<std::iostream> input_encrypted_IO = outFile;
+        auto outputStream = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
+        ret =pdf_wrapper_doc->CreateUnencryptedWrapper(outputStream);
     }
     catch(const rmsauth::Exception& e)
     {
@@ -462,75 +462,75 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
-    std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator = pdfobjectmodel::PDFCreator::Create();
+    std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_ = pdfobjectmodel::PDFCreator::Create();
 
     auto encryptedSS = std::make_shared<std::stringstream>();
     std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
-    auto outputEncrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
+    auto output_encrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
 
     std::string originalFileExtension=".pFile";
 
     auto p_PDFprotector = std::make_shared<fileapi::PDFProtector_unit>(fileIn,originalFileExtension,inFile);
-    auto cryptoHander = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
+    auto crypto_hander = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
 
-    p_PDFprotector->SetUserPolicy(m_userPolicy);
+    p_PDFprotector->SetUserPolicy(user_policy_);
 
-    std::string filterName = PDF_PROTECTOR_FILTER_NAME;
-    std::vector<unsigned char> publishingLicense = m_userPolicy->SerializedPolicy();
+    std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
+    std::vector<unsigned char> publishing_license = user_policy_->SerializedPolicy();
 
     uint32_t ret;
-    ret = m_pdfCreator->CreateCustomEncryptedFile(fileIn,
-                                                  filterName,
-                                                  publishingLicense,
-                                                  cryptoHander,
-                                                  outputEncrypted);
+    ret = pdf_creator_->CreateCustomEncryptedFile(fileIn,
+                                                  filter_name,
+                                                  publishing_license,
+                                                  crypto_hander,
+                                                  output_encrypted);
 
     std::string wrapperIn= unittests::dependency::GetCurrentInputFile() +"Input/wrapper.pdf";
 
 
     auto inwrapper = std::make_shared<std::fstream>(
       wrapperIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    std::shared_ptr<std::iostream> inputWrapperIO = inwrapper;
-    auto inputWrapper = rmscrypto::api::CreateStreamFromStdStream(inputWrapperIO);
+    std::shared_ptr<std::iostream> input_wrapper_IO = inwrapper;
+    auto input_wrapper = rmscrypto::api::CreateStreamFromStdStream(input_wrapper_IO);
     try{
-        std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> m_pdfWrapperCreator=pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(inputWrapper);
-        m_pdfWrapperCreator = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(inputWrapper);
-        m_pdfWrapperCreator->SetPayloadInfo(
+        std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_creator_=pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
+        pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
+        pdf_wrapper_creator_->SetPayloadInfo(
                     TParam.wsSubType,
                     TParam.wsFileName,
                     TParam.wsDescription,
-                    TParam.fVersion);
-        m_pdfWrapperCreator->SetPayLoad(outputEncrypted);
+                    TParam.version_num);
+        pdf_wrapper_creator_->SetPayLoad(output_encrypted);
 
         std::string fileOut =unittests::dependency::GetCurrentInputFile()+TParam.fileout;
         auto outputStream = std::make_shared<std::fstream>(
           fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
         std::shared_ptr<std::iostream> outputIO = outputStream;
-        auto outputWrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-       m_pdfWrapperCreator->CreateUnencryptedWrapper(outputWrapper);
+        auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
+       pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
        //**************************
        auto inpro = std::make_shared<std::fstream>(fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-       std::shared_ptr<std::iostream> inputEncryptedIO = inpro;
-       auto inputEncrypted = rmscrypto::api::CreateStreamFromStdStream(inputEncryptedIO);
+       std::shared_ptr<std::iostream> input_encrypted_IO = inpro;
+       auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
        bool ret;
        std::wstring wsFileName;
-       std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdfWrapperDoc =  pdfobjectmodel::PDFWrapperDoc::Create(inputEncrypted);
-       pdfWrapperDoc->GetPayloadFileName(wsFileName);
+       std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
+       pdf_wrapper_doc->GetPayloadFileName(wsFileName);
 
-       std::wstring wsGraphicFilter;
-       float fVersion;
-       pdfWrapperDoc->GetCryptographicFilter(wsGraphicFilter,fVersion);
+       std::wstring graphic_filter;
+       float version_num;
+       pdf_wrapper_doc->GetCryptographicFilter(graphic_filter,version_num);
        if(!(TParam.wsFileName.compare(L" ")))
        {
-           EXPECT_EQ(TParam.wsSubType,wsGraphicFilter);
+           EXPECT_EQ(TParam.wsSubType,graphic_filter);
            EXPECT_EQ(L"Embedded File",wsFileName);
-           EXPECT_EQ(TParam.fVersion,fVersion);
+           EXPECT_EQ(TParam.version_num,version_num);
        }
        else
        {
-           EXPECT_EQ(TParam.wsSubType,wsGraphicFilter);
+           EXPECT_EQ(TParam.wsSubType,graphic_filter);
            EXPECT_EQ(TParam.wsFileName,wsFileName);
-           EXPECT_EQ(TParam.fVersion,fVersion);
+           EXPECT_EQ(TParam.version_num,version_num);
        }
 
     }

@@ -68,9 +68,9 @@ private:
             const bool& allowAuditedExtraction,
             CryptoOptions cryptoOptions);
 
-    std::shared_ptr<std::fstream> m_inputStream;
-    uint32_t m_blockSize;
-    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+    std::shared_ptr<std::fstream> input_stream_;
+    uint32_t block_size_;
+    std::shared_ptr<modernapi::UserPolicy> user_policy_;
     std::shared_ptr<pole::Storage> m_storage;
 };
 

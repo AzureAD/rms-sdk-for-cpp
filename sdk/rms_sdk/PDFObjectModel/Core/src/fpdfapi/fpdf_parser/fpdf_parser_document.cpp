@@ -179,7 +179,7 @@ FX_INT32 CPDF_WrapperDoc::GetWrapperType() const
     }
     return PDF_WRAPPERTYPE_NO;
 }
-FX_BOOL CPDF_WrapperDoc::GetCryptographicFilter(CFX_WideString &wsGraphicFilter, FX_FLOAT &fVersion) const
+FX_BOOL CPDF_WrapperDoc::GetCryptographicFilter(CFX_WideString &graphic_filter, FX_FLOAT &version_num) const
 {
     if(!m_pDoc) {
         return FALSE;
@@ -196,11 +196,11 @@ FX_BOOL CPDF_WrapperDoc::GetCryptographicFilter(CFX_WideString &wsGraphicFilter,
     if (!pEPDict || !pEPDict->KeyExist(FX_BSTRC("Subtype"))) {
         return FALSE;
     }
-    wsGraphicFilter = ((CFX_ByteString)pEPDict->GetConstString(FX_BSTRC("Subtype"))).UTF8Decode();
+    graphic_filter = ((CFX_ByteString)pEPDict->GetConstString(FX_BSTRC("Subtype"))).UTF8Decode();
     if (pEPDict->KeyExist(FX_BSTRC("Version"))) {
-        fVersion = pEPDict->GetFloat(FX_BSTRC("Version"));
+        version_num = pEPDict->GetFloat(FX_BSTRC("Version"));
     } else {
-        fVersion = 0.f;
+        version_num = 0.f;
     }
     return TRUE;
 }

@@ -54,11 +54,11 @@ class PDFBinaryBuf
 public:
     /**
      * @brief Appends some buffer to the existing buffer.
-     * @param[in] pBuf    The input buffer to be appended.
-     * @param[in] size    The input buffer size.
+     * @param[in] buffer_pointer    The input buffer to be appended.
+     * @param[in] size              The input buffer size.
      * @return true for success, otherwise false.
      */
-    virtual bool AppendBlock(const void* pBuf, uint32_t size) = 0;
+    virtual bool AppendBlock(const void* buffer_pointer, uint32_t size) = 0;
 };
 
 #define  PDFWRAPPERDOC_TYPE_UNKNOWN -1	/** Unknown. */
@@ -91,11 +91,11 @@ public:
 
     /**
      * @brief Gets the cryptographic filter name and version.
-     * @param[out] wsGraphicFilter  It receives the cryptographic filter name.
-     * @param[out] fVersion         It receives the cryptographic filter version.
+     * @param[out] graphic_filter  It receives the cryptographic filter name.
+     * @param[out] version_num         It receives the cryptographic filter version.
      * @return true for success, otherwise false.
      */
-    virtual bool GetCryptographicFilter(std::wstring& wsGraphicFilter, float &fVersion) const = 0;
+    virtual bool GetCryptographicFilter(std::wstring& graphic_filter, float &version_num) const = 0;
 
     /**
      * @brief Gets the payload size.
@@ -146,14 +146,14 @@ public:
      * @param[in] wsSubType     The name of the cryptographic filter used to encrypt the encrypted payload document.
      * @param[in] wsFileName    The file name for encrypted payload document.
      * @param[in] wsDescription Description text for the embedded encrypted payload document.
-     * @param[in] fVersion      The version number of the cryptographic filter.
+     * @param[in] version_num      The version number of the cryptographic filter.
      * @return void.
      */
     virtual void SetPayloadInfo(
             const std::wstring& wsSubType,
             const std::wstring& wsFileName,
             const std::wstring& wsDescription,
-            float fVersion) = 0;
+            float version_num) = 0;
 
     /**
      * @brief Sets the payload content.
@@ -236,7 +236,7 @@ public:
      * @brief The PDF protector checks the publishing license validity here. If false
      * is returned, UnprotectCustomEncryptedFile will fail.
      */
-    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize) = 0;
+    virtual bool OnInit(unsigned char* publishing_license, uint32_t publishing_license_size) = 0;
 
     virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler() = 0;
 };
@@ -264,32 +264,32 @@ public:
      * @brief Creates custom encrypted PDF file(be opposed to standard encryption like
      * password encryption or certificate encryption).
      * @param[in] inputFilePath     The input file path to be encrypted.
-     * @param[in] filterName        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
-     * @param[in] publishingLicense The publishing license stored in PDF file, according to "Microsoft IRM protection for PDF Spec-v2".
-     * @param[in] cryptoHander      The crypto handler that is responsible for PDF data encryption.
+     * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
+     * @param[in] publishing_license The publishing license stored in PDF file, according to "Microsoft IRM protection for PDF Spec-v2".
+     * @param[in] crypto_hander      The crypto handler that is responsible for PDF data encryption.
      * @param[out] outputIOS        It receives the encrypted PDF documnet.
      * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
      */
     virtual uint32_t CreateCustomEncryptedFile(
             const std::string& inputFilePath,
-            const std::string& filterName,
-            const std::vector<unsigned char>& publishingLicense,
-            std::shared_ptr<PDFCryptoHandler> cryptoHander,
+            const std::string& filter_name,
+            const std::vector<unsigned char>& publishing_license,
+            std::shared_ptr<PDFCryptoHandler> crypto_hander,
             rmscrypto::api::SharedStream outputIOS) = 0;
 
     /**
      * @brief Decrypts the custom encrypted PDF file(be opposed to standard encryption like
      * password encryption or certificate encryption).
      * @param[in] inputIOS          The input custom encrypted PDF document.
-     * @param[in] filterName        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
-     * @param[in] securityHander    The securty handler used to check the validity and to create crypto hander for PDF data decryption.
+     * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
+     * @param[in] security_hander    The securty handler used to check the validity and to create crypto hander for PDF data decryption.
      * @param[out] outputIOS        It receives the decrypted PDF documnet.
      * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
      */
     virtual uint32_t UnprotectCustomEncryptedFile(
             rmscrypto::api::SharedStream inputIOS,
-            const std::string& filterName,
-            std::shared_ptr<PDFSecurityHandler> securityHander,
+            const std::string& filter_name,
+            std::shared_ptr<PDFSecurityHandler> security_hander,
             rmscrypto::api::SharedStream outputIOS) = 0;
 
     virtual ~PDFCreator(){}

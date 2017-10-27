@@ -46,24 +46,24 @@ public:
     /**
      * @brief Constructs the protector to protect or unprotect a PDF document.
      * We have to invoke pdfobjectmodel::PDFModuleMgr::Initialize to initialize the PDF object model first.
-     * @param[in] originalFilePath      The input PDF file path to be protected.
-     * @param[in] originalFileExtension The input file extension name.
-     * @param[in] inputStream           The protector will read the original PDF document data from the input file stream.
+     * @param[in] original_file_path      The input PDF file path to be protected.
+     * @param[in] original_file_extension The input file extension name.
+     * @param[in] inputstream            The protector will read the original PDF document data from the input file stream.
      * @return void.
      */
-    PDFProtector(const std::string& originalFilePath,
-                 const std::string& originalFileExtension,
-                 std::shared_ptr<std::fstream> inputStream);
+    PDFProtector(const std::string& original_file_path,
+                 const std::string& original_file_extension,
+                 std::shared_ptr<std::fstream> inputstream);
 
     ~PDFProtector();
 
     /**
      * @brief Sets the PDF wrapper document to wrap up the encrypted PDF document.
      * If the PDF wrapper document is invalid, ProtectWithTemplate will fail and throw an exception.
-     * @param[in] inputWrapperStream      The protector will read the PDF wrapper document data from the input file stream.
+     * @param[in] input_wrapper_stream      The protector will read the PDF wrapper document data from the input file stream.
      * @return void.
      */
-    void SetWrapper(std::shared_ptr<std::fstream> inputWrapperStream) override;
+    void SetWrapper(std::shared_ptr<std::fstream> input_wrapper_stream) override;
 
     /**
      * @brief The protector protects the PDF document with the official rights policy template.
@@ -71,16 +71,16 @@ public:
      * custom encrypted PDF document(be opposed to standard encryption like password encryption or certificate encryption).
      * Second, the protector invokes pdfobjectmodel::PDFUnencryptedWrapperCreator relevant interfaces to create final
      * PDF IRM V2 document wrapped up with unencrypted wrapper document.
-     * @param[in] userContext    The input user context.
+     * @param[in] usercontext    The input user context.
      * @param[in] options        The input options.
-     * @param[in] outputStream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
-     * @param[in] cancelState    It is used to check the process abandon.
+     * @param[in] outputstream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
+     * @param[in] cancelstate    It is used to check the process abandon.
      * @return void.
      */
-    void ProtectWithTemplate(const UserContext& userContext,
+    void ProtectWithTemplate(const UserContext& usercontext,
                              const ProtectWithTemplateOptions& options,
-                             std::shared_ptr<std::fstream> outputStream,
-                             std::shared_ptr<std::atomic<bool>> cancelState) override;
+                             std::shared_ptr<std::fstream> outputstream,
+                             std::shared_ptr<std::atomic<bool>> cancelstate) override;
 
     /**
      * @brief The protector protects the PDF document with the custom rights policy.
@@ -88,16 +88,16 @@ public:
      * custom encrypted PDF document(be opposed to standard encryption like password encryption or certificate encryption).
      * Second, the protector invokes pdfobjectmodel::PDFUnencryptedWrapperCreator relevant interfaces to create final
      * PDF IRM V2 document wrapped up with unencrypted wrapper document.
-     * @param[in] userContext    The input user context.
+     * @param[in] usercontext    The input user context.
      * @param[in] options        The input options.
-     * @param[in] outputStream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
-     * @param[in] cancelState    It is used to check the process abandon.
+     * @param[in] outputstream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
+     * @param[in] cancelstate    It is used to check the process abandon.
      * @return void.
      */
-    void ProtectWithCustomRights(const UserContext& userContext,
+    void ProtectWithCustomRights(const UserContext& usercontext,
                                  const ProtectWithCustomRightsOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
-                                 std::shared_ptr<std::atomic<bool>> cancelState) override;
+                                 std::shared_ptr<std::fstream> outputstream,
+                                 std::shared_ptr<std::atomic<bool>> cancelstate) override;
 
     /**
      * @brief The protector unprotects the PDF document. It supports PDF IRM V2&V1 format.
@@ -107,16 +107,16 @@ public:
      * to obtain the encrypted PDF document.
      * Third, the protector invokes pdfobjectmodel::PDFCreator::UnprotectCustomEncryptedFile to
      * decrypt the encrypted PDF document.
-     * @param[in] userContext    The input user context.
+     * @param[in] usercontext    The input user context.
      * @param[in] options        The input options.
-     * @param[in] outputStream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
-     * @param[in] cancelState    It is used to check the process abandon.
+     * @param[in] outputstream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
+     * @param[in] cancelstate    It is used to check the process abandon.
      * @return The unprotection result.
      */
-    UnprotectResult Unprotect(const UserContext& userContext,
+    UnprotectResult Unprotect(const UserContext& usercontext,
                               const UnprotectOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
-                              std::shared_ptr<std::atomic<bool>> cancelState) override;
+                              std::shared_ptr<std::fstream> outputstream,
+                              std::shared_ptr<std::atomic<bool>> cancelstate) override;
 
     /**
      * @brief The protector invokes pdfobjectmodel::PDFWrapperDoc relevant interfaces to
@@ -127,34 +127,34 @@ public:
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
-            uint64_t contentSize);
+            uint64_t contentsize);
 
-    void EncryptStream(char* pBuffer,
-                       uint32_t bufferSize,
-                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
-                       bool bFinish);
+    void EncryptStream(const char* plain_buffer,
+                       const uint32_t buffersize,
+                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& protected_stream,
+                       const bool finish);
 
     void DecryptStream(const rmscrypto::api::SharedStream& outputIOS,
-                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& pStream,
-                       uint64_t originalContentSize);
+                       const std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream>& protected_stream,
+                       const uint64_t original_content_size);
 
-    void SetUserPolicy(std::shared_ptr<modernapi::UserPolicy> userPolicy);
+    void SetUserPolicy(std::shared_ptr<modernapi::UserPolicy> userpolicy);
 
 private:
-    void Protect(const std::shared_ptr<std::fstream>& outputStream);
+    void Protect(const std::shared_ptr<std::fstream>& outputstream);
     modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
-            const bool& allowAuditedExtraction,
-            CryptoOptions cryptoOptions);
+            const bool& allow_audited_extraction,
+            CryptoOptions crypto_options);
 
-    std::string m_originalFileExtension;
-    std::string m_originalFilePath;
-    std::shared_ptr<std::fstream> m_inputStream;
-    uint32_t m_blockSize;
-    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+    std::string original_file_extension_;
+    std::string original_file_path_;
+    std::shared_ptr<std::fstream> input_stream_;
+    uint32_t block_size_;
+    std::shared_ptr<modernapi::UserPolicy> user_policy_;
 
-    std::shared_ptr<std::fstream> m_inputWrapperStream;
-    std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator;
-    std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
+    std::shared_ptr<std::fstream> input_wrapper_stream_;
+    std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_;
+    std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_creator_;
 };
 
 /**
@@ -165,7 +165,7 @@ private:
 class PDFCryptoHandlerImpl : public pdfobjectmodel::PDFCryptoHandler
 {
 public:
-    explicit PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
+    explicit PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pdf_protector);
     virtual ~PDFCryptoHandlerImpl();
 
     virtual uint32_t DecryptGetSize(uint32_t src_size);
@@ -187,17 +187,17 @@ public:
     virtual bool ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
 private:
-    std::shared_ptr<PDFProtector> m_pPDFProtector;
+    std::shared_ptr<PDFProtector> pdf_protector_;
 
     //for decryption
-    std::shared_ptr<std::stringstream> m_dataToDecrypted;
-    uint32_t m_objnum;
+    std::shared_ptr<std::stringstream> data_to_be_decrypted_;
+    uint32_t obj_num_;
 
     //for encryption
-    bool m_bProgressiveStart;
-    std::shared_ptr<std::iostream> m_outputIOS;
-    rmscrypto::api::SharedStream m_outputSharedStream;
-    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> m_sharedProtectedStream;
+    bool progressive_start_;
+    std::shared_ptr<std::iostream> output_IOS_;
+    rmscrypto::api::SharedStream output_shared_stream_;
+    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> shared_protected_stream_;
 };
 
 /**
@@ -208,22 +208,22 @@ private:
 class PDFSecurityHandlerImpl : public pdfobjectmodel::PDFSecurityHandler
 {
 public:
-    PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector,
-                         const UserContext& userContext,
+    PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pdf_protector,
+                         const UserContext& usercontext,
                          const UnprotectOptions& options,
-                         std::shared_ptr<std::atomic<bool>> cancelState);
+                         std::shared_ptr<std::atomic<bool>> cancelstate);
     virtual ~PDFSecurityHandlerImpl();
 
-    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
+    virtual bool OnInit(unsigned char* publishing_license, uint32_t publishing_license_size);
 
     virtual std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> CreateCryptoHandler();
 
 private:
-    std::shared_ptr<PDFProtector> m_pPDFProtector;
-    std::shared_ptr<PDFCryptoHandlerImpl> m_pCryptoHandler;
-    UserContext m_userContext;
-    UnprotectOptions m_options;
-    std::shared_ptr<std::atomic<bool>> m_cancelState;
+    std::shared_ptr<PDFProtector> pdf_protector_;
+    std::shared_ptr<PDFCryptoHandlerImpl> crypto_handler_;
+    UserContext user_context_;
+    UnprotectOptions options_;
+    std::shared_ptr<std::atomic<bool>> cancel_state_;
 };
 
 } // namespace fileapi

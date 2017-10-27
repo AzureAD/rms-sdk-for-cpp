@@ -14,13 +14,13 @@ struct CreateCustomEncryptedFile_P{
        {
            fileIn = fileIn_;
            fileout =fileout_;
-           filterName = filterName_;
+           filter_name = filterName_;
            ret = ret_;
            ExceptionsMess=ExceptionsMess_;
        }
            std::string fileIn;
            std::string fileout;
-           std::string filterName;
+           std::string filter_name;
            std::string ExceptionsMess;
            uint32_t ret;
  };
@@ -38,14 +38,14 @@ struct UnprotectCustomEncryptedFile_P
     {
         fileIn = fileIn_;
         fileout =fileout_;
-        filterName = filterName_;
+        filter_name = filterName_;
         ExceptionsMess = Exceptionmess_;
         ret = ret_;
 
     }
         std::string fileIn;
         std::string fileout;
-        std::string filterName;
+        std::string filter_name;
         std::string ExceptionsMess;
         uint32_t ret;
 
@@ -85,14 +85,14 @@ struct GetCryptographicFilter_P{
     std::string ExceptionsMess_)
     {
         fileIn =fileIn_;
-        wsGraphicFilter = wsGraphicFilter_;
-        fVersion =fVersion_;
+        graphic_filter = wsGraphicFilter_;
+        version_num =fVersion_;
         ret = ret_;
         ExceptionsMess = ExceptionsMess_;
     }
     std::string fileIn;
-    std::wstring wsGraphicFilter;
-    float fVersion;
+    std::wstring graphic_filter;
+    float version_num;
     bool ret;
     std::string ExceptionsMess;
 };
@@ -178,14 +178,14 @@ struct SetPayloadInfo_P{
         wsFileName= wsFileName_;
         wsDescription = wsDescription_;
         fileout = outfile_;
-        fVersion = fVersion_;
+        version_num = fVersion_;
         ExceptionsMess = ExceptionMess_;
     }
     std::wstring wsSubType;
     std::wstring wsFileName;
     std::wstring wsDescription;
     std::string fileout;
-    float fVersion;
+    float version_num;
     std::string ExceptionsMess;
 };
 

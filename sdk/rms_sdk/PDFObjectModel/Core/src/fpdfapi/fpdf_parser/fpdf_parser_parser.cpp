@@ -395,9 +395,9 @@ FX_DWORD CPDF_Parser::SetEncryptHandler()
 }
 void CPDF_Parser::ReleaseEncryptHandler()
 {
-    if (m_Syntax.m_pCryptoHandler) {
-        delete m_Syntax.m_pCryptoHandler;
-        m_Syntax.m_pCryptoHandler = NULL;
+    if (m_Syntax.crypto_handler_) {
+        delete m_Syntax.crypto_handler_;
+        m_Syntax.crypto_handler_ = NULL;
     }
     if (m_pSecurityHandler && !m_bForceUseSecurityHandler) {
         delete m_pSecurityHandler;
@@ -1630,8 +1630,8 @@ void CPDF_Parser::SetSecurityHandler(CPDF_SecurityHandler* pSecurityHandler, FX_
     if (m_bForceUseSecurityHandler) {
         return;
     }
-    m_Syntax.m_pCryptoHandler = pSecurityHandler->CreateCryptoHandler();
-    m_Syntax.m_pCryptoHandler->Init(NULL, pSecurityHandler);
+    m_Syntax.crypto_handler_ = pSecurityHandler->CreateCryptoHandler();
+    m_Syntax.crypto_handler_->Init(NULL, pSecurityHandler);
 }
 void CPDF_Parser::DeleteIndirectObject(FX_DWORD objnum)
 {
@@ -1709,7 +1709,7 @@ FX_BOOL CPDF_Parser::IsLinearizedFile(IFX_FileRead* pFileAccess, FX_DWORD offset
 CPDF_SyntaxParser::CPDF_SyntaxParser()
 {
     m_pFileAccess = NULL;
-    m_pCryptoHandler = NULL;
+    crypto_handler_ = NULL;
     m_pFileBuf = NULL;
     m_BufSize = CPDF_ModuleMgr::Get()->m_FileBufSize;
     m_pFileBuf = NULL;
@@ -2158,8 +2158,8 @@ CPDF_Object* CPDF_SyntaxParser::GetObject(CPDF_IndirectObjects* pObjList, FX_DWO
         }
         FX_FILESIZE SavedPos = m_Pos - 1;
         CFX_ByteString str = ReadString();
-        if (m_pCryptoHandler && bDecrypt && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
-            m_pCryptoHandler->Decrypt(objnum, gennum, str);
+        if (crypto_handler_ && bDecrypt && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
+            crypto_handler_->Decrypt(objnum, gennum, str);
         }
         pRet = CPDF_String::Create(str, FALSE);
         return pRet;
@@ -2170,8 +2170,8 @@ CPDF_Object* CPDF_SyntaxParser::GetObject(CPDF_IndirectObjects* pObjList, FX_DWO
         }
         FX_FILESIZE SavedPos = m_Pos - 1;
         CFX_ByteString str = ReadHexString();
-        if (m_pCryptoHandler && bDecrypt && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
-            m_pCryptoHandler->Decrypt(objnum, gennum, str);
+        if (crypto_handler_ && bDecrypt && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
+            crypto_handler_->Decrypt(objnum, gennum, str);
         }
         pRet = CPDF_String::Create(str, TRUE);
         return pRet;
@@ -2358,8 +2358,8 @@ CPDF_Object* CPDF_SyntaxParser::GetObjectByStrict(CPDF_IndirectObjects* pObjList
             return (CPDF_Object*)PDFOBJ_STRING;
         }
         CFX_ByteString str = ReadString();
-        if (m_pCryptoHandler && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
-            m_pCryptoHandler->Decrypt(objnum, gennum, str);
+        if (crypto_handler_ && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
+            crypto_handler_->Decrypt(objnum, gennum, str);
         }
         return CPDF_String::Create(str, FALSE);
     }
@@ -2368,8 +2368,8 @@ CPDF_Object* CPDF_SyntaxParser::GetObjectByStrict(CPDF_IndirectObjects* pObjList
             return (CPDF_Object*)PDFOBJ_STRING;
         }
         CFX_ByteString str = ReadHexString();
-        if (m_pCryptoHandler && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
-            m_pCryptoHandler->Decrypt(objnum, gennum, str);
+        if (crypto_handler_ && (!m_pRefStreamObjNums || (m_pRefStreamObjNums->Find(objnum) == -1))) {
+            crypto_handler_->Decrypt(objnum, gennum, str);
         }
         return CPDF_String::Create(str, TRUE);
     }
@@ -2547,7 +2547,7 @@ CPDF_Stream* CPDF_SyntaxParser::ReadStream(CPDF_Dictionary* pDict, PARSE_CONTEXT
         pContext->m_DataStart = m_Pos;
     }
     m_Pos += len;
-    CPDF_CryptoHandler* pCryptoHandler = m_pCryptoHandler;
+    CPDF_CryptoHandler* pCryptoHandler = crypto_handler_;
     if (objnum == (FX_DWORD)m_MetadataObjnum) {
         pCryptoHandler = NULL;
     }

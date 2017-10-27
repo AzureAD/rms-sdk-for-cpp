@@ -191,12 +191,12 @@ CPDF_StreamFilter* CPDF_Stream::GetStreamFilter(FX_BOOL bRaw) const
 {
     CFX_DataFilter* pFirstFilter = NULL;
     FX_UINT32 srcBufferSize = FPDF_FILTER_BUFFER_SIZE;
-    if (m_pCryptoHandler) {
+    if (crypto_handler_) {
         srcBufferSize = GetRawSize();
         if (srcBufferSize > FPDF_DECRYPTFILTER_BUFFER_SIZE) {
             srcBufferSize = FPDF_DECRYPTFILTER_BUFFER_SIZE;
         }
-        pFirstFilter = FX_NEW CPDF_DecryptFilter(m_pCryptoHandler, m_ObjNum, m_GenNum, srcBufferSize);
+        pFirstFilter = FX_NEW CPDF_DecryptFilter(crypto_handler_, m_ObjNum, m_GenNum, srcBufferSize);
     }
     if (!bRaw) {
         CFX_DataFilter* pFilter = _FPDF_CreateFilterFromDict(m_pDict);
@@ -316,7 +316,7 @@ size_t CPDF_StreamFilter::ReadLeftOver(FX_LPBYTE buffer, size_t buf_size)
 }
 CPDF_DecryptFilter::CPDF_DecryptFilter(CPDF_CryptoHandler* pCryptoHandler, FX_DWORD objnum, FX_DWORD gennum, FX_UINT32 newInBufferSize)
 {
-    m_pCryptoHandler = pCryptoHandler;
+    crypto_handler_ = pCryptoHandler;
     m_pContext = NULL;
     m_ObjNum = objnum;
     m_GenNum = gennum;
@@ -326,15 +326,15 @@ CPDF_DecryptFilter::~CPDF_DecryptFilter()
 {
     CFX_BinaryBuf buf;
     if (m_pContext) {
-        m_pCryptoHandler->DecryptFinish(m_pContext, buf);
+        crypto_handler_->DecryptFinish(m_pContext, buf);
     }
 }
 void CPDF_DecryptFilter::v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf)
 {
     if (m_pContext == NULL) {
-        m_pContext = m_pCryptoHandler->DecryptStart(m_ObjNum, m_GenNum);
+        m_pContext = crypto_handler_->DecryptStart(m_ObjNum, m_GenNum);
     }
-    m_pCryptoHandler->DecryptStream(m_pContext, src_buf, src_size, dest_buf);
+    crypto_handler_->DecryptStream(m_pContext, src_buf, src_size, dest_buf);
 }
 void CPDF_DecryptFilter::v_FilterFinish(CFX_BinaryBuf& dest_buf)
 {
@@ -342,7 +342,7 @@ void CPDF_DecryptFilter::v_FilterFinish(CFX_BinaryBuf& dest_buf)
     if (m_pContext == NULL) {
         return;
     }
-    m_pCryptoHandler->DecryptFinish(m_pContext, dest_buf);
+    crypto_handler_->DecryptFinish(m_pContext, dest_buf);
     m_pContext = NULL;
 }
 extern "C" {

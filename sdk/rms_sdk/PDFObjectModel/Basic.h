@@ -15,13 +15,13 @@ namespace pdfobjectmodel {
 class PDFBinaryBufImpl : public PDFBinaryBuf
 {
 public:
-    explicit PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> pBinBuf);
+    explicit PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> bin_buf);
 	virtual ~PDFBinaryBufImpl();
 
-	virtual bool AppendBlock(const void* pBuf, uint32_t size);
+    virtual bool AppendBlock(const void* buffer_pointer, uint32_t size);
 
 private:
-    std::shared_ptr<CFX_BinaryBuf> m_pBinBuf;
+    std::shared_ptr<CFX_BinaryBuf> shared_bin_buffer_;
 };
 
 /**
@@ -55,7 +55,7 @@ public:
 	virtual FX_BOOL Flush();
 
 private:
-    rmscrypto::api::SharedStream m_sharedIOStream;
+    rmscrypto::api::SharedStream shared_io_stream_;
 };
 
 #define UTF8_ONE_START      (0xOOO1)
@@ -75,8 +75,8 @@ typedef unsigned int    INT;
  */
 
 namespace utility {
-void UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End);
-void UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length);
+void UTF16ToUTF8(UTF16* utf_16_start, UTF16* utf_16_end, UTF8* utf_8_start, UTF8* utf_8_end);
+void UCS4ToUCS2(CFX_WideString ucs_4, FX_LPBYTE *output_ucs_2, FX_DWORD *output_ucs_2_length);
 }  // namespace utility
 
 } // namespace pdfobjectmodel

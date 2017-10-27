@@ -638,7 +638,7 @@ FX_FILESIZE CPDF_ObjectStream::End(CPDF_Creator* pCreator)
         return 0;
     }
     CFX_FileBufferArchive *pFile = &pCreator->m_File;
-    CPDF_CryptoHandler *pHandler = pCreator->m_pCryptoHandler;
+    CPDF_CryptoHandler *pHandler = pCreator->crypto_handler_;
     FX_FILESIZE ObjOffset = pCreator->m_Offset;
     if (!m_dwObjNum) {
         m_dwObjNum = ++pCreator->m_dwLastObjNum;
@@ -1164,10 +1164,10 @@ CPDF_Creator::CPDF_Creator(CPDF_Document* pDoc)
     m_bCompress = TRUE;
     if (m_pParser) {
         m_pEncryptDict = m_pParser->GetEncryptDict();
-        m_pCryptoHandler = m_pParser->GetCryptoHandler();
+        crypto_handler_ = m_pParser->GetCryptoHandler();
     } else {
         m_pEncryptDict = NULL;
-        m_pCryptoHandler = NULL;
+        crypto_handler_ = NULL;
     }
     m_bSecurityChanged = FALSE;
     m_pMetadata = NULL;
@@ -1411,7 +1411,7 @@ FX_INT32 CPDF_Creator::WriteIndirectObj(FX_DWORD objnum, const CPDF_Object* pObj
     m_Offset += len;
     if (pObj->GetType() == PDFOBJ_STREAM) {
         CPDF_CryptoHandler *pHandler = NULL;
-        pHandler = (pObj == m_pMetadata && !m_bEncryptMetadata) ? NULL : m_pCryptoHandler;
+        pHandler = (pObj == m_pMetadata && !m_bEncryptMetadata) ? NULL : crypto_handler_;
         int ret = 0;
         if (pHandler && m_pProgressiveEncrypt && m_pProgressiveEncrypt->SetCryptoHandler(pHandler)) {
             ret = WriteStream(pObj, oldnum);
@@ -1475,7 +1475,7 @@ FX_INT32 CPDF_Creator::WriteDirectObj(FX_DWORD objnum, const CPDF_Object* pObj, 
         case PDFOBJ_STRING: {
                 CFX_ByteString str = pObj->GetString();
                 FX_BOOL bHex = ((CPDF_String*)pObj)->IsHex();
-                if (m_pCryptoHandler == NULL || !bEncrypt) {
+                if (crypto_handler_ == NULL || !bEncrypt) {
                     CFX_ByteString content = PDF_EncodeString(str, bHex);
                     if ((len = m_File.AppendString(content)) < 0) {
                         return -1;
@@ -1485,7 +1485,7 @@ FX_INT32 CPDF_Creator::WriteDirectObj(FX_DWORD objnum, const CPDF_Object* pObj, 
                 }
                 CPDF_Encryptor encryptor;
                 FX_DWORD gennum = GetObjectVersion(objnum);
-                encryptor.Initialize(m_pCryptoHandler, objnum, gennum, (FX_LPBYTE)(FX_LPCSTR)str, str.GetLength());
+                encryptor.Initialize(crypto_handler_, objnum, gennum, (FX_LPBYTE)(FX_LPCSTR)str, str.GetLength());
                 CFX_ByteString content = PDF_EncodeString(CFX_ByteString((FX_LPCSTR)encryptor.m_pData, encryptor.m_dwSize), bHex);
                 if ((len = m_File.AppendString(content)) < 0) {
                     return -1;
@@ -1497,7 +1497,7 @@ FX_INT32 CPDF_Creator::WriteDirectObj(FX_DWORD objnum, const CPDF_Object* pObj, 
                 CPDF_FlateEncoder encoder;
                 encoder.Initialize((CPDF_Stream*)pObj, m_bCompress, m_pDocument->m_bMetaDataFlate, m_bStandardSecurity, pObj == m_pMetadata , m_bEncryptMetadata);
                 CPDF_Encryptor encryptor;
-                CPDF_CryptoHandler* pHandler = m_pCryptoHandler;
+                CPDF_CryptoHandler* pHandler = crypto_handler_;
                 FX_DWORD gennum = GetObjectVersion(objnum);
                 encryptor.Initialize(pHandler, objnum, gennum, encoder.m_pData, encoder.m_dwSize);
                 if ((FX_DWORD)encoder.m_pDict->GetInteger(FX_BSTRC("Length")) != encryptor.m_dwSize) {
@@ -1594,7 +1594,7 @@ FX_INT32 CPDF_Creator::WriteDirectObj(FX_DWORD objnum, const CPDF_Object* pObj, 
                 break;
             }
         case PDFOBJ_DICTIONARY: {
-                if (m_pCryptoHandler == NULL || pObj == m_pEncryptDict) {
+                if (crypto_handler_ == NULL || pObj == m_pEncryptDict) {
                     return PDF_CreatorAppendObject(this, pObj, &m_File, m_Offset, m_pParser ? &m_pParser->m_ObjVersion : NULL);
                 }
                 if (m_File.AppendString(FX_BSTRC("<<")) < 0) {
@@ -2556,11 +2556,11 @@ void CPDF_Creator::InitID(FX_BOOL bDefault )
             CFX_ByteString user_pass = m_pParser->GetPassword();
             FX_DWORD flag = PDF_ENCRYPT_CONTENT;
             handler.OnCreate(m_pEncryptDict, m_pIDArray, (FX_LPCBYTE)user_pass, user_pass.GetLength(), flag);
-            if (m_pCryptoHandler && m_bNewCrypto) {
-                delete m_pCryptoHandler;
+            if (crypto_handler_ && m_bNewCrypto) {
+                delete crypto_handler_;
             }
-            m_pCryptoHandler = FX_NEW CPDF_StandardCryptoHandler;
-            m_pCryptoHandler->Init(m_pEncryptDict, &handler);
+            crypto_handler_ = FX_NEW CPDF_StandardCryptoHandler;
+            crypto_handler_->Init(m_pEncryptDict, &handler);
             m_bNewCrypto = TRUE;
             m_bSecurityChanged = TRUE;
         }
@@ -2602,7 +2602,7 @@ void CPDF_Creator::RemoveSecurity()
     ResetStandardSecurity();
     m_bSecurityChanged = TRUE;
     m_pEncryptDict = NULL;
-    m_pCryptoHandler = NULL;
+    crypto_handler_ = NULL;
 }
 void CPDF_Creator::SetProgressiveEncryptHandler(CPDF_ProgressiveEncryptHandler* pHandler)
 {
@@ -2613,9 +2613,9 @@ void CPDF_Creator::SetProgressiveEncryptHandler(CPDF_ProgressiveEncryptHandler* 
 }
 void CPDF_Creator::ResetStandardSecurity()
 {
-    if (m_bNewCrypto && m_pCryptoHandler) {
-        delete m_pCryptoHandler;
-        m_pCryptoHandler = NULL;
+    if (m_bNewCrypto && crypto_handler_) {
+        delete crypto_handler_;
+        crypto_handler_ = NULL;
     }
     m_bNewCrypto = FALSE;
     if (!m_bStandardSecurity) {
@@ -2632,7 +2632,7 @@ void CPDF_Creator::SetCustomSecurity(CPDF_Dictionary* pEncryptDict, CPDF_CryptoH
     ResetStandardSecurity();
     m_bSecurityChanged = TRUE;
     m_pEncryptDict = pEncryptDict;
-    m_pCryptoHandler = pCryptoHandler;
+    crypto_handler_ = pCryptoHandler;
     m_bEncryptMetadata = bEncryptMetadata;
 }
 CPDF_WrapperCreator::CPDF_WrapperCreator(CPDF_Document* pWrapperDoc, FX_DWORD dwWrapperOffset)

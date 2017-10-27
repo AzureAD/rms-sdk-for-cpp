@@ -987,7 +987,7 @@ CPDF_Stream::CPDF_Stream(FX_LPBYTE pData, size_t size, CPDF_Dictionary* pDict)
     m_dwSize = size;
     m_GenNum = (FX_DWORD) - 1;
     m_pDataBuf = pData;
-    m_pCryptoHandler = NULL;
+    crypto_handler_ = NULL;
     m_bKeepFile = FALSE;
 }
 CPDF_Stream::CPDF_Stream(IFX_FileRead* pFile, CPDF_CryptoHandler* pCryptoHandler, FX_FILESIZE offset,
@@ -1002,7 +1002,7 @@ CPDF_Stream::CPDF_Stream(IFX_FileRead* pFile, CPDF_CryptoHandler* pCryptoHandler
     m_GenNum = gennum;
     m_pFile = pFile;
     m_FileOffset = offset;
-    m_pCryptoHandler = pCryptoHandler;
+    crypto_handler_ = pCryptoHandler;
     m_bKeepFile = FALSE;
 }
 CPDF_Stream::~CPDF_Stream()
@@ -1033,7 +1033,7 @@ void CPDF_Stream::InitStream(CPDF_Dictionary* pDict)
     }
     m_GenNum = 0;
     m_pFile = NULL;
-    m_pCryptoHandler = NULL;
+    crypto_handler_ = NULL;
     m_FileOffset = 0;
 }
 FX_BOOL CPDF_Stream::InitStream(FX_LPBYTE pData, size_t size, CPDF_Dictionary* pDict)
@@ -1061,7 +1061,7 @@ FX_BOOL CPDF_Stream::SetData(FX_LPCBYTE pData, size_t size, FX_BOOL bCompressed,
         }
     } else {
         m_GenNum = (FX_DWORD) - 1;
-        m_pCryptoHandler = NULL;
+        crypto_handler_ = NULL;
     }
     if (bKeepBuf) {
         m_pDataBuf = (FX_LPBYTE)pData;
@@ -1252,12 +1252,12 @@ FX_BOOL CPDF_StreamAcc::LoadAllData(const CPDF_Stream* pStream, FX_BOOL bRawAcce
     }
     FX_LPBYTE pDecryptedData;
     FX_DWORD dwDecryptedSize;
-    if (pStream->m_pCryptoHandler) {
+    if (pStream->crypto_handler_) {
         CFX_BinaryBuf dest_buf;
-        dest_buf.EstimateSize(pStream->m_pCryptoHandler->DecryptGetSize(dwSrcSize));
-        FX_LPVOID context = pStream->m_pCryptoHandler->DecryptStart(pStream->GetObjNum(), pStream->m_GenNum);
-        pStream->m_pCryptoHandler->DecryptStream(context, pSrcData, dwSrcSize, dest_buf);
-        pStream->m_pCryptoHandler->DecryptFinish(context, dest_buf);
+        dest_buf.EstimateSize(pStream->crypto_handler_->DecryptGetSize(dwSrcSize));
+        FX_LPVOID context = pStream->crypto_handler_->DecryptStart(pStream->GetObjNum(), pStream->m_GenNum);
+        pStream->crypto_handler_->DecryptStream(context, pSrcData, dwSrcSize, dest_buf);
+        pStream->crypto_handler_->DecryptFinish(context, dest_buf);
         pDecryptedData = dest_buf.GetBuffer();
         dwDecryptedSize = dest_buf.GetSize();
         dest_buf.DetachBuffer();

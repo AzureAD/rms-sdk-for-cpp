@@ -97,12 +97,12 @@ public:
     {
         delete this;
     }
-    virtual void		SetPayloadInfo(FX_WSTR wsSubType, FX_WSTR wsFileName, FX_WSTR wsDescription = FX_WSTRC(L""), FX_FLOAT fVersion = 0.f)
+    virtual void		SetPayloadInfo(FX_WSTR wsSubType, FX_WSTR wsFileName, FX_WSTR wsDescription = FX_WSTRC(L""), FX_FLOAT version_num = 0.f)
     {
         m_wsSubType = wsSubType;
         m_wsFileName = wsFileName;
         m_wsDescription = wsDescription;
-        m_fVersion = fVersion;
+        m_fVersion = version_num;
     }
     virtual void		SetPayLoad(IFX_FileRead* pPayload)
     {

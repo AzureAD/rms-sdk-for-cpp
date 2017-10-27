@@ -57,14 +57,14 @@ static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param)
     return (CustomSecurityHandler*)param;
 }
 
-void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filterName, std::shared_ptr<PDFSecurityHandler> securityHander)
+void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, std::shared_ptr<PDFSecurityHandler> security_hander)
 {
      if(g_pdfModuleMgr != nullptr)
      {
          PDFModuleMgrImpl* pMgr = (PDFModuleMgrImpl*)g_pdfModuleMgr.get();
          //core takes over m_pCusSecHandler
-         pMgr->m_pCusSecHandler = new CustomSecurityHandler(securityHander);
-         pMgr->m_pModuleMgr->RegisterSecurityHandler(filterName.c_str(), CreateCustomerSecurityHandler, pMgr->m_pCusSecHandler);
+         pMgr->m_pCusSecHandler = new CustomSecurityHandler(security_hander);
+         pMgr->m_pModuleMgr->RegisterSecurityHandler(filter_name.c_str(), CreateCustomerSecurityHandler, pMgr->m_pCusSecHandler);
 
      }
 }

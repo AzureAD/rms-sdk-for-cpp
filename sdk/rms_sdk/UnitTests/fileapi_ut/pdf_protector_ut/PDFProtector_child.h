@@ -127,7 +127,7 @@ public:
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
-            uint64_t contentSize);
+            uint64_t content_size);
 
     void EncryptStream(char* pBuffer,
                        uint32_t bufferSize,
@@ -146,15 +146,15 @@ private:
             const bool& allowAuditedExtraction,
             CryptoOptions cryptoOptions);
 
-    std::string m_originalFileExtension;
-    std::string m_originalFilePath;
-    std::shared_ptr<std::fstream> m_inputStream;
-    uint32_t m_blockSize;
-    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+    std::string original_file_extension_;
+    std::string original_file_path_;
+    std::shared_ptr<std::fstream> input_stream_;
+    uint32_t block_size_;
+    std::shared_ptr<modernapi::UserPolicy> user_policy_;
 
-    std::shared_ptr<std::fstream> m_inputWrapperStream;
-    std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator;
-    std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
+    std::shared_ptr<std::fstream> input_wrapper_stream_;
+    std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_;
+    std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_creator_;
 };
 
 /**
@@ -190,14 +190,14 @@ private:
     std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
 
     //for decryption
-    std::shared_ptr<std::stringstream> m_dataToDecrypted;
-    uint32_t m_objnum;
+    std::shared_ptr<std::stringstream> data_to_be_decrypted_;
+    uint32_t obj_num_;
 
     //for encryption
-    bool m_bProgressiveStart;
-    std::shared_ptr<std::iostream> m_outputIOS;
-    rmscrypto::api::SharedStream m_outputSharedStream;
-    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> m_sharedProtectedStream;
+    bool progressive_start_;
+    std::shared_ptr<std::iostream> output_IOS_;
+    rmscrypto::api::SharedStream output_shared_stream_;
+    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> shared_protected_stream_;
 };
 
 /**
@@ -214,16 +214,16 @@ public:
                          std::shared_ptr<std::atomic<bool>> cancelState);
     virtual ~PDFSecurityHandler_child();
 
-    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
+    virtual bool OnInit(unsigned char* publishing_license, uint32_t publishing_license_size);
 
     virtual std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> CreateCryptoHandler();
 
 private:
     std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
-    std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> m_pCryptoHandler;
-    UserContext m_userContext;
-    UnprotectOptions m_options;
-    std::shared_ptr<std::atomic<bool>> m_cancelState;
+    std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> crypto_handler_;
+    UserContext user_context_;
+    UnprotectOptions options_;
+    std::shared_ptr<std::atomic<bool>> cancel_state_;
 };
 
 } // namespace fileapi

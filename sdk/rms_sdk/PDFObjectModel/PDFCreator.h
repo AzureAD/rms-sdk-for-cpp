@@ -77,7 +77,7 @@ public:
 
  private:
     CFX_WideString m_wsTempPath;
-    CustomCryptoHandler* m_pCryptoHandler;
+    CustomCryptoHandler* crypto_handler_;
     FX_DWORD m_dwObjNum;
     FX_DWORD m_dwVersion;
 };
@@ -123,14 +123,14 @@ public:
 	virtual ~PDFCreatorImpl();
 
     virtual uint32_t CreateCustomEncryptedFile(const std::string& inputFilePath,
-            const std::string& filterName,
-            const std::vector<unsigned char>& publishingLicense,
-            std::shared_ptr<PDFCryptoHandler> cryptoHander,
+            const std::string& filter_name,
+            const std::vector<unsigned char>& publishing_license,
+            std::shared_ptr<PDFCryptoHandler> crypto_hander,
             rmscrypto::api::SharedStream outputIOS);
 
     virtual uint32_t UnprotectCustomEncryptedFile(rmscrypto::api::SharedStream inputIOS,
-            const std::string& filterName,
-            std::shared_ptr<PDFSecurityHandler> securityHander,
+            const std::string& filter_name,
+            std::shared_ptr<PDFSecurityHandler> security_hander,
             rmscrypto::api::SharedStream outputIOS);
 protected:
     //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
@@ -141,10 +141,10 @@ protected:
     uint32_t ParsePDFFile(CPDF_Parser* pPDFParser);
     uint32_t CreatePDFFile(CPDF_Parser* pPDFParser,
                            CPDF_Dictionary *pEncryptionDic,
-                           std::shared_ptr<PDFCryptoHandler> cryptoHander,
+                           std::shared_ptr<PDFCryptoHandler> crypto_hander,
                            rmscrypto::api::SharedStream outputIOS);
 
-    CPDF_Dictionary* CreateEncryptionDict(const std::string& filterName, const std::vector<unsigned char>& publishingLicense);
+    CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name, const std::vector<unsigned char>& publishing_license);
     uint32_t ConvertParsingErrCode(FX_DWORD parseResult);
 private:
     std::string m_filePath;

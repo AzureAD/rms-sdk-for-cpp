@@ -13,7 +13,7 @@ public:
     virtual ~CPDF_DecryptFilter();
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
     virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf);
-    CPDF_CryptoHandler*	m_pCryptoHandler;
+    CPDF_CryptoHandler*	crypto_handler_;
     FX_LPVOID		m_pContext;
     FX_DWORD		m_ObjNum, m_GenNum;
 };

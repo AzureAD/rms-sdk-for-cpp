@@ -32,7 +32,7 @@ namespace rmscore {
 namespace fileapi {
 
 MetroOfficeProtector::MetroOfficeProtector(std::shared_ptr<std::fstream> inputStream)
-    : m_inputStream(inputStream)
+    : input_stream_(inputStream)
 {    
 }
 
@@ -62,7 +62,7 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
-    m_userPolicy = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
+    user_policy_ = modernapi::UserPolicy::CreateFromTemplateDescriptor(options.templateDescriptor,
                                                                        userContext.userId,
                                                                        userContext.authenticationCallback,
                                                                        userPolicyCreationOptions,
@@ -73,9 +73,9 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
     Protect(outputStream);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
-                true, m_userPolicy->DoesUseDeprecatedAlgorithms());
-    auto publishingLicense = m_userPolicy->SerializedPolicy();
-    dataSpaces->WriteDataspaces(m_storage, publishingLicense);
+                true, user_policy_->DoesUseDeprecatedAlgorithms());
+    auto publishing_license = user_policy_->SerializedPolicy();
+    dataSpaces->WriteDataspaces(m_storage, publishing_license);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithTemplate");
 }
 
@@ -101,7 +101,7 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
 
     auto userPolicyCreationOptions = ConvertToUserPolicyCreationOptions(
                 options.allowAuditedExtraction, options.cryptoOptions);
-    m_userPolicy = modernapi::UserPolicy::Create(
+    user_policy_ = modernapi::UserPolicy::Create(
                 const_cast<modernapi::PolicyDescriptor&>(options.policyDescriptor),
                 userContext.userId,
                 userContext.authenticationCallback,
@@ -111,9 +111,9 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
     m_storage->open(true, true);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
-                true, m_userPolicy->DoesUseDeprecatedAlgorithms());
-    auto publishingLicense = m_userPolicy->SerializedPolicy();
-    dataSpaces->WriteDataspaces(m_storage, publishingLicense);
+                true, user_policy_->DoesUseDeprecatedAlgorithms());
+    auto publishing_license = user_policy_->SerializedPolicy();
+    dataSpaces->WriteDataspaces(m_storage, publishing_license);
     Protect(outputStream);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
 }
@@ -133,7 +133,7 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
     std::shared_ptr<rmscore::pole::Storage> storage;
     try
     {
-        storage = std::make_shared<rmscore::pole::Storage>(m_inputStream);
+        storage = std::make_shared<rmscore::pole::Storage>(input_stream_);
         storage->open();
     }
     catch(std::exception&)
@@ -144,11 +144,11 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
-    ByteArray publishingLicense;
+    ByteArray publishing_license;
     try
     {
         auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true, true);
-        dataSpaces->ReadDataspaces(storage, publishingLicense);
+        dataSpaces->ReadDataspaces(storage, publishing_license);
     }
     catch (exceptions::RMSException&)
     {
@@ -166,7 +166,7 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
                                                                modernapi::RESPONSE_CACHE_ONDISK |
                                                                modernapi::RESPONSE_CACHE_CRYPTED);
     }
-    auto policyRequest = modernapi::UserPolicy::Acquire(publishingLicense,
+    auto policyRequest = modernapi::UserPolicy::Acquire(publishing_license,
                                                         userContext.userId,
                                                         userContext.authenticationCallback,
                                                         &userContext.consentCallback,
@@ -181,14 +181,14 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
     }
 
-    m_userPolicy = policyRequest->Policy;
-    if (m_userPolicy.get() == nullptr)
+    user_policy_ = policyRequest->Policy;
+    if (user_policy_.get() == nullptr)
     {
         Logger::Error("User Policy acquisition failed");
         throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
     }
 
-    if (!m_userPolicy->DoesUseDeprecatedAlgorithms())
+    if (!user_policy_->DoesUseDeprecatedAlgorithms())
     {
         throw exceptions::RMSLogicException(exceptions::RMSException::ErrorTypes::NotSupported,
                                             "CBC Decryption with Office files is not yet supported");
@@ -217,11 +217,11 @@ bool MetroOfficeProtector::IsProtected() const
 
     try
     {
-      auto storage = std::make_shared<rmscore::pole::Storage>(m_inputStream);
+      auto storage = std::make_shared<rmscore::pole::Storage>(input_stream_);
       storage->open();
       auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(true);
-      ByteArray publishingLicense;
-      dataSpaces->ReadDataspaces(storage, publishingLicense);
+      ByteArray publishing_license;
+      dataSpaces->ReadDataspaces(storage, publishing_license);
     }
     catch (exceptions::RMSException& e)
     {
@@ -244,7 +244,7 @@ bool MetroOfficeProtector::IsProtected() const
 
 void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
 {
-    if (m_userPolicy.get() == nullptr)
+    if (user_policy_.get() == nullptr)
     {
         Logger::Error("User Policy creation failed");
         throw exceptions::RMSInvalidArgumentException("User Policy creation failed.");
@@ -252,13 +252,13 @@ void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& outputSt
 
     std::shared_ptr<pole::Stream> metroStream = std::make_shared<pole::Stream>(m_storage.get(),
                                                                                metroContent, true);
-    m_inputStream->seekg(0, std::ios::end);
-    uint64_t originalFileSize = m_inputStream->tellg();
+    input_stream_->seekg(0, std::ios::end);
+    uint64_t originalFileSize = input_stream_->tellg();
     WriteStreamHeader(metroStream, originalFileSize);
-    m_inputStream->seekg(0);
+    input_stream_->seekg(0);
 
-    EncryptStream(m_inputStream, metroStream,
-                  m_userPolicy->GetImpl()->GetCryptoProvider()->GetCipherTextSize(originalFileSize));
+    EncryptStream(input_stream_, metroStream,
+                  user_policy_->GetImpl()->GetCryptoProvider()->GetCipherTextSize(originalFileSize));
 }
 
 std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> MetroOfficeProtector::CreateProtectedStream(
@@ -279,31 +279,31 @@ void MetroOfficeProtector::EncryptStream(const std::shared_ptr<std::fstream>& st
                                          const std::shared_ptr<pole::Stream>& metroStream,
                                          uint64_t originalFileSize)
 {
-    auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
-    m_blockSize = cryptoProvider->GetBlockSize();
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
-    uint64_t readPosition  = 0;
-    bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
-    uint64_t totalSize = isECB? ((originalFileSize + m_blockSize - 1) & ~(m_blockSize - 1)) :
+    auto cryptoProvider = user_policy_->GetImpl()->GetCryptoProvider();
+    block_size_ = cryptoProvider->GetBlockSize();
+    uint64_t buf_size_temp = 4096;    //should be a multiple of AES block size (16)
+    std::vector<uint8_t> buffer(buf_size_temp);
+    uint64_t read_position  = 0;
+    bool isECB = user_policy_->DoesUseDeprecatedAlgorithms();
+    uint64_t total_size = isECB? ((originalFileSize + block_size_ - 1) & ~(block_size_ - 1)) :
                                 originalFileSize;
     uint64_t len = 0;
-    while(totalSize - readPosition > 0)
+    while(total_size - read_position > 0)
     {
-        uint64_t offsetRead  = readPosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
-        readPosition  += toProcess;
+        uint64_t offset_read  = read_position;
+        uint64_t to_process   = std::min(buf_size_temp, total_size - read_position);
+        read_position  += to_process;
 
         auto sstream = std::make_shared<std::stringstream>();
         std::shared_ptr<std::iostream> iosstream = sstream;
         auto sharedStringStream = rmscrypto::api::CreateStreamFromStdStream(iosstream);
         auto pStream = CreateProtectedStream(sharedStringStream, 0, cryptoProvider);
 
-        stdStream->seekg(offsetRead);
-        stdStream->read(reinterpret_cast<char *>(&buffer[0]), toProcess);
+        stdStream->seekg(offset_read);
+        stdStream->read(reinterpret_cast<char *>(&buffer[0]), to_process);
 
         auto written = pStream->WriteAsync(
-                    buffer.data(), toProcess, 0, std::launch::deferred).get();
+                    buffer.data(), to_process, 0, std::launch::deferred).get();
 
         pStream->FlushAsync(std::launch::deferred).get();
 
@@ -320,24 +320,24 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::iostream>& s
                                          const std::shared_ptr<pole::Stream>& metroStream,
                                          uint64_t originalFileSize)
 {
-    auto cryptoProvider = m_userPolicy->GetImpl()->GetCryptoProvider();
-    m_blockSize = cryptoProvider->GetBlockSize();
-    uint64_t bufSize = 4096;    //should be a multiple of AES block size (16)
-    std::vector<uint8_t> buffer(bufSize);
-    uint64_t readPosition  = 0;
-    uint64_t writePosition = 0;
-    //bool isECB = m_userPolicy->DoesUseDeprecatedAlgorithms();
-    uint64_t totalSize = metroStream->size() - sizeof(uint64_t);
+    auto cryptoProvider = user_policy_->GetImpl()->GetCryptoProvider();
+    block_size_ = cryptoProvider->GetBlockSize();
+    uint64_t buf_size_temp = 4096;    //should be a multiple of AES block size (16)
+    std::vector<uint8_t> buffer(buf_size_temp);
+    uint64_t read_position  = 0;
+    uint64_t write_position = 0;
+    //bool isECB = user_policy_->DoesUseDeprecatedAlgorithms();
+    uint64_t total_size = metroStream->size() - sizeof(uint64_t);
 
-    while(totalSize - readPosition > 0)
+    while(total_size - read_position > 0)
     {
-        uint64_t offsetWrite = writePosition;
-        uint64_t toProcess   = std::min(bufSize, totalSize - readPosition);
-        uint64_t originalRemaining = std::min(bufSize, originalFileSize - readPosition);
-        readPosition  += toProcess;
-        writePosition += toProcess;
+        uint64_t offset_write = write_position;
+        uint64_t to_process   = std::min(buf_size_temp, total_size - read_position);
+        uint64_t original_remaining = std::min(buf_size_temp, originalFileSize - read_position);
+        read_position  += to_process;
+        write_position += to_process;
 
-        auto read = metroStream->read(&buffer[0], toProcess);
+        auto read = metroStream->read(&buffer[0], to_process);
         if (read == 0)
         {
           break;
@@ -353,8 +353,8 @@ void MetroOfficeProtector::DecryptStream(const std::shared_ptr<std::iostream>& s
 
         read = pStream->ReadAsync(&buffer[0], read, 0, std::launch::deferred).get();
 
-        stdStream->seekg(offsetWrite);
-        stdStream->write(reinterpret_cast<const char *>(buffer.data()), originalRemaining);
+        stdStream->seekg(offset_write);
+        stdStream->write(reinterpret_cast<const char *>(buffer.data()), original_remaining);
     }
     stdStream->flush();
 }

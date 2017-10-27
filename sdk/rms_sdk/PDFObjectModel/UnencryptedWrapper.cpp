@@ -9,8 +9,8 @@ namespace pdfobjectmodel {
 
 std::unique_ptr<PDFWrapperDoc> PDFWrapperDoc::Create(rmscrypto::api::SharedStream inputStream)
 {
-    std::unique_ptr<PDFWrapperDoc> pdfWrapperDoc(new PDFWrapperDocImpl(inputStream));
-    return pdfWrapperDoc;
+    std::unique_ptr<PDFWrapperDoc> pdf_wrapper_doc(new PDFWrapperDocImpl(inputStream));
+    return pdf_wrapper_doc;
 }
 
 PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapperDocStream)
@@ -74,10 +74,10 @@ uint32_t PDFWrapperDocImpl::GetWrapperType() const
     return m_wrapperType;
 }
 
-bool PDFWrapperDocImpl::GetCryptographicFilter(std::wstring& wsGraphicFilter, float &fVersion) const
+bool PDFWrapperDocImpl::GetCryptographicFilter(std::wstring& graphic_filter, float &version_num) const
 {
-    wsGraphicFilter = m_wsGraphicFilter;
-    fVersion = m_fVersion;
+    graphic_filter = m_wsGraphicFilter;
+    version_num = m_fVersion;
     return true;
 }
 
@@ -96,9 +96,9 @@ bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream outputStrea
 {
     if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV1)
     {
-        uint8_t* pBuf = new uint8_t[m_payloadSize];
-        m_wrapperFileStream->ReadBlock(pBuf, 0, m_payloadSize);
-        outputStream->Write(pBuf, m_payloadSize);
+        uint8_t* buffer_pointer_temp = new uint8_t[m_payloadSize];
+        m_wrapperFileStream->ReadBlock(buffer_pointer_temp, 0, m_payloadSize);
+        outputStream->Write(buffer_pointer_temp, m_payloadSize);
     }
     else if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV2)
     {
@@ -156,13 +156,13 @@ void PDFUnencryptedWrapperCreatorImpl::SetPayloadInfo(
         const std::wstring& wsSubType,
         const std::wstring& wsFileName,
         const std::wstring& wsDescription,
-        float fVersion)
+        float version_num)
 {
     if(!m_pPDFWrapper20Creator) return;
     CFX_WideString subType = wsSubType.c_str();
     CFX_WideString fileName = wsFileName.c_str();
     CFX_WideString description = wsDescription.c_str();
-    m_pPDFWrapper20Creator->SetPayloadInfo(subType, fileName, description, fVersion);
+    m_pPDFWrapper20Creator->SetPayloadInfo(subType, fileName, description, version_num);
 }
 
 void PDFUnencryptedWrapperCreatorImpl::SetPayLoad(rmscrypto::api::SharedStream inputStream)
