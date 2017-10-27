@@ -21,7 +21,7 @@ namespace pdfobjectmodel {
 class PDFWrapperDocImpl : public PDFWrapperDoc
 {
 public:
-    PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapperDocStream);
+    explicit PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapperDocStream);
     virtual ~PDFWrapperDocImpl();
 
 	virtual uint32_t GetWrapperType() const;
@@ -56,7 +56,7 @@ private:
 class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator
 {
 public:
-    PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapperDocStream);
+    explicit PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapperDocStream);
 	virtual ~PDFUnencryptedWrapperCreatorImpl();
 
     virtual void SetPayloadInfo(

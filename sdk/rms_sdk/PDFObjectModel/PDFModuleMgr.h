@@ -24,7 +24,7 @@ namespace pdfobjectmodel {
 class PDFModuleMgrImpl : public PDFModuleMgr
 {
 public:
-    PDFModuleMgrImpl();
+    explicit PDFModuleMgrImpl();
 
     static void RegisterSecurityHandler(const std::string& filterName, std::shared_ptr<PDFSecurityHandler> securityHander);
 

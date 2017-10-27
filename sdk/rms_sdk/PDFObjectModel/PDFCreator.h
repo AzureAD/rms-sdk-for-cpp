@@ -18,7 +18,7 @@ namespace pdfobjectmodel {
 class CustomCryptoHandler : public CPDF_CryptoHandler
 {
 public:
-    CustomCryptoHandler(std::shared_ptr<PDFCryptoHandler> pPDFCryptoHandler);
+    explicit CustomCryptoHandler(std::shared_ptr<PDFCryptoHandler> pPDFCryptoHandler);
 	virtual ~CustomCryptoHandler();
 
 public:
@@ -55,7 +55,7 @@ protected:
 class CustomProgressiveEncryptHandler : public CPDF_ProgressiveEncryptHandler
 {
 public:
-    CustomProgressiveEncryptHandler(CFX_WideString wsTempPath);
+    explicit CustomProgressiveEncryptHandler(CFX_WideString wsTempPath);
 
     virtual ~CustomProgressiveEncryptHandler();
 
@@ -91,7 +91,7 @@ public:
 class CustomSecurityHandler : public CPDF_SecurityHandler
 {
 public:
-    CustomSecurityHandler(std::shared_ptr<PDFSecurityHandler> pPDFSecHandler);
+    explicit CustomSecurityHandler(std::shared_ptr<PDFSecurityHandler> pPDFSecHandler);
 
     virtual ~CustomSecurityHandler();
 
@@ -119,7 +119,7 @@ private:
 class PDFCreatorImpl : public PDFCreator
 {
 public:
-	PDFCreatorImpl();
+    explicit PDFCreatorImpl();
 	virtual ~PDFCreatorImpl();
 
     virtual uint32_t CreateCustomEncryptedFile(const std::string& inputFilePath,

@@ -15,7 +15,7 @@ namespace pdfobjectmodel {
 class PDFBinaryBufImpl : public PDFBinaryBuf
 {
 public:
-    PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> pBinBuf);
+    explicit PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> pBinBuf);
 	virtual ~PDFBinaryBufImpl();
 
 	virtual bool AppendBlock(const void* pBuf, uint32_t size);
@@ -33,7 +33,7 @@ private:
 class FileStreamImpl : public IFX_FileStream
 {
 public:
-    FileStreamImpl(rmscrypto::api::SharedStream ioStream);
+    explicit FileStreamImpl(rmscrypto::api::SharedStream ioStream);
 	virtual ~FileStreamImpl();
 
 	virtual IFX_FileStream* Retain();
@@ -75,8 +75,8 @@ typedef unsigned int    INT;
  */
 
 namespace utility {
-static void UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End);
-static void UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length);
+void UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End);
+void UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length);
 }  // namespace utility
 
 } // namespace pdfobjectmodel

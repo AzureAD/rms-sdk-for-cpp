@@ -165,7 +165,7 @@ private:
 class PDFCryptoHandlerImpl : public pdfobjectmodel::PDFCryptoHandler
 {
 public:
-    PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
+    explicit PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pPDFProtector);
     virtual ~PDFCryptoHandlerImpl();
 
     virtual uint32_t DecryptGetSize(uint32_t src_size);

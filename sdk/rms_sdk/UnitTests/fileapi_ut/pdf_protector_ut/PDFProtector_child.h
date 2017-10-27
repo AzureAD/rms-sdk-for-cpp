@@ -165,7 +165,7 @@ private:
 class PDFCryptoHandler_child : public rmscore::pdfobjectmodel::PDFCryptoHandler
 {
 public:
-    PDFCryptoHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit);
+    explicit PDFCryptoHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit);
     virtual ~PDFCryptoHandler_child();
 
     virtual uint32_t DecryptGetSize(uint32_t src_size);
