@@ -54,7 +54,9 @@ void PDFCryptoHandlerImpl::DecryptStart(uint32_t objnum, uint32_t gennum)
     data_to_be_decrypted_ = std::make_shared<std::stringstream>();
 }
 
-bool PDFCryptoHandlerImpl::DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandlerImpl::DecryptStream(char* src_buf,
+                                         uint32_t src_size,
+                                         pdfobjectmodel::PDFBinaryBuf* dest_buf)
 {
     data_to_be_decrypted_->write(src_buf, src_size);
     return true;
@@ -104,7 +106,9 @@ bool PDFCryptoHandlerImpl::DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf)
     return true;
 }
 
-uint32_t PDFCryptoHandlerImpl::EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size)
+uint32_t PDFCryptoHandlerImpl::EncryptGetSize(uint32_t objnum,
+                                              uint32_t version,
+                                              char* src_buf, uint32_t src_size)
 {
     uint32_t encrypted_size = 0;
     encrypted_size = src_size;
@@ -115,7 +119,12 @@ uint32_t PDFCryptoHandlerImpl::EncryptGetSize(uint32_t objnum, uint32_t version,
     return encrypted_size;
 }
 
-bool PDFCryptoHandlerImpl::EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size)
+bool PDFCryptoHandlerImpl::EncryptContent(uint32_t objnum,
+                                          uint32_t version,
+                                          char* src_buf,
+                                          uint32_t src_size,
+                                          char* dest_buf,
+                                          uint32_t* dest_size)
 {
     if(!pdf_protector_) return false;
 
@@ -143,7 +152,9 @@ bool PDFCryptoHandlerImpl::EncryptContent(uint32_t objnum, uint32_t version, cha
     return true;
 }
 
-bool PDFCryptoHandlerImpl::ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size)
+bool PDFCryptoHandlerImpl::ProgressiveEncryptStart(uint32_t objnum,
+                                                   uint32_t version,
+                                                   uint32_t raw_size)
 {
     if (raw_size > MIN_RAW_SIZE)
     {
@@ -153,7 +164,11 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptStart(uint32_t objnum, uint32_t ver
     return false;
 }
 
-bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf)
+bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(uint32_t objnum,
+                                                     uint32_t version,
+                                                     char* src_buf,
+                                                     uint32_t src_size,
+                                                     pdfobjectmodel::PDFBinaryBuf* dest_buf)
 {
     uint64_t content_size_add_pre = 0;
     char* content_add_pre = nullptr;
@@ -217,9 +232,9 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf
 /// class PDFSecurityHandlerImpl
 
 PDFSecurityHandlerImpl::PDFSecurityHandlerImpl(std::shared_ptr<PDFProtector> pdf_protector,
-        const UserContext &usercontext,
-        const UnprotectOptions &options,
-        std::shared_ptr<std::atomic<bool> > cancelstate)
+                                               const UserContext &usercontext,
+                                               const UnprotectOptions &options,
+                                               std::shared_ptr<std::atomic<bool> > cancelstate)
     : user_context_(usercontext),
       options_(options),
       cancel_state_(cancelstate)
@@ -234,10 +249,12 @@ PDFSecurityHandlerImpl::~PDFSecurityHandlerImpl()
     crypto_handler_ = nullptr;
 }
 
-bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishing_license, uint32_t publishing_license_size)
+bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishing_license,
+                                    uint32_t publishing_license_size)
 {
     std::vector<uint8_t> vec_publishing_license(publishing_license_size);
-    memcpy(reinterpret_cast<uint8_t *>(&vec_publishing_license[0]), publishing_license, publishing_license_size);
+    memcpy(reinterpret_cast<uint8_t *>(&vec_publishing_license[0]),
+            publishing_license, publishing_license_size);
     //vec_publishing_license.push_back('\0');
 
     //testing code, save publishing license
@@ -405,7 +422,8 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& usercontext,
     std::shared_ptr<std::iostream> input_encrypted_IO = input_stream_;
     auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
 
-    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
+            pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
     uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
     uint32_t payload_size = pdf_wrapper_doc->GetPayLoadSize();
     std::wstring graphic_filter;
@@ -436,7 +454,10 @@ UnprotectResult PDFProtector::Unprotect(const UserContext& usercontext,
         pdf_protector = nullptr;
     });
 
-    auto security_hander = std::make_shared<PDFSecurityHandlerImpl>(shared_pdf_protector, usercontext, options, cancelstate);
+    auto security_hander = std::make_shared<PDFSecurityHandlerImpl>(shared_pdf_protector,
+                                                                    usercontext,
+                                                                    options,
+                                                                    cancelstate);
     uint32_t result = pdf_creator_->UnprotectCustomEncryptedFile(
                 output_payload,
                 filter_name,
@@ -461,7 +482,8 @@ bool PDFProtector::IsProtected() const
     std::shared_ptr<std::iostream> input_encrypted_IO = input_stream_;
     auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
 
-    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
+    std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
+            pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
     uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
     uint32_t payload_size = pdf_wrapper_doc->GetPayLoadSize();
     std::wstring graphic_filter;
@@ -542,7 +564,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream)
     }
 }
 
-std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PDFProtector::CreateProtectedStream(const rmscrypto::api::SharedStream& stream,
+std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> PDFProtector::CreateProtectedStream(
+        const rmscrypto::api::SharedStream& stream,
         uint64_t contentsize)
 {
     auto protectionPolicy = user_policy_->GetImpl();
@@ -645,7 +668,8 @@ void PDFProtector::DecryptStream(const rmscrypto::api::SharedStream& outputIOS,
     outputIOS->Flush();
 }
 
-modernapi::UserPolicyCreationOptions PDFProtector::ConvertToUserPolicyCreationOptions(const bool& allow_audited_extraction,
+modernapi::UserPolicyCreationOptions PDFProtector::ConvertToUserPolicyCreationOptions(
+        const bool& allow_audited_extraction,
         CryptoOptions crypto_options)
 {
     auto userPolicyCreationOptions = allow_audited_extraction ?

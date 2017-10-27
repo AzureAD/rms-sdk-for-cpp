@@ -172,17 +172,33 @@ public:
 
     virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
 
-    virtual bool DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
+    virtual bool DecryptStream(char* src_buf,
+                               uint32_t src_size,
+                               pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
     virtual bool DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
-    virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
+    virtual uint32_t EncryptGetSize(uint32_t objnum,
+                                    uint32_t version,
+                                    char* src_buf,
+                                    uint32_t src_size);
 
-    virtual bool EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size);
+    virtual bool EncryptContent(uint32_t objnum,
+                                uint32_t version,
+                                char* src_buf,
+                                uint32_t src_size,
+                                char* dest_buf,
+                                uint32_t* dest_size);
 
-    virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size);
+    virtual bool ProgressiveEncryptStart(uint32_t objnum,
+                                         uint32_t version,
+                                         uint32_t raw_size);
 
-    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
+    virtual bool ProgressiveEncryptContent(uint32_t objnum,
+                                           uint32_t version,
+                                           char* src_buf,
+                                           uint32_t src_size,
+                                           pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
     virtual bool ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
 
@@ -214,7 +230,8 @@ public:
                          std::shared_ptr<std::atomic<bool>> cancelstate);
     virtual ~PDFSecurityHandlerImpl();
 
-    virtual bool OnInit(unsigned char* publishing_license, uint32_t publishing_license_size);
+    virtual bool OnInit(unsigned char* publishing_license,
+                        uint32_t publishing_license_size);
 
     virtual std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> CreateCryptoHandler();
 

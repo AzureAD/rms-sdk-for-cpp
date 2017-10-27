@@ -21,7 +21,8 @@ CustomCryptoHandler::~CustomCryptoHandler()
     pdf_crypto_handler_ = nullptr;
 }
 
-FX_BOOL CustomCryptoHandler::Init(CPDF_Dictionary* encryption_dictionary, CPDF_SecurityHandler* security_handler)
+FX_BOOL CustomCryptoHandler::Init(CPDF_Dictionary* encryption_dictionary,
+                                  CPDF_SecurityHandler* security_handler)
 {
 	return true;
 }
@@ -78,7 +79,10 @@ FX_BOOL CustomCryptoHandler::DecryptFinish(FX_LPVOID context,
     return false;
 }
 
-FX_DWORD CustomCryptoHandler::EncryptGetSize(FX_DWORD objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size)
+FX_DWORD CustomCryptoHandler::EncryptGetSize(FX_DWORD objnum,
+                                             FX_DWORD version,
+                                             FX_LPCBYTE src_buf,
+                                             FX_DWORD src_size)
 {
     if(pdf_crypto_handler_)
     {
@@ -87,17 +91,29 @@ FX_DWORD CustomCryptoHandler::EncryptGetSize(FX_DWORD objnum, FX_DWORD version, 
 	return 0;
 }
 
-FX_BOOL CustomCryptoHandler::EncryptContent(FX_DWORD objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size,
-	FX_LPBYTE dest_buf, FX_DWORD& dest_size)
+FX_BOOL CustomCryptoHandler::EncryptContent(FX_DWORD objnum,
+                                            FX_DWORD version,
+                                            FX_LPCBYTE src_buf,
+                                            FX_DWORD src_size,
+                                            FX_LPBYTE dest_buf,
+                                            FX_DWORD& dest_size)
 {
     if(pdf_crypto_handler_)
     {
-        return pdf_crypto_handler_->EncryptContent(objnum, version, (char*)src_buf, src_size, (char*)dest_buf, (uint32_t*)(&dest_size));
+        return pdf_crypto_handler_->EncryptContent(objnum,
+                                                   version,
+                                                   (char*)src_buf,
+                                                   src_size,
+                                                   (char*)dest_buf,
+                                                   (uint32_t*)(&dest_size));
     }
     return false;
 }
 
-FX_BOOL CustomCryptoHandler::ProgressiveEncryptStart(FX_DWORD objnum, FX_DWORD version, FX_DWORD raw_size, FX_BOOL flate_encode)
+FX_BOOL CustomCryptoHandler::ProgressiveEncryptStart(FX_DWORD objnum,
+                                                     FX_DWORD version,
+                                                     FX_DWORD raw_size,
+                                                     FX_BOOL flate_encode)
 {
     if(pdf_crypto_handler_)
     {
@@ -106,7 +122,11 @@ FX_BOOL CustomCryptoHandler::ProgressiveEncryptStart(FX_DWORD objnum, FX_DWORD v
     return false;
 }
 
-FX_BOOL CustomCryptoHandler::ProgressiveEncryptContent(FX_INT32 objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size, CFX_BinaryBuf& dest_buf)
+FX_BOOL CustomCryptoHandler::ProgressiveEncryptContent(FX_INT32 objnum,
+                                                       FX_DWORD version,
+                                                       FX_LPCBYTE src_buf,
+                                                       FX_DWORD src_size,
+                                                       CFX_BinaryBuf& dest_buf)
 {
     if(pdf_crypto_handler_)
     {
@@ -115,7 +135,10 @@ FX_BOOL CustomCryptoHandler::ProgressiveEncryptContent(FX_INT32 objnum, FX_DWORD
             pDestBuf = nullptr;
         });
         PDFBinaryBufImpl bin_buf(shared_dest_buf);
-        return pdf_crypto_handler_->ProgressiveEncryptContent(objnum, version, (char*)src_buf, src_size, &bin_buf);
+        return pdf_crypto_handler_->ProgressiveEncryptContent(objnum,
+                                                              version,
+                                                              (char*)src_buf,
+                                                              src_size, &bin_buf);
     }
 
     return false;
@@ -183,7 +206,10 @@ FX_BOOL CustomProgressiveEncryptHandler::SetCryptoHandler(CPDF_CryptoHandler* cr
 }
 
 
-FX_DWORD CustomProgressiveEncryptHandler::EncryptGetSize(FX_DWORD objnum, FX_DWORD gennum, FX_LPCBYTE src_buf, FX_DWORD src_size)
+FX_DWORD CustomProgressiveEncryptHandler::EncryptGetSize(FX_DWORD objnum,
+                                                         FX_DWORD gennum,
+                                                         FX_LPCBYTE src_buf,
+                                                         FX_DWORD src_size)
 {
     FX_DWORD encrypted_size = 0;
     if(crypto_handler_)
@@ -194,14 +220,20 @@ FX_DWORD CustomProgressiveEncryptHandler::EncryptGetSize(FX_DWORD objnum, FX_DWO
 }
 
 
-FX_LPVOID CustomProgressiveEncryptHandler::EncryptStart(FX_DWORD objnum, FX_DWORD gennum, FX_DWORD raw_size, FX_BOOL flate_encode)
+FX_LPVOID CustomProgressiveEncryptHandler::EncryptStart(FX_DWORD objnum,
+                                                        FX_DWORD gennum,
+                                                        FX_DWORD raw_size,
+                                                        FX_BOOL flate_encode)
 {
     bool result = false;
     obj_number_ = objnum;
     version_number_ = gennum;
     if (crypto_handler_)
     {
-        result = crypto_handler_->ProgressiveEncryptStart(obj_number_, version_number_, raw_size, flate_encode);
+        result = crypto_handler_->ProgressiveEncryptStart(obj_number_,
+                                                          version_number_,
+                                                          raw_size,
+                                                          flate_encode);
     }
 
     if (result)
@@ -213,12 +245,19 @@ FX_LPVOID CustomProgressiveEncryptHandler::EncryptStart(FX_DWORD objnum, FX_DWOR
 }
 
 
-FX_BOOL CustomProgressiveEncryptHandler::EncryptStream(FX_LPVOID context, FX_LPCBYTE src_buf, FX_DWORD src_size, IFX_FileStream* dest_file_stream)
+FX_BOOL CustomProgressiveEncryptHandler::EncryptStream(FX_LPVOID context,
+                                                       FX_LPCBYTE src_buf,
+                                                       FX_DWORD src_size,
+                                                       IFX_FileStream* dest_file_stream)
 {
     if (crypto_handler_)
     {
         CFX_BinaryBuf dest_buf;
-        FX_BOOL result = crypto_handler_->ProgressiveEncryptContent(obj_number_, version_number_, src_buf, src_size, dest_buf);
+        FX_BOOL result = crypto_handler_->ProgressiveEncryptContent(obj_number_,
+                                                                    version_number_,
+                                                                    src_buf,
+                                                                    src_size,
+                                                                    dest_buf);
         if (result)
         {
             result = dest_file_stream->WriteBlock(dest_buf.GetBuffer(), dest_buf.GetSize());
@@ -229,7 +268,8 @@ FX_BOOL CustomProgressiveEncryptHandler::EncryptStream(FX_LPVOID context, FX_LPC
 }
 
 
-FX_BOOL CustomProgressiveEncryptHandler::EncryptFinish(FX_LPVOID context, IFX_FileStream* dest_file_stream)
+FX_BOOL CustomProgressiveEncryptHandler::EncryptFinish(FX_LPVOID context,
+                                                       IFX_FileStream* dest_file_stream)
 {
     FX_BOOL result = false;
     if (crypto_handler_)
@@ -255,7 +295,8 @@ FX_BOOL CustomProgressiveEncryptHandler::UpdateFilter(CPDF_Dictionary* pdf_dicti
 //////////////////////////////////////////////////////////////////////////
 //class CustomSecurityHandler
 
-CustomSecurityHandler::CustomSecurityHandler(std::shared_ptr<PDFSecurityHandler> pdf_security_handler)
+CustomSecurityHandler::CustomSecurityHandler(
+        std::shared_ptr<PDFSecurityHandler> pdf_security_handler)
 {
     pdf_security_handler_ = pdf_security_handler;
     encrypt_metadata_ = true;
@@ -266,31 +307,36 @@ CustomSecurityHandler::~CustomSecurityHandler()
     pdf_security_handler_ = nullptr;
 }
 
-FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pdf_parser, CPDF_Dictionary* encryption_dictionary)
+FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pdf_parser,
+                                      CPDF_Dictionary* encryption_dictionary)
 {
     if (encryption_dictionary->KeyExist("EncryptMetadata"))
     {
         encrypt_metadata_ = encryption_dictionary->GetBoolean("EncryptMetadata");
     }
 
-    CFX_ByteString publishing_license_bytestring = encryption_dictionary->GetString("PublishingLicense");
+    CFX_ByteString publishing_license_bytestring =
+            encryption_dictionary->GetString("PublishingLicense");
 
     FX_INT32 irm_version = encryption_dictionary->GetInteger("MicrosoftIRMVersion");
     if(irm_version <= 1)
     {
         CFX_ByteString publishing_license_decoded_bytestring;
         CFX_Base64Decoder base64_decoder;
-        uint32_t length_decoded = base64_decoder.Decode(publishing_license_bytestring, publishing_license_decoded_bytestring);
+        uint32_t length_decoded = base64_decoder.Decode(publishing_license_bytestring,
+                                                        publishing_license_decoded_bytestring);
 
         FX_LPBYTE dest_buf = nullptr;
         FX_DWORD dest_size = 0;
-        FlateDecode((FX_LPCBYTE)publishing_license_decoded_bytestring, length_decoded, dest_buf, dest_size);
+        FlateDecode((FX_LPCBYTE)publishing_license_decoded_bytestring,
+                    length_decoded, dest_buf, dest_size);
 
         publishing_license_bytestring.Empty();
         if (dest_buf[0] == 0xef && dest_buf[1] == 0xbb && dest_buf[2] == 0xbf)
         {
             publishing_license_bytestring.Load(dest_buf, dest_size);
-            CFX_WideString publishing_license_widestring = publishing_license_bytestring.UTF8Decode();
+            CFX_WideString publishing_license_widestring =
+                    publishing_license_bytestring.UTF8Decode();
 
             CFX_ByteString publishing_license_temp;
             uint8_t size_of_wchar = sizeof(wchar_t);
@@ -308,10 +354,13 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pdf_parser, CPDF_Dictionary* 
             }
             else
             {
-                publishing_license_temp.Load(((FX_LPCBYTE)(FX_LPCWSTR)publishing_license_widestring), publishing_license_widestring.GetLength() * sizeof(wchar_t));
+                publishing_license_temp.Load(
+                            ((FX_LPCBYTE)(FX_LPCWSTR)publishing_license_widestring),
+                            publishing_license_widestring.GetLength() * sizeof(wchar_t));
             }
 
-            if(publishing_license_temp.GetAt(0) == 0xff && publishing_license_temp.GetAt(1) == 0xfe)
+            if(publishing_license_temp.GetAt(0) ==
+                    0xff && publishing_license_temp.GetAt(1) == 0xfe)
             {
                 publishing_license_temp.Delete(0, 2);
             }
@@ -593,7 +642,9 @@ uint32_t PDFCreatorImpl::ConvertParsingErrCode(FX_DWORD parse_result)
     return result;
 }
 
-CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(const std::string& filter_name, const std::vector<unsigned char> &publishing_license)
+CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(
+        const std::string& filter_name,
+        const std::vector<unsigned char> &publishing_license)
 {
     CPDF_Dictionary* encryption_dictionary = new CPDF_Dictionary;
 
@@ -616,14 +667,19 @@ CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(const std::string& filter_
     encryption_dictionary->SetAtInteger("V", 4);
     encryption_dictionary->SetAtBoolean("EncryptMetadata", true);
 
-    const char* publishing_license_buffer = reinterpret_cast<const char*>(&(*publishing_license.begin()));
+    const char* publishing_license_buffer =
+            reinterpret_cast<const char*>(&(*publishing_license.begin()));
     uint32_t publishing_license_size = publishing_license.size();
-    CFX_ByteString publishing_license_bytestring(publishing_license_buffer, publishing_license_size);
+    CFX_ByteString publishing_license_bytestring(publishing_license_buffer,
+                                                 publishing_license_size);
     encryption_dictionary->SetAtString("PublishingLicense", publishing_license_bytestring);
     return encryption_dictionary;
 }
 
-uint32_t PDFCreatorImpl::CreatePDFFile(CPDF_Parser *pdf_parser, CPDF_Dictionary* encryption_dictionary, std::shared_ptr<PDFCryptoHandler> crypto_hander, rmscrypto::api::SharedStream outputIOS)
+uint32_t PDFCreatorImpl::CreatePDFFile(CPDF_Parser *pdf_parser,
+                                       CPDF_Dictionary* encryption_dictionary,
+                                       std::shared_ptr<PDFCryptoHandler> crypto_hander,
+                                       rmscrypto::api::SharedStream outputIOS)
 {
     uint32_t result = PDFCREATOR_ERR_SUCCESS;
 

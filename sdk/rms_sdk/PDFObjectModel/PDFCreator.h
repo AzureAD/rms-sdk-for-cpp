@@ -22,24 +22,41 @@ public:
 	virtual ~CustomCryptoHandler();
 
 public:
-    virtual FX_BOOL		Init(CPDF_Dictionary* encryption_dictionary, CPDF_SecurityHandler* security_handler);
+    virtual FX_BOOL		Init(CPDF_Dictionary* encryption_dictionary,
+                             CPDF_SecurityHandler* security_handler);
 
 	virtual FX_DWORD	DecryptGetSize(FX_DWORD src_size);
 
 	virtual FX_LPVOID	DecryptStart(FX_DWORD objnum, FX_DWORD gennum);
 
-	virtual FX_BOOL		DecryptStream(FX_LPVOID context, FX_LPCBYTE src_buf, FX_DWORD src_size, CFX_BinaryBuf& dest_buf);
+    virtual FX_BOOL		DecryptStream(FX_LPVOID context,
+                                      FX_LPCBYTE src_buf,
+                                      FX_DWORD src_size,
+                                      CFX_BinaryBuf& dest_buf);
 
 	virtual FX_BOOL		DecryptFinish(FX_LPVOID context, CFX_BinaryBuf& dest_buf);
 
-	virtual FX_DWORD	EncryptGetSize(FX_DWORD objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size);
+    virtual FX_DWORD	EncryptGetSize(FX_DWORD objnum,
+                                       FX_DWORD version,
+                                       FX_LPCBYTE src_buf,
+                                       FX_DWORD src_size);
 
-	virtual FX_BOOL		EncryptContent(FX_DWORD objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size,
+    virtual FX_BOOL		EncryptContent(FX_DWORD objnum,
+                                       FX_DWORD version,
+                                       FX_LPCBYTE src_buf,
+                                       FX_DWORD src_size,
 		FX_LPBYTE dest_buf, FX_DWORD& dest_size);
 
-    virtual FX_BOOL		ProgressiveEncryptStart(FX_DWORD objnum, FX_DWORD version, FX_DWORD raw_size, FX_BOOL flate_encode);
+    virtual FX_BOOL		ProgressiveEncryptStart(FX_DWORD objnum,
+                                                FX_DWORD version,
+                                                FX_DWORD raw_size,
+                                                FX_BOOL flate_encode);
 
-	virtual FX_BOOL     ProgressiveEncryptContent(FX_INT32 objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size, CFX_BinaryBuf& dest_buf);
+    virtual FX_BOOL     ProgressiveEncryptContent(FX_INT32 objnum,
+                                                  FX_DWORD version,
+                                                  FX_LPCBYTE src_buf,
+                                                  FX_DWORD src_size,
+                                                  CFX_BinaryBuf& dest_buf);
 
 	virtual FX_BOOL     ProgressiveEncryptFinish(CFX_BinaryBuf& dest_buf);
 
@@ -65,13 +82,23 @@ public:
 
     virtual FX_BOOL SetCryptoHandler(CPDF_CryptoHandler* crypto_handler);
 
-    virtual FX_DWORD EncryptGetSize(FX_DWORD objnum, FX_DWORD gennum, FX_LPCBYTE src_buf, FX_DWORD src_size);
+    virtual FX_DWORD EncryptGetSize(FX_DWORD objnum,
+                                    FX_DWORD gennum,
+                                    FX_LPCBYTE src_buf,
+                                    FX_DWORD src_size);
 
-    virtual FX_LPVOID EncryptStart(FX_DWORD objnum, FX_DWORD gennum, FX_DWORD raw_size, FX_BOOL flate_encode);
+    virtual FX_LPVOID EncryptStart(FX_DWORD objnum,
+                                   FX_DWORD gennum,
+                                   FX_DWORD raw_size,
+                                   FX_BOOL flate_encode);
 
-    virtual FX_BOOL EncryptStream(FX_LPVOID context, FX_LPCBYTE src_buf, FX_DWORD src_size, IFX_FileStream* dest_file_stream);
+    virtual FX_BOOL EncryptStream(FX_LPVOID context,
+                                  FX_LPCBYTE src_buf,
+                                  FX_DWORD src_size,
+                                  IFX_FileStream* dest_file_stream);
 
-    virtual FX_BOOL EncryptFinish(FX_LPVOID context, IFX_FileStream* dest_file_stream);
+    virtual FX_BOOL EncryptFinish(FX_LPVOID context,
+                                  IFX_FileStream* dest_file_stream);
 
     virtual FX_BOOL UpdateFilter(CPDF_Dictionary* pdf_dictionary);
 
@@ -144,7 +171,8 @@ protected:
                            std::shared_ptr<PDFCryptoHandler> crypto_hander,
                            rmscrypto::api::SharedStream outputIOS);
 
-    CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name, const std::vector<unsigned char>& publishing_license);
+    CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name,
+                                          const std::vector<unsigned char>& publishing_license);
     uint32_t ConvertParsingErrCode(FX_DWORD parse_result);
 private:
     std::string file_path_;

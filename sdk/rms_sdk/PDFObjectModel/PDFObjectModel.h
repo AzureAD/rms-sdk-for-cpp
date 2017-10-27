@@ -196,7 +196,9 @@ public:
 
     virtual void DecryptStart(uint32_t objnum, uint32_t gennum) = 0;
 
-    virtual bool DecryptStream(char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf) = 0;
+    virtual bool DecryptStream(char* src_buf,
+                               uint32_t src_size,
+                               PDFBinaryBuf* dest_buf) = 0;
 
     virtual bool DecryptFinish(PDFBinaryBuf* dest_buf) = 0;
 
@@ -212,13 +214,27 @@ public:
      * The return value of ProgressiveEncryptStart determines which mode is adopted. If it returns
      * true, the progressive mode is adopted, otherwise the one time mode is adopted.
      */
-    virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size) = 0;
+    virtual uint32_t EncryptGetSize(uint32_t objnum,
+                                    uint32_t version,
+                                    char* src_buf,
+                                    uint32_t src_size) = 0;
 
-    virtual bool EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size) = 0;
+    virtual bool EncryptContent(uint32_t objnum,
+                                uint32_t version,
+                                char* src_buf,
+                                uint32_t src_size,
+                                char* dest_buf,
+                                uint32_t* dest_size) = 0;
 
-    virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size) = 0;
+    virtual bool ProgressiveEncryptStart(uint32_t objnum,
+                                         uint32_t version,
+                                         uint32_t raw_size) = 0;
 
-    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, PDFBinaryBuf* dest_buf) = 0;
+    virtual bool ProgressiveEncryptContent(uint32_t objnum,
+                                           uint32_t version,
+                                           char* src_buf,
+                                           uint32_t src_size,
+                                           PDFBinaryBuf* dest_buf) = 0;
 
     virtual bool ProgressiveEncryptFinish(PDFBinaryBuf* dest_buf) = 0;
 };
@@ -236,7 +252,8 @@ public:
      * @brief The PDF protector checks the publishing license validity here. If false
      * is returned, UnprotectCustomEncryptedFile will fail.
      */
-    virtual bool OnInit(unsigned char* publishing_license, uint32_t publishing_license_size) = 0;
+    virtual bool OnInit(unsigned char* publishing_license,
+                        uint32_t publishing_license_size) = 0;
 
     virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler() = 0;
 };

@@ -74,7 +74,8 @@ uint32_t PDFWrapperDocImpl::GetWrapperType() const
     return wrapper_type_;
 }
 
-bool PDFWrapperDocImpl::GetCryptographicFilter(std::wstring& graphic_filter, float &version_num) const
+bool PDFWrapperDocImpl::GetCryptographicFilter(std::wstring& graphic_filter,
+                                               float &version_num) const
 {
     graphic_filter = graphic_filter_;
     version_num = version_number_;
@@ -112,9 +113,11 @@ bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream output_stre
 
 //////////////////////////////////////////////////////////////////////////
 // class PDFUnencryptedWrapperCreatorImpl
-std::unique_ptr<PDFUnencryptedWrapperCreator> PDFUnencryptedWrapperCreator::Create(rmscrypto::api::SharedStream wrapper_doc_stream)
+std::unique_ptr<PDFUnencryptedWrapperCreator> PDFUnencryptedWrapperCreator::Create(
+        rmscrypto::api::SharedStream wrapper_doc_stream)
 {
-    std::unique_ptr<PDFUnencryptedWrapperCreator> pdfUnencryptedWrapperCreator(new PDFUnencryptedWrapperCreatorImpl(wrapper_doc_stream));
+    std::unique_ptr<PDFUnencryptedWrapperCreator> pdfUnencryptedWrapperCreator(
+                new PDFUnencryptedWrapperCreatorImpl(wrapper_doc_stream));
     return pdfUnencryptedWrapperCreator;
 }
 
