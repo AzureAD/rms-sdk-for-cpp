@@ -533,8 +533,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream)
 
     std::shared_ptr<std::iostream> outputIO = outputstream;
     auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-    bool bResult = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
-    if(!bResult)
+    bool result_create = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
+    if(!result_create)
     {
         logger::Logger::Error("Failed to create PDF IRM V2 file. The wrapper doc may be invalid.");
         throw exceptions::RMSInvalidArgumentException("Failed to create PDF IRM V2 file. The wrapper doc may be invalid.");

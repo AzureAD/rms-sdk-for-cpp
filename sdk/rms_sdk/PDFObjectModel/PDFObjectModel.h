@@ -76,11 +76,11 @@ class PDFWrapperDoc
 public:
     /**
      * @brief Creates the PDFWrapperDoc instance.
-     * @param[in] inputStream    The input wrapper document.
+     * @param[in] input_stream    The input wrapper document.
      * @return The PDFWrapperDoc instance.
      */
     DLL_PUBLIC_RMS
-    static std::unique_ptr<PDFWrapperDoc> Create(rmscrypto::api::SharedStream inputStream);
+    static std::unique_ptr<PDFWrapperDoc> Create(rmscrypto::api::SharedStream input_stream);
 
     /**
      * @brief Gets the wrapper type.
@@ -105,17 +105,17 @@ public:
 
     /**
      * @brief Gets the payload file name.
-     * @param[out] wsFileName  It receives the payload file name.
+     * @param[out] file_name  It receives the payload file name.
      * @return true for success, otherwise false.
      */
-    virtual bool GetPayloadFileName(std::wstring& wsFileName) const = 0;
+    virtual bool GetPayloadFileName(std::wstring& file_name) const = 0;
 
     /**
      * @brief Gets the payload content.
-     * @param[out] outputStream  It receives the payload content.
+     * @param[out] output_stream  It receives the payload content.
      * @return true for success, otherwise false.
      */
-    virtual bool StartGetPayload(rmscrypto::api::SharedStream outputStream) = 0;
+    virtual bool StartGetPayload(rmscrypto::api::SharedStream output_stream) = 0;
 
     virtual ~PDFWrapperDoc(){}
 
@@ -134,40 +134,40 @@ class PDFUnencryptedWrapperCreator
 public:
     /**
      * @brief Creates the PDFUnencryptedWrapperCreator instance.
-     * @param[in] wrapperDocStream    The input wrapper document.
+     * @param[in] wrapper_doc_stream    The input wrapper document.
      * @return The PDFUnencryptedWrapperCreator instance.
      */
     DLL_PUBLIC_RMS
     static std::unique_ptr<PDFUnencryptedWrapperCreator> Create(
-            rmscrypto::api::SharedStream wrapperDocStream);
+            rmscrypto::api::SharedStream wrapper_doc_stream);
 
     /**
      * @brief Sets the payload info.
-     * @param[in] wsSubType     The name of the cryptographic filter used to encrypt the encrypted payload document.
-     * @param[in] wsFileName    The file name for encrypted payload document.
-     * @param[in] wsDescription Description text for the embedded encrypted payload document.
-     * @param[in] version_num      The version number of the cryptographic filter.
+     * @param[in] sub_type     The name of the cryptographic filter used to encrypt the encrypted payload document.
+     * @param[in] file_name    The file name for encrypted payload document.
+     * @param[in] description  Description text for the embedded encrypted payload document.
+     * @param[in] version_num  The version number of the cryptographic filter.
      * @return void.
      */
     virtual void SetPayloadInfo(
-            const std::wstring& wsSubType,
-            const std::wstring& wsFileName,
-            const std::wstring& wsDescription,
+            const std::wstring& sub_type,
+            const std::wstring& file_name,
+            const std::wstring& description,
             float version_num) = 0;
 
     /**
      * @brief Sets the payload content.
-     * @param[in] inputStream   The input payload content.
+     * @param[in] input_stream   The input payload content.
      * @return void.
      */
-    virtual void SetPayLoad(rmscrypto::api::SharedStream inputStream) = 0;
+    virtual void SetPayLoad(rmscrypto::api::SharedStream input_stream) = 0;
 
     /**
      * @brief Writes the wrapper doc to a custom file access.
-     * @param[out] outputStream  It receives the wrapper doc.
+     * @param[out] output_stream  It receives the wrapper doc.
      * @return true for success, otherwise false.
      */
-    virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream outputStream) = 0;
+    virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream output_stream) = 0;
 
     virtual ~PDFUnencryptedWrapperCreator(){}
 
@@ -263,7 +263,7 @@ public:
     /**
      * @brief Creates custom encrypted PDF file(be opposed to standard encryption like
      * password encryption or certificate encryption).
-     * @param[in] inputFilePath     The input file path to be encrypted.
+     * @param[in] input_file_path     The input file path to be encrypted.
      * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
      * @param[in] publishing_license The publishing license stored in PDF file, according to "Microsoft IRM protection for PDF Spec-v2".
      * @param[in] crypto_hander      The crypto handler that is responsible for PDF data encryption.
@@ -271,7 +271,7 @@ public:
      * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
      */
     virtual uint32_t CreateCustomEncryptedFile(
-            const std::string& inputFilePath,
+            const std::string& input_file_path,
             const std::string& filter_name,
             const std::vector<unsigned char>& publishing_license,
             std::shared_ptr<PDFCryptoHandler> crypto_hander,

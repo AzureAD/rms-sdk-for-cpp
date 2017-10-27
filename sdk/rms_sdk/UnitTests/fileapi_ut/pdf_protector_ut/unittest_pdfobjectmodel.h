@@ -129,12 +129,12 @@ struct GetPayloadFileName_P{
     std::string ExceptionMess_)
     {
         fileIn = fileIn_;
-        wsFileName = wsFileName_;
+        file_name = wsFileName_;
         ret = ret_;
         ExceptionMess = ExceptionMess_;
     }
     std::string fileIn;
-    std::wstring wsFileName;
+    std::wstring file_name;
     bool ret;
     std::string ExceptionMess;
 };
@@ -174,16 +174,16 @@ struct SetPayloadInfo_P{
                      float fVersion_,
                      std::string ExceptionMess_)
     {
-        wsSubType = wsSubType_;
-        wsFileName= wsFileName_;
-        wsDescription = wsDescription_;
+        sub_type = wsSubType_;
+        file_name= wsFileName_;
+        description = wsDescription_;
         fileout = outfile_;
         version_num = fVersion_;
         ExceptionsMess = ExceptionMess_;
     }
-    std::wstring wsSubType;
-    std::wstring wsFileName;
-    std::wstring wsDescription;
+    std::wstring sub_type;
+    std::wstring file_name;
+    std::wstring description;
     std::string fileout;
     float version_num;
     std::string ExceptionsMess;

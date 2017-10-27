@@ -22,10 +22,10 @@ namespace rmscore {
 namespace fileapi {
 
 std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
-                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::shared_ptr<std::fstream> input_stream,
                                              std::string& outputFileName)
 {
-    if (!inputStream->is_open())
+    if (!input_stream->is_open())
     {
         throw exceptions::RMSInvalidArgumentException("The input stream is invalid");
     }
@@ -37,7 +37,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
     {
         case ProtectorType::OPC:
         {
-            std::unique_ptr<Protector> protector(new MetroOfficeProtector(inputStream));
+            std::unique_ptr<Protector> protector(new MetroOfficeProtector(input_stream));
             return protector;
         }
         break;
@@ -47,7 +47,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
         {
             std::unique_ptr<Protector> protector(new PFileProtector(
                                                       protectorSelector.GetFileExtension(),
-                                                      inputStream));
+                                                      input_stream));
             return protector;
         }
         break;
@@ -57,7 +57,7 @@ std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
             std::unique_ptr<Protector> protector(new PDFProtector(
                                                   filePath,
                                                   protectorSelector.GetFileExtension(),
-                                                  inputStream));
+                                                  input_stream));
             return protector;
         }
         break;
@@ -72,10 +72,10 @@ std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
 }
 
 std::unique_ptr<ProtectorWithWrapper> ProtectorWithWrapper::Create(const std::string& filePath,
-                                             std::shared_ptr<std::fstream> inputStream,
+                                             std::shared_ptr<std::fstream> input_stream,
                                              std::string& outputFileName)
 {
-    if (!inputStream->is_open())
+    if (!input_stream->is_open())
     {
         throw exceptions::RMSInvalidArgumentException("The input stream is invalid");
     }
@@ -90,7 +90,7 @@ std::unique_ptr<ProtectorWithWrapper> ProtectorWithWrapper::Create(const std::st
             std::unique_ptr<ProtectorWithWrapper> protector(new PDFProtector(
                                                   filePath,
                                                   protectorSelector.GetFileExtension(),
-                                                  inputStream));
+                                                  input_stream));
             return protector;
         }
         break;

@@ -21,7 +21,7 @@ namespace pdfobjectmodel {
 class PDFWrapperDocImpl : public PDFWrapperDoc
 {
 public:
-    explicit PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapperDocStream);
+    explicit PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapper_doc_stream);
     virtual ~PDFWrapperDocImpl();
 
 	virtual uint32_t GetWrapperType() const;
@@ -31,21 +31,21 @@ public:
 	virtual uint32_t GetPayLoadSize() const;
 
     //this is just for IRM V2.
-    virtual bool GetPayloadFileName(std::wstring& wsFileName) const;
+    virtual bool GetPayloadFileName(std::wstring& file_name) const;
 
-    virtual bool StartGetPayload(rmscrypto::api::SharedStream outputStream);
+    virtual bool StartGetPayload(rmscrypto::api::SharedStream output_stream);
 
 private:
-    std::shared_ptr<FileStreamImpl> m_wrapperFileStream;
-    CPDF_Parser m_pdfParser;
+    std::shared_ptr<FileStreamImpl> wrapper_file_stream_;
+    CPDF_Parser pdf_parser_;
     //this is just for IRM V2. we have to parse IRM V1 self.
-    std::shared_ptr<CPDF_WrapperDoc> m_wrapperDoc;
+    std::shared_ptr<CPDF_WrapperDoc> wrapper_doc_;
 
-    uint32_t m_wrapperType;
-    std::wstring m_wsGraphicFilter;
-    float m_fVersion;
-    uint32_t m_payloadSize;
-    std::wstring m_wsFileName;
+    uint32_t wrapper_type_;
+    std::wstring graphic_filter_;
+    float version_number_;
+    uint32_t payload_size_;
+    std::wstring file_name_;
 };
 
 /**
@@ -56,24 +56,24 @@ private:
 class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator
 {
 public:
-    explicit PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapperDocStream);
+    explicit PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapper_doc_stream);
 	virtual ~PDFUnencryptedWrapperCreatorImpl();
 
     virtual void SetPayloadInfo(
-            const std::wstring& wsSubType,
-            const std::wstring& wsFileName,
-            const std::wstring& wsDescription,
+            const std::wstring& sub_type,
+            const std::wstring& file_name,
+            const std::wstring& description,
             float version_num);
 
-    virtual void SetPayLoad(rmscrypto::api::SharedStream inputStream);
+    virtual void SetPayLoad(rmscrypto::api::SharedStream input_stream);
 
-    virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream outputStream);
+    virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream output_stream);
 
 private:
-    std::shared_ptr<FileStreamImpl> m_wrapperFileStream;
-    CPDF_Parser m_pdfParser;
-    IPDF_UnencryptedWrapperCreator* m_pPDFWrapper20Creator;
-    std::shared_ptr<FileStreamImpl> m_payloadFileStream;
+    std::shared_ptr<FileStreamImpl> wrapper_file_stream_;
+    CPDF_Parser pdf_parser_;
+    IPDF_UnencryptedWrapperCreator* pdf_wrapper_creator_;
+    std::shared_ptr<FileStreamImpl> payload_file_stream_;
 };
 
 } // namespace pdfobjectmodel

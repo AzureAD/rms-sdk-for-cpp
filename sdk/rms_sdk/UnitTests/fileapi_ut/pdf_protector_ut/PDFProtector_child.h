@@ -48,12 +48,12 @@ public:
      * We have to invoke pdfobjectmodel::PDFModuleMgr::Initialize to initialize the PDF object model first.
      * @param[in] originalFilePath      The input PDF file path to be protected.
      * @param[in] originalFileExtension The input file extension name.
-     * @param[in] inputStream           The protector will read the original PDF document data from the input file stream.
+     * @param[in] input_stream           The protector will read the original PDF document data from the input file stream.
      * @return void.
      */
     PDFProtector_unit(const std::string& originalFilePath,
                  const std::string& originalFileExtension,
-                 std::shared_ptr<std::fstream> inputStream);
+                 std::shared_ptr<std::fstream> input_stream);
 
     ~PDFProtector_unit();
 
@@ -73,13 +73,13 @@ public:
      * PDF IRM V2 document wrapped up with unencrypted wrapper document.
      * @param[in] userContext    The input user context.
      * @param[in] options        The input options.
-     * @param[in] outputStream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
+     * @param[in] output_stream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
      * @param[in] cancelState    It is used to check the process abandon.
      * @return void.
      */
     void ProtectWithTemplate(const UserContext& userContext,
                              const ProtectWithTemplateOptions& options,
-                             std::shared_ptr<std::fstream> outputStream,
+                             std::shared_ptr<std::fstream> output_stream,
                              std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     /**
@@ -90,13 +90,13 @@ public:
      * PDF IRM V2 document wrapped up with unencrypted wrapper document.
      * @param[in] userContext    The input user context.
      * @param[in] options        The input options.
-     * @param[in] outputStream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
+     * @param[in] output_stream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
      * @param[in] cancelState    It is used to check the process abandon.
      * @return void.
      */
     void ProtectWithCustomRights(const UserContext& userContext,
                                  const ProtectWithCustomRightsOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
+                                 std::shared_ptr<std::fstream> output_stream,
                                  std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     /**
@@ -109,13 +109,13 @@ public:
      * decrypt the encrypted PDF document.
      * @param[in] userContext    The input user context.
      * @param[in] options        The input options.
-     * @param[in] outputStream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
+     * @param[in] output_stream   It receives the final PDF IRM V2 document wrapped up with unencrypted wrapper document.
      * @param[in] cancelState    It is used to check the process abandon.
      * @return The unprotection result.
      */
     UnprotectResult Unprotect(const UserContext& userContext,
                               const UnprotectOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
+                              std::shared_ptr<std::fstream> output_stream,
                               std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     /**
@@ -141,7 +141,7 @@ public:
     void SetUserPolicy(std::shared_ptr<modernapi::UserPolicy> userPolicy);
 
 private:
-    void Protect(const std::shared_ptr<std::fstream>& outputStream);
+    void Protect(const std::shared_ptr<std::fstream>& output_stream);
     modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
             const bool& allowAuditedExtraction,
             CryptoOptions cryptoOptions);

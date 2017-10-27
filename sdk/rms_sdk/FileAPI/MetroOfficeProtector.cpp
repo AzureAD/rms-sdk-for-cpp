@@ -31,8 +31,8 @@ const char metroContent[]        = "/EncryptedPackage";
 namespace rmscore {
 namespace fileapi {
 
-MetroOfficeProtector::MetroOfficeProtector(std::shared_ptr<std::fstream> inputStream)
-    : input_stream_(inputStream)
+MetroOfficeProtector::MetroOfficeProtector(std::shared_ptr<std::fstream> input_stream)
+    : input_stream_(input_stream)
 {    
 }
 
@@ -42,11 +42,11 @@ MetroOfficeProtector::~MetroOfficeProtector()
 
 void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                const ProtectWithTemplateOptions& options,
-                                               std::shared_ptr<std::fstream> outputStream,
+                                               std::shared_ptr<std::fstream> output_stream,
                                                std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::ProtectWithTemplate");
-    if (!outputStream->is_open())
+    if (!output_stream->is_open())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -68,9 +68,9 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
                                                                        userPolicyCreationOptions,
                                                                        options.signedAppData,
                                                                        cancelState);
-    m_storage = std::make_shared<pole::Storage>(outputStream);
+    m_storage = std::make_shared<pole::Storage>(output_stream);
     m_storage->open(true, true);
-    Protect(outputStream);
+    Protect(output_stream);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                 true, user_policy_->DoesUseDeprecatedAlgorithms());
@@ -81,11 +81,11 @@ void MetroOfficeProtector::ProtectWithTemplate(const UserContext& userContext,
 
 void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContext,
                                                    const ProtectWithCustomRightsOptions& options,
-                                                   std::shared_ptr<std::fstream> outputStream,
+                                                   std::shared_ptr<std::fstream> output_stream,
                                                    std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::ProtectWithCustomRights");
-    if (!outputStream->is_open())
+    if (!output_stream->is_open())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -107,24 +107,24 @@ void MetroOfficeProtector::ProtectWithCustomRights(const UserContext& userContex
                 userContext.authenticationCallback,
                 userPolicyCreationOptions,
                 cancelState);
-    m_storage = std::make_shared<pole::Storage>(outputStream);
+    m_storage = std::make_shared<pole::Storage>(output_stream);
     m_storage->open(true, true);
     //Write Dataspaces
     auto dataSpaces = std::make_shared<officeprotector::DataSpaces>(
                 true, user_policy_->DoesUseDeprecatedAlgorithms());
     auto publishing_license = user_policy_->SerializedPolicy();
     dataSpaces->WriteDataspaces(m_storage, publishing_license);
-    Protect(outputStream);
+    Protect(output_stream);
     Logger::Hidden("-MetroOfficeProtector::ProtectWithCustomRights");
 }
 
 UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
                                                 const UnprotectOptions& options,
-                                                std::shared_ptr<std::fstream> outputStream,
+                                                std::shared_ptr<std::fstream> output_stream,
                                                 std::shared_ptr<std::atomic<bool>> cancelState)
 {
     Logger::Hidden("+MetroOfficeProtector::UnProtect");
-    if (!outputStream->is_open())
+    if (!output_stream->is_open())
     {
         Logger::Error("Output stream invalid");
         throw exceptions::RMSStreamException("Output stream invalid");
@@ -205,7 +205,7 @@ UnprotectResult MetroOfficeProtector::Unprotect(const UserContext& userContext,
     auto metroStream = std::make_shared<pole::Stream>(storage.get(), metroContent, false);
     uint64_t originalFileSize = 0;
     ReadStreamHeader(metroStream, originalFileSize);
-    DecryptStream(outputStream, metroStream, originalFileSize);
+    DecryptStream(output_stream, metroStream, originalFileSize);
 
     Logger::Hidden("-MetroOfficeProtector::UnProtect");
     return (UnprotectResult)policyRequest->Status;
@@ -242,7 +242,7 @@ bool MetroOfficeProtector::IsProtected() const
     return true;
 }
 
-void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& outputStream)
+void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& output_stream)
 {
     if (user_policy_.get() == nullptr)
     {

@@ -92,64 +92,64 @@ FX_BOOL FileStreamImpl::WriteBlock(const void* buffer, FX_FILESIZE offset, size_
 
 FX_BOOL FileStreamImpl::Flush()
 {
-    bool bFlush = shared_io_stream_->Flush();
-    return bFlush;
+    bool flush_result = shared_io_stream_->Flush();
+    return flush_result;
 }
 
 void utility::UTF16ToUTF8(UTF16* utf_16_start, UTF16* utf_16_end, UTF8* utf_8_start, UTF8* utf_8_end)
 {
-    UTF16* pTempUTF16 = utf_16_start;
-    UTF8* pTempUTF8 = utf_8_start;
+    UTF16* temp_utf_16 = utf_16_start;
+    UTF8* temp_utf_8 = utf_8_start;
 
-    while (pTempUTF16 < utf_16_end)
+    while (temp_utf_16 < utf_16_end)
     {
-        if (*pTempUTF16 <= UTF8_ONE_END
-            && pTempUTF8 + 1 < utf_8_end)
+        if (*temp_utf_16 <= UTF8_ONE_END
+            && temp_utf_8 + 1 < utf_8_end)
         {
             //0000 - 007F  0xxxxxxx
-            *pTempUTF8++ = (UTF8)*pTempUTF16;
+            *temp_utf_8++ = (UTF8)*temp_utf_16;
         }
-        else if(*pTempUTF16 >= UTF8_TWO_START && *pTempUTF16 <= UTF8_TWO_END
-            && pTempUTF8 + 2 < utf_8_end)
+        else if(*temp_utf_16 >= UTF8_TWO_START && *temp_utf_16 <= UTF8_TWO_END
+            && temp_utf_8 + 2 < utf_8_end)
         {
             //0080 - 07FF 110xxxxx 10xxxxxx
-            *pTempUTF8++ = (*pTempUTF16 >> 6) | 0xC0;
-            *pTempUTF8++ = (*pTempUTF16 & 0x3F) | 0x80;
+            *temp_utf_8++ = (*temp_utf_16 >> 6) | 0xC0;
+            *temp_utf_8++ = (*temp_utf_16 & 0x3F) | 0x80;
         }
-        else if(*pTempUTF16 >= UTF8_THREE_START && *pTempUTF16 <= UTF8_THREE_END
-            && pTempUTF8 + 3 < utf_8_end)
+        else if(*temp_utf_16 >= UTF8_THREE_START && *temp_utf_16 <= UTF8_THREE_END
+            && temp_utf_8 + 3 < utf_8_end)
         {
             //0800 - FFFF 1110xxxx 10xxxxxx 10xxxxxx
-            *pTempUTF8++ = (*pTempUTF16 >> 12) | 0xE0;
-            *pTempUTF8++ = ((*pTempUTF16 >> 6) & 0x3F) | 0x80;
-            *pTempUTF8++ = (*pTempUTF16 & 0x3F) | 0x80;
+            *temp_utf_8++ = (*temp_utf_16 >> 12) | 0xE0;
+            *temp_utf_8++ = ((*temp_utf_16 >> 6) & 0x3F) | 0x80;
+            *temp_utf_8++ = (*temp_utf_16 & 0x3F) | 0x80;
         }
         else
         {
             break;
         }
-        pTempUTF16++;
+        temp_utf_16++;
     }
-    *pTempUTF8 = 0;
+    *temp_utf_8 = 0;
 }
 
 void utility::UCS4ToUCS2(CFX_WideString ucs_4, FX_LPBYTE *output_ucs_2, FX_DWORD *output_ucs_2_length)
 {
-    int nUCS4Size = ucs_4.GetLength() * sizeof(wchar_t);
-    FX_LPBYTE pUCS4Temp = (FX_LPBYTE)(FX_LPCWSTR)ucs_4;
+    int ucs_4_size = ucs_4.GetLength() * sizeof(wchar_t);
+    FX_LPBYTE ucs_4_temp = (FX_LPBYTE)(FX_LPCWSTR)ucs_4;
 
-    *output_ucs_2_length = nUCS4Size / 2;
+    *output_ucs_2_length = ucs_4_size / 2;
     *output_ucs_2 = new FX_BYTE[*output_ucs_2_length + 2];
     memset(*output_ucs_2, 0, sizeof(FX_BYTE) * (*output_ucs_2_length + 2));
-    int j = 0, nIndex = 0;
-    for(int i = 0; i < nUCS4Size; i++)
+    int j = 0, index = 0;
+    for(int i = 0; i < ucs_4_size; i++)
     {
-        memcpy(*output_ucs_2 + j, pUCS4Temp + i, sizeof(FX_BYTE));
+        memcpy(*output_ucs_2 + j, ucs_4_temp + i, sizeof(FX_BYTE));
         j++;
-        nIndex++;
-        if(nIndex == 2)
+        index++;
+        if(index == 2)
         {
-            nIndex = 0;
+            index = 0;
             i += 2;
         }
     }

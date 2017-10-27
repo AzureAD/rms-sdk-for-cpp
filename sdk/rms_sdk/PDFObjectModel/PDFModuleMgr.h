@@ -31,9 +31,9 @@ public:
     virtual  ~PDFModuleMgrImpl();
 
 private:
-    CPDF_ModuleMgr* m_pModuleMgr;
-    CCodec_ModuleMgr* m_pCodecModule;
-    CustomSecurityHandler* m_pCusSecHandler;
+    CPDF_ModuleMgr* pdf_module_manager_;
+    CCodec_ModuleMgr* pdf_codec_module_;
+    CustomSecurityHandler* custom_security_handler_;
 };
 
 } // namespace pdfobjectmodel

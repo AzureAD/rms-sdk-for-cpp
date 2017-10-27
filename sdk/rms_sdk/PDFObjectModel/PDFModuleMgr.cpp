@@ -11,13 +11,13 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
-static std::unique_ptr<PDFModuleMgr> g_pdfModuleMgr = nullptr;
+static std::unique_ptr<PDFModuleMgr> g_pdf_module_mgr = nullptr;
 
 bool PDFModuleMgr::Initialize()
 {
-    if(g_pdfModuleMgr == nullptr)
+    if(g_pdf_module_mgr == nullptr)
     {
-        g_pdfModuleMgr.reset(new PDFModuleMgrImpl());
+        g_pdf_module_mgr.reset(new PDFModuleMgrImpl());
     }
 
     return true;
@@ -25,30 +25,30 @@ bool PDFModuleMgr::Initialize()
 
 PDFModuleMgrImpl::PDFModuleMgrImpl()
 {
-    m_pCodecModule = CCodec_ModuleMgr::Create();
+    pdf_codec_module_ = CCodec_ModuleMgr::Create();
 
     CPDF_ModuleMgr::Create();
-    CPDF_ModuleMgr::Get()->SetCodecModule(m_pCodecModule);
-    m_pModuleMgr = CPDF_ModuleMgr::Get();
+    CPDF_ModuleMgr::Get()->SetCodecModule(pdf_codec_module_);
+    pdf_module_manager_ = CPDF_ModuleMgr::Get();
 
-    m_pCusSecHandler = nullptr ;
+    custom_security_handler_ = nullptr ;
 
 }
 
 PDFModuleMgrImpl::~PDFModuleMgrImpl()
 {
-    m_pCusSecHandler = nullptr;
+    custom_security_handler_ = nullptr;
 
-    if (m_pModuleMgr != nullptr)
+    if (pdf_module_manager_ != nullptr)
     {
-        m_pModuleMgr->Destroy();
-        m_pModuleMgr = nullptr;
+        pdf_module_manager_->Destroy();
+        pdf_module_manager_ = nullptr;
     }
 
-    if (m_pCodecModule != nullptr)
+    if (pdf_codec_module_ != nullptr)
     {
-        m_pCodecModule->Destroy();
-        m_pCodecModule = nullptr;
+        pdf_codec_module_->Destroy();
+        pdf_codec_module_ = nullptr;
     }
 }
 
@@ -59,12 +59,14 @@ static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param)
 
 void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, std::shared_ptr<PDFSecurityHandler> security_hander)
 {
-     if(g_pdfModuleMgr != nullptr)
+     if(g_pdf_module_mgr != nullptr)
      {
-         PDFModuleMgrImpl* pMgr = (PDFModuleMgrImpl*)g_pdfModuleMgr.get();
-         //core takes over m_pCusSecHandler
-         pMgr->m_pCusSecHandler = new CustomSecurityHandler(security_hander);
-         pMgr->m_pModuleMgr->RegisterSecurityHandler(filter_name.c_str(), CreateCustomerSecurityHandler, pMgr->m_pCusSecHandler);
+         PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
+         //core takes over custom_security_handler_
+         pdf_module_mgr->custom_security_handler_ = new CustomSecurityHandler(security_hander);
+         pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(filter_name.c_str(),
+                                                                      CreateCustomerSecurityHandler,
+                                                                      pdf_module_mgr->custom_security_handler_);
 
      }
 }

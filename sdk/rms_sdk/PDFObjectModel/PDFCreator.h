@@ -18,11 +18,11 @@ namespace pdfobjectmodel {
 class CustomCryptoHandler : public CPDF_CryptoHandler
 {
 public:
-    explicit CustomCryptoHandler(std::shared_ptr<PDFCryptoHandler> pPDFCryptoHandler);
+    explicit CustomCryptoHandler(std::shared_ptr<PDFCryptoHandler> pdf_crypto_handler);
 	virtual ~CustomCryptoHandler();
 
 public:
-	virtual FX_BOOL		Init(CPDF_Dictionary* pEncryptDict, CPDF_SecurityHandler* pSecurityHandler);
+    virtual FX_BOOL		Init(CPDF_Dictionary* encryption_dictionary, CPDF_SecurityHandler* security_handler);
 
 	virtual FX_DWORD	DecryptGetSize(FX_DWORD src_size);
 
@@ -37,14 +37,14 @@ public:
 	virtual FX_BOOL		EncryptContent(FX_DWORD objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size,
 		FX_LPBYTE dest_buf, FX_DWORD& dest_size);
 
-	virtual FX_BOOL		ProgressiveEncryptStart(FX_DWORD objnum, FX_DWORD version, FX_DWORD raw_size, FX_BOOL bFlateEncode);
+    virtual FX_BOOL		ProgressiveEncryptStart(FX_DWORD objnum, FX_DWORD version, FX_DWORD raw_size, FX_BOOL flate_encode);
 
 	virtual FX_BOOL     ProgressiveEncryptContent(FX_INT32 objnum, FX_DWORD version, FX_LPCBYTE src_buf, FX_DWORD src_size, CFX_BinaryBuf& dest_buf);
 
 	virtual FX_BOOL     ProgressiveEncryptFinish(CFX_BinaryBuf& dest_buf);
 
 protected:
-    std::shared_ptr<PDFCryptoHandler> m_pPDFCryptoHandler;
+    std::shared_ptr<PDFCryptoHandler> pdf_crypto_handler_;
 };
 
 /**
@@ -55,31 +55,31 @@ protected:
 class CustomProgressiveEncryptHandler : public CPDF_ProgressiveEncryptHandler
 {
 public:
-    explicit CustomProgressiveEncryptHandler(CFX_WideString wsTempPath);
+    explicit CustomProgressiveEncryptHandler(CFX_WideString temp_path);
 
     virtual ~CustomProgressiveEncryptHandler();
 
     virtual IFX_FileStream* GetTempFile();
 
-    virtual void ReleaseTempFile(IFX_FileStream* pFile);
+    virtual void ReleaseTempFile(IFX_FileStream* file_stream);
 
-    virtual FX_BOOL SetCryptoHandler(CPDF_CryptoHandler* pCryptoHandler);
+    virtual FX_BOOL SetCryptoHandler(CPDF_CryptoHandler* crypto_handler);
 
     virtual FX_DWORD EncryptGetSize(FX_DWORD objnum, FX_DWORD gennum, FX_LPCBYTE src_buf, FX_DWORD src_size);
 
-    virtual FX_LPVOID EncryptStart(FX_DWORD objnum, FX_DWORD gennum, FX_DWORD raw_size, FX_BOOL bFlateEncode);
+    virtual FX_LPVOID EncryptStart(FX_DWORD objnum, FX_DWORD gennum, FX_DWORD raw_size, FX_BOOL flate_encode);
 
-    virtual FX_BOOL EncryptStream(FX_LPVOID context, FX_LPCBYTE src_buf, FX_DWORD src_size, IFX_FileStream* pDest);
+    virtual FX_BOOL EncryptStream(FX_LPVOID context, FX_LPCBYTE src_buf, FX_DWORD src_size, IFX_FileStream* dest_file_stream);
 
-    virtual FX_BOOL EncryptFinish(FX_LPVOID context, IFX_FileStream* pDest);
+    virtual FX_BOOL EncryptFinish(FX_LPVOID context, IFX_FileStream* dest_file_stream);
 
-    virtual FX_BOOL UpdateFilter(CPDF_Dictionary* pDict);
+    virtual FX_BOOL UpdateFilter(CPDF_Dictionary* pdf_dictionary);
 
  private:
-    CFX_WideString m_wsTempPath;
+    CFX_WideString temp_path_;
     CustomCryptoHandler* crypto_handler_;
-    FX_DWORD m_dwObjNum;
-    FX_DWORD m_dwVersion;
+    FX_DWORD obj_number_;
+    FX_DWORD version_number_;
 };
 
 /**
@@ -91,11 +91,11 @@ public:
 class CustomSecurityHandler : public CPDF_SecurityHandler
 {
 public:
-    explicit CustomSecurityHandler(std::shared_ptr<PDFSecurityHandler> pPDFSecHandler);
+    explicit CustomSecurityHandler(std::shared_ptr<PDFSecurityHandler> pdf_security_handler);
 
     virtual ~CustomSecurityHandler();
 
-    virtual FX_BOOL OnInit(CPDF_Parser* pParser, CPDF_Dictionary* pEncryptDict);
+    virtual FX_BOOL OnInit(CPDF_Parser* pdf_parser, CPDF_Dictionary* encryption_dictionary);
 
     virtual FX_DWORD GetPermissions();
 
@@ -108,8 +108,8 @@ public:
     virtual CPDF_CryptoHandler* CreateCryptoHandler();
 
 private:
-    std::shared_ptr<PDFSecurityHandler> m_pPDFSecHandler;
-    bool m_bEncryptMetadata;
+    std::shared_ptr<PDFSecurityHandler> pdf_security_handler_;
+    bool encrypt_metadata_;
 };
 
 /**
@@ -122,7 +122,7 @@ public:
     explicit PDFCreatorImpl();
 	virtual ~PDFCreatorImpl();
 
-    virtual uint32_t CreateCustomEncryptedFile(const std::string& inputFilePath,
+    virtual uint32_t CreateCustomEncryptedFile(const std::string& input_file_path,
             const std::string& filter_name,
             const std::vector<unsigned char>& publishing_license,
             std::shared_ptr<PDFCryptoHandler> crypto_hander,
@@ -134,20 +134,20 @@ public:
             rmscrypto::api::SharedStream outputIOS);
 protected:
     //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
-    bool IsProtectedByPassword(CPDF_Parser *pPDFParser);
-    bool IsSigned(CPDF_Parser *pPDFParser);
-    bool IsDynamicXFA(CPDF_Parser *pPDFParser);
+    bool IsProtectedByPassword(CPDF_Parser *pdf_parser);
+    bool IsSigned(CPDF_Parser *pdf_parser);
+    bool IsDynamicXFA(CPDF_Parser *pdf_parser);
 
-    uint32_t ParsePDFFile(CPDF_Parser* pPDFParser);
-    uint32_t CreatePDFFile(CPDF_Parser* pPDFParser,
-                           CPDF_Dictionary *pEncryptionDic,
+    uint32_t ParsePDFFile(CPDF_Parser* pdf_parser);
+    uint32_t CreatePDFFile(CPDF_Parser* pdf_parser,
+                           CPDF_Dictionary *encryption_dictionary,
                            std::shared_ptr<PDFCryptoHandler> crypto_hander,
                            rmscrypto::api::SharedStream outputIOS);
 
     CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name, const std::vector<unsigned char>& publishing_license);
-    uint32_t ConvertParsingErrCode(FX_DWORD parseResult);
+    uint32_t ConvertParsingErrCode(FX_DWORD parse_result);
 private:
-    std::string m_filePath;
+    std::string file_path_;
 };
 
 } // namespace pdfobjectmodel

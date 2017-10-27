@@ -120,12 +120,12 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
           pdf_wrapper_creator_->SetPayLoad(output_encrypted);
 
           std::string fileOut = unittests::dependency::GetCurrentInputFile()+TParam.fileout;
-          auto outputStream = std::make_shared<std::fstream>(
+          auto output_stream = std::make_shared<std::fstream>(
             fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-          std::shared_ptr<std::iostream> outputIO = outputStream;
+          std::shared_ptr<std::iostream> outputIO = output_stream;
           auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-          bool bResult = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
-          EXPECT_EQ(1,bResult);
+          bool result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
+          EXPECT_EQ(1,result);
       }
 }
 INSTANTIATE_TEST_CASE_P(,PDFCreator_CreateCustomEncryptedFile,testing::Values(
@@ -182,9 +182,9 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
     //****************
     std::string fileOut = unittests::dependency::GetCurrentInputFile() +TParam.fileout;
     // create streams
-    auto outputStream = std::make_shared<std::fstream>(
+    auto output_stream = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-    std::shared_ptr<std::iostream> output_decrypted_IO = outputStream;
+    std::shared_ptr<std::iostream> output_decrypted_IO = output_stream;
     auto output_decrypted = rmscrypto::api::CreateStreamFromStdStream(output_decrypted_IO);
     std::string filter_name = TParam.filter_name;
 
@@ -376,10 +376,10 @@ TEST_P(PDFWrapperDoc_GetPayloadFileName,GetPayloadFileName_T)
     std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
     auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     bool ret;
-    std::wstring wsFileName;
+    std::wstring file_name;
     try{
         std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
-        ret =pdf_wrapper_doc->GetPayloadFileName(wsFileName);
+        ret =pdf_wrapper_doc->GetPayloadFileName(file_name);
     }
     catch(const rmsauth::Exception& e)
     {
@@ -390,7 +390,7 @@ TEST_P(PDFWrapperDoc_GetPayloadFileName,GetPayloadFileName_T)
     EXPECT_EQ(TParam.ret,ret);
     if(TParam.ret == true)
     {
-        EXPECT_EQ(TParam.wsFileName,wsFileName);
+        EXPECT_EQ(TParam.file_name,file_name);
     }
 }
 INSTANTIATE_TEST_CASE_P(,PDFWrapperDoc_GetPayloadFileName,testing::Values(
@@ -417,8 +417,8 @@ TEST_P(PDFUnencryptedWrapperCreator_CreateUnencryptedWrapper,CreateUnencryptedWr
     try{
         std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_doc =  pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_encrypted);
         std::shared_ptr<std::iostream> input_encrypted_IO = outFile;
-        auto outputStream = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
-        ret =pdf_wrapper_doc->CreateUnencryptedWrapper(outputStream);
+        auto output_stream = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
+        ret =pdf_wrapper_doc->CreateUnencryptedWrapper(output_stream);
     }
     catch(const rmsauth::Exception& e)
     {
@@ -496,16 +496,16 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
         std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_creator_=pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
         pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
         pdf_wrapper_creator_->SetPayloadInfo(
-                    TParam.wsSubType,
-                    TParam.wsFileName,
-                    TParam.wsDescription,
+                    TParam.sub_type,
+                    TParam.file_name,
+                    TParam.description,
                     TParam.version_num);
         pdf_wrapper_creator_->SetPayLoad(output_encrypted);
 
         std::string fileOut =unittests::dependency::GetCurrentInputFile()+TParam.fileout;
-        auto outputStream = std::make_shared<std::fstream>(
+        auto output_stream = std::make_shared<std::fstream>(
           fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-        std::shared_ptr<std::iostream> outputIO = outputStream;
+        std::shared_ptr<std::iostream> outputIO = output_stream;
         auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
        pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
        //**************************
@@ -513,23 +513,23 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
        std::shared_ptr<std::iostream> input_encrypted_IO = inpro;
        auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
        bool ret;
-       std::wstring wsFileName;
+       std::wstring file_name;
        std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
-       pdf_wrapper_doc->GetPayloadFileName(wsFileName);
+       pdf_wrapper_doc->GetPayloadFileName(file_name);
 
        std::wstring graphic_filter;
        float version_num;
        pdf_wrapper_doc->GetCryptographicFilter(graphic_filter,version_num);
-       if(!(TParam.wsFileName.compare(L" ")))
+       if(!(TParam.file_name.compare(L" ")))
        {
-           EXPECT_EQ(TParam.wsSubType,graphic_filter);
-           EXPECT_EQ(L"Embedded File",wsFileName);
+           EXPECT_EQ(TParam.sub_type,graphic_filter);
+           EXPECT_EQ(L"Embedded File",file_name);
            EXPECT_EQ(TParam.version_num,version_num);
        }
        else
        {
-           EXPECT_EQ(TParam.wsSubType,graphic_filter);
-           EXPECT_EQ(TParam.wsFileName,wsFileName);
+           EXPECT_EQ(TParam.sub_type,graphic_filter);
+           EXPECT_EQ(TParam.file_name,file_name);
            EXPECT_EQ(TParam.version_num,version_num);
        }
 

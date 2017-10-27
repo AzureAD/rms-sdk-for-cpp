@@ -7,104 +7,104 @@ namespace pdfobjectmodel {
 //////////////////////////////////////////////////////////////////////////
 // class PDFWrapperDoc
 
-std::unique_ptr<PDFWrapperDoc> PDFWrapperDoc::Create(rmscrypto::api::SharedStream inputStream)
+std::unique_ptr<PDFWrapperDoc> PDFWrapperDoc::Create(rmscrypto::api::SharedStream input_stream)
 {
-    std::unique_ptr<PDFWrapperDoc> pdf_wrapper_doc(new PDFWrapperDocImpl(inputStream));
+    std::unique_ptr<PDFWrapperDoc> pdf_wrapper_doc(new PDFWrapperDocImpl(input_stream));
     return pdf_wrapper_doc;
 }
 
-PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapperDocStream)
+PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapper_doc_stream)
 {
-    m_wrapperDoc = nullptr;
-    m_wrapperType = PDFWRAPPERDOC_TYPE_NORMAL;
-    m_wsGraphicFilter = L"";
-    m_fVersion = 0;
-    m_payloadSize = 0;
-    m_wsFileName = L"";
+    wrapper_doc_ = nullptr;
+    wrapper_type_ = PDFWRAPPERDOC_TYPE_NORMAL;
+    graphic_filter_ = L"";
+    version_number_ = 0;
+    payload_size_ = 0;
+    file_name_ = L"";
 
-    m_wrapperFileStream = std::make_shared<FileStreamImpl>(wrapperDocStream);
-    FX_DWORD parseResult = m_pdfParser.StartParse(m_wrapperFileStream.get());
-    if(PDFPARSE_ERROR_SUCCESS == parseResult)
+    wrapper_file_stream_ = std::make_shared<FileStreamImpl>(wrapper_doc_stream);
+    FX_DWORD parse_result = pdf_parser_.StartParse(wrapper_file_stream_.get());
+    if(PDFPARSE_ERROR_SUCCESS == parse_result)
     {
-        CPDF_Document* pDoc = m_pdfParser.GetDocument();
-        m_wrapperDoc = std::make_shared<CPDF_WrapperDoc>(pDoc);
+        CPDF_Document* pdf_document = pdf_parser_.GetDocument();
+        wrapper_doc_ = std::make_shared<CPDF_WrapperDoc>(pdf_document);
 
-        m_wrapperType = m_wrapperDoc->GetWrapperType();
-        if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV1)
+        wrapper_type_ = wrapper_doc_->GetWrapperType();
+        if(wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV1)
         {
-            CPDF_Dictionary* trailerDict = m_pdfParser.GetTrailer();
-            CPDF_Dictionary* wrapperDict = trailerDict->GetDict(IRMV1_WRAPPER_DICTIONARY);
-            if(wrapperDict)
+            CPDF_Dictionary* trailer_dictionary = pdf_parser_.GetTrailer();
+            CPDF_Dictionary* wrapper_dictionary = trailer_dictionary->GetDict(IRMV1_WRAPPER_DICTIONARY);
+            if(wrapper_dictionary)
             {
-                CFX_ByteString bsType = wrapperDict->GetString(IRMV1_WRAPPER_DICTIONARY_TYPE);
-                CFX_WideString wsType = bsType.UTF8Decode();
-                m_wsGraphicFilter = (wchar_t*)(FX_LPCWSTR)wsType;
-                m_fVersion = 1;
-                m_payloadSize = trailerDict->GetInteger(IRMV1_WRAPPER_DICTIONARY_OFFSET);
+                CFX_ByteString bype_bytestring = wrapper_dictionary->GetString(IRMV1_WRAPPER_DICTIONARY_TYPE);
+                CFX_WideString type_widestring = bype_bytestring.UTF8Decode();
+                graphic_filter_ = (wchar_t*)(FX_LPCWSTR)type_widestring;
+                version_number_ = 1;
+                payload_size_ = trailer_dictionary->GetInteger(IRMV1_WRAPPER_DICTIONARY_OFFSET);
             }
         }
-        else if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV2)
+        else if(wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV2)
         {
-            CFX_WideString wsGraphicFilterGet;
-            m_wrapperDoc->GetCryptographicFilter(wsGraphicFilterGet, m_fVersion);
-            m_wsGraphicFilter = (wchar_t*)(FX_LPCWSTR)wsGraphicFilterGet;
+            CFX_WideString graphic_filter_get;
+            wrapper_doc_->GetCryptographicFilter(graphic_filter_get, version_number_);
+            graphic_filter_ = (wchar_t*)(FX_LPCWSTR)graphic_filter_get;
 
-            m_payloadSize = m_wrapperDoc->GetPayLoadSize();
+            payload_size_ = wrapper_doc_->GetPayLoadSize();
 
-            CFX_WideString wsFileName;
-            m_wrapperDoc->GetPayloadFileName(wsFileName);
-            m_wsFileName = (wchar_t*)(FX_LPCWSTR)wsFileName;
+            CFX_WideString file_name;
+            wrapper_doc_->GetPayloadFileName(file_name);
+            file_name_ = (wchar_t*)(FX_LPCWSTR)file_name;
         }
     }
 }
 
 PDFWrapperDocImpl::~PDFWrapperDocImpl()
 {
-    m_pdfParser.CloseParser();
+    pdf_parser_.CloseParser();
 
-    m_wrapperFileStream.reset();
-    m_wrapperFileStream = nullptr;
+    wrapper_file_stream_.reset();
+    wrapper_file_stream_ = nullptr;
 
-    m_wrapperDoc.reset();
-    m_wrapperDoc = nullptr;
+    wrapper_doc_.reset();
+    wrapper_doc_ = nullptr;
 }
 
 uint32_t PDFWrapperDocImpl::GetWrapperType() const
 {
-    return m_wrapperType;
+    return wrapper_type_;
 }
 
 bool PDFWrapperDocImpl::GetCryptographicFilter(std::wstring& graphic_filter, float &version_num) const
 {
-    graphic_filter = m_wsGraphicFilter;
-    version_num = m_fVersion;
+    graphic_filter = graphic_filter_;
+    version_num = version_number_;
     return true;
 }
 
 uint32_t PDFWrapperDocImpl::GetPayLoadSize() const
 {
-    return m_payloadSize;
+    return payload_size_;
 }
 
-bool PDFWrapperDocImpl::GetPayloadFileName(std::wstring& wsFileName) const
+bool PDFWrapperDocImpl::GetPayloadFileName(std::wstring& file_name) const
 {
-    wsFileName = m_wsFileName;
+    file_name = file_name_;
     return true;
 }
 
-bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream outputStream)
+bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream output_stream)
 {
-    if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV1)
+    if(wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV1)
     {
-        uint8_t* buffer_pointer_temp = new uint8_t[m_payloadSize];
-        m_wrapperFileStream->ReadBlock(buffer_pointer_temp, 0, m_payloadSize);
-        outputStream->Write(buffer_pointer_temp, m_payloadSize);
+        uint8_t* buffer_pointer_temp = new uint8_t[payload_size_];
+        wrapper_file_stream_->ReadBlock(buffer_pointer_temp, 0, payload_size_);
+        output_stream->Write(buffer_pointer_temp, payload_size_);
     }
-    else if(m_wrapperType == PDFWRAPPERDOC_TYPE_IRMV2)
+    else if(wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV2)
     {
-        if(!m_wrapperDoc) return false;
-        FileStreamImpl outputFileStream(outputStream);
-        m_wrapperDoc->StartGetPayload(&outputFileStream);
+        if(!wrapper_doc_) return false;
+        FileStreamImpl output_file_stream(output_stream);
+        wrapper_doc_->StartGetPayload(&output_file_stream);
     }
 
     return true;
@@ -112,77 +112,80 @@ bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream outputStrea
 
 //////////////////////////////////////////////////////////////////////////
 // class PDFUnencryptedWrapperCreatorImpl
-std::unique_ptr<PDFUnencryptedWrapperCreator> PDFUnencryptedWrapperCreator::Create(rmscrypto::api::SharedStream wrapperDocStream)
+std::unique_ptr<PDFUnencryptedWrapperCreator> PDFUnencryptedWrapperCreator::Create(rmscrypto::api::SharedStream wrapper_doc_stream)
 {
-    std::unique_ptr<PDFUnencryptedWrapperCreator> pdfUnencryptedWrapperCreator(new PDFUnencryptedWrapperCreatorImpl(wrapperDocStream));
+    std::unique_ptr<PDFUnencryptedWrapperCreator> pdfUnencryptedWrapperCreator(new PDFUnencryptedWrapperCreatorImpl(wrapper_doc_stream));
     return pdfUnencryptedWrapperCreator;
 }
 
-PDFUnencryptedWrapperCreatorImpl::PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapperDocStream)
+PDFUnencryptedWrapperCreatorImpl::PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapper_doc_stream)
 {
-    m_pPDFWrapper20Creator = nullptr;
-    m_payloadFileStream = nullptr;
+    pdf_wrapper_creator_ = nullptr;
+    payload_file_stream_ = nullptr;
 
-    m_wrapperFileStream = std::make_shared<FileStreamImpl>(wrapperDocStream);
-    FX_DWORD parseResult = m_pdfParser.StartParse(m_wrapperFileStream.get());
-    if(PDFPARSE_ERROR_SUCCESS == parseResult)
+    wrapper_file_stream_ = std::make_shared<FileStreamImpl>(wrapper_doc_stream);
+    FX_DWORD parse_result = pdf_parser_.StartParse(wrapper_file_stream_.get());
+    if(PDFPARSE_ERROR_SUCCESS == parse_result)
     {
-        CPDF_Document* pDoc = m_pdfParser.GetDocument();
-        m_pPDFWrapper20Creator = FPDF_UnencryptedWrapperCreator_Create(pDoc);
+        CPDF_Document* pdf_document = pdf_parser_.GetDocument();
+        pdf_wrapper_creator_ = FPDF_UnencryptedWrapperCreator_Create(pdf_document);
     }
 }
 
 PDFUnencryptedWrapperCreatorImpl::~PDFUnencryptedWrapperCreatorImpl()
 {
-     m_pdfParser.CloseParser();
+     pdf_parser_.CloseParser();
 
-    m_wrapperFileStream.reset();
-    m_wrapperFileStream = nullptr;
+    wrapper_file_stream_.reset();
+    wrapper_file_stream_ = nullptr;
 
-    if(m_payloadFileStream)
+    if(payload_file_stream_)
     {
-        m_payloadFileStream.reset();
-        m_payloadFileStream = nullptr;
+        payload_file_stream_.reset();
+        payload_file_stream_ = nullptr;
     }
 
-    if(m_pPDFWrapper20Creator)
+    if(pdf_wrapper_creator_)
     {
-        m_pPDFWrapper20Creator->Release();
-        m_pPDFWrapper20Creator = nullptr;
+        pdf_wrapper_creator_->Release();
+        pdf_wrapper_creator_ = nullptr;
     }
 }
 
 void PDFUnencryptedWrapperCreatorImpl::SetPayloadInfo(
-        const std::wstring& wsSubType,
-        const std::wstring& wsFileName,
-        const std::wstring& wsDescription,
+        const std::wstring& sub_type,
+        const std::wstring& file_name,
+        const std::wstring& description,
         float version_num)
 {
-    if(!m_pPDFWrapper20Creator) return;
-    CFX_WideString subType = wsSubType.c_str();
-    CFX_WideString fileName = wsFileName.c_str();
-    CFX_WideString description = wsDescription.c_str();
-    m_pPDFWrapper20Creator->SetPayloadInfo(subType, fileName, description, version_num);
+    if(!pdf_wrapper_creator_) return;
+    CFX_WideString subtype_widestring = sub_type.c_str();
+    CFX_WideString file_name_widestring = file_name.c_str();
+    CFX_WideString description_widestring = description.c_str();
+    pdf_wrapper_creator_->SetPayloadInfo(subtype_widestring,
+                                         file_name_widestring,
+                                         description_widestring,
+                                         version_num);
 }
 
-void PDFUnencryptedWrapperCreatorImpl::SetPayLoad(rmscrypto::api::SharedStream inputStream)
+void PDFUnencryptedWrapperCreatorImpl::SetPayLoad(rmscrypto::api::SharedStream input_stream)
 {
-    if(!m_pPDFWrapper20Creator) return;
+    if(!pdf_wrapper_creator_) return;
 
-    if(m_payloadFileStream)
+    if(payload_file_stream_)
     {
-        m_payloadFileStream.reset();
-        m_payloadFileStream = nullptr;
+        payload_file_stream_.reset();
+        payload_file_stream_ = nullptr;
     }
-    m_payloadFileStream = std::make_shared<FileStreamImpl>(inputStream);
-    m_pPDFWrapper20Creator->SetPayLoad(m_payloadFileStream.get());
+    payload_file_stream_ = std::make_shared<FileStreamImpl>(input_stream);
+    pdf_wrapper_creator_->SetPayLoad(payload_file_stream_.get());
 }
 
-bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(rmscrypto::api::SharedStream outputStream)
+bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(rmscrypto::api::SharedStream output_stream)
 {
-    if(!m_pPDFWrapper20Creator) return false;
-    FileStreamImpl outputFileStream(outputStream);
-    m_pPDFWrapper20Creator->Create(&outputFileStream);
+    if(!pdf_wrapper_creator_) return false;
+    FileStreamImpl output_file_stream(output_stream);
+    pdf_wrapper_creator_->Create(&output_file_stream);
     return true;
 }
 
