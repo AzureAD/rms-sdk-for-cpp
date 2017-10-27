@@ -5,8 +5,6 @@
 #include <string>
 #include <memory>
 
-void SetUserPolicy();
-
 struct CreateCustomEncryptedFile_P{
       CreateCustomEncryptedFile_P(std::string fileIn_,
                                   std::string fileout_,

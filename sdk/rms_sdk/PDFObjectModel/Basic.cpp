@@ -96,7 +96,7 @@ FX_BOOL FileStreamImpl::Flush()
     return bFlush;
 }
 
-void Utility::UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End)
+static void utility::UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End)
 {
     UTF16* pTempUTF16 = pUTF16Start;
     UTF8* pTempUTF8 = pUTF8Start;
@@ -133,7 +133,7 @@ void Utility::UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start
     *pTempUTF8 = 0;
 }
 
-void Utility::UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length)
+static void utility::UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length)
 {
     int nUCS4Size = wsUCS4.GetLength() * sizeof(wchar_t);
     FX_LPBYTE pUCS4Temp = (FX_LPBYTE)(FX_LPCWSTR)wsUCS4;

@@ -23,77 +23,6 @@ namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 
 #define MIN_RAW_SIZE 64 * 1024 * 1024
 
-class PDFProtector_unit;
-
-/**
- * @brief The _childementaion class of interface class PDFCryptoHandler defined by PDF object model.
- * Please refer to comments of PDFCryptoHandler.
- * The interface header file of PDF object model is PDFObjectModel.h.
- */
-class PDFCryptoHandler_child : public rmscore::pdfobjectmodel::PDFCryptoHandler
-{
-public:
-    PDFCryptoHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit);
-    virtual ~PDFCryptoHandler_child();
-
-    virtual uint32_t DecryptGetSize(uint32_t src_size);
-
-    virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
-
-    virtual bool DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
-
-    virtual bool DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
-
-    virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
-
-    virtual bool EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size);
-
-    virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size);
-
-    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
-
-    virtual bool ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
-
-private:
-    std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
-
-    //for decryption
-    std::shared_ptr<std::stringstream> m_dataToDecrypted;
-    uint32_t m_objnum;
-
-    //for encryption
-    bool m_bProgressiveStart;
-    std::shared_ptr<std::iostream> m_outputIOS;
-    rmscrypto::api::SharedStream m_outputSharedStream;
-    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> m_sharedProtectedStream;
-};
-
-/**
- * @brief The _childementaion class of interface class PDFSecurityHandler defined by PDF object model.
- * Please refer to comments of PDFSecurityHandler.
- * The interface header file of PDF object model is PDFObjectModel.h.
- */
-class PDFSecurityHandler_child : public rmscore::pdfobjectmodel::PDFSecurityHandler
-{
-public:
-    PDFSecurityHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit,
-                         const UserContext& userContext,
-                         const UnprotectOptions& options,
-                         std::shared_ptr<std::atomic<bool>> cancelState);
-    virtual ~PDFSecurityHandler_child();
-
-    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
-
-    virtual std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> CreateCryptoHandler();
-
-private:
-    std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
-    std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> m_pCryptoHandler;
-    UserContext m_userContext;
-    UnprotectOptions m_options;
-    std::shared_ptr<std::atomic<bool>> m_cancelState;
-};
-
 /**
  * @brief The wrapper info used to create the unencrypted wrapper document
  * according to "Microsoft IRM protection for PDF Spec-v2".
@@ -226,6 +155,75 @@ private:
     std::shared_ptr<std::fstream> m_inputWrapperStream;
     std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator;
     std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> m_pdfWrapperCreator;
+};
+
+/**
+ * @brief The _childementaion class of interface class PDFCryptoHandler defined by PDF object model.
+ * Please refer to comments of PDFCryptoHandler.
+ * The interface header file of PDF object model is PDFObjectModel.h.
+ */
+class PDFCryptoHandler_child : public rmscore::pdfobjectmodel::PDFCryptoHandler
+{
+public:
+    PDFCryptoHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit);
+    virtual ~PDFCryptoHandler_child();
+
+    virtual uint32_t DecryptGetSize(uint32_t src_size);
+
+    virtual void DecryptStart(uint32_t objnum, uint32_t gennum);
+
+    virtual bool DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
+
+    virtual bool DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
+
+    virtual uint32_t EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size);
+
+    virtual bool EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size);
+
+    virtual bool ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size);
+
+    virtual bool ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf);
+
+    virtual bool ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_buf);
+
+private:
+    std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
+
+    //for decryption
+    std::shared_ptr<std::stringstream> m_dataToDecrypted;
+    uint32_t m_objnum;
+
+    //for encryption
+    bool m_bProgressiveStart;
+    std::shared_ptr<std::iostream> m_outputIOS;
+    rmscrypto::api::SharedStream m_outputSharedStream;
+    std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> m_sharedProtectedStream;
+};
+
+/**
+ * @brief The _childementaion class of interface class PDFSecurityHandler defined by PDF object model.
+ * Please refer to comments of PDFSecurityHandler.
+ * The interface header file of PDF object model is PDFObjectModel.h.
+ */
+class PDFSecurityHandler_child : public rmscore::pdfobjectmodel::PDFSecurityHandler
+{
+public:
+    PDFSecurityHandler_child(std::shared_ptr<PDFProtector_unit> pPDFProtector_unit,
+                         const UserContext& userContext,
+                         const UnprotectOptions& options,
+                         std::shared_ptr<std::atomic<bool>> cancelState);
+    virtual ~PDFSecurityHandler_child();
+
+    virtual bool OnInit(unsigned char* publishingLicense, uint32_t plSize);
+
+    virtual std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> CreateCryptoHandler();
+
+private:
+    std::shared_ptr<PDFProtector_unit> m_pPDFProtector_unit;
+    std::shared_ptr<pdfobjectmodel::PDFCryptoHandler> m_pCryptoHandler;
+    UserContext m_userContext;
+    UnprotectOptions m_options;
+    std::shared_ptr<std::atomic<bool>> m_cancelState;
 };
 
 } // namespace fileapi

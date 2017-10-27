@@ -11,8 +11,8 @@ namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 namespace fileapi = rmscore::fileapi;
 namespace modernapi = rmscore::modernapi;
 
-std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
-void SetUserPolicy()
+static std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+static void SetUserPolicy()
 {
     pdfobjectmodel::PDFModuleMgr::Initialize();//init
     //**********get template info**************
@@ -51,8 +51,8 @@ void PDFCreator_CreateCustomEncryptedFile::TearDownTestCase() {
 TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
 {
       CreateCustomEncryptedFile_P TParam=GetParam();
-      std::string fileIn= GetCurrentInputFile() +TParam.fileIn;
-      //std::string fileIns=GetCurrentInputFile() "Input/Protector/anyoness.pdf";
+      std::string fileIn= unittests::dependency::GetCurrentInputFile() +TParam.fileIn;
+      //std::string fileIns=unittests::dependency::GetCurrentInputFile() "Input/Protector/anyoness.pdf";
 
       auto inFile = std::make_shared<std::fstream>(
         fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
@@ -103,7 +103,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
       if(ret==PDFCREATOR_ERR_SUCCESS)
       {
           //完全加密
-          std::string wrapperIn= GetCurrentInputFile() +"Input/wrapper.pdf";
+          std::string wrapperIn= unittests::dependency::GetCurrentInputFile() +"Input/wrapper.pdf";
 
 
           auto inwrapper = std::make_shared<std::fstream>(
@@ -119,7 +119,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile,CreateCustomEncryptedFile_T)
                       PDF_PROTECTOR_WRAPPER_VERSION);
           m_pdfWrapperCreator->SetPayLoad(outputEncrypted);
 
-          std::string fileOut = GetCurrentInputFile()+TParam.fileout;
+          std::string fileOut = unittests::dependency::GetCurrentInputFile()+TParam.fileout;
           auto outputStream = std::make_shared<std::fstream>(
             fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
           std::shared_ptr<std::iostream> outputIO = outputStream;
@@ -159,7 +159,7 @@ void PDFCreator_UnprotectCustomEncryptedFile::TearDownTestCase() {
 TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
 {
     UnprotectCustomEncryptedFile_P TParam = GetParam();
-    std::string fileIn= GetCurrentInputFile() +TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile() +TParam.fileIn;
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string originalFileExtension=".pFile";
@@ -180,7 +180,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile,UnprotectCustomEncryptedFile_T)
     //**************************************************************
     std::unique_ptr<pdfobjectmodel::PDFCreator> m_pdfCreator = pdfobjectmodel::PDFCreator::Create();
     //****************
-    std::string fileOut = GetCurrentInputFile() +TParam.fileout;
+    std::string fileOut = unittests::dependency::GetCurrentInputFile() +TParam.fileout;
     // create streams
     auto outputStream = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
@@ -254,7 +254,7 @@ TEST_P(PDFWrapperDoc_GetWrapperType,GetWrapperType_T)
 {
     GetWrapperType_P TParam=GetParam();
     pdfobjectmodel::PDFModuleMgr::Initialize();
-    std::string fileIn= GetCurrentInputFile()+TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
@@ -290,7 +290,7 @@ TEST_P(PDFWrapperDoc_GetCryptographicFilter,GetCryptographicFilter_T)
 {
     GetCryptographicFilter_P TParam=GetParam();
     pdfobjectmodel::PDFModuleMgr::Initialize();
-    std::string fileIn= GetCurrentInputFile()+TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
@@ -334,7 +334,7 @@ TEST_P(PDFWrapperDoc_GetPayLoadSize,GetPayLoadSize_T)
 {
     GetPayLoadSize_P TParam=GetParam();
     pdfobjectmodel::PDFModuleMgr::Initialize();
-    std::string fileIn= GetCurrentInputFile()+TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
@@ -370,7 +370,7 @@ TEST_P(PDFWrapperDoc_GetPayloadFileName,GetPayloadFileName_T)
 {
     GetPayloadFileName_P TParam=GetParam();
     pdfobjectmodel::PDFModuleMgr::Initialize();
-    std::string fileIn= GetCurrentInputFile()+TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::shared_ptr<std::iostream> inputEncryptedIO = inFile;
@@ -407,7 +407,7 @@ TEST_P(PDFUnencryptedWrapperCreator_CreateUnencryptedWrapper,CreateUnencryptedWr
 {
     CreateUnencryptedWrapper_P TParam=GetParam();
     pdfobjectmodel::PDFModuleMgr::Initialize();
-    std::string fileIn= GetCurrentInputFile()+TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
     auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string fileOut = "OutPut/CreateUnencryptedWrapper/anyone.pdf";
     auto outFile = std::make_shared<std::fstream>(fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
@@ -456,7 +456,7 @@ void PDFUnencryptedWrapperCreator_SetPayloadInfo::TearDownTestCase() {
 TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
 {
     SetPayloadInfo_P TParam= GetParam();
-    std::string fileIn=GetCurrentInputFile() +"Input/unprotector.pdf";
+    std::string fileIn=unittests::dependency::GetCurrentInputFile() +"Input/unprotector.pdf";
 
 
     auto inFile = std::make_shared<std::fstream>(
@@ -485,7 +485,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
                                                   cryptoHander,
                                                   outputEncrypted);
 
-    std::string wrapperIn= GetCurrentInputFile() +"Input/wrapper.pdf";
+    std::string wrapperIn= unittests::dependency::GetCurrentInputFile() +"Input/wrapper.pdf";
 
 
     auto inwrapper = std::make_shared<std::fstream>(
@@ -502,7 +502,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo,SetPayloadInfo_T)
                     TParam.fVersion);
         m_pdfWrapperCreator->SetPayLoad(outputEncrypted);
 
-        std::string fileOut =GetCurrentInputFile()+TParam.fileout;
+        std::string fileOut =unittests::dependency::GetCurrentInputFile()+TParam.fileout;
         auto outputStream = std::make_shared<std::fstream>(
           fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
         std::shared_ptr<std::iostream> outputIO = outputStream;

@@ -73,12 +73,11 @@ typedef unsigned int    INT;
 /**
  * @brief It is the utility class for pdf object model, like encoding converting.
  */
-class Utility
-{
-public:
-    static void UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End);
-    static void UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length);
-};
+
+namespace utility {
+static void UTF16ToUTF8(UTF16* pUTF16Start, UTF16* pUTF16End, UTF8* pUTF8Start, UTF8* pUTF8End);
+static void UCS4ToUCS2(CFX_WideString wsUCS4, FX_LPBYTE *ppUCS2, FX_DWORD *dwUCS2Length);
+}  // namespace utility
 
 } // namespace pdfobjectmodel
 } // namespace rmscore

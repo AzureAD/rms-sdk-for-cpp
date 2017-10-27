@@ -7,7 +7,7 @@
 TEST_P(ProtectorWithWrapper_Create,Create_T)
 {
     Create_P TParam=GetParam();
-    std::string fileIn= GetCurrentInputFile() +TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile() +TParam.fileIn;
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
@@ -66,7 +66,7 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_Create,testing::Values(
 TEST_P(ProtectorWithWrapper_IsProtected,IsProtected_T)
 {
     IsProtected_P TParam=GetParam();
-    std::string fileIn= GetCurrentInputFile() +TParam.fileIn;
+    std::string fileIn= unittests::dependency::GetCurrentInputFile() +TParam.fileIn;
 
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
@@ -101,7 +101,7 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_IsProtected,testing::Values(
 TEST_P(ProtectorWithWrapper_Unprotector,Unprotector_T)
 {
     Unprotector_P TParam = GetParam();
-    std::string fileIn = GetCurrentInputFile()+TParam.fileIn;
+    std::string fileIn = unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::binary);
     try{
@@ -110,7 +110,7 @@ TEST_P(ProtectorWithWrapper_Unprotector,Unprotector_T)
         std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                     filename, inFile, newFilename);
 
-        std::string fileOut = GetCurrentInputFile() +TParam.fileout;
+        std::string fileOut = unittests::dependency::GetCurrentInputFile() +TParam.fileout;
 
         // create streams
         auto outFile = std::make_shared<std::fstream>(
@@ -171,14 +171,14 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_Unprotector,testing::Values(
 TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T)
 {
     ProtectWithTemplate_P TParam =GetParam();
-    std::string fileIn = GetCurrentInputFile()+TParam.fileIn;
-    std::string wrapperIn =GetCurrentInputFile()+"Input/wrapper.pdf";
+    std::string fileIn = unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
+    std::string wrapperIn =unittests::dependency::GetCurrentInputFile()+"Input/wrapper.pdf";
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
     std::string filename = fileIn;
     std::string newFilename = "";
-    std::string fileOut= GetCurrentInputFile() +TParam.fileout;
+    std::string fileOut= unittests::dependency::GetCurrentInputFile() +TParam.fileout;
     auto outFile = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     try
@@ -263,8 +263,8 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_ProtectWithTemplate,testing::Value
 TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
 {
     ProtectWithCustomRights_P TParam = GetParam();
-    std::string fileIn = GetCurrentInputFile()+TParam.fileIn;
-    std::string wrapperIn =GetCurrentInputFile() +"Input/wrapper.pdf";;
+    std::string fileIn = unittests::dependency::GetCurrentInputFile()+TParam.fileIn;
+    std::string wrapperIn =unittests::dependency::GetCurrentInputFile() +"Input/wrapper.pdf";;
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 
@@ -272,7 +272,7 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights,ProtectWithCustomRights_T)
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                 filename, inFile, newFilename);
-    std::string fileOut = GetCurrentInputFile() +TParam.fileout;
+    std::string fileOut = unittests::dependency::GetCurrentInputFile() +TParam.fileout;
     auto outFile = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     //auto self = shared_from_this();
@@ -388,15 +388,15 @@ ProtectWithCustomRights_P("Input/Protector/customerTemplate.pdf","OutPut/protect
 TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate)
 {
     SetWrapper_P TParam =GetParam();
-    std::string wrapperIn = GetCurrentInputFile()+TParam.wrapperin;
-    std::string fileIn=GetCurrentInputFile() +"Input/unprotector.pdf";
+    std::string wrapperIn = unittests::dependency::GetCurrentInputFile()+TParam.wrapperin;
+    std::string fileIn=unittests::dependency::GetCurrentInputFile() +"Input/unprotector.pdf";
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string filename = fileIn;
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                 filename, inFile, newFilename);
-    std::string fileOut = GetCurrentInputFile()+TParam.outfile;
+    std::string fileOut = unittests::dependency::GetCurrentInputFile()+TParam.outfile;
     auto outFile = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     //auto self = shared_from_this();
@@ -462,15 +462,15 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate)
 TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithCustomRights)
 {
     SetWrapper_P TParam =GetParam();
-    std::string wrapperIn = GetCurrentInputFile()+TParam.wrapperin;
-    std::string fileIn=GetCurrentInputFile() +"Input/unprotector.pdf";
+    std::string wrapperIn = unittests::dependency::GetCurrentInputFile()+TParam.wrapperin;
+    std::string fileIn=unittests::dependency::GetCurrentInputFile() +"Input/unprotector.pdf";
     auto inFile = std::make_shared<std::fstream>(
       fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::string filename = fileIn;
     std::string newFilename = "";
     std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj = rmscore::fileapi::ProtectorWithWrapper::Create(
                 filename, inFile, newFilename);
-    std::string fileOut = GetCurrentInputFile()+TParam.outfile;
+    std::string fileOut = unittests::dependency::GetCurrentInputFile()+TParam.outfile;
     auto outFile = std::make_shared<std::fstream>(
       fileOut, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     //auto self = shared_from_this();

@@ -39,9 +39,6 @@
 #include <UserRights.h>
 #include <rights.h>
 
-void postToMainThread(const std::function<void()>& func,
-                      QObject                     *mainApp);
-
 class AuthCallback : public rmscore::modernapi::IAuthenticationCallback {
 private:
 

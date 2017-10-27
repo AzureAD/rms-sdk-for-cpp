@@ -298,7 +298,7 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pParser, CPDF_Dictionary* pEn
             {
                 FX_LPBYTE pUCS2 = nullptr;
                 FX_DWORD dwUCS2Length = 0;;
-                Utility::UCS4ToUCS2(wsPL, &pUCS2, &dwUCS2Length);
+                utility::UCS4ToUCS2(wsPL, &pUCS2, &dwUCS2Length);
                 bsPLTemp.Load(pUCS2, dwUCS2Length);
                 if(pUCS2 != nullptr)
                 {
@@ -328,7 +328,7 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pParser, CPDF_Dictionary* pEn
             pUTF8Bytes[1] = 0xbb;
             pUTF8Bytes[2] = 0xbf;
 
-            Utility::UTF16ToUTF8((UTF16*)dest_buf, (UTF16*)(dest_buf + dest_size),
+            utility::UTF16ToUTF8((UTF16*)dest_buf, (UTF16*)(dest_buf + dest_size),
             pUTF8Bytes + 3, pUTF8Bytes + dest_size + 3);
 
             bsPL.Load(pUTF8Bytes, sizeUTF8);

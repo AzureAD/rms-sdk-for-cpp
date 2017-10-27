@@ -37,6 +37,11 @@
 #define PDF_PROTECTOR_WRAPPER_DES       L"This embedded file is encrypted using MicrosoftIRMServices filter"
 #define PDF_PROTECTOR_WRAPPER_VERSION   2
 
+namespace unittests {
+namespace dependency {
 std::string GetCurrentInputFile();
+}  // namespace dependency
+}  // namespace unittests
+
 
 #endif // RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_DEPEND_H_

@@ -23,7 +23,7 @@
 #include "FileAPI/Protector.h"
 #include "FileAPI/FileAPIStructures.h"
 
-void postToMainThread(const std::function<void()>& func,
+static void postToMainThread(const std::function<void()>& func,
                       QObject                     *mainApp) {
   QObject signalSource;
   QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](

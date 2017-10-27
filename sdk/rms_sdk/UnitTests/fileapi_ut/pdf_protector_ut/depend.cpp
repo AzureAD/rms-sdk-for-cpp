@@ -1,6 +1,6 @@
 #include "depend.h"
 
-std::string GetCurrentInputFile()
+std::string unittests::dependency::GetCurrentInputFile()
 {
     QString FilePaths=qApp->applicationDirPath();
     int k=FilePaths.lastIndexOf('/');
