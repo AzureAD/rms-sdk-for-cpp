@@ -25,11 +25,11 @@
 
 static void postToMainThread(const std::function<void()>& func,
                       QObject                     *mainApp) {
-  QObject signalSource;
-  QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](
+    QObject signalSource;
+    QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](
                      QObject *) {
     func();
-  });
+    });
 }
 
 AuthCallback::AuthCallback(const std::string& clientId, const std::string& redirectUrl)
@@ -75,17 +75,18 @@ AuthCallbackUI::AuthCallbackUI(QObject      *mainApp,
   : _mainApp(mainApp), _callback(clientId, redirectUrl)
 {}
 
-std::string AuthCallbackUI::GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) {
-  std::promise<std::string> prom;
-  auto res = prom.get_future();
+std::string AuthCallbackUI::GetToken(
+    std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) {
+    std::promise<std::string> prom;
+    auto res = prom.get_future();
 
-  // readdress call to main UI thread
-  postToMainThread([&]() {
+    // readdress call to main UI thread
+    postToMainThread([&]() {
     prom.set_value(_callback.GetToken(ap));
-  }, _mainApp);
+    }, _mainApp);
 
-  // wait for result and return it
-  return res.get();
+    // wait for result and return it
+    return res.get();
 }
 
 rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::ConsentList& consents) {

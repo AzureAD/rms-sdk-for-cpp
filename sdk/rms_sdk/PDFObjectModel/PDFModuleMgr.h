@@ -21,20 +21,18 @@ namespace pdfobjectmodel {
  * The implementation is to initialize the Foxit core.
  * Please refer to comments of PDFModuleMgr.
  */
-class PDFModuleMgrImpl : public PDFModuleMgr
-{
-public:
-    explicit PDFModuleMgrImpl();
+class PDFModuleMgrImpl : public PDFModuleMgr {
+ public:
+  explicit PDFModuleMgrImpl();
 
-    static void RegisterSecurityHandler(const std::string& filter_name,
-                                        std::shared_ptr<PDFSecurityHandler> security_hander);
+  static void RegisterSecurityHandler(const std::string& filter_name,
+                                      std::shared_ptr<PDFSecurityHandler> security_hander);
+  virtual  ~PDFModuleMgrImpl();
 
-    virtual  ~PDFModuleMgrImpl();
-
-private:
-    CPDF_ModuleMgr* pdf_module_manager_;
-    CCodec_ModuleMgr* pdf_codec_module_;
-    CustomSecurityHandler* custom_security_handler_;
+ private:
+  CPDF_ModuleMgr* pdf_module_manager_;
+  CCodec_ModuleMgr* pdf_codec_module_;
+  CustomSecurityHandler* custom_security_handler_;
 };
 
 } // namespace pdfobjectmodel

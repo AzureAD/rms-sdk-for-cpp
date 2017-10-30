@@ -12,16 +12,15 @@ namespace pdfobjectmodel {
  * Please refer to comments of PDFBinaryBuf.
  * The interface header file of PDF object model is PDFObjectModel.h.
  */
-class PDFBinaryBufImpl : public PDFBinaryBuf
-{
-public:
-    explicit PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> bin_buf);
-	virtual ~PDFBinaryBufImpl();
+class PDFBinaryBufImpl : public PDFBinaryBuf {
+ public:
+  explicit PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> bin_buf);
+  virtual ~PDFBinaryBufImpl();
 
-    virtual bool AppendBlock(const void* buffer_pointer, uint32_t size);
+  virtual bool AppendBlock(const void* buffer_pointer, uint32_t size);
 
-private:
-    std::shared_ptr<CFX_BinaryBuf> shared_bin_buffer_;
+ private:
+  std::shared_ptr<CFX_BinaryBuf> shared_bin_buffer_;
 };
 
 /**
@@ -30,32 +29,31 @@ private:
  * IFX_FileStream is the file stream interface (reading & writing) of Foxit core.
  * Please refer to comments of IFX_FileStream of Foxit core.
  */
-class FileStreamImpl : public IFX_FileStream
-{
-public:
-    explicit FileStreamImpl(rmscrypto::api::SharedStream ioStream);
-	virtual ~FileStreamImpl();
+class FileStreamImpl : public IFX_FileStream {
+ public:
+  explicit FileStreamImpl(rmscrypto::api::SharedStream ioStream);
+  virtual ~FileStreamImpl();
 
-	virtual IFX_FileStream* Retain();
+  virtual IFX_FileStream* Retain();
 
-	virtual void Release();
+  virtual void Release();
 
-	virtual FX_FILESIZE GetSize();
+  virtual FX_FILESIZE GetSize();
 
-	virtual FX_BOOL IsEOF();
+  virtual FX_BOOL IsEOF();
 
-	virtual FX_FILESIZE GetPosition();
+  virtual FX_FILESIZE GetPosition();
 
-	virtual FX_BOOL ReadBlock(void* buffer, FX_FILESIZE offset, size_t size);
+  virtual FX_BOOL ReadBlock(void* buffer, FX_FILESIZE offset, size_t size);
 
-	virtual size_t ReadBlock(void* buffer, size_t size);
+  virtual size_t ReadBlock(void* buffer, size_t size);
 
-	virtual	FX_BOOL WriteBlock(const void* buffer, FX_FILESIZE offset, size_t size);
+  virtual	FX_BOOL WriteBlock(const void* buffer, FX_FILESIZE offset, size_t size);
 
-	virtual FX_BOOL Flush();
+  virtual FX_BOOL Flush();
 
-private:
-    rmscrypto::api::SharedStream shared_io_stream_;
+ private:
+  rmscrypto::api::SharedStream shared_io_stream_;
 };
 
 #define UTF8_ONE_START      (0xOOO1)
