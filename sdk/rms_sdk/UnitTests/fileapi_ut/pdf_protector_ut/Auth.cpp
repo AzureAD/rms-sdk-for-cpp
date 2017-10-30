@@ -24,28 +24,23 @@
 #include "FileAPI/FileAPIStructures.h"
 
 static void postToMainThread(const std::function<void()>& func,
-                      QObject                     *mainApp) {
-    QObject signalSource;
-    QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](
-                     QObject *) {
+                             QObject *mainApp) {
+  QObject signalSource;
+  QObject::connect(&signalSource, &QObject::destroyed, mainApp, [ = ](QObject *) {
     func();
-    });
+  });
 }
 
 AuthCallback::AuthCallback(const std::string& clientId, const std::string& redirectUrl)
-  : clientId_(clientId)
-  , redirectUrl_(redirectUrl)
-{
+    : clientId_(clientId),
+      redirectUrl_(redirectUrl) {
   FileCachePtr = std::make_shared<rmsauth::FileCache>();
 }
 
-std::string AuthCallback::GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap)
-{
-  try
-  {
+std::string AuthCallback::GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) {
+  try {
     if (redirectUrl_.empty()) {
-      throw rmscore::exceptions::RMSInvalidArgumentException(
-              "redirect Url is empty");
+      throw rmscore::exceptions::RMSInvalidArgumentException("redirect Url is empty");
     }
 
     if (clientId_.empty()) {
@@ -55,38 +50,39 @@ std::string AuthCallback::GetToken(std::shared_ptr<rmscore::modernapi::Authentic
     rmsauth::AuthenticationContext authContext(
       ap->Authority(), rmsauth::AuthorityValidationType::False, FileCachePtr);
 
-    auto result = authContext.acquireToken(ap->Resource(),
-                                           clientId_,
-                                           redirectUrl_,
-                                           PromptBehavior::Auto,
-                                           ap->UserId());
+    auto result = authContext.acquireToken(
+        ap->Resource(),
+        clientId_,
+        redirectUrl_,
+        PromptBehavior::Auto,
+        ap->UserId());
     return result->accessToken();
   }
-  catch (const rmsauth::Exception& /*ex*/)
-  {
+  catch (const rmsauth::Exception& /*ex*/) {
     // out logs
     throw;
   }
 }
 
-AuthCallbackUI::AuthCallbackUI(QObject      *mainApp,
-                               const std::string& clientId,
-                               const std::string& redirectUrl)
-  : _mainApp(mainApp), _callback(clientId, redirectUrl)
-{}
+AuthCallbackUI::AuthCallbackUI(
+    QObject *mainApp,
+    const std::string& clientId,
+    const std::string& redirectUrl)
+    : _mainApp(mainApp),
+      _callback(clientId, redirectUrl) {}
 
 std::string AuthCallbackUI::GetToken(
     std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) {
-    std::promise<std::string> prom;
-    auto res = prom.get_future();
+  std::promise<std::string> prom;
+  auto res = prom.get_future();
 
-    // readdress call to main UI thread
-    postToMainThread([&]() {
+  // readdress call to main UI thread
+  postToMainThread([&]() {
     prom.set_value(_callback.GetToken(ap));
-    }, _mainApp);
+  }, _mainApp);
 
-    // wait for result and return it
-    return res.get();
+  // wait for result and return it
+  return res.get();
 }
 
 rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::ConsentList& consents) {
@@ -104,7 +100,7 @@ rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::Co
 
     if (user.empty()) continue;
 
-    auto elems         = preventsList[QString::fromStdString(user)];
+    auto elems = preventsList[QString::fromStdString(user)];
     bool isAnyNotFound = false;
 
     // insert urls
@@ -132,27 +128,26 @@ rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::Co
       QString val;
 
       switch (col) {
-      case 0:
-        val = QString::fromStdString(consent->User());
-        break;
+        case 0:
+          val = QString::fromStdString(consent->User());
+          break;
 
-      case 1:
+        case 1:
+          for (auto& url : consent->Urls()) {
+            val += QString::fromStdString(url) + ";";
+          }
+          break;
 
-        for (auto& url : consent->Urls()) {
-          val += QString::fromStdString(url) + ";";
+        case 2:
+          val = QString::fromStdString(
+              consent->Type() == rmscore::modernapi::ConsentType::DocumentTrackingConsent ?
+              "DocumentTracking" : "ServiceUrl");
+          break;
+
+        case 3:
+          val = QString::fromStdString(consent->Domain());
+          break;
         }
-        break;
-
-      case 2:
-        val = QString::fromStdString(
-          consent->Type() == rmscore::modernapi::ConsentType::DocumentTrackingConsent ?
-          "DocumentTracking" : "ServiceUrl");
-        break;
-
-      case 3:
-        val = QString::fromStdString(consent->Domain());
-        break;
-      }
 
       added = true;
     }

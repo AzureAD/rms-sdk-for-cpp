@@ -40,34 +40,32 @@
 #include <rights.h>
 
 class AuthCallback : public rmscore::modernapi::IAuthenticationCallback {
-private:
+ private:
 
   std::shared_ptr<rmsauth::FileCache> FileCachePtr;
   std::string clientId_;
   std::string redirectUrl_;
 
-public:
-
+ public:
   AuthCallback(const std::string& clientId,
                const std::string& redirectUrl);
   virtual std::string GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) override;
 };
 
 class AuthCallbackUI : public rmscore::modernapi::IAuthenticationCallback {
-private:
-
+ private:
   QObject *_mainApp;
   AuthCallback _callback;
 
-public:
-
-  AuthCallbackUI(QObject           *mainApp,
-                 const std::string& clientId,
-                 const std::string& redirectUrl);
+ public:
+  AuthCallbackUI(
+      QObject *mainApp,
+      const std::string& clientId,
+      const std::string& redirectUrl);
   virtual std::string GetToken(std::shared_ptr<rmscore::modernapi::AuthenticationParameters>& ap) override;
 };
 class ConsentCallback : public rmscore::modernapi::IConsentCallback {
-public:
+ public:
 
   virtual rmscore::modernapi::ConsentList Consents(rmscore::modernapi::ConsentList& consents) override;
 };
