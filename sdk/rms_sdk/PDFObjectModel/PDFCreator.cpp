@@ -326,7 +326,7 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pdf_parser,
       publishing_license_bytestring = publishing_license_temp;
     } else {
       FX_DWORD sizeUTF8 = dest_size + 3;
-      std::shared_ptr<FX_BYTE> sharedUTF8Bytes(new FX_BYTE[sizeUTF8]);
+      std::unique_ptr<FX_BYTE> sharedUTF8Bytes(new FX_BYTE[sizeUTF8]);
       FX_LPBYTE pUTF8Bytes = sharedUTF8Bytes.get();
       memset(pUTF8Bytes, 0, sizeof(FX_BYTE) * (sizeUTF8));
       pUTF8Bytes[0] = 0xef;

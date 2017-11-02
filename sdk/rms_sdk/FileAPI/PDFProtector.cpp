@@ -122,7 +122,7 @@ bool PDFCryptoHandlerImpl::EncryptContent(
   if (!pdf_protector_) return false;
 
   uint64_t content_size_add_pre = src_size + 4;
-  std::shared_ptr<char> shared_content_add_pre(new char[content_size_add_pre]);
+  std::unique_ptr<char> shared_content_add_pre(new char[content_size_add_pre]);
   char* content_add_pre = shared_content_add_pre.get();
   content_add_pre[3] = ((char*)&src_size)[0];
   content_add_pre[2] = ((char*)&src_size)[1];
@@ -167,7 +167,7 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(
 
   if (progressive_start_) {
     content_size_add_pre = src_size + 4;
-    std::shared_ptr<char> shared_content_add_pre(new char[content_size_add_pre]);
+    std::unique_ptr<char> shared_content_add_pre(new char[content_size_add_pre]);
     content_add_pre = shared_content_add_pre.get();
 
     content_add_pre[3] = ((char*)&src_size)[0];
@@ -200,7 +200,7 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf
   output_shared_stream_->Seek(std::ios::beg);
   auto size = output_shared_stream_->Size();
 
-  std::shared_ptr<char> shared_data_read(new char[size]);
+  std::unique_ptr<char> shared_data_read(new char[size]);
   char* buf_data_read = shared_data_read.get();
   int64_t data_read = output_shared_stream_->Read(reinterpret_cast<uint8_t*>(buf_data_read), size);
   dest_buf->AppendBlock(buf_data_read, size);
