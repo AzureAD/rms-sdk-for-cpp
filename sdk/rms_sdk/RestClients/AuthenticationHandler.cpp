@@ -207,21 +207,12 @@ static vector<string>SplitString(const string& str, char wDelimiter)
 // parses a name=value pair
 static pair<string, string>ParseNameValuePair(const string& str)
 {
-    auto split = SplitString(str, L'=');
-
-    if (2 == split.size())
-    {
+    int equalsIndex = str.find_first_of('=');
+    if (equalsIndex > 0) {
+        string first = str.substr(0, equalsIndex);
+        string second = str.substr(equalsIndex+1, str.length()-equalsIndex-1);
         // trim whitespace and double quotes from both name and value
-        return make_pair(TrimString(TrimWhiteSpace(split[0]), "\""), TrimString(TrimWhiteSpace(split[1]), "\""));
-    }
-    else if (2 < split.size() && 0 == _strcmpi("authorization", split.at(0).c_str()))
-    {
-        string urlWithParameters = split.at(1);
-        for (int i = 2; i < split.size(); i++) 
-        {
-            urlWithParameters = urlWithParameters + "=" + split.at(i);
-        }
-        return make_pair(TrimString(TrimWhiteSpace(split[0]), "\""), TrimString(TrimWhiteSpace(urlWithParameters), "\""));
+        return make_pair(TrimString(TrimWhiteSpace(first), "\""), TrimString(TrimWhiteSpace(second), "\""));
     }
     else
     {
