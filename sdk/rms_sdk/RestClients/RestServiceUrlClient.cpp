@@ -240,7 +240,7 @@ GetServiceDiscoveryDetails(
     domains.push_back(domain);
   }
 
-  auto pCache = IRestClientCache::Create(IRestClientCache::CACHE_PLAINDATA);
+  auto pCache = IRestClientCache::Create(IRestClientCache::CacheType::CACHE_PLAINDATA);
 
   for (auto& domain : domains)
   {
@@ -451,9 +451,7 @@ string RestServiceUrlClient::GetTtlString(uint32_t ttl)
     ttl = DEFAULT_DNS_TTL;
   }
 
-  common::DateTime dtn = common::DateTime::currentDateTime();
-
-  return common::timeToString(dtn.addSecs(ttl));
+  return common::GetCurrentGmtAsString("%FT%TZ");
 }
 
 shared_ptr<IRestServiceUrlClient>IRestServiceUrlClient::Create()

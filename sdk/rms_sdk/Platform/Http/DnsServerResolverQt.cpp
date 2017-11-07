@@ -7,56 +7,94 @@
  */
 
 #ifdef QTFRAMEWORK
-#include <QDnsLookup>
-#include <QEventLoop>
+
+#include "DnsServerResolverQt.h"
 #include <QCoreApplication>
 #include <QTimer>
-#include "DnsServerResolverQt.h"
-#include <QUdpSocket>
-#include <QThread>
-#include "../../Platform/Logger/Logger.h"
 
-using namespace std;
+#ifdef _WIN32
+#include <windows.h>
+#include <windns.h>
+#elif __linux__
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <resolv.h>
+
+#endif
+
+#include "../../Platform/Logger/Logger.h"
+#define MAX_DNS_NAME_BUF_SIZE 2048
 using namespace rmscore::common;
 using namespace rmscore::platform::logger;
+using namespace std;
 
 namespace rmscore {
 namespace platform {
 namespace http {
-shared_ptr<IDnsServerResolver>IDnsServerResolver::Create()
-{
+
+shared_ptr<IDnsServerResolver>IDnsServerResolver::Create() {
   return make_shared<DnsServerResolverQt>();
 }
 
-std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest)
-{
-  QDnsLookup dns;
-
-  dns.setType(QDnsLookup::SRV);
-  Logger::Hidden("dnsRequest: %s", dnsRequest.c_str());
-  dns.setName(dnsRequest.c_str());
-  dns.lookup();
-  QEventLoop loop;
-  QObject::connect(&dns, SIGNAL(finished()), &loop, SLOT(quit()));
-  loop.exec();
-
-  if (dns.error() != QDnsLookup::NoError)
-  {
-    qWarning("DNS lookup failed");
+#ifdef _WIN32
+std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
+  PDNS_RECORD dnsRecord;
+  DNS_STATUS dnsStatus = ERROR_SUCCESS;
+  std::wstring request(dnsRequest.begin(),dnsRequest.end());
+  dnsStatus = DnsQuery(request.c_str(), DNS_TYPE_SRV, DNS_QUERY_STANDARD, NULL,
+      &dnsRecord, NULL);
+  if (ERROR_SUCCESS != dnsStatus) {
+    Logger::Hidden("DNS Lookup failed looking up record for %s with %d",
+        dnsRequest.c_str(), dnsStatus);
+    return "";
+  } else if ((nullptr != dnsRecord) && (dnsRecord->wType == DNS_TYPE_SRV)) {
+    //Return first record
+    std::wstring wdnsName= dnsRecord->Data.SRV.pNameTarget;
+    std::string dnsName(wdnsName.begin(),wdnsName.end());
+    DnsFree(dnsRecord, DnsFreeRecordList);
+    return dnsName;
+  } else {
+    return "";
   }
-  foreach(const QDnsServiceRecord &record, dns.serviceRecords())
-  {
-    Logger::Hidden("QDnsServiceRecord record: %s --> %s",
-                   record.name().toStdString().c_str(),
-                   record.target().toStdString().c_str());
-
-    return record.target().toStdString();
-  }
-  return "";
 }
 
-std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
-{
+#elif __linux__
+std::string DnsServerResolverQt::doLookup(const std::string& dnsRequest) {
+  //Initialize dns lookup query
+  res_init();
+  unsigned char queryResult[1024];
+  int response = res_query(dnsRequest.c_str(), C_IN, ns_t_srv,
+      queryResult, sizeof(queryResult));
+  if (response < 0) {
+    Logger::Hidden("DNS Lookup failed looking up record for %s: Insufficient buffer",
+        dnsRequest.c_str());
+    return "";
+  } else {
+    int domainSize = -1;
+    ns_msg result;
+    char dnsName[MAX_DNS_NAME_BUF_SIZE] = {0};
+    ns_initparse(queryResult,response,&result);
+    for (int i = 0; i < ns_msg_count(result, ns_s_an); i++) {
+      ns_rr resourceRecord;
+      ns_parserr(&result, ns_s_an, i,&resourceRecord);
+      domainSize = dn_expand(ns_msg_base(result), ns_msg_end(result),
+          ns_rr_rdata(resourceRecord) + 6, dnsName, sizeof(dnsName));
+      if (domainSize > 0) {
+        //Found a succesful record.
+        break;
+      }
+    }
+    if (domainSize < 0) {
+      Logger::Hidden("DNS Lookup failed looking up record for %s: Insufficient buffer",
+        dnsRequest.c_str());
+      return "";
+    }
+    return string(dnsName);
+  }
+}
+#endif
+
+std::string DnsServerResolverQt::lookup(const std::string& dnsRequest) {
   // If a QCoreApplication does not exist, create a temporary instance.
   // QCoreApplication is a singleton, but it can keep getting created and destroyed.
   // QtNetwork calls need to be made from within the scope of the QCoreApplication created.
@@ -65,20 +103,15 @@ std::string DnsServerResolverQt::lookup(const std::string& dnsRequest)
       char name[] = "DnsServerResolverQt::lookup";
       char* argv = &name[0];
       QCoreApplication a(argc, &argv);
-
       auto result = doLookup(dnsRequest);
-
       QTimer::singleShot(0, &a, SLOT(quit()));
       a.exec();
-
       return result;
   }
-
   return doLookup(dnsRequest);
 }
 
-
-} // namespace http
-} // namespace platform
-} // namespace rmscore
+}// namespace http
+}// namespace platform
+}// namespace rmscore
 #endif // ifdef QTFRAMEWORK

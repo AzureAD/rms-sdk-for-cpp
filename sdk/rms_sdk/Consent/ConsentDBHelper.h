@@ -15,8 +15,6 @@
 # include <fstream>
 # include <iostream>
 # include <memory>
-# include <QDebug>
-# include <QStandardPaths>
 
 namespace rmscore {
 namespace consent {
@@ -34,8 +32,7 @@ public:
 
     static ConsentDBHelper& GetInstance();
 
-    bool Initialize(const std::string& path = (QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
-                               "/.ms-ad/").toStdString());
+    bool Initialize();
 
     void AddApprovedServiceDomain(const std::string& userId,
                                   const std::string& domain);

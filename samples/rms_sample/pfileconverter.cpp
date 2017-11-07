@@ -233,7 +233,7 @@ shared_ptr<GetProtectedFileStreamResult>PFileConverter::ConvertFromPFile(
                                     | RESPONSE_CACHE_ONDISK),
     cancelState);
 
-  if ((fsResult.get() != nullptr) && (fsResult->m_status == Success) &&
+  if ((fsResult.get() != nullptr) && (fsResult->m_status == GetUserPolicyResultStatus::Success) &&
       (fsResult->m_stream != nullptr)) {
     auto pfs = fsResult->m_stream;
 

@@ -1,0 +1,8 @@
+Import('env')
+
+src_files = Split("""
+	src/gtest-all.cc
+""")
+
+googletest_lib = env.Library(target = "googletest", source = src_files)
+Return('googletest_lib')

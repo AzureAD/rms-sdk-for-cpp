@@ -11,8 +11,9 @@
 
 #include <chrono>
 #include <CryptoAPI.h>
+#include <list>
+#include <mutex>
 #include "../Common/CommonTypes.h"
-#include "../Common/FrameworkSpecificTypes.h"
 #include "../ModernAPI/IConsentCallbackImpl.h"
 #include "../ModernAPI/IAuthenticationCallbackImpl.h"
 #include "../ModernAPI/ProtectedFileStream.h"
@@ -21,7 +22,7 @@
 
 namespace rmscore {
 namespace core {
-enum AccessStatus {
+enum class AccessStatus {
   ACCESS_STATUS_ACCESS_GRANTED,
   ACCESS_STATUS_ACCESS_DENIED,
   ACCESS_STATUS_ACCESS_EXPIRED,
@@ -262,7 +263,7 @@ private:
   typedef std::list<std::shared_ptr<ProtectionPolicy> >CachedProtectionPolicies;
 
   static CachedProtectionPolicies *s_pCachedProtectionPolicies;
-  static common::Mutex s_cachedProtectionPoliciesMutex;
+  static std::mutex s_cachedProtectionPoliciesMutex;
 };
 } // namespace core
 } // namespace rmscore

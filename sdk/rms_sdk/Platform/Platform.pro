@@ -1,7 +1,5 @@
 TEMPLATE = subdirs
 
-DEFINES += QTFRAMEWORK
-
 SUBDIRS += \
     Http \
     Common \

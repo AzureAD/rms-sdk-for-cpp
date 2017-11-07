@@ -10,7 +10,7 @@
 #define _RMS_LIB_QDATASTREAM_H_
 
 #include <mutex>
-#include "../ModernAPIExport.h"
+#include "api_export.h"
 #include <QSharedPointer>
 #include <QDataStream>
 #include <CryptoAPI.h>

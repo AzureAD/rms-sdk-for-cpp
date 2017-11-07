@@ -13,7 +13,7 @@
 #include <string>
 #include <stdint.h>
 
-#include "../../Common/FrameworkSpecificTypes.h"
+#include "../../Common/CommonTypes.h"
 
 namespace rmscore { namespace platform { namespace json {
 

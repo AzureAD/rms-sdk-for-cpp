@@ -7,7 +7,9 @@
 */
 
 #include<QCoreApplication>
+#include"PlatformUriTest.h"
 #include"PlatformHttpClientTest.h"
+#include"PlatformDnsTest.h"
 #include"PlatformJsonArrayTest.h"
 #include"PlatformXmlTest.h"
 #include"PlatformJsonObjectTest.h"
@@ -15,11 +17,13 @@
 #include"PlatformFileTest.h"
 #include"PlatformFileSystemTest.h"
 
-int main(int argc, char *argv[])
-{
-    QCoreApplication app(argc, argv);
+ int main(int argc, char *argv[])
+ {
+     QCoreApplication app(argc, argv);
 
     int res = 0;
+    res += QTest::qExec(new PlatformUriTest(), argc, argv);
+    res += QTest::qExec(new PlatformDnsTest(), argc, argv);
     res += QTest::qExec(new PlatformHttpClientTest(), argc, argv);
     res += QTest::qExec(new PlatformXmlTest(), argc, argv);
     res += QTest::qExec(new PlatformJsonObjectTest(), argc, argv);

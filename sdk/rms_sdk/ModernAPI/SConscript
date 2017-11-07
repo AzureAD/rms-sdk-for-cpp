@@ -1,0 +1,28 @@
+from build_config import create_objs
+
+Import("""
+    lib_suffix
+    platform
+    rms_env
+""")
+
+modernapi_env = rms_env.Clone()
+
+modernapi_env.Append(CPPDEFINES = ['RMS_LIBRARY'])
+
+modernapi_env.Append(CCFLAGS=Split('-DRMS_LIBRARY'))
+modernapi_env.Append(CXXFLAGS=Split('-DRMS_LIBRARY'))
+
+src_files = Glob('*.cpp')
+modernapi_env.Append(CPPPATH='#sdk/rmscrypto_sdk/CryptoAPI')
+
+if platform == 'win32':
+  modernapi_env.Append(LINKFLAGS=Split('/DYNAMICBASE /NXCOMPAT /DLL /SUBSYSTEM:WINDOWS'))
+elif platform == 'darwin':
+  libs =+ [
+    'ssl',
+    'crypto',
+  ]
+
+modernapi_obj = create_objs(modernapi_env, src_files)
+Return('modernapi_obj')

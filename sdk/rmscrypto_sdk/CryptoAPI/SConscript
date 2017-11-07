@@ -1,0 +1,13 @@
+from build_config import create_objs
+
+Import("""
+    crypto_platform_env
+    platform
+""")
+
+cryptoapi_env = crypto_platform_env.Clone();
+
+src_files = Glob('*.cpp')
+
+crypto_api_obj = create_objs(cryptoapi_env, src_files)
+Return('crypto_api_obj')

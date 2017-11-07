@@ -1,0 +1,27 @@
+from build_config import *
+
+Import("""
+    crypto_platform_env
+    platform
+""")
+
+src_files = ['base64.cpp']
+
+if platform == 'win32':
+  crypto_platform_env.Append(CPPPATH='#sdk/rmscrypto_sdk/')
+  src_files += [
+      'KeyStorageWindows.cpp',
+      'sqlite3.c',
+      'StorageAccessWindows.cpp',
+  ]
+elif platform == 'linux2':
+  src_files += ['KeyStoragePosix.cpp']  
+elif platform == 'darwin':
+  src_files += ['KeyStorageOSX.cpp']
+
+if platform == 'linux2':
+    crypto_platform_env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+
+crypto_platform_keystorage_obj = create_objs(crypto_platform_env, src_files)
+
+Return('crypto_platform_keystorage_obj')

@@ -11,6 +11,7 @@ CONFIG   += console c++11 debug_and_release
 CONFIG   -= app_bundle
 
 INCLUDEPATH       += $$REPO_ROOT/sdk/rmscrypto_sdk/CryptoAPI
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/Profile
 win32:INCLUDEPATH += $$REPO_ROOT/third_party/include
 
 LIBS       += -L$$REPO_ROOT/bin -L$$REPO_ROOT/bin/rms -L$$REPO_ROOT/bin/rms/platform
@@ -22,8 +23,8 @@ CONFIG(debug, debug|release) {
     LIBS += -lplatformhttp -lplatformlogger -lplatformxml -lplatformjson -lplatformfilesystem -lplatformsettings -lrmscrypto
 }
 
-win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32
-else:LIBS  += -lssl -lcrypto
+win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -lUser32 -lAdvapi32 -ldnsapi
+else:LIBS  += -lssl -lcrypto -lresolv
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
@@ -34,7 +35,9 @@ SOURCES += \
     PlatformJsonArrayTest.cpp \
     PlatformJsonObjectTest.cpp \
     PlatformFileSystemTest.cpp \
-    PlatformFileTest.cpp
+    PlatformFileTest.cpp \
+    PlatformUriTest.cpp \
+    PlatformDnsTest.cpp
 
 HEADERS += \
     PlatformHttpClientTest.h \
@@ -43,4 +46,6 @@ HEADERS += \
     PlatformJsonObjectTest.h \
     PlatformFileSystemTest.h \
     PlatformFileTest.h \
-    TestHelpers.h
+    TestHelpers.h \
+    PlatformDnsTest.h \
+    PlatformUriTest.h
