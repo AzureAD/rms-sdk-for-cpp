@@ -27,14 +27,12 @@ public:
         const std::shared_ptr<std::string>& pServerPublicCertificate,
         modernapi::IAuthenticationCallbackImpl& authenticationCallback,
         const std::string&  discoveryUrl,
-        const std::map<std::string, std::string>& discoveryParams,
         std::shared_ptr<std::atomic<bool> >     cancelState) override;
 
 private:
 
   std::string CreateGetRequest(const std::string& discoveryUrl,
-                               const Domain& domain,
-                               const std::map<std::string, std::string>& discoveryParams);
+                               const Domain& domain);
 };
 
 } // namespace restclients

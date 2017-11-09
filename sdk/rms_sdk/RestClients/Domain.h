@@ -32,7 +32,9 @@ public:
 
 public:
 
+  void SetEmail(const std::string& email);
   std::string GetOriginalInput() const;
+  std::string GetEmail() const;
   std::string GetDomainStringForDnsLookup() const;
   DomainType  GetType() const;
 

@@ -27,7 +27,6 @@ public:
         const std::shared_ptr<std::string>& pServerPublicCertificate,
         modernapi::IAuthenticationCallbackImpl& authenticationCallback,
         const std::string& discoveryUrl,
-        const std::map<std::string, std::string>& discoveryParams,
         std::shared_ptr<std::atomic<bool>> cancelState) = 0;
 
 public:

@@ -54,6 +54,11 @@ shared_ptr<Domain>Domain::CreateFromUrl(const string& sUrl)
   return domain;
 }
 
+void Domain::SetEmail(const std::string& email)
+{
+    m_Email = email;
+}
+
 string Domain::GetOriginalInput() const
 {
   switch (m_DomainType)
@@ -67,6 +72,11 @@ string Domain::GetOriginalInput() const
   default:
     return "";
   }
+}
+
+std::string Domain::GetEmail() const
+{
+    return m_Email;
 }
 
 string Domain::GetDomainStringForDnsLookup() const
