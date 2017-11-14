@@ -36,16 +36,4 @@ RestClientsUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
 if %ERRORLEVEL% NEQ 0 ( 
 	exit /B 1
 )
-xmpFileUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
-pFileUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
-commonUnitTests.exe -xunitxml >> tests\rmsUnitTestResults.txt
-if %ERRORLEVEL% NEQ 0 ( 
-	exit /B 1
-)
 cd ..
