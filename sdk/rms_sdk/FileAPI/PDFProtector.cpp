@@ -182,13 +182,16 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(
     output_shared_stream_ = rmscrypto::api::CreateStreamFromStdStream(output_IOS_);
     shared_protected_stream_ = pdf_protector_->CreateProtectedStream(output_shared_stream_,
                                                                      content_size_add_pre);
+
+    pdf_protector_->EncryptStream(content_add_pre,
+                                  content_size_add_pre, shared_protected_stream_, false);
   } else {
     content_size_add_pre = src_size;
     content_add_pre = src_buf;
-  }
 
-  pdf_protector_->EncryptStream(content_add_pre,
-                                content_size_add_pre, shared_protected_stream_, false);
+    pdf_protector_->EncryptStream(content_add_pre,
+                                  content_size_add_pre, shared_protected_stream_, false);
+  }
 
   progressive_start_ = false;
 

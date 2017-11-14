@@ -48,7 +48,7 @@ class FileStreamImpl : public IFX_FileStream {
 
   virtual size_t ReadBlock(void* buffer, size_t size);
 
-  virtual	FX_BOOL WriteBlock(const void* buffer, FX_FILESIZE offset, size_t size);
+  virtual FX_BOOL WriteBlock(const void* buffer, FX_FILESIZE offset, size_t size);
 
   virtual FX_BOOL Flush();
 
