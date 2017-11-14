@@ -46,10 +46,7 @@ FX_BOOL CustomCryptoHandler::DecryptStream(
     FX_DWORD src_size,
     CFX_BinaryBuf& dest_buf) {
   if (pdf_crypto_handler_) {
-    std::shared_ptr<CFX_BinaryBuf> shared_dest_buf(&dest_buf, [=](CFX_BinaryBuf* pDestBuf) {
-      pDestBuf = nullptr;
-     });
-     PDFBinaryBufImpl bin_buf(shared_dest_buf);
+     PDFBinaryBufImpl bin_buf(&dest_buf);
      return pdf_crypto_handler_->DecryptStream((char*)src_buf, src_size, &bin_buf);
   }
   return false;
@@ -58,10 +55,7 @@ FX_BOOL CustomCryptoHandler::DecryptStream(
 FX_BOOL CustomCryptoHandler::DecryptFinish(FX_LPVOID context,
                                            CFX_BinaryBuf& dest_buf) {
   if (pdf_crypto_handler_) {
-    std::shared_ptr<CFX_BinaryBuf> shared_dest_buf(&dest_buf, [=](CFX_BinaryBuf* pDestBuf) {
-      pDestBuf = nullptr;
-    });
-    PDFBinaryBufImpl bin_buf(shared_dest_buf);
+    PDFBinaryBufImpl bin_buf(&dest_buf);
     return pdf_crypto_handler_->DecryptFinish(&bin_buf);
   }
   return false;
@@ -115,10 +109,8 @@ FX_BOOL CustomCryptoHandler::ProgressiveEncryptContent(
     FX_DWORD src_size,
     CFX_BinaryBuf& dest_buf) {
   if (pdf_crypto_handler_) {
-    std::shared_ptr<CFX_BinaryBuf> shared_dest_buf(&dest_buf, [=](CFX_BinaryBuf* pDestBuf) {
-      pDestBuf = nullptr;
-    });
-    PDFBinaryBufImpl bin_buf(shared_dest_buf);
+
+    PDFBinaryBufImpl bin_buf(&dest_buf);
     return pdf_crypto_handler_->ProgressiveEncryptContent(
         objnum,
         version,
@@ -131,10 +123,8 @@ FX_BOOL CustomCryptoHandler::ProgressiveEncryptContent(
 
 FX_BOOL CustomCryptoHandler:: ProgressiveEncryptFinish(CFX_BinaryBuf& dest_buf) {
   if (pdf_crypto_handler_) {
-    std::shared_ptr<CFX_BinaryBuf> shared_dest_buf(&dest_buf, [=](CFX_BinaryBuf* pDestBuf) {
-      pDestBuf = nullptr;
-    });
-    PDFBinaryBufImpl bin_buf(shared_dest_buf);
+
+    PDFBinaryBufImpl bin_buf(&dest_buf);
     return pdf_crypto_handler_->ProgressiveEncryptFinish(&bin_buf);
   }
   return false;

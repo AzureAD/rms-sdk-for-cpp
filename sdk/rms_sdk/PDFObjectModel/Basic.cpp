@@ -5,17 +5,17 @@ namespace pdfobjectmodel {
 
 //////////////////////////////////////////////////////////////////////////
 // class PDFBinaryBufImpl
-PDFBinaryBufImpl::PDFBinaryBufImpl(std::shared_ptr<CFX_BinaryBuf> bin_buf) {
-  shared_bin_buffer_ = bin_buf;
+PDFBinaryBufImpl::PDFBinaryBufImpl(CFX_BinaryBuf* bin_buf) {
+  bin_buffer_ = bin_buf;
 }
 
 PDFBinaryBufImpl::~PDFBinaryBufImpl() {
-  shared_bin_buffer_ = nullptr;
+  bin_buffer_ = nullptr;
 }
 
 bool PDFBinaryBufImpl::AppendBlock(const void* buffer_pointer, uint32_t size) {
-  if (shared_bin_buffer_) {
-    return shared_bin_buffer_->AppendBlock(buffer_pointer, size);
+  if (bin_buffer_) {
+    return bin_buffer_->AppendBlock(buffer_pointer, size);
   }
   return false;
 }
