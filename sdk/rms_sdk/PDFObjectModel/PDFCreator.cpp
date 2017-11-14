@@ -349,10 +349,14 @@ FX_DWORD CustomSecurityHandler::GetPermissions() {
   return 0;
 }
 
+//PDF Object Model is for PDF protection and unprotection.
+//The upper layer RMS system controls the permission.
 FX_BOOL CustomSecurityHandler::IsOwner() {
   return true;
 }
 
+//This interface is for PDF standard encryption\decryption algorithm.
+//RMS has its own algorithm to deal with the data in CustomCryptoHandler.
 FX_BOOL CustomSecurityHandler::GetCryptInfo(int& cipher, FX_LPCBYTE& buffer, int& keylen) {
   return true;
 }
@@ -399,12 +403,12 @@ uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(
     const std::vector<unsigned char> &publishing_license,
     std::shared_ptr<PDFCryptoHandler> crypto_hander,
     rmscrypto::api::SharedStream outputIOS) {
-  uint32_t result = PDFCREATOR_ERR_SUCCESS;
+  uint32_t result = PDFCreatorErr::SUCCESS;
   file_path_ = input_file_path;
 
   CPDF_Parser pdf_parser;
   result = ParsePDFFile(&pdf_parser);
-  if (PDFCREATOR_ERR_SUCCESS != result) {
+  if (PDFCreatorErr::SUCCESS != result) {
     return result;
   }
 
@@ -492,26 +496,26 @@ bool PDFCreatorImpl::IsDynamicXFA(CPDF_Parser *pdf_parser) {
 }
 
 uint32_t PDFCreatorImpl::ParsePDFFile(CPDF_Parser *pdf_parser) {
-  uint32_t result = PDFCREATOR_ERR_SUCCESS;
+  uint32_t result = PDFCreatorErr::SUCCESS;
   CFX_ByteString file_path_bytestring = file_path_.c_str();
 
   FX_DWORD parse_result = pdf_parser->StartParse(file_path_bytestring);
   result = ConvertParsingErrCode(parse_result);
 
-  if(result == PDFCREATOR_ERR_SUCCESS) {
+  if(result == PDFCreatorErr::SUCCESS) {
     //has been protected by password
     if (IsProtectedByPassword(pdf_parser)) {
-      return PDFCREATOR_ERR_SECURITY;
+      return PDFCreatorErr::SECURITY;
     }
 
     //has been signed?
     if (IsSigned(pdf_parser)) {
-      return PDFCREATOR_ERR_FORMAT;
+      return PDFCreatorErr::FORMAT;
     }
 
     //is dynamic XFA PDF
     if (IsDynamicXFA(pdf_parser)) {
-      return PDFCREATOR_ERR_FORMAT;
+      return PDFCreatorErr::FORMAT;
     }
   }
 
@@ -519,30 +523,30 @@ uint32_t PDFCreatorImpl::ParsePDFFile(CPDF_Parser *pdf_parser) {
 }
 
 uint32_t PDFCreatorImpl::ConvertParsingErrCode(FX_DWORD parse_result) {
-  uint32_t result = PDFCREATOR_ERR_SUCCESS;
+  uint32_t result = PDFCreatorErr::SUCCESS;
   switch (parse_result) {
     case PDFPARSE_ERROR_SUCCESS: {
-      result = PDFCREATOR_ERR_SUCCESS;
+      result = PDFCreatorErr::SUCCESS;
       break;
     }
     case PDFPARSE_ERROR_FILE: {
-      result = PDFCREATOR_ERR_FILE;
+      result = PDFCreatorErr::FILE;
       break;
     }
     case PDFPARSE_ERROR_FORMAT: {
-      result = PDFCREATOR_ERR_FORMAT;
+      result = PDFCreatorErr::FORMAT;
       break;
     }
 
     case PDFPARSE_ERROR_PASSWORD:
     case PDFPARSE_ERROR_HANDLER:
     case PDFPARSE_ERROR_CERT: {
-      result = PDFCREATOR_ERR_SECURITY;
+      result = PDFCreatorErr::SECURITY;
       break;
     }
 
     default: {
-      result = PDFCREATOR_ERR_UNKNOWN;
+      result = PDFCreatorErr::UNKNOWN_ERR;
       break;
     }
 
@@ -589,7 +593,7 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
     CPDF_Dictionary* encryption_dictionary,
     std::shared_ptr<PDFCryptoHandler> crypto_hander,
     rmscrypto::api::SharedStream outputIOS) {
-  uint32_t result = PDFCREATOR_ERR_SUCCESS;
+  uint32_t result = PDFCreatorErr::SUCCESS;
 
   CPDF_Document* pdf_document = pdf_parser->GetDocument();
   CPDF_Creator pdf_creator(pdf_document);
@@ -613,7 +617,7 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
   FileStreamImpl file_stream(outputIOS);
   FX_BOOL create_result = pdf_creator.Create(&file_stream);
   if (!create_result) {
-    result = PDFCREATOR_ERR_CREATOR;
+    result = PDFCreatorErr::CREATOR;
   }
 
   return result;
@@ -624,7 +628,7 @@ uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
     const std::string& filter_name,
     std::shared_ptr<PDFSecurityHandler> security_hander,
     rmscrypto::api::SharedStream outputIOS) {
-  uint32_t result = PDFCREATOR_ERR_SUCCESS;
+  uint32_t result = PDFCreatorErr::SUCCESS;
 
   PDFModuleMgrImpl::RegisterSecurityHandler(filter_name.c_str(), security_hander);
 
@@ -632,7 +636,7 @@ uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
   CPDF_Parser pdf_parser;
   FX_DWORD parse_result = pdf_parser.StartParse(&input_file_stream);
   result = ConvertParsingErrCode(parse_result);
-  if (result != PDFCREATOR_ERR_SUCCESS) return result;
+  if (result != PDFCreatorErr::SUCCESS) return result;
 
   CPDF_Document* pdf_document = pdf_parser.GetDocument();
   CPDF_Creator pdf_creator(pdf_document);
@@ -652,7 +656,7 @@ uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
   FileStreamImpl output_file_stream(outputIOS);
   FX_BOOL create_result = pdf_creator.Create(&output_file_stream);
   if (!create_result) {
-    result = PDFCREATOR_ERR_CREATOR;
+    result = PDFCreatorErr::CREATOR;
   }
 
   return result;

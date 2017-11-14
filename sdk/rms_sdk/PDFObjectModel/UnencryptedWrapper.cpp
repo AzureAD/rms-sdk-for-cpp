@@ -14,7 +14,7 @@ std::unique_ptr<PDFWrapperDoc> PDFWrapperDoc::Create(rmscrypto::api::SharedStrea
 
 PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapper_doc_stream) {
   wrapper_doc_ = nullptr;
-  wrapper_type_ = PDFWRAPPERDOC_TYPE_NORMAL;
+  wrapper_type_ = PDFWrapperDocType::NORMAL;
   graphic_filter_ = L"";
   version_number_ = 0;
   payload_size_ = 0;
@@ -27,7 +27,7 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapper_doc_st
     wrapper_doc_ = std::make_shared<CPDF_WrapperDoc>(pdf_document);
 
     wrapper_type_ = wrapper_doc_->GetWrapperType();
-    if (wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV1) {
+    if (wrapper_type_ == PDFWrapperDocType::IRMV1) {
       CPDF_Dictionary* trailer_dictionary = pdf_parser_.GetTrailer();
       CPDF_Dictionary* wrapper_dictionary = trailer_dictionary->GetDict(IRMV1_WRAPPER_DICTIONARY);
       if (wrapper_dictionary) {
@@ -37,7 +37,7 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapper_doc_st
         version_number_ = 1;
         payload_size_ = trailer_dictionary->GetInteger(IRMV1_WRAPPER_DICTIONARY_OFFSET);
       }
-    } else if (wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV2) {
+    } else if (wrapper_type_ == PDFWrapperDocType::IRMV2) {
       CFX_WideString graphic_filter_get;
       wrapper_doc_->GetCryptographicFilter(graphic_filter_get, version_number_);
       graphic_filter_ = (wchar_t*)(FX_LPCWSTR)graphic_filter_get;
@@ -82,11 +82,11 @@ bool PDFWrapperDocImpl::GetPayloadFileName(std::wstring& file_name) const {
 }
 
 bool PDFWrapperDocImpl::StartGetPayload(rmscrypto::api::SharedStream output_stream) {
-  if (wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV1) {
+  if (wrapper_type_ == PDFWrapperDocType::IRMV1) {
     uint8_t* buffer_pointer_temp = new uint8_t[payload_size_];
     wrapper_file_stream_->ReadBlock(buffer_pointer_temp, 0, payload_size_);
     output_stream->Write(buffer_pointer_temp, payload_size_);
-  } else if (wrapper_type_ == PDFWRAPPERDOC_TYPE_IRMV2) {
+  } else if (wrapper_type_ == PDFWrapperDocType::IRMV2) {
     if (!wrapper_doc_) return false;
     FileStreamImpl output_file_stream(output_stream);
     wrapper_doc_->StartGetPayload(&output_file_stream);

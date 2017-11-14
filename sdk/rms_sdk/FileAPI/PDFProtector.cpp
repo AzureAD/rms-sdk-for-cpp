@@ -410,7 +410,8 @@ UnprotectResult PDFProtector::Unprotect(
   std::wstring graphic_filter;
   float version_num = 0;
   pdf_wrapper_doc->GetCryptographicFilter(graphic_filter, version_num);
-  if ((wrapper_type != PDFWRAPPERDOC_TYPE_IRMV1 && wrapper_type != PDFWRAPPERDOC_TYPE_IRMV2) ||
+  if ((wrapper_type != pdfobjectmodel::PDFWrapperDocType::IRMV1 &&
+       wrapper_type != pdfobjectmodel::PDFWrapperDocType::IRMV2) ||
       payload_size <= 0 ||
       graphic_filter.compare(PDF_PROTECTOR_WRAPPER_SUBTYPE) != 0) {
     logger::Logger::Error("It is not a valid RMS-protected file.");
@@ -443,7 +444,7 @@ UnprotectResult PDFProtector::Unprotect(
       filter_name,
       security_hander,
       output_decrypted);
-  if(PDFCREATOR_ERR_SUCCESS != result) {
+  if(pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     logger::Logger::Error("Failed to decrypt the file. The file may be corrupted.");
     throw exceptions::RMSPDFFileException("Failed to decrypt the file. The file may be corrupted.",
                                           exceptions::RMSPDFFileException::CorruptFile);
@@ -467,7 +468,8 @@ bool PDFProtector::IsProtected() const {
   std::wstring graphic_filter;
   float version_num = 0;
   pdf_wrapper_doc->GetCryptographicFilter(graphic_filter, version_num);
-  if ((wrapper_type != PDFWRAPPERDOC_TYPE_IRMV1 && wrapper_type != PDFWRAPPERDOC_TYPE_IRMV2) ||
+  if ((wrapper_type != pdfobjectmodel::PDFWrapperDocType::IRMV1 &&
+       wrapper_type != pdfobjectmodel::PDFWrapperDocType::IRMV2) ||
       (payload_size <= 0) ||
       graphic_filter.compare(PDF_PROTECTOR_WRAPPER_SUBTYPE) != 0) {
     return false;
@@ -503,7 +505,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
       publishing_license,
       crypto_hander,
       output_encrypted);
-  if (PDFCREATOR_ERR_SUCCESS != result) {
+  if (pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     logger::Logger::Error("Failed to encrypt the file. The file is invalid.");
     throw exceptions::RMSPDFFileException("Failed to encrypt the file. The file is invalid.",
                                           exceptions::RMSPDFFileException::CorruptFile);

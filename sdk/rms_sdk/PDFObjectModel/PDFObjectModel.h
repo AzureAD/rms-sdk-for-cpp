@@ -59,10 +59,15 @@ class PDFBinaryBuf {
   virtual bool AppendBlock(const void* buffer_pointer, uint32_t size) = 0;
 };
 
-#define  PDFWRAPPERDOC_TYPE_UNKNOWN -1	/** Unknown. */
-#define  PDFWRAPPERDOC_TYPE_NORMAL	0	/** Normal document. */
-#define  PDFWRAPPERDOC_TYPE_IRMV1	1	/** For IRM V1 wrapper document. */
-#define  PDFWRAPPERDOC_TYPE_IRMV2	2	/** For IRM V2 wrapper document. */
+/**
+ * @brief The type definitions of PDF wrapper doc.
+ */
+enum PDFWrapperDocType{
+  UNKNOWN = -1, /** Unknown. */
+  NORMAL,   /** Normal document. */
+  IRMV1,    /** For IRM V1 wrapper document. */
+  IRMV2,    /** For IRM V2 wrapper document. */
+};
 
 /**
  * @brief It is used to checks the encrypted PDF document wrapped up with wrapper document.
@@ -257,12 +262,17 @@ class PDFSecurityHandler {
   virtual std::shared_ptr<PDFCryptoHandler> CreateCryptoHandler() = 0;
 };
 
-#define PDFCREATOR_ERR_SUCCESS				0
-#define PDFCREATOR_ERR_FILE					1
-#define PDFCREATOR_ERR_FORMAT				2
-#define PDFCREATOR_ERR_SECURITY				3
-#define PDFCREATOR_ERR_CREATOR				4
-#define PDFCREATOR_ERR_UNKNOWN				5
+/**
+ * @brief The error code definitions for PDFCreator.
+ */
+enum PDFCreatorErr{
+  SUCCESS = 0,
+  FILE,
+  FORMAT,
+  SECURITY,
+  CREATOR,
+  UNKNOWN_ERR,
+};
 
 /**
  * @brief It is used to create custom encrypted PDF file(be opposed to standard encryption like

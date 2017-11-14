@@ -102,7 +102,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
     return;
   }
   EXPECT_EQ(TParam.ret, ret);
-  if (ret==PDFCREATOR_ERR_SUCCESS) {
+  if (ret==pdfobjectmodel::PDFCreatorErr::SUCCESS) {
     //完全加密
     std::string wrapper_in = unittests::dependency::GetCurrentInputFile() + "Input/wrapper.pdf";
 
@@ -130,21 +130,21 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
   }
 }
 INSTANTIATE_TEST_CASE_P(, PDFCreator_CreateCustomEncryptedFile, testing::Values(
-    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/FoxitIRMServices.pdf","FoxitIRMServices","NO Exception",PDFCREATOR_ERR_SUCCESS),//不挂就好
-    CreateCustomEncryptedFile_P("Input/package.pdf","OutPut/CreateCustomEncryptedFile/package.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_SUCCESS),
-    CreateCustomEncryptedFile_P("Input/demage.pdf","OutPut/CreateCustomEncryptedFile/demage.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_FORMAT),
-    CreateCustomEncryptedFile_P("Input/XFAStatic.pdf","OutPut/CreateCustomEncryptedFile/XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_SUCCESS),
-    CreateCustomEncryptedFile_P("Input/sign.pdf","OutPut/CreateCustomEncryptedFile/sign.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_FORMAT),//未加密的文档
-    CreateCustomEncryptedFile_P("Input/XFADyanmic-crash.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic-crash.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_FORMAT),//未加密的文档
-    CreateCustomEncryptedFile_P("Input/XFADyanmic.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_FORMAT),//未加密的文档
-    //CreateCustomEncryptedFile_P("Input/Protector/cer2-no.pdf","OutPut/CreateCustomEncryptedFile/cer2-no.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SECURITY),
-    CreateCustomEncryptedFile_P("Input/Protector/cer.pdf","OutPut/CreateCustomEncryptedFile/cer.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SECURITY),
-    CreateCustomEncryptedFile_P("Input/error/anyone.pdf","OutPut/CreateCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FILE),
-    CreateCustomEncryptedFile_P("Input/Protector/anyone.pdf","OutPut/CreateCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_SUCCESS),
-    CreateCustomEncryptedFile_P("Input/Protector/password.pdf","OutPut/CreateCustomEncryptedFile/password.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SECURITY),
-    CreateCustomEncryptedFile_P("Input/Protector/pwd_protect.pdf","OutPut/CreateCustomEncryptedFile/pwd_protect.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SECURITY),
-    CreateCustomEncryptedFile_P("Input/Test.txt","OutPut/CreateCustomEncryptedFile/txt.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),//未加密的文档
-    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/protector.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",PDFCREATOR_ERR_SUCCESS)//未加密的文档
+    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/FoxitIRMServices.pdf","FoxitIRMServices","NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),//不挂就好
+    CreateCustomEncryptedFile_P("Input/package.pdf","OutPut/CreateCustomEncryptedFile/package.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
+    CreateCustomEncryptedFile_P("Input/demage.pdf","OutPut/CreateCustomEncryptedFile/demage.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    CreateCustomEncryptedFile_P("Input/XFAStatic.pdf","OutPut/CreateCustomEncryptedFile/XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
+    CreateCustomEncryptedFile_P("Input/sign.pdf","OutPut/CreateCustomEncryptedFile/sign.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
+    CreateCustomEncryptedFile_P("Input/XFADyanmic-crash.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic-crash.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
+    CreateCustomEncryptedFile_P("Input/XFADyanmic.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
+    //CreateCustomEncryptedFile_P("Input/Protector/cer2-no.pdf","OutPut/CreateCustomEncryptedFile/cer2-no.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
+    CreateCustomEncryptedFile_P("Input/Protector/cer.pdf","OutPut/CreateCustomEncryptedFile/cer.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
+    CreateCustomEncryptedFile_P("Input/error/anyone.pdf","OutPut/CreateCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FILE),
+    CreateCustomEncryptedFile_P("Input/Protector/anyone.pdf","OutPut/CreateCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
+    CreateCustomEncryptedFile_P("Input/Protector/password.pdf","OutPut/CreateCustomEncryptedFile/password.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
+    CreateCustomEncryptedFile_P("Input/Protector/pwd_protect.pdf","OutPut/CreateCustomEncryptedFile/pwd_protect.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
+    CreateCustomEncryptedFile_P("Input/Test.txt","OutPut/CreateCustomEncryptedFile/txt.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
+    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/protector.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS)//未加密的文档
 ));
 
 void PDFCreator_UnprotectCustomEncryptedFile::SetUpTestCase() {
@@ -224,21 +224,21 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile, UnprotectCustomEncryptedFile_T) 
   //*************
 }
 INSTANTIATE_TEST_CASE_P(, PDFCreator_UnprotectCustomEncryptedFile, testing::Values(
-    UnprotectCustomEncryptedFile_P("Input/Protector/Protected package.pdf","OutPut/UnprotectCustomEncryptedFile/Protected package.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SUCCESS),
-    UnprotectCustomEncryptedFile_P("Input/Protector/customerTemplate.pdf","OutPut/UnprotectCustomEncryptedFile/customerTemplate.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SECURITY),
-    UnprotectCustomEncryptedFile_P("Input/Protector/demage.pdf","OutPut/UnprotectCustomEncryptedFile/demage.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/sign.pdf","OutPut/UnprotectCustomEncryptedFile/sign.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/XFADyanmic-crash.pdf","OutPut/UnprotectCustomEncryptedFile/XFADyanmic-crash.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/XFAStatic.pdf","OutPut/UnprotectCustomEncryptedFile/XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/Protector/Protected XFAStatic.pdf","OutPut/UnprotectCustomEncryptedFile/Protected XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SUCCESS),
-    UnprotectCustomEncryptedFile_P("Input/Protector/cer.pdf","OutPut/UnprotectCustomEncryptedFile/cer.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/Test.txt","OutPut/UnprotectCustomEncryptedFile/txt.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/UnprotectCustomEncryptedFile/unprotector.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/error/error.pdf","OutPut/UnprotectCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/Protector/password.pdf","OutPut/UnprotectCustomEncryptedFile/password.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/Protector/OfficeTemplate.ppdf","OutPut/UnprotectCustomEncryptedFile/OfficeTemplate.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_FORMAT),//Protector.h中的加密ppdf走的是另外路线，
-    UnprotectCustomEncryptedFile_P("Input/Protector/MaxOwner.pdf","OutPut/UnprotectCustomEncryptedFile/MaxOwner.pdf",PDF_PROTECTOR_FILTER_NAME,"",PDFCREATOR_ERR_SUCCESS),
-    UnprotectCustomEncryptedFile_P("Input/Protector/phantomOfficeT.pdf","OutPut/UnprotectCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"Only the owner has the right to unprotect the document.",PDFCREATOR_ERR_UNKNOWN)));
+    UnprotectCustomEncryptedFile_P("Input/Protector/Protected package.pdf","OutPut/UnprotectCustomEncryptedFile/Protected package.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SUCCESS),
+    UnprotectCustomEncryptedFile_P("Input/Protector/customerTemplate.pdf","OutPut/UnprotectCustomEncryptedFile/customerTemplate.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
+    UnprotectCustomEncryptedFile_P("Input/Protector/demage.pdf","OutPut/UnprotectCustomEncryptedFile/demage.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/sign.pdf","OutPut/UnprotectCustomEncryptedFile/sign.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/XFADyanmic-crash.pdf","OutPut/UnprotectCustomEncryptedFile/XFADyanmic-crash.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/XFAStatic.pdf","OutPut/UnprotectCustomEncryptedFile/XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/Protector/Protected XFAStatic.pdf","OutPut/UnprotectCustomEncryptedFile/Protected XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SUCCESS),
+    UnprotectCustomEncryptedFile_P("Input/Protector/cer.pdf","OutPut/UnprotectCustomEncryptedFile/cer.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/Test.txt","OutPut/UnprotectCustomEncryptedFile/txt.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/UnprotectCustomEncryptedFile/unprotector.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/error/error.pdf","OutPut/UnprotectCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/Protector/password.pdf","OutPut/UnprotectCustomEncryptedFile/password.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    UnprotectCustomEncryptedFile_P("Input/Protector/OfficeTemplate.ppdf","OutPut/UnprotectCustomEncryptedFile/OfficeTemplate.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),//Protector.h中的加密ppdf走的是另外路线，
+    UnprotectCustomEncryptedFile_P("Input/Protector/MaxOwner.pdf","OutPut/UnprotectCustomEncryptedFile/MaxOwner.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SUCCESS),
+    UnprotectCustomEncryptedFile_P("Input/Protector/phantomOfficeT.pdf","OutPut/UnprotectCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"Only the owner has the right to unprotect the document.",pdfobjectmodel::PDFCreatorErr::UNKNOWN_ERR)));
 
 TEST_P(PDFWrapperDoc_GetWrapperType,GetWrapperType_T) {
   GetWrapperType_P TParam = GetParam();
