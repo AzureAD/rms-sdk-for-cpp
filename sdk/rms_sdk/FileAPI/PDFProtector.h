@@ -21,6 +21,11 @@ namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 namespace rmscore {
 namespace fileapi {
 
+/**
+ * @brief It determines whether to encrypt PDF string\stream objects progressively or not.
+ * If the raw size is larger than MIN_RAW_SIZE and PDFCryptoHandlerImpl::ProgressiveEncryptStart
+ * returns true, foxit core will encrypt PDF string\stream objects progressively.
+ */
 #define MIN_RAW_SIZE 64 * 1024 * 1024
 
 /**
