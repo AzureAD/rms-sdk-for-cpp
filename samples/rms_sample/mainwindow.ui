@@ -73,7 +73,7 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="1">
+          <item row="11" column="1">
            <widget class="QLineEdit" name="ineEdit_certificatesPath">
             <property name="text">
              <string>./certificates/</string>
@@ -100,7 +100,7 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="2">
+          <item row="11" column="2">
            <widget class="QPushButton" name="certificatesPathButton">
             <property name="text">
              <string>Browse...</string>
@@ -142,7 +142,7 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="0">
+          <item row="11" column="0">
            <widget class="QLabel" name="label_certificatesPath">
             <property name="text">
              <string>Certificates path</string>
@@ -156,10 +156,17 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="2">
+          <item row="10" column="2">
            <widget class="QPushButton" name="decryptPDF">
             <property name="text">
              <string>Decrypt PDF</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="2">
+           <widget class="QPushButton" name="encryptPDFRights">
+            <property name="text">
+             <string>Encrypt PDF (rights)</string>
             </property>
            </widget>
           </item>

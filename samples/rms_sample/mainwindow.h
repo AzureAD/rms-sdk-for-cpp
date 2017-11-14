@@ -106,6 +106,8 @@ private slots:
 
   void on_decryptPDF_clicked();
 
+  void on_encryptPDFRights_clicked();
+
 private:
 
   Ui::MainWindow *ui;
@@ -149,10 +151,18 @@ private:
                       const string& redirectUrl,
                       const string& clientEmail);
 
-  void PDFFileEncrypt(const string& fileIn, const string &wrapperIn,
+  void PDFFileEncrypt(const string& fileIn,
+                      const string &wrapperIn,
                       const string& clientId,
                       const string& redirectUrl,
                       const string& clientEmail);
+
+  void PDFFileEncryptRights(const string& fileIn,
+                            const string &wrapperIn,
+                            const vector<UserRights>& userRights,
+                            const string& clientId,
+                            const string& redirectUrl,
+                            const string& clientEmail);
 
   void PDFFileDecrypt(const string& fileIn,
                       const string& clientId,
