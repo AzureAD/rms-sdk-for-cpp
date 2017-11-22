@@ -187,11 +187,6 @@ AuthorizationResultPtr OAuth2Response::parseAuthorizeResponse(const String& webA
                 Constants::rmsauthErrorMessage().AuthorizationServerInvalidResponse);
         }
     }
-    else if (url.hasFragment()) 
-    {
-        StringMap fragments = StringUtils::urlSplitParameters(url.fragment().toStdString());
-        parseResult = std::make_shared<AuthorizationResult>(fragments[OAuthConstants::oAuthReservedClaim().IdToken.data()]);
-    }
 
     return parseResult;
 }
