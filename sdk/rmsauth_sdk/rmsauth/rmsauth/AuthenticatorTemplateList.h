@@ -20,7 +20,7 @@ class AuthenticatorTemplateList : public ArrayList<AuthenticatorTemplatePtr>
 public:
     AuthenticatorTemplateList();
 
-    AuthenticatorTemplatePtr findMatchingItemAsync(bool validateAuthority, const String& host, const String& tenant, CallStatePtr callState);
+    AuthenticatorTemplatePtr findMatchingItemAsync(bool validateAuthority, const String& host, const String& tenant, CallStatePtr callState, AuthenticatorTemplate::EndpointVersion version);
 
 };
 

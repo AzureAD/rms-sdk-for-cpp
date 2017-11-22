@@ -44,7 +44,8 @@ void Authenticator::updateFromTemplateAsync(CallStatePtr callState)
         String host = authorityUri.authority();
         String path = authorityUri.path().substr(1);
         String tenant = path.substr(0, path.find("/"));
-        auto matchingTemplate = Authenticator::authenticatorTemplateList.findMatchingItemAsync(validateAuthority_, host, tenant, callState);
+        AuthenticatorTemplate::EndpointVersion version = AuthenticatorTemplate::getEndpointVersion(authority_);
+        auto matchingTemplate = Authenticator::authenticatorTemplateList.findMatchingItemAsync(validateAuthority_, host, tenant, callState, version);
         authorizationUri_ = StringUtils::replace(matchingTemplate->authorizeEndpoint(), "{tenant}", tenant);
         tokenUri_ = StringUtils::replace(matchingTemplate->tokenEndpoint(), "{tenant}", tenant);
         userRealmUri_ = canonicalizeUri(matchingTemplate->userRealmEndpoint());

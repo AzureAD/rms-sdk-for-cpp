@@ -25,9 +25,9 @@ void AuthenticatorTemplate::verifyAnotherHostByInstanceDiscoveryAsync(const Stri
     Logger::info(Tag(), "verifyAnotherHostByInstanceDiscoveryAsync");
 
     String instanceDiscoveryEndpoint = instanceDiscoveryEndpoint_;
-    instanceDiscoveryEndpoint += ("?api-version=1.0&authorization_endpoint=" + AuthenticatorTemplate::authorizeEndpointTemplate());
-    instanceDiscoveryEndpoint = StringUtils::replace(instanceDiscoveryEndpoint, AuthenticatorTemplate::HOST(), host);
-    instanceDiscoveryEndpoint = StringUtils::replace(instanceDiscoveryEndpoint, AuthenticatorTemplate::TENANT(), tenant);
+    instanceDiscoveryEndpoint += ("?api-version=1.0&authorization_endpoint=" + AuthenticatorTemplate::authorizeEndpointTemplate);
+    instanceDiscoveryEndpoint = StringUtils::replace(instanceDiscoveryEndpoint, AuthenticatorTemplate::HOST, host);
+    instanceDiscoveryEndpoint = StringUtils::replace(instanceDiscoveryEndpoint, AuthenticatorTemplate::TENANT, tenant);
 
     QNetworkRequest request = HttpHelperQt::createRequest();
     request.setUrl(QUrl(instanceDiscoveryEndpoint.data()));

@@ -106,9 +106,7 @@ String AcquireTokenInteractiveHandler::createAuthorizationUri(bool includeFormsA
 
     RequestParameters requestParameters = createAuthorizationRequest(loginHint, includeFormsAuthParam);
 
-    String urlString = authenticator_->authorizationUri() + "?" + requestParameters.toString()+ "&scope=openid";
-//        auto authorizationUri = std::make_shared<Url>(urlString);
-//        authorizationUri = new Uri(HttpHelper.CheckForExtraQueryParameter(authorizationUri.AbsoluteUri));
+    String urlString = authenticator_->authority() + "?" + requestParameters.toString();
 
     return urlString;
 }

@@ -26,11 +26,16 @@ class AuthenticatorTemplate
     String tokenEndpoint_;
     String userRealmEndpoint_;
 
-    static const String authorizeEndpointTemplate();
-    static const String HOST();
-    static const String TENANT();
+    static const String authorizeEndpointTemplate;
+    static const String V1_ENDPOINT;
+    static const String V2_ENDPOINT;
+    static const String HOST;
+    static const String TENANT;
+    static const String VERSION;
 
 public:
+    enum EndpointVersion { V1, V2 };
+
     const String& host()                        const {return host_;}
     const String& issuer()                      const {return issuer_;}
     const String& authority()                   const {return authority_;}
@@ -40,7 +45,12 @@ public:
     const String& userRealmEndpoint()           const {return userRealmEndpoint_;}
 
     static ptr<AuthenticatorTemplate> createFromHost(const String& host);
+    static ptr<AuthenticatorTemplate> createFromHost(const String& host, const EndpointVersion version);
+    static EndpointVersion getEndpointVersion(const String& url);
     void verifyAnotherHostByInstanceDiscoveryAsync(const String& host, const String& tenant, CallStatePtr callState);
+
+private:
+    static ptr<AuthenticatorTemplate> create(const String& host, const EndpointVersion endpointVersion);
 
 };
 

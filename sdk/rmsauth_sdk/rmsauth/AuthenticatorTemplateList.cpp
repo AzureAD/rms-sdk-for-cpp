@@ -30,7 +30,7 @@ AuthenticatorTemplateList::AuthenticatorTemplateList()
         this->push_back(AuthenticatorTemplate::createFromHost(customAuthorityHost));
     }
 }
-AuthenticatorTemplatePtr AuthenticatorTemplateList::findMatchingItemAsync(bool validateAuthority, const String& host, const String& tenant, CallStatePtr callState)
+AuthenticatorTemplatePtr AuthenticatorTemplateList::findMatchingItemAsync(bool validateAuthority, const String& host, const String& tenant, CallStatePtr callState, AuthenticatorTemplate::EndpointVersion version)
 {
     if (validateAuthority)
     {
@@ -46,7 +46,7 @@ AuthenticatorTemplatePtr AuthenticatorTemplateList::findMatchingItemAsync(bool v
         this->at(0)->verifyAnotherHostByInstanceDiscoveryAsync(host, tenant, callState);
     }
 
-    return AuthenticatorTemplate::createFromHost(host);
+    return AuthenticatorTemplate::createFromHost(host, version);
 }
 
 } // namespace rmsauth {
