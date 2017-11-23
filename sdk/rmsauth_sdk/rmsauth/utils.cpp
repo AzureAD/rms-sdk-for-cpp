@@ -13,17 +13,6 @@
 
 namespace rmsauth {
 
-const StringArray TenantUtils::V2Tenants = { "rmscesecuritytest.onmicrosoft.com" };
-
-bool TenantUtils::isV2Tenant(const String& tenant) {
-    for (auto it = V2Tenants.begin();it!=V2Tenants.end(); it++) {
-        if (*it == tenant) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool StringUtils::startsWith(const String& src, const String& substr)
 {
     return src.compare(0, substr.length(), substr) == 0;

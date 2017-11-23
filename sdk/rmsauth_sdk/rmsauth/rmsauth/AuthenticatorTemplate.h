@@ -26,12 +26,12 @@ class AuthenticatorTemplate
     String tokenEndpoint_;
     String userRealmEndpoint_;
 
-    static const String authorizeEndpointTemplate;
-    static const String V1_ENDPOINT;
-    static const String V2_ENDPOINT;
-    static const String HOST;
-    static const String TENANT;
-    static const String VERSION;
+    static const String authorizeEndpointTemplate();
+    static const String V1_ENDPOINT();
+    static const String V2_ENDPOINT();
+    static const String HOST();
+    static const String TENANT();
+    static const String VERSION();
 
 public:
     enum EndpointVersion { V1, V2 };

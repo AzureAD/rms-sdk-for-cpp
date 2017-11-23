@@ -13,13 +13,6 @@
 
 namespace rmsauth {
 
-class TenantUtils {
-private:
-    const static StringArray V2Tenants;
-public:
-    static bool isV2Tenant(const String& tenant);
-};
-
 class StringUtils
 {
 public:

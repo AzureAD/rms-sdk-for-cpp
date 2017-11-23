@@ -19,13 +19,37 @@ using SELF = AuthenticatorTemplate;
 //    return str;
 //}
 
-const String AuthenticatorTemplate::authorizeEndpointTemplate = "https://{host}/{tenant}/oauth2/authorize";
+const String AuthenticatorTemplate::authorizeEndpointTemplate()
+{
+    static const String str = "https://{host}/{tenant}/oauth2/authorize";
+    return str;
+}
 
-const String AuthenticatorTemplate::V1_ENDPOINT = "";
-const String AuthenticatorTemplate::V2_ENDPOINT = "v2.0/";
-const String AuthenticatorTemplate::HOST = "{host}";
-const String AuthenticatorTemplate::TENANT = "{tenant}";
-const String AuthenticatorTemplate::VERSION = "{version}";
+const String AuthenticatorTemplate::V1_ENDPOINT() 
+{
+    static const String str = "";
+    return str;
+}
+const String AuthenticatorTemplate::V2_ENDPOINT()
+{
+    static const String str = "v2.0/";
+    return str;
+}
+const String AuthenticatorTemplate::HOST()
+{
+    static const String str = "{host}";
+    return str;
+}
+const String AuthenticatorTemplate::TENANT()
+{
+    static const String str = "{tenant}";
+    return str;
+}
+const String AuthenticatorTemplate::VERSION()
+{
+    static const String str = "{version}";
+    return str;
+}
 
 AuthenticatorTemplatePtr AuthenticatorTemplate::create(const String& host, const EndpointVersion endpointVersion)
 {
@@ -39,22 +63,22 @@ AuthenticatorTemplatePtr AuthenticatorTemplate::create(const String& host, const
 
     switch (endpointVersion) {
     case V1: 
-        endpointString = V1_ENDPOINT;
+        endpointString = SELF::V1_ENDPOINT();
         break;
     case V2:
-        endpointString = V2_ENDPOINT;
+        endpointString = SELF::V2_ENDPOINT();
         break;
     }
 
-    String tokenEndpointWithVersion = StringUtils::replace(tokenEndpointTemplate, SELF::VERSION, endpointString);
+    String tokenEndpointWithVersion = StringUtils::replace(tokenEndpointTemplate, SELF::VERSION(), endpointString);
 
     res->host_ = host;
-    res->authority_ = StringUtils::replace(authorityTemplate, SELF::HOST, host);
-    res->instanceDiscoveryEndpoint_ = StringUtils::replace(instanceDiscoveryEndpointTemplate, SELF::HOST, host);
-    res->authorizeEndpoint_ = StringUtils::replace(SELF::authorizeEndpointTemplate, SELF::HOST, host);
-    res->tokenEndpoint_ = StringUtils::replace(tokenEndpointWithVersion, SELF::HOST, host);
+    res->authority_ = StringUtils::replace(authorityTemplate, SELF::HOST(), host);
+    res->instanceDiscoveryEndpoint_ = StringUtils::replace(instanceDiscoveryEndpointTemplate, SELF::HOST(), host);
+    res->authorizeEndpoint_ = StringUtils::replace(SELF::authorizeEndpointTemplate(), SELF::HOST(), host);
+    res->tokenEndpoint_ = StringUtils::replace(tokenEndpointWithVersion, SELF::HOST(), host);
     res->issuer_ = res->tokenEndpoint_;
-    res->userRealmEndpoint_ = StringUtils::replace(userRealmEndpointTemplate, SELF::HOST, host);
+    res->userRealmEndpoint_ = StringUtils::replace(userRealmEndpointTemplate, SELF::HOST(), host);
     return res;
 }
 AuthenticatorTemplatePtr AuthenticatorTemplate::createFromHost(const String& host)
