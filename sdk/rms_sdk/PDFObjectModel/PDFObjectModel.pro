@@ -40,12 +40,12 @@ else:
 #end fxcore
 
 HEADERS += \
-    Core.inc \
-    PDFObjectModel.h \
-    PDFModuleMgr.h \
-    Basic.h \
-    PDFCreator.h \
-    UnencryptedWrapper.h
+    core.inc \
+    pdf_object_model.h \
+    pdf_module_mgr.h \
+    basic.h \
+    pdf_creator.h \
+    unencrypted_wrapper.h
 
 SOURCES += \
     Core/src/fdrm/crypto/fx_crypt.cpp \
@@ -96,10 +96,10 @@ SOURCES += \
     Core/src/fxcrt/fx_basic_util.cpp \
     Core/src/fxcrt/fx_basic_wstring.cpp \
     Core/src/fxcrt/fx_extension.cpp \
-    PDFModuleMgr.cpp \
-    Basic.cpp \
-    UnencryptedWrapper.cpp \
-    PDFCreator.cpp
+    pdf_module_mgr.cpp \
+    basic.cpp \
+    unencrypted_wrapper.cpp \
+    pdf_creator.cpp
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)

@@ -13,7 +13,7 @@
 #include "BlockBasedProtectedStream.h"
 #include "FileAPIStructures.h"
 #include "UserPolicy.h"
-#include "PDFObjectModel/PDFObjectModel.h"
+#include "PDFObjectModel/pdf_object_model.h"
 #include "CryptoAPI.h"
 
 namespace rmscore{

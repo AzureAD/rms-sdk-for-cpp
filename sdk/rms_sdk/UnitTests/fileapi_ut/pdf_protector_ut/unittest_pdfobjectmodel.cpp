@@ -1,7 +1,7 @@
 #include "unittest_pdfobjectmodel.h"
 #include "Auth.h"
 #include "depend.h"
-#include "PDFObjectModel/PDFObjectModel.h"
+#include "PDFObjectModel/pdf_object_model.h"
 #include "UserPolicy.h"
 #include "PDFProtector_child.h"
 #include "PFileProtector.h"
