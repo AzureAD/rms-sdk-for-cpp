@@ -104,7 +104,7 @@ FX_BOOL CFX_MapPtrToPtr::ExpandHashTable()
     if (m_nHashTableSize > MaxHashTableSize) {
         return FALSE;
     }
-    if (m_nCount >= m_nHashTableSize) {
+    if (m_nCount >= static_cast<int>(m_nHashTableSize)) {
         CAssoc **pTmpHashTable = FX_Alloc(CAssoc*, m_nHashTableSize * 2);
         if (pTmpHashTable) {
             FXSYS_memset32(pTmpHashTable, 0, sizeof(CAssoc*) * m_nHashTableSize * 2);
@@ -300,14 +300,16 @@ FX_BOOL CFX_MapByteStringToPtr::ExpendHashTable()
     if (m_nHashTableSize > MaxHashTableSize) {
         return FALSE;
     }
-    if (m_nCount >= m_nHashTableSize) {
+    if (m_nCount >= static_cast<int>(m_nHashTableSize)) {
         FX_DWORD nOldHashTableSize = m_nHashTableSize;
+        FX_UNREFERENCED_PARAMETER(nOldHashTableSize);
         CAssoc **pTmpHashTable = FX_Alloc(CAssoc*, m_nHashTableSize * 2);
         if (pTmpHashTable) {
             FXSYS_memset32(pTmpHashTable, 0, sizeof(CAssoc*) * m_nHashTableSize * 2);
         }
         CFX_ByteString sTmpKey;
         void * pTmpValue = NULL;
+        FX_UNREFERENCED_PARAMETER(pTmpValue);
         FX_DWORD nTmpHash;
         CAssoc* pOldAssoc = NULL;
         FX_POSITION nPos = GetStartPosition();
@@ -478,7 +480,7 @@ static void _CompactStringStore(_CompactString* pCompact, FX_LPCBYTE pStr, int l
         return;
     }
     pCompact->m_CompactLen = 0xff;
-    pCompact->m_LenHigh = len / 256;
+    pCompact->m_LenHigh = static_cast<FX_BYTE>(len / 256);
     pCompact->m_LenLow = len % 256;
     pCompact->m_pBuffer = FX_Alloc(FX_BYTE, len);
     if (pCompact->m_pBuffer) {
@@ -639,7 +641,7 @@ int CFX_CMapByteStringToPtr::GetCount() const
     return count;
 }
 extern "C" {
-    static int _CompareDWord(const void* p1, const void* p2)
+    int __cdecl _CompareDWord(const void* p1, const void* p2)
     {
         return (*(FX_DWORD*)p1) - (*(FX_DWORD*)p2);
     }

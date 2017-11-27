@@ -433,8 +433,8 @@ FX_INT32 CFX_Base64Decoder::Decode(FX_LPCSTR pSrc, FX_INT32 iSrcLen, FX_LPBYTE p
         }
         return iDstLen;
     }
-    FX_BYTE c, b1, b2, b3;
-    FX_INT32 iChars = 4, iBytes;
+    FX_BYTE c = 0, b1 = 0, b2 = 0, b3 = 0;
+    FX_INT32 iChars = 4, iBytes = 0;
     FX_LPBYTE pDstEnd = pDst;
     while (iSrcLen > 0) {
         if (iSrcLen > 3) {
@@ -496,7 +496,7 @@ FX_INT32 CFX_Base64Decoder::Decode(FX_LPCWSTR pSrc, FX_INT32 iSrcLen, FX_LPBYTE 
         }
         return iDstLen;
     }
-    FX_BYTE c, b1, b2, b3;
+    FX_BYTE c = 0, b1 = 0, b2 = 0, b3 = 0;
     FX_INT32 iChars = 4, iBytes;
     FX_LPBYTE pDstEnd = pDst;
     while (iSrcLen > 0) {

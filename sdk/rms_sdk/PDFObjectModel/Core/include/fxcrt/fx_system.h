@@ -281,4 +281,11 @@ int			FXSYS_round(FX_FLOAT f);
 #ifdef __cplusplus
 };
 #endif
+
+#if _FXM_PLATFORM_ == _FXM_PLATFORM_WINDOWS_
+#define FX_UNREFERENCED_PARAMETER(p) UNREFERENCED_PARAMETER(p)
+#else
+#define FX_UNREFERENCED_PARAMETER(p)
+#endif
+
 #endif

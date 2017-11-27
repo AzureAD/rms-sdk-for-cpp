@@ -23,7 +23,7 @@ public:
     CPDF_FlateFilter();
     virtual ~CPDF_FlateFilter();
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
-    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) {}
+    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) { FX_UNREFERENCED_PARAMETER(dest_buf); }
     void*			m_pContext;
     FX_BYTE			m_DestBuffer[FPDF_FILTER_BUFFER_SIZE];
 };
@@ -33,7 +33,7 @@ public:
     CPDF_LzwFilter(FX_BOOL bEarlyChange);
     virtual ~CPDF_LzwFilter() {}
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
-    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) {}
+    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) { FX_UNREFERENCED_PARAMETER(dest_buf); }
     FX_BOOL			m_bEarlyChange;
     FX_DWORD		m_CodeArray[5021];
     FX_DWORD		m_nCodes;
@@ -52,7 +52,7 @@ public:
     CPDF_PredictorFilter(int predictor, int colors, int bpc, int cols);
     virtual ~CPDF_PredictorFilter();
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
-    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) {}
+    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) { FX_UNREFERENCED_PARAMETER(dest_buf); }
     FX_BOOL			m_bTiff;
     FX_DWORD		m_Pitch, m_Bpp;
     FX_LPBYTE		m_pRefLine, m_pCurLine;
@@ -64,7 +64,7 @@ public:
     CPDF_AsciiHexFilter();
     virtual ~CPDF_AsciiHexFilter() {}
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
-    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) {}
+    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) { FX_UNREFERENCED_PARAMETER(dest_buf); }
     int				m_State;
     int				m_FirstDigit;
 };
@@ -74,7 +74,7 @@ public:
     CPDF_Ascii85Filter();
     virtual ~CPDF_Ascii85Filter() {}
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
-    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) {}
+    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) { FX_UNREFERENCED_PARAMETER(dest_buf); }
     int				m_State;
     int				m_CharCount;
     FX_DWORD		m_CurDWord;
@@ -85,7 +85,7 @@ public:
     CPDF_RunLenFilter();
     virtual ~CPDF_RunLenFilter() {}
     virtual	void	v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryBuf& dest_buf);
-    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) {}
+    virtual void	v_FilterFinish(CFX_BinaryBuf& dest_buf) { FX_UNREFERENCED_PARAMETER(dest_buf); }
     virtual void	v_ResetStatistics()
     {
         m_TotalDestSize = 0;

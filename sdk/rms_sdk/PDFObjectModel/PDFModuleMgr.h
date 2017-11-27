@@ -29,10 +29,13 @@ class PDFModuleMgrImpl : public PDFModuleMgr {
                                       std::shared_ptr<PDFSecurityHandler> security_hander);
   virtual  ~PDFModuleMgrImpl();
 
+  void SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_hander);
+  std::shared_ptr<PDFSecurityHandler> GetSharedSecurityHandler();
  private:
   CPDF_ModuleMgr* pdf_module_manager_;
   CCodec_ModuleMgr* pdf_codec_module_;
-  CustomSecurityHandler* custom_security_handler_;
+
+  std::shared_ptr<PDFSecurityHandler> shared_security_hander_;
 };
 
 } // namespace pdfobjectmodel

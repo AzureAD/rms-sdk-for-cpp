@@ -329,10 +329,12 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
 /* XYQ 2007-1-19 */
 voidpf zcalloc(voidpf opaque, unsigned items, unsigned size)
 {
+  FX_UNREFERENCED_PARAMETER(opaque);
 	return FXMEM_DefaultAlloc(items * size, 0);
 }
 
 void zcfree(voidpf opaque, voidpf ptr)
 {
+  FX_UNREFERENCED_PARAMETER(opaque);
 	FXMEM_DefaultFree(ptr, 0);
 }

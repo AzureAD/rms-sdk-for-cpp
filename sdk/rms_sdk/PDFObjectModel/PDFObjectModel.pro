@@ -52,15 +52,15 @@ SOURCES += \
     Core/src/fdrm/crypto/fx_crypt_aes.cpp \
     Core/src/fdrm/crypto/fx_crypt_sha.cpp \
     Core/src/fpdfapi/fpdf_basic_module.cpp \
-    Core/src/fpdfapi/fpdf_edit/fpdf_edit_create.cpp \
-    Core/src/fpdfapi/fpdf_edit/fpdf_edit_doc.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_decode.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_document.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_encrypt.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_filters.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_objects.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_parser.cpp \
-    Core/src/fpdfapi/fpdf_parser/fpdf_parser_utility.cpp \
+    Core/src/fpdfapi/fpdf_edit_create.cpp \
+    Core/src/fpdfapi/fpdf_edit_doc.cpp \
+    Core/src/fpdfapi/fpdf_parser_decode.cpp \
+    Core/src/fpdfapi/fpdf_parser_document.cpp \
+    Core/src/fpdfapi/fpdf_parser_encrypt.cpp \
+    Core/src/fpdfapi/fpdf_parser_filters.cpp \
+    Core/src/fpdfapi/fpdf_parser_objects.cpp \
+    Core/src/fpdfapi/fpdf_parser_parser.cpp \
+    Core/src/fpdfapi/fpdf_parser_utility.cpp \
     Core/src/fpdfdoc/doc_basic.cpp \
     Core/src/fxcodec/codec/fx_codec.cpp \
     Core/src/fxcodec/codec/fx_codec_flate.cpp \
@@ -79,7 +79,7 @@ SOURCES += \
     Core/src/fxcodec/fx_zlib/src/fx_zlib_trees.c \
     Core/src/fxcodec/fx_zlib/src/fx_zlib_uncompr.c \
     Core/src/fxcodec/fx_zlib/src/fx_zlib_zutil.c \
-    Core/src/fxcrt/encode/fx_charmap.cpp \
+    Core/src/fxcrt/fx_charmap.cpp \
     Core/src/fxcrt/fxcrt_platforms.cpp \
     Core/src/fxcrt/fxcrt_posix.cpp \
     Core/src/fxcrt/fxcrt_windows.cpp \

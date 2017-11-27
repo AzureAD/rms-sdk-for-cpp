@@ -120,7 +120,7 @@ protected:
     friend class			CPDF_Parser;
     friend class			CPDF_SyntaxParser;
 private:
-    CPDF_Object(const CPDF_Object& src) {}
+  CPDF_Object(const CPDF_Object& src) { FX_UNREFERENCED_PARAMETER(src); }
     CPDF_Object* CloneInternal(FX_BOOL bDirect, CFX_MapPtrToPtr* visited) const;
 };
 class CPDF_Boolean : public CPDF_Object

@@ -44,23 +44,7 @@ void CPDF_ModuleMgr::InitModules()
 CPDF_ModuleMgr::~CPDF_ModuleMgr()
 {
 }
-static CFX_ByteString _GetPath(const CFX_ByteString& folder, FX_LPCSTR name)
-{
-    FX_STRSIZE folder_len = folder.GetLength();
-#if _FX_OS_ == _FX_SYMBIAN_ || _FXM_PLATFORM_  == _FXM_PLATFORM_WINDOWS_
-    if (folder[folder_len - 1] == '\\') {
-        return folder + name;
-    } else {
-        return (folder + "\\") + name;
-    }
-#else
-    if (folder[folder_len - 1] == '/') {
-        return folder + name;
-    } else {
-        return (folder + "/") + name;
-    }
-#endif
-}
+
 void CPDF_ModuleMgr::RegisterSecurityHandler(FX_LPCSTR filter, CPDF_SecurityHandler * (*CreateHandler)(void* param), void* param)
 {
     if (CreateHandler == NULL) {

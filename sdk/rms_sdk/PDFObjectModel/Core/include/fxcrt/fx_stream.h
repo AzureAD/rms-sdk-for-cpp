@@ -121,6 +121,8 @@ public:
 
     virtual FX_BOOL			SetRange(FX_FILESIZE offset, FX_FILESIZE size)
     {
+      FX_UNREFERENCED_PARAMETER(offset);
+      FX_UNREFERENCED_PARAMETER(size);
         return FALSE;
     }
 
@@ -130,6 +132,8 @@ public:
 
     virtual size_t			ReadBlock(void* buffer, size_t size)
     {
+      FX_UNREFERENCED_PARAMETER(buffer);
+      FX_UNREFERENCED_PARAMETER(size);
         return 0;
     }
 };

@@ -6,7 +6,7 @@
  *======================================================================
  */
 
-#include "../../../include/fxcrt/fx_ext.h"
+#include "../../include/fxcrt/fx_ext.h"
 static CFX_ByteString _DefMap_GetByteString(CFX_CharMap* pCharMap, const CFX_WideString& widestr)
 {
     int src_len = widestr.GetLength();

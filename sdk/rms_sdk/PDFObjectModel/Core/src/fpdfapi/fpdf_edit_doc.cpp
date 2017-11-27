@@ -6,8 +6,8 @@
  *======================================================================
  */
 
-#include "../../../include/fpdfapi/fpdf_parser.h"
-#include "../../../include/fpdfapi/fpdf_module.h"
+#include "../../include/fpdfapi/fpdf_parser.h"
+#include "../../include/fpdfapi/fpdf_module.h"
 #include <limits.h>
 CPDF_Document::CPDF_Document() : CPDF_IndirectObjects(NULL)
 {
@@ -24,7 +24,7 @@ void CPDF_IndirectObjects::DeleteIndirectObject(FX_DWORD objnum)
 {
     FX_LPVOID value;
     if (m_IndirectObjs.Lookup((FX_LPVOID)(FX_UINTPTR)objnum, value)) {
-        ((CPDF_Object*)value)->m_ObjNum = -1;
+        ((CPDF_Object*)value)->m_ObjNum = static_cast<FX_DWORD>(-1);
     }
     if (m_pParser) {
         m_pParser->DeleteIndirectObject(objnum);

@@ -6,9 +6,9 @@
  *======================================================================
  */
 
-#include "../../../include/fpdfapi/fpdf_parser.h"
-#include "../../../include/fpdfapi/fpdf_module.h"
-#include "../../../include/fxcodec/fx_codec.h"
+#include "../../include/fpdfapi/fpdf_parser.h"
+#include "../../include/fpdfapi/fpdf_module.h"
+#include "../../include/fxcodec/fx_codec.h"
 #include <limits.h>
 #define _STREAM_MAX_SIZE_		20 * 1024 * 1024
 FX_DWORD _A85Decode(const FX_BYTE* src_buf, FX_DWORD src_size, FX_LPBYTE& dest_buf, FX_DWORD& dest_size)
@@ -116,9 +116,9 @@ FX_DWORD _HexDecode(const FX_BYTE* src_buf, FX_DWORD src_size, FX_LPBYTE& dest_b
             continue;
         }
         if (bFirstDigit) {
-            dest_buf[dest_size] = digit * 16;
+            dest_buf[dest_size] = static_cast<FX_BYTE>(digit * 16);
         } else {
-            dest_buf[dest_size ++] += digit;
+            dest_buf[dest_size ++] += static_cast<FX_BYTE>(digit);
         }
         bFirstDigit = !bFirstDigit;
     }
@@ -152,11 +152,11 @@ FX_DWORD RunLengthDecode(const FX_BYTE* src_buf, FX_DWORD src_size, FX_LPBYTE& d
         }
     }
     if (dest_size >= _STREAM_MAX_SIZE_) {
-        return -1;
+        return static_cast<FX_DWORD>(-1);
     }
     dest_buf = FX_Alloc( FX_BYTE, dest_size);
     if (!dest_buf) {
-        return -1;
+        return static_cast<FX_DWORD>(-1);
     }
     i = 0;
     int dest_count = 0;
@@ -391,7 +391,7 @@ CFX_WideString PDF_DecodeText(FX_LPCBYTE src_data, FX_DWORD src_len, CFX_CharMap
             FX_WORD unicode = bBE ? (uni_str[i] << 8 | uni_str[i + 1]) : (uni_str[i + 1] << 8 | uni_str[i]);
             if(surrogateUnicodeFirst) {
                 if(unicode >= 0xDC00 && unicode < 0xE000) {
-                    dest_buf[dest_pos++] = ((surrogateUnicodeFirst & 0x3ff) << 10) | ((unicode & 0x3ff)) | 0x010000;
+                    dest_buf[dest_pos++] = static_cast<FX_WCHAR>(((surrogateUnicodeFirst & 0x3ff) << 10) | ((unicode & 0x3ff)) | 0x010000);
                     surrogateUnicodeFirst = 0;
                     continue;
                 }
@@ -404,9 +404,9 @@ CFX_WideString PDF_DecodeText(FX_LPCBYTE src_data, FX_DWORD src_len, CFX_CharMap
             if (unicode == 0x1b) {
                 i += 2;
                 while (i < max_chars * 2) {
-                    FX_WORD unicode = bBE ? (uni_str[i] << 8 | uni_str[i + 1]) : (uni_str[i + 1] << 8 | uni_str[i]);
+                    FX_WORD unicode2 = bBE ? (uni_str[i] << 8 | uni_str[i + 1]) : (uni_str[i + 1] << 8 | uni_str[i]);
                     i += 2;
-                    if (unicode == 0x1b) {
+                    if (unicode2 == 0x1b) {
                         break;
                     }
                 }
@@ -464,7 +464,7 @@ CFX_ByteString PDF_EncodeText(FX_LPCWSTR pString, int len, CFX_CharMap* pCharMap
             if (code == 256) {
                 break;
             }
-            dest_buf1[i] = code;
+            dest_buf1[i] = static_cast<FX_CHAR>(code);
         }
         result.ReleaseBuffer(i);
         if (i == len) {

@@ -13,10 +13,12 @@ extern "C"
 {
     static void* my_alloc_func (void* opaque, unsigned int items, unsigned int size)
     {
+      FX_UNREFERENCED_PARAMETER(opaque);
         return FX_Alloc(FX_BYTE, items * size);
     }
     static void   my_free_func  (void* opaque, void* address)
     {
+      FX_UNREFERENCED_PARAMETER(opaque);
         FX_Free(address);
     }
     void* FPDFAPI_FlateInit(void* (*alloc_func)(void*, unsigned int, unsigned int),
@@ -110,7 +112,8 @@ void CLZWDecoder::AddCode(FX_DWORD prefix_code, FX_BYTE append_char)
 }
 void CLZWDecoder::DecodeString(FX_DWORD code)
 {
-    while (1) {
+  FX_BOOL bCondition = TRUE;
+    while (bCondition) {
         int index = code - 258;
         if (index < 0 || index >= (int)m_nCodes) {
             break;
@@ -137,8 +140,9 @@ int CLZWDecoder::Decode(FX_LPBYTE dest_buf, FX_DWORD& dest_size, const FX_BYTE* 
     m_Early = bEarlyChange ? 1 : 0;
     m_nCodes = 0;
     FX_DWORD old_code = (FX_DWORD) - 1;
-    FX_BYTE last_char;
-    while (1) {
+    FX_BYTE last_char = 0;
+    FX_BOOL bCondition = TRUE;
+    while (bCondition) {
         if (m_InPos + m_CodeLen > src_size * 8) {
             break;
         }
@@ -593,7 +597,10 @@ public:
     {
         delete this;
     }
-    virtual void		v_DownScale(int dest_width, int dest_height) {}
+    virtual void		v_DownScale(int dest_width, int dest_height) {
+      FX_UNREFERENCED_PARAMETER(dest_width);
+      FX_UNREFERENCED_PARAMETER(dest_height);
+    }
     virtual FX_BOOL		v_Rewind();
     virtual FX_LPBYTE	v_GetNextLine();
     virtual FX_DWORD	GetSrcOffset();
@@ -777,7 +784,8 @@ static void FlateUncompress(FX_LPCBYTE src_buf, FX_DWORD src_size, FX_DWORD orig
     FX_LPBYTE buf = guess_buf;
     FX_DWORD buf_size = guess_size;
     FX_DWORD last_buf_size = buf_size;
-    while (1) {
+    FX_BOOL bCondition = TRUE;
+    while (bCondition) {
         FX_INT32 ret = FPDFAPI_FlateOutput(context, buf, buf_size);
         FX_INT32 avail_buf_size = FPDFAPI_FlateGetAvailOut(context);
         if (!useOldImpl) {
@@ -915,7 +923,7 @@ FX_DWORD CCodec_FlateModule::FlateOrLZWDecode(FX_BOOL bLZW, const FX_BYTE* src_b
     if (bLZW) {
         pDecoder = FX_NEW CLZWDecoder;
         if (pDecoder == NULL) {
-            return -1;
+            return static_cast<FX_DWORD>(-1);
         }
         dest_size = (FX_DWORD) - 1;
         offset = src_size;
@@ -926,11 +934,11 @@ FX_DWORD CCodec_FlateModule::FlateOrLZWDecode(FX_BOOL bLZW, const FX_BYTE* src_b
         }
         pDecoder = FX_NEW CLZWDecoder;
         if (pDecoder == NULL) {
-            return -1;
+            return static_cast<FX_DWORD>(-1);
         }
         dest_buf = FX_Alloc( FX_BYTE, dest_size + 1);
         if (dest_buf == NULL) {
-            return -1;
+            return static_cast<FX_DWORD>(-1);
         }
         dest_buf[dest_size] = '\0';
         pDecoder->Decode(dest_buf, dest_size, src_buf, offset, bEarlyChange);

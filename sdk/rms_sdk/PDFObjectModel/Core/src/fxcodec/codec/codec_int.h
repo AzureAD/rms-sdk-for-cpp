@@ -22,7 +22,7 @@ public:
 
     virtual FX_DWORD	GetSrcOffset()
     {
-        return -1;
+        return static_cast<FX_DWORD>(-1);
     }
 
     virtual void		DownScale(int dest_width, int dest_height);

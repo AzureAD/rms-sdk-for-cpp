@@ -20,11 +20,11 @@ extern "C" {
      ((unsigned long)(unsigned char)(cp)[2] << 8) | \
      ((unsigned long)(unsigned char)(cp)[1] << 16) | \
      ((unsigned long)(unsigned char)(cp)[0] << 24))
-#define PUT_32BIT_MSB_FIRST(cp, value) do { \
+#define PUT_32BIT_MSB_FIRST(cp, value) { \
         (cp)[3] = (value); \
-        (cp)[2] = (value) >> 8; \
-        (cp)[1] = (value) >> 16; \
-        (cp)[0] = (value) >> 24; } while (0)
+        (cp)[2] = static_cast<int>((value)) >> 8; \
+        (cp)[1] = static_cast<int>((value)) >> 16; \
+        (cp)[0] = static_cast<int>((value)) >> 24; }
 struct AESContext {
     unsigned int keysched[(MAX_NR + 1) * MAX_NB];
     unsigned int invkeysched[(MAX_NR + 1) * MAX_NB];
@@ -958,7 +958,7 @@ static void aes_decrypt_cbc(unsigned char *dest, const unsigned char *src, int l
         }
         aes_decrypt(ctx, x);
         for (i = 0; i < 4; i++) {
-            PUT_32BIT_MSB_FIRST(dest + 4 * i, iv[i] ^ x[i]);
+            PUT_32BIT_MSB_FIRST(dest + 4 * i, static_cast<unsigned char>(iv[i] ^ x[i]));
             iv[i] = ct[i];
         }
         dest += 16;
@@ -983,7 +983,7 @@ static void aes_encrypt_cbc(unsigned char *dest, const unsigned char *src, int l
         }
         aes_encrypt(ctx, iv);
         for (i = 0; i < 4; i++) {
-            PUT_32BIT_MSB_FIRST(dest + 4 * i, iv[i]);
+            PUT_32BIT_MSB_FIRST(dest + 4 * i, static_cast<unsigned char>(iv[i]));
         }
         dest += 16;
         src += 16;
@@ -993,6 +993,7 @@ static void aes_encrypt_cbc(unsigned char *dest, const unsigned char *src, int l
 }
 void CRYPT_AESSetKey(FX_LPVOID context, FX_DWORD blocklen, FX_LPCBYTE key, FX_DWORD keylen, FX_BOOL bEncrypt)
 {
+  FX_UNREFERENCED_PARAMETER(bEncrypt);
     aes_setup((AESContext*)context, blocklen, key, keylen);
 }
 void CRYPT_AESSetIV(FX_LPVOID context, FX_LPCBYTE iv)

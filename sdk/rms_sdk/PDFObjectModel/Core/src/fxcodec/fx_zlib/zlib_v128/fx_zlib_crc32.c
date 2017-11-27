@@ -214,7 +214,9 @@ unsigned long ZEXPORT crc32(
 #endif /* DYNAMIC_CRC_TABLE */
 
 #ifdef BYFOUR
-    if (sizeof(void *) == sizeof(ptrdiff_t)) {
+    int sizeOfVoidPointer = sizeof(void *);
+    int sizeOfPtrdiff_t = sizeof(ptrdiff_t);
+    if (sizeOfVoidPointer == sizeOfPtrdiff_t) {
         z_crc_t endian;
 
         endian = 1;

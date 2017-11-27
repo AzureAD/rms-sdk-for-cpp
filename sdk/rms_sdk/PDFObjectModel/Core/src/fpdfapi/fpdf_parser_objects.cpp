@@ -6,7 +6,7 @@
  *======================================================================
  */
 
-#include "../../../include/fpdfapi/fpdf_parser.h"
+#include "../../include/fpdfapi/fpdf_parser.h"
 #define _REFERENCE_OBJECT_LEVLE_		64
 void CPDF_Object::Release()
 {
@@ -349,6 +349,7 @@ CFX_WideString CPDF_Object::GetUnicodeText(CFX_CharMap* pCharMap, const CFX_Byte
 }
 void CPDF_Object::SetUnicodeText(FX_LPCWSTR pUnicodes, int len, FX_BOOL bUTF8)
 {
+  FX_UNREFERENCED_PARAMETER(bUTF8);
     if (m_Type == PDFOBJ_STRING) {
         ((CPDF_String*)this)->m_String = PDF_EncodeText(pUnicodes, len);
     } else if (m_Type == PDFOBJ_STREAM) {

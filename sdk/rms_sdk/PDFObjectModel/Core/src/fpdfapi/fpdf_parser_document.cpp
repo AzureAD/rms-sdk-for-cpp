@@ -6,9 +6,9 @@
  *======================================================================
  */
 
-#include "../../../include/fpdfapi/fpdf_parser.h"
-#include "../../../include/fpdfapi/fpdf_module.h"
-#include "../../../include/fpdfdoc/fpdf_doc.h"
+#include "../../include/fpdfapi/fpdf_parser.h"
+#include "../../include/fpdfapi/fpdf_module.h"
+#include "../../include/fpdfdoc/fpdf_doc.h"
 #include "time.h"
 #include "parser_int.h"
 CPDF_PDFFeature CPDF_PDFVersionChecker::VersionCheck(CPDF_Parser* pParser, CPDF_PDFFeature feature)
@@ -229,7 +229,7 @@ FX_FILESIZE CPDF_WrapperDoc::GetPayLoadSize() const
     if (!pParams || !pParams->KeyExist(FX_BSTRC("Size"))) {
         return -1;
     }
-    return pParams->GetInteger64(FX_BSTRC("Size"));
+    return static_cast<FX_FILESIZE>(pParams->GetInteger64(FX_BSTRC("Size")));
 }
 FX_BOOL GetFileNameFromAF(CPDF_Dictionary* pRoot, CFX_WideString &wsFileName)
 {
@@ -307,7 +307,8 @@ FX_INT32 CPDF_WrapperDoc::Continue(IFX_Pause *pPause )
         return -1;
     }
     FX_INT32 ret = -1;
-    while (1) {
+    FX_BOOL bCondition = TRUE;
+    while (bCondition) {
         FXSYS_memset32(m_pBuffer, 0, STREAM_BUFSIZE);
         size_t len = m_pSteamFilter->ReadBlock(m_pBuffer, STREAM_BUFSIZE);
         if (len == 0) {

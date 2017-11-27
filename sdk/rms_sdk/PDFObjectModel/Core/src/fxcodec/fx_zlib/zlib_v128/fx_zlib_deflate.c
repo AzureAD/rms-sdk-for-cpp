@@ -435,9 +435,7 @@ int ZEXPORT deflateReset (
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateSetHeader (strm, head)
-    z_streamp strm;
-    gz_headerp head;
+int ZEXPORT deflateSetHeader (z_streamp strm, gz_headerp head)
 {
     if (strm == Z_NULL || strm->state == Z_NULL) return Z_STREAM_ERROR;
     if (strm->state->wrap != 2) return Z_STREAM_ERROR;
@@ -460,10 +458,7 @@ int ZEXPORT deflatePending (
 }
 
 /* ========================================================================= */
-int ZEXPORT deflatePrime (strm, bits, value)
-    z_streamp strm;
-    int bits;
-    int value;
+int ZEXPORT deflatePrime (z_streamp strm, int bits, int value)
 {
     deflate_state *s;
     int put;
@@ -1400,7 +1395,8 @@ local void fill_window(
         more = (unsigned)(s->window_size -(ulg)s->lookahead -(ulg)s->strstart);
 
         /* Deal with !@#$% 64K limit: */
-        if (sizeof(int) <= 2) {
+        int sizeOfInt = sizeof(int);
+        if (sizeOfInt <= 2) {
             if (more == 0 && s->strstart == 0 && s->lookahead == 0) {
                 more = wsize;
 
@@ -1667,8 +1663,11 @@ local block_state deflate_fast(
         if (s->match_length >= MIN_MATCH) {
             check_match(s, s->strstart, s->match_start, s->match_length);
 
-            _tr_tally_dist(s, s->strstart - s->match_start,
-                           s->match_length - MIN_MATCH, bflush);
+            _tr_tally_dist(
+              s, 
+              (ush)(s->strstart - s->match_start),
+              (uch)(s->match_length - MIN_MATCH),
+              bflush);
 
             s->lookahead -= s->match_length;
 
@@ -1792,8 +1791,11 @@ local block_state deflate_slow(
 
             check_match(s, s->strstart-1, s->prev_match, s->prev_length);
 
-            _tr_tally_dist(s, s->strstart -1 - s->prev_match,
-                           s->prev_length - MIN_MATCH, bflush);
+            _tr_tally_dist(
+              s, 
+              (ush)(s->strstart -1 - s->prev_match),
+              (uch)(s->prev_length - MIN_MATCH),
+              bflush);
 
             /* Insert in hash table all strings up to the end of the match.
              * strstart-1 and strstart are already inserted. If there is not
@@ -1902,7 +1904,11 @@ local block_state deflate_rle(
         if (s->match_length >= MIN_MATCH) {
             check_match(s, s->strstart, s->strstart - 1, s->match_length);
 
-            _tr_tally_dist(s, 1, s->match_length - MIN_MATCH, bflush);
+            _tr_tally_dist(
+              s, 
+              (ush)(1),
+              (uch)(s->match_length - MIN_MATCH),
+              bflush);
 
             s->lookahead -= s->match_length;
             s->strstart += s->match_length;

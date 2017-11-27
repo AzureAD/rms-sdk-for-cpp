@@ -27,7 +27,7 @@ local int gz_load(
 
     *have = 0;
     do {
-        ret = read(state->fd, buf + *have, len - *have);
+        ret = _read(state->fd, buf + *have, len - *have);
         if (ret <= 0)
             break;
         *have += ret;
@@ -451,7 +451,7 @@ int ZEXPORT gzungetc(
     if (state->x.have == 0) {
         state->x.have = 1;
         state->x.next = state->out + (state->size << 1) - 1;
-        state->x.next[0] = c;
+        state->x.next[0] = (unsigned char)(c);
         state->x.pos--;
         state->past = 0;
         return c;
@@ -473,7 +473,7 @@ int ZEXPORT gzungetc(
     }
     state->x.have++;
     state->x.next--;
-    state->x.next[0] = c;
+    state->x.next[0] = (unsigned char)(c);
     state->x.pos--;
     state->past = 0;
     return c;
@@ -588,7 +588,7 @@ int ZEXPORT gzclose_r(
     err = state->err == Z_BUF_ERROR ? Z_BUF_ERROR : Z_OK;
     gz_error(state, Z_OK, NULL);
     free(state->path);
-    ret = close(state->fd);
+    ret = _close(state->fd);
     free(state);
     return ret ? Z_ERRNO : err;
 }

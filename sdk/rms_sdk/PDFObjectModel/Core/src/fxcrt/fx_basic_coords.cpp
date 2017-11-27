@@ -253,14 +253,14 @@ CFX_FloatRect CFX_FloatRect::GetBBox(const CFX_FloatPoint* pPoints, int nPoints)
     }
     return CFX_FloatRect(min_x, min_y, max_x, max_y);
 }
-void CFX_Matrix::Set(FX_FLOAT a, FX_FLOAT b, FX_FLOAT c, FX_FLOAT d, FX_FLOAT e, FX_FLOAT f)
+void CFX_Matrix::Set(FX_FLOAT aValue, FX_FLOAT bValue, FX_FLOAT cValue, FX_FLOAT dValue, FX_FLOAT eValue, FX_FLOAT fValue)
 {
-    this->a = a;
-    this->b = b;
-    this->c = c;
-    this->d = d;
-    this->e = e;
-    this->f = f;
+    this->a = aValue;
+    this->b = bValue;
+    this->c = cValue;
+    this->d = dValue;
+    this->e = eValue;
+    this->f = fValue;
 }
 void CFX_Matrix::Set(const FX_FLOAT n[6])
 {
@@ -300,10 +300,10 @@ static void FXCRT_Matrix_Concat(CFX_Matrix &m, const CFX_Matrix &m1, const CFX_M
     FX_FLOAT ff = m1.e * m2.b + m1.f * m2.d + m2.f;
     m.a = aa, m.b = bb, m.c = cc, m.d = dd, m.e = ee, m.f = ff;
 }
-void CFX_Matrix::Concat(FX_FLOAT a, FX_FLOAT b, FX_FLOAT c, FX_FLOAT d, FX_FLOAT e, FX_FLOAT f, FX_BOOL bPrepended)
+void CFX_Matrix::Concat(FX_FLOAT aValue, FX_FLOAT bValue, FX_FLOAT cValue, FX_FLOAT dValue, FX_FLOAT eValue, FX_FLOAT fValue, FX_BOOL bPrepended)
 {
     CFX_Matrix m;
-    m.Set(a, b, c, d, e, f);
+    m.Set(aValue, bValue, cValue, dValue, eValue, fValue);
     Concat(m, bPrepended);
 }
 void CFX_Matrix::Concat(const CFX_Matrix &m, FX_BOOL bPrepended)

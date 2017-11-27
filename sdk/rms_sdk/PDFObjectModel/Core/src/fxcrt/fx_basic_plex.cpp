@@ -23,8 +23,8 @@ void CFX_Plex::FreeDataChain()
     CFX_Plex* p = this;
     while (p != NULL) {
         FX_BYTE* bytes = (FX_BYTE*)p;
-        CFX_Plex* pNext = p->pNext;
+        CFX_Plex* pNextTemp = p->pNext;
         FX_Free(bytes);
-        p = pNext;
+        p = pNextTemp;
     }
 }

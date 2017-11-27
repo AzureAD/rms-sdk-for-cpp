@@ -28,12 +28,9 @@ PDFModuleMgrImpl::PDFModuleMgrImpl() {
   CPDF_ModuleMgr::Get()->SetCodecModule(pdf_codec_module_);
   pdf_module_manager_ = CPDF_ModuleMgr::Get();
 
-  custom_security_handler_ = nullptr ;
-
 }
 
 PDFModuleMgrImpl::~PDFModuleMgrImpl() {
-  custom_security_handler_ = nullptr;
 
   if (pdf_module_manager_ != nullptr) {
     pdf_module_manager_->Destroy();
@@ -46,19 +43,31 @@ PDFModuleMgrImpl::~PDFModuleMgrImpl() {
   }
 }
 
+void PDFModuleMgrImpl::SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_hander) {
+  shared_security_hander_ = shared_security_hander;
+}
+std::shared_ptr<PDFSecurityHandler> PDFModuleMgrImpl::GetSharedSecurityHandler() {
+  return shared_security_hander_;
+}
+
 static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param) {
-  return (CustomSecurityHandler*)param;
+  FX_UNREFERENCED_PARAMETER(param);
+  PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
+  std::shared_ptr<PDFSecurityHandler> security_hander = pdf_module_mgr->GetSharedSecurityHandler();
+  //core takes over custom_security_handler
+  CustomSecurityHandler* custom_security_handler = new CustomSecurityHandler(security_hander);
+  return custom_security_handler;
 }
 
 void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, std::shared_ptr<PDFSecurityHandler> security_hander) {
   if (g_pdf_module_mgr != nullptr) {
     PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
-    //core takes over custom_security_handler_
-    pdf_module_mgr->custom_security_handler_ = new CustomSecurityHandler(security_hander);
+    
+    pdf_module_mgr->SetSharedSecurityHandler(security_hander);
     pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
         filter_name.c_str(),
         CreateCustomerSecurityHandler,
-        pdf_module_mgr->custom_security_handler_);
+        nullptr);
   }
 }
 

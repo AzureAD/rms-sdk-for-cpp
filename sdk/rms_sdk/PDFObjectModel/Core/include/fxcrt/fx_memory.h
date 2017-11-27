@@ -36,10 +36,14 @@ class CFX_Object
 public:
     void*			operator new (size_t size, FX_LPCSTR file, int line)
     {
+        FX_UNREFERENCED_PARAMETER(file);
+        FX_UNREFERENCED_PARAMETER(line);
         return malloc(size);
     }
     void			operator delete (void* p, FX_LPCSTR file, int line)
     {
+        FX_UNREFERENCED_PARAMETER(file);
+        FX_UNREFERENCED_PARAMETER(line);
         free(p);
     }
     void*			operator new (size_t size)
@@ -52,10 +56,14 @@ public:
     }
     void*			operator new[] (size_t size, FX_LPCSTR file, int line)
     {
+        FX_UNREFERENCED_PARAMETER(file);
+        FX_UNREFERENCED_PARAMETER(line);
         return malloc(size);
     }
     void			operator delete[] (void* p, FX_LPCSTR file, int line)
     {
+        FX_UNREFERENCED_PARAMETER(file);
+        FX_UNREFERENCED_PARAMETER(line);
         free(p);
     }
     void*			operator new[] (size_t size)

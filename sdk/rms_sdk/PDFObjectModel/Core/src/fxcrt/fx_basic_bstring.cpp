@@ -812,7 +812,8 @@ FX_LPCSTR FX_strstr(FX_LPCSTR str1, int len1, FX_LPCSTR str2, int len2)
     FX_LPCSTR end_ptr = str1 + len1 - len2;
     while (str1 <= end_ptr) {
         int i = 0;
-        while (1) {
+        FX_BOOL bCondition = TRUE;
+        while (bCondition) {
             if (str1[i] != str2[i]) {
                 break;
             }
@@ -897,7 +898,8 @@ FX_STRSIZE CFX_ByteString::Replace(FX_BSTR lpszOld, FX_BSTR lpszNew)
     FX_STRSIZE nCount = 0;
     FX_LPCSTR pStart = m_pData->m_String;
     FX_LPSTR pEnd = m_pData->m_String + m_pData->m_nDataLength;
-    while (1) {
+    FX_BOOL bCondition = TRUE;
+    while (bCondition) {
         FX_LPCSTR pTarget = FX_strstr(pStart, (FX_STRSIZE)(pEnd - pStart), lpszOld.GetCStr(), nSourceLen);
         if (pTarget == NULL) {
             break;
@@ -1155,7 +1157,7 @@ FX_STRSIZE FX_ftoa(FX_FLOAT d, FX_LPSTR buf)
     buf[buf_size++] = '.';
     scale /= 10;
     while (fraction) {
-        buf[buf_size++] = '0' + fraction / scale;
+        buf[buf_size++] = static_cast<FX_CHAR>('0' + fraction / scale);
         fraction %= scale;
         scale /= 10;
     }
@@ -1163,6 +1165,7 @@ FX_STRSIZE FX_ftoa(FX_FLOAT d, FX_LPSTR buf)
 }
 CFX_ByteString CFX_ByteString::FormatFloat(FX_FLOAT d, int precision)
 {
+  FX_UNREFERENCED_PARAMETER(precision);
     FX_CHAR buf[32];
     FX_STRSIZE len = FX_ftoa(d, buf);
     return CFX_ByteString(buf, len);

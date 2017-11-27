@@ -131,9 +131,9 @@ public:
     typedef CFX_PSVTemplate<baseType>	FXT_POINT;
     typedef CFX_PSVTemplate<baseType>	FXT_SIZE;
     typedef CFX_VTemplate<baseType>		FXT_VECTOR;
-    void		Set(baseType x, baseType y)
+    void		Set(baseType xValue, baseType yValue)
     {
-        FXT_PSV::x = x, FXT_PSV::y = y;
+        FXT_PSV::x = xValue, FXT_PSV::y = yValue;
     }
     void		Set(const FXT_PSV &psv)
     {
@@ -700,13 +700,13 @@ public:
         top += y;
     }
 
-    void				Inflate(FX_FLOAT left, FX_FLOAT bottom, FX_FLOAT right, FX_FLOAT top)
+    void				Inflate(FX_FLOAT leftValue, FX_FLOAT bottomValue, FX_FLOAT rightValue, FX_FLOAT topValue)
     {
         Normalize();
-        this->left -= left;
-        this->bottom -= bottom;
-        this->right += right;
-        this->top += top;
+        this->left -= leftValue;
+        this->bottom -= bottomValue;
+        this->right += rightValue;
+        this->top += topValue;
     }
 
     void				Inflate(const CFX_FloatRect &rt)
@@ -723,13 +723,13 @@ public:
         top -= y;
     }
 
-    void				Deflate(FX_FLOAT left, FX_FLOAT bottom, FX_FLOAT right, FX_FLOAT top)
+    void				Deflate(FX_FLOAT leftValue, FX_FLOAT bottomValue, FX_FLOAT rightValue, FX_FLOAT topValue)
     {
         Normalize();
-        this->left += left;
-        this->bottom += bottom;
-        this->right -= right;
-        this->top -= top;
+        this->left += leftValue;
+        this->bottom += bottomValue;
+        this->right -= rightValue;
+        this->top -= topValue;
     }
 
     void				Deflate(const CFX_FloatRect &rt)

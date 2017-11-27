@@ -250,7 +250,7 @@ CFX_WideString FX_UrlDecode(const CFX_ByteString& bsUrl)
     int nLength = bsUrl.GetLength();
     for (int i = 0; i < nLength; i++) {
         if (i < nLength - 2 && bsUrl[i] == '%' && FX_IsXDigit(bsUrl[i + 1]) && FX_IsXDigit(bsUrl[i + 2])) {
-            rUrl += (FX_HexToI(bsUrl[i + 1]) << 4 | FX_HexToI(bsUrl[i + 2]));
+            rUrl += static_cast<FX_CHAR>((FX_HexToI(bsUrl[i + 1]) << 4 | FX_HexToI(bsUrl[i + 2])));
             i += 2;
         } else {
             rUrl += bsUrl[i];
@@ -282,7 +282,7 @@ CFX_WideString FX_DecodeURI(const CFX_ByteString& bsURI)
     int nLength = bsURI.GetLength();
     for (int i = 0; i < nLength; i++) {
         if (i < nLength - 2 && bsURI[i] == '%' && FX_IsXDigit(bsURI[i + 1]) && FX_IsXDigit(bsURI[i + 2])) {
-            rURI += (FX_HexToI(bsURI[i + 1]) << 4 | FX_HexToI(bsURI[i + 2]));
+            rURI += static_cast<FX_CHAR>((FX_HexToI(bsURI[i + 1]) << 4 | FX_HexToI(bsURI[i + 2])));
             i += 2;
         } else {
             rURI += bsURI[i];
@@ -378,6 +378,7 @@ static FX_BOOL IsDir(CFX_ByteString& path)
 #endif
 FX_BOOL FX_GetNextFile(void* handle, CFX_ByteString& filename, FX_BOOL& bFolder, FX_LPCSTR absPath)
 {
+  FX_UNREFERENCED_PARAMETER(absPath);
     if (handle == NULL) {
         return FALSE;
     }
@@ -425,6 +426,7 @@ FX_BOOL FX_GetNextFile(void* handle, CFX_ByteString& filename, FX_BOOL& bFolder,
 }
 FX_BOOL FX_GetNextFile(void* handle, CFX_WideString& filename, FX_BOOL& bFolder, FX_LPCSTR absPath)
 {
+  FX_UNREFERENCED_PARAMETER(absPath);
     if (handle == NULL) {
         return FALSE;
     }

@@ -6,8 +6,8 @@
  *======================================================================
  */
 
-#include "../../../include/fpdfapi/fpdf_parser.h"
-#include "../../../include/fpdfapi/fpdf_serial.h"
+#include "../../include/fpdfapi/fpdf_parser.h"
+#include "../../include/fpdfapi/fpdf_serial.h"
 extern const FX_LPCSTR _PDF_CharType =
     "WRRRRRRRRWWRWWRRRRRRRRRRRRRRRRRR"
     "WRRRRDRRDDRNRNNDNNNNNNNNNNRRDRDR"
@@ -45,7 +45,7 @@ CFX_ByteString PDF_NameDecode(FX_BSTR bstr)
     FX_LPSTR pDest = pDestStart;
     for (int i = 0; i < size; i ++) {
         if (pSrc[i] == '#' && i < size - 2) {
-            *pDest ++ = _hex2dec(pSrc[i + 1]) * 16 + _hex2dec(pSrc[i + 2]);
+            *pDest ++ = static_cast<FX_CHAR>(_hex2dec(pSrc[i + 1]) * 16 + _hex2dec(pSrc[i + 2]));
             i += 2;
         } else {
             *pDest ++ = pSrc[i];
@@ -133,7 +133,7 @@ CFX_ByteTextBuf& SerializePDFObjectWithObjMapper(CFX_ByteTextBuf& buf, const CPD
                 CPDF_Reference* p = (CPDF_Reference*)pObj;
                 FX_DWORD dwRefObjNum = p->GetRefObjNum();
                 FX_DWORD dwRefObjGenNum = p->GetRefObjVersion();
-                if(pObjNumMap && dwRefObjNum < pObjNumMap->GetSize()) {
+                if(pObjNumMap && static_cast<int>(dwRefObjNum) < pObjNumMap->GetSize()) {
                     FX_DWORD objnum = pObjNumMap->GetAt(dwRefObjNum);
                     if(objnum) {
                         dwRefObjNum = objnum;
@@ -149,7 +149,7 @@ CFX_ByteTextBuf& SerializePDFObjectWithObjMapper(CFX_ByteTextBuf& buf, const CPD
                     CPDF_Object* pElement = p->GetElement(i);
                     if (pElement->GetObjNum()) {
                         FX_DWORD dwObjNum = pElement->GetObjNum();
-                        if(pObjNumMap && dwObjNum < pObjNumMap->GetSize()) {
+                        if(pObjNumMap && static_cast<int>(dwObjNum) < pObjNumMap->GetSize()) {
                             FX_DWORD objnum = pObjNumMap->GetAt(dwObjNum);
                             if(objnum) {
                                 dwObjNum = objnum;
@@ -173,7 +173,7 @@ CFX_ByteTextBuf& SerializePDFObjectWithObjMapper(CFX_ByteTextBuf& buf, const CPD
                     if (pValue->GetType() == PDFOBJ_REFERENCE) {
                         CPDF_Reference* pRef = (CPDF_Reference*)pValue;
                         FX_DWORD dwRefObjNum = pRef->GetRefObjNum();
-                        if(pObjNumMap && dwRefObjNum < pObjNumMap->GetSize()) {
+                        if(pObjNumMap && static_cast<int>(dwRefObjNum) < pObjNumMap->GetSize()) {
                             FX_DWORD objnum = pObjNumMap->GetAt(dwRefObjNum);
                             if(!objnum) {
                                 continue;
@@ -183,7 +183,7 @@ CFX_ByteTextBuf& SerializePDFObjectWithObjMapper(CFX_ByteTextBuf& buf, const CPD
                     buf << FX_BSTRC("/") << PDF_NameEncode(key);
                     if (pValue->GetObjNum()) {
                         FX_DWORD dwObjNum = pValue->GetObjNum();
-                        if(pObjNumMap && dwObjNum < pObjNumMap->GetSize()) {
+                        if(pObjNumMap && static_cast<int>(dwObjNum) < pObjNumMap->GetSize()) {
                             FX_DWORD objnum = pObjNumMap->GetAt(dwObjNum);
                             if(objnum) {
                                 dwObjNum = objnum;

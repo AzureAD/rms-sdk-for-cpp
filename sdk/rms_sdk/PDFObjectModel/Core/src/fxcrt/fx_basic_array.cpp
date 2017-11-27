@@ -70,14 +70,14 @@ FX_BOOL CFX_BasicArray::SetSize(int nNewSize, int nGrowBy)
         }
         m_nSize = nNewSize;
     } else {
-        int nGrowBy = m_nGrowBy;
-        if (nGrowBy == 0) {
-            nGrowBy = m_nSize / 8;
-            nGrowBy = (nGrowBy < 4) ? 4 : ((nGrowBy > 1024) ? 1024 : nGrowBy);
+        int nGrowBy2 = m_nGrowBy;
+        if (nGrowBy2 == 0) {
+            nGrowBy2 = m_nSize / 8;
+            nGrowBy2 = (nGrowBy2 < 4) ? 4 : ((nGrowBy2 > 1024) ? 1024 : nGrowBy2);
         }
         int nNewMax;
-        if (nNewSize < m_nMaxSize + nGrowBy) {
-            nNewMax = m_nMaxSize + nGrowBy;
+        if (nNewSize < m_nMaxSize + nGrowBy2) {
+            nNewMax = m_nMaxSize + nGrowBy2;
         } else {
             nNewMax = nNewSize;
         }
@@ -164,8 +164,8 @@ const void* CFX_BasicArray::GetDataPtr(int index) const
 }
 CFX_BaseSegmentedArray::CFX_BaseSegmentedArray(int unit_size, int segment_units, int index_size)
     : m_UnitSize(unit_size)
-    , m_SegmentSize(segment_units)
-    , m_IndexSize(index_size)
+    , m_SegmentSize(static_cast<short>(segment_units))
+    , m_IndexSize(static_cast<FX_BYTE>(index_size))
     , m_IndexDepth(0)
     , m_DataSize(0)
     , m_pIndex(NULL)
@@ -175,8 +175,8 @@ void CFX_BaseSegmentedArray::SetUnitSize(int unit_size, int segment_units, int i
 {
     ASSERT(m_DataSize == 0);
     m_UnitSize = unit_size;
-    m_SegmentSize = segment_units;
-    m_IndexSize = index_size;
+    m_SegmentSize = static_cast<short>(segment_units);
+    m_IndexSize = static_cast<FX_BYTE>(index_size);
 }
 CFX_BaseSegmentedArray::~CFX_BaseSegmentedArray()
 {

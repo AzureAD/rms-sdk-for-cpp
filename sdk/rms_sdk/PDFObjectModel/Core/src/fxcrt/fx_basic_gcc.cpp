@@ -31,6 +31,7 @@ T FXSYS_StrToInt(STR_T str)
 template <typename T, typename STR_T>
 STR_T FXSYS_IntToStr(T value, STR_T string, int radix)
 {
+  FX_UNREFERENCED_PARAMETER(radix);
     int i = 0;
     if (value < 0) {
         string[i++] = '-';
