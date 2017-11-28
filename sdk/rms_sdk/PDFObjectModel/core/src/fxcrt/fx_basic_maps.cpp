@@ -641,7 +641,7 @@ int CFX_CMapByteStringToPtr::GetCount() const
     return count;
 }
 extern "C" {
-    int __cdecl _CompareDWord(const void* p1, const void* p2)
+    int __FX_CDECL _CompareDWord(const void* p1, const void* p2)
     {
         return (*(FX_DWORD*)p1) - (*(FX_DWORD*)p2);
     }

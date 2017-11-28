@@ -265,9 +265,9 @@ static void FPDF_NameTree_GetAlternateName(const CFX_ByteString& csName, CFX_Byt
         CFX_WideString wsName = PDF_DecodeText(csName);
         csUnicode.Empty();
         csUnicode.Reserve(csName.GetLength() * 2 + 4);
-        byte cTemp1 = 0xfe;
+        FX_BYTE cTemp1 = 0xfe;
         csUnicode += static_cast<char>(cTemp1);
-        byte cTemp2 = 0xff;
+        FX_BYTE cTemp2 = 0xff;
         csUnicode += static_cast<char>(cTemp2);
         for (FX_INT32 i = 0, c = wsName.GetLength(); i < c; i++) {
             csUnicode += (wsName[i] >> 8) & 0xFF;

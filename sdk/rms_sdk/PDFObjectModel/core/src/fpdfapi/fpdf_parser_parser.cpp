@@ -45,7 +45,7 @@ FX_BOOL IsSignatureDict(CPDF_Dictionary* pDict, FX_DWORD objnum,  CPDF_Object* p
 }
 
 extern "C" {
-int __cdecl _CompareFileSize(void const* p1, void const* p2)
+int __FX_CDECL _CompareFileSize(void const* p1, void const* p2)
 {
   FX_FILESIZE ret = (*(FX_FILESIZE*)p1) - (*(FX_FILESIZE*)p2);
   if (ret > 0) {

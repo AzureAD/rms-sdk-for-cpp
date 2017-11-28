@@ -288,4 +288,10 @@ int			FXSYS_round(FX_FLOAT f);
 #define FX_UNREFERENCED_PARAMETER(p)
 #endif
 
+#if _FXM_PLATFORM_ == _FXM_PLATFORM_WINDOWS_
+#define __FX_CDECL __cdecl
+#else
+#define __FX_CDECL
+#endif
+
 #endif
