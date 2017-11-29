@@ -245,7 +245,7 @@ local gzFile gz_open(
 #ifdef _WIN32
         fd == -2 ? _wopen(path, oflag, 0666) :
 #endif
-        _open((const char *)path, oflag, 0666));
+        open((const char *)path, oflag, 0666));
     if (state->fd == -1) {
         free(state->path);
         free(state);

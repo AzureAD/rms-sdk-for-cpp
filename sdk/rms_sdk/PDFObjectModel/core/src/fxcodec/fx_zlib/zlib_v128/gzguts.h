@@ -45,7 +45,8 @@
 #  include <io.h>
 #endif
 
-#ifdef WINAPI_FAMILY
+//#ifdef WINAPI_FAMILY
+#ifdef _WIN32
 #  define open _open
 #  define read _read
 #  define write _write
