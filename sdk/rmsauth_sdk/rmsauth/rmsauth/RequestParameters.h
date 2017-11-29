@@ -24,12 +24,10 @@ public:
     void addParam(const String& key, const String& value);
     String toString() const;
 
-    const StringMap& serverProvidedParameters() const {return serverProvidedParameters_;}
-    String serverProvidedQueryParametersToString() const;
+    StringMap getServerProvidedParameters() const;
     void setServerProvidedParameters(const String& val);
 
     static String uriEncode(const String& value);
-
 private:
     void addClientKey(const ClientKey& clientKey);
 

@@ -39,26 +39,15 @@ void RequestParameters::addParam(const String & key, const String & value)
     params_.insert(make_pair(key, value));
 }
 
+StringMap RequestParameters::getServerProvidedParameters() const
+{
+    return serverProvidedParameters_;
+}
 
 void RequestParameters::setServerProvidedParameters(const String& param)
 {
     serverProvidedParameters_ = StringUtils::urlSplitParameters(param);
 }
-
-String RequestParameters::serverProvidedQueryParametersToString() const
-{
-    StringStream ss;
-    bool first = true;
-    for (auto& pair : serverProvidedParameters_)
-    {
-        if (!first) 
-            ss << "&";
-        ss << pair.first << "=" << pair.second;
-        first = false;
-    }
-    return ss.str();
-}
-
 
 String RequestParameters::toString() const
 {

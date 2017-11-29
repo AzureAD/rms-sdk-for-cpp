@@ -11,6 +11,16 @@
 
 namespace rmsauth {
 
+QUrlQuery Utils::toQUrlQuery(const StringMap& params)
+{
+    QUrlQuery urlQuery = QUrlQuery();
+    for (auto& pair : params)
+    {
+        urlQuery.addQueryItem(pair.first.data(), pair.second.data());
+    }
+    return urlQuery;
+};
+
 String HashUtils::createSha256Hash(const String& token)
 {
     QCryptographicHash h(QCryptographicHash::Sha256);

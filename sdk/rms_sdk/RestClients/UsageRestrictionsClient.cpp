@@ -21,6 +21,7 @@
 #include "LicenseParserResult.h"
 #include "RestClientErrorHandling.h"
 #include "UsageRestrictionsClient.h"
+#include <sstream>
 
 using namespace std;
 using namespace rmscore::modernapi;
@@ -75,8 +76,11 @@ GetUsageRestrictions(const UsageRestrictionsRequest        & request,
     consentCallback,
     cancelState);
 
+  list<pair<string, string>> requestParams;
+  requestParams.push_back(make_pair("email", email));
+
   auto httpRequestResult = RestHttpClient::Post(
-    endUserLicenseUrl+"?email="+email,
+    getRequestUrl(endUserLicenseUrl, requestParams),
     move(serializedRequest),
     authCallback,
     cancelState);
@@ -233,6 +237,33 @@ bool UsageRestrictionsClient::TryGetFromCache(
 }
 
 const char UsageRestrictionsClient::s_usageRestrictionsCacheName[] = "UR";
+
+string UsageRestrictionsClient::getRequestUrl(const string &url, const list<pair<string, string>> &requestParams)
+{
+    stringstream ss;
+    ss << url;
+    bool firstParam = true;
+    if (url.find("?") != -1) 
+    {
+        firstParam = false;
+    }
+
+    for (auto it = requestParams.begin(); it != requestParams.end(); it++) 
+    {
+        if (!it->first.empty() && !it->second.empty()) 
+        {
+            if (firstParam) {
+                ss << '?';
+                firstParam = false;
+            }
+            else {
+                ss << '&';
+            }
+            ss << it->first << '=' << it->second;
+        }
+    }
+    return ss.str();
+}
 
 shared_ptr<IUsageRestrictionsClient>IUsageRestrictionsClient::Create()
 {

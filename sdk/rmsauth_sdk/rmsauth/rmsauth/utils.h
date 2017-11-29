@@ -10,8 +10,13 @@
 #define UTILS_H
 
 #include "types.h"
+#include <QUrlQuery>
 
 namespace rmsauth {
+class Utils {
+public:
+    static QUrlQuery toQUrlQuery(const StringMap& request);
+};
 
 class StringUtils
 {

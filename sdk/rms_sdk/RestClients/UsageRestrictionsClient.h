@@ -37,6 +37,8 @@ private:
                            const common::ByteArray                 & strResponse,
                            bool                                      encryptData);
 
+  static string getRequestUrl(const string &url, const list<pair<string, string>> &requestParams);
+
 private:
 
   static const char s_usageRestrictionsCacheName[];
