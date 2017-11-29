@@ -21,7 +21,7 @@ extern "C" {
      ((unsigned long)(unsigned char)(cp)[1] << 16) | \
      ((unsigned long)(unsigned char)(cp)[0] << 24))
 #define PUT_32BIT_MSB_FIRST(cp, value) { \
-        (cp)[3] = (value); \
+        (cp)[3] = static_cast<unsigned char>(value); \
         (cp)[2] = static_cast<unsigned char>((value) >> 8); \
         (cp)[1] = static_cast<unsigned char>((value) >> 16); \
         (cp)[0] = static_cast<unsigned char>((value) >> 24); }
