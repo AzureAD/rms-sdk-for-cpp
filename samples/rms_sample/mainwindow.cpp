@@ -912,7 +912,7 @@ void MainWindow::PDFFileEncrypt(const string& fileIn,
 
         size_t pos = self->templatesUI.SelectTemplate(templates);
 
-        rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+        rmscore::fileapi::ProtectWithTemplateOptions pt (rmscore::fileapi::CryptoOptions::AES256_CBC4K,
                                                          (*templates)[pos], signedData, true);
         rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
 
@@ -1091,7 +1091,7 @@ void MainWindow::PDFFileEncryptRights(const string& fileIn,
         desc.AllowOfflineAccess(false);
         desc.Name("Test Name");
         desc.Description("Test Description");
-        rmscore::fileapi::ProtectWithCustomRightsOptions pt (rmscore::fileapi::CryptoOptions::AES128_ECB,
+        rmscore::fileapi::ProtectWithCustomRightsOptions pt (rmscore::fileapi::CryptoOptions::AES256_CBC4K,
                                                              desc, true);
         rmscore::fileapi::UserContext ut (clientEmail, authUI, this->consent);
 
