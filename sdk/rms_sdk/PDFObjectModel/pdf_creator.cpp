@@ -587,7 +587,7 @@ CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(
 
   encryption_dictionary->SetAtName("StmF", filter_name.c_str());
   encryption_dictionary->SetAtName("StrF", filter_name.c_str());
-  encryption_dictionary->SetAtName("EFF", filter_name.c_str());
+  //encryption_dictionary->SetAtName("EFF", filter_name.c_str());
   encryption_dictionary->SetAtInteger("MicrosoftIRMVersion", 2);
   encryption_dictionary->SetAtInteger("V", 4);
   encryption_dictionary->SetAtBoolean("EncryptMetadata", true);
