@@ -22,7 +22,7 @@ bool PDFBinaryBufImpl::AppendBlock(const void* buffer_pointer, uint32_t size) {
 
 //////////////////////////////////////////////////////////////////////////
 // class FileStreamImpl
-FileStreamImpl::FileStreamImpl(rmscrypto::api::SharedStream ioStream)
+FileStreamImpl::FileStreamImpl(PDFSharedStream ioStream)
     : shared_io_stream_(ioStream) {
 
 }
@@ -36,17 +36,17 @@ IFX_FileStream* FileStreamImpl::Retain() {
 }
 
 void FileStreamImpl::Release() {
-
+  shared_io_stream_->Release();
 }
 
 FX_FILESIZE FileStreamImpl::GetSize() {
-  uint64_t size = shared_io_stream_->Size();
+  uint64_t size = shared_io_stream_->GetSize();
   return static_cast<FX_FILESIZE>(size);
 }
 
 FX_BOOL FileStreamImpl::IsEOF() {
-  uint64_t size = shared_io_stream_->Size();
-  uint64_t pos = shared_io_stream_->Position();
+  uint64_t size = shared_io_stream_->GetSize();
+  uint64_t pos = shared_io_stream_->GetPosition();
   if (pos = size - 1) {
     return true;
   }
@@ -54,30 +54,25 @@ FX_BOOL FileStreamImpl::IsEOF() {
 }
 
 FX_FILESIZE FileStreamImpl::GetPosition() {
-  uint64_t pos = shared_io_stream_->Position();
+  uint64_t pos = shared_io_stream_->GetPosition();
   return static_cast<FX_FILESIZE>(pos);
 }
 
 FX_BOOL FileStreamImpl::ReadBlock(void* buffer, FX_FILESIZE offset, size_t size) {
-  shared_io_stream_->Seek(offset);
-  shared_io_stream_->Read(reinterpret_cast<unsigned char*>(buffer), size);
-  return true;
+  return (shared_io_stream_->ReadBlock(buffer, static_cast<uint64_t>(offset), static_cast<uint64_t>(size))) != 0;
 }
 
 size_t FileStreamImpl::ReadBlock(void* buffer, size_t size) {
-  int64_t read = shared_io_stream_->Read(reinterpret_cast<unsigned char*>(buffer), size);
+  int64_t read = shared_io_stream_->ReadBlock(buffer, static_cast<uint64_t>(size));
   return static_cast<size_t>(read);
 }
 
 FX_BOOL FileStreamImpl::WriteBlock(const void* buffer, FX_FILESIZE offset, size_t size) {
-  shared_io_stream_->Seek(offset);
-  shared_io_stream_->Write(reinterpret_cast<const unsigned char*>((FX_LPVOID)buffer), size);
-  return true;
+  return (shared_io_stream_->WriteBlock(buffer, static_cast<uint64_t>(offset), static_cast<uint64_t>(size))) != 0;
 }
 
 FX_BOOL FileStreamImpl::Flush() {
-  bool flush_result = shared_io_stream_->Flush();
-  return flush_result;
+  return shared_io_stream_->Flush() != 0;
 }
 
 void utility::UTF16ToUTF8(

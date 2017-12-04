@@ -60,6 +60,31 @@ class PDFBinaryBuf {
 };
 
 /**
+ * @brief It is used to access to the stream data.
+ * It is implemented by PDF protect, and it is invoked by PDF object model to access to the stream data.
+ */
+class PDFDataStream {
+ public:
+  virtual void Release() = 0;
+
+  virtual uint64_t GetSize() = 0;
+
+  virtual bool IsEOF() = 0;
+
+  virtual uint64_t GetPosition() = 0;
+
+  virtual bool ReadBlock(void* buffer, uint64_t offset, uint64_t size) = 0;
+
+  virtual uint64_t ReadBlock(void* buffer, uint64_t size) = 0;
+
+  virtual bool WriteBlock(const void* buffer, uint64_t offset, uint64_t size) = 0;
+
+  virtual bool Flush() = 0;
+};
+
+typedef std::shared_ptr<PDFDataStream> PDFSharedStream;
+
+/**
  * @brief The type definitions of PDF wrapper doc.
  */
 enum PDFWrapperDocType{
@@ -82,7 +107,7 @@ class PDFWrapperDoc {
    * @return The PDFWrapperDoc instance.
    */
   DLL_PUBLIC_RMS
-  static std::unique_ptr<PDFWrapperDoc> Create(rmscrypto::api::SharedStream input_stream);
+  static std::unique_ptr<PDFWrapperDoc> Create(PDFSharedStream input_stream);
 
   /**
    * @brief Gets the wrapper type.
@@ -117,7 +142,7 @@ class PDFWrapperDoc {
    * @param[out] output_stream  It receives the payload content.
    * @return true for success, otherwise false.
    */
-  virtual bool StartGetPayload(rmscrypto::api::SharedStream output_stream) = 0;
+  virtual bool StartGetPayload(PDFSharedStream output_stream) = 0;
 
   virtual ~PDFWrapperDoc(){}
 
@@ -140,7 +165,7 @@ class PDFUnencryptedWrapperCreator {
    */
   DLL_PUBLIC_RMS
   static std::unique_ptr<PDFUnencryptedWrapperCreator> Create(
-      rmscrypto::api::SharedStream wrapper_doc_stream);
+      PDFSharedStream wrapper_doc_stream);
 
   /**
    * @brief Sets the payload info.
@@ -161,14 +186,14 @@ class PDFUnencryptedWrapperCreator {
    * @param[in] input_stream   The input payload content.
    * @return void.
    */
-  virtual void SetPayLoad(rmscrypto::api::SharedStream input_stream) = 0;
+  virtual void SetPayLoad(PDFSharedStream input_stream) = 0;
 
   /**
    * @brief Writes the wrapper doc to a custom file access.
    * @param[out] output_stream  It receives the wrapper doc.
    * @return true for success, otherwise false.
    */
-  virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream output_stream) = 0;
+  virtual bool CreateUnencryptedWrapper(PDFSharedStream output_stream) = 0;
 
   virtual ~PDFUnencryptedWrapperCreator(){}
 
@@ -300,7 +325,7 @@ class PDFCreator {
       const std::string& filter_name,
       const std::vector<unsigned char>& publishing_license,
       std::shared_ptr<PDFCryptoHandler> crypto_hander,
-      rmscrypto::api::SharedStream outputIOS) = 0;
+      PDFSharedStream outputIOS) = 0;
 
   /**
    * @brief Decrypts the custom encrypted PDF file(be opposed to standard encryption like
@@ -312,10 +337,10 @@ class PDFCreator {
    * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
    */
   virtual uint32_t UnprotectCustomEncryptedFile(
-      rmscrypto::api::SharedStream inputIOS,
+      PDFSharedStream inputIOS,
       const std::string& filter_name,
       std::shared_ptr<PDFSecurityHandler> security_hander,
-      rmscrypto::api::SharedStream outputIOS) = 0;
+      PDFSharedStream outputIOS) = 0;
 
   virtual ~PDFCreator(){}
 

@@ -158,13 +158,13 @@ class PDFCreatorImpl : public PDFCreator {
       const std::string& filter_name,
       const std::vector<unsigned char>& publishing_license,
       std::shared_ptr<PDFCryptoHandler> crypto_hander,
-      rmscrypto::api::SharedStream outputIOS);
+      PDFSharedStream outputIOS);
 
   virtual uint32_t UnprotectCustomEncryptedFile(
-      rmscrypto::api::SharedStream inputIOS,
+      PDFSharedStream inputIOS,
       const std::string& filter_name,
       std::shared_ptr<PDFSecurityHandler> security_hander,
-      rmscrypto::api::SharedStream outputIOS);
+      PDFSharedStream outputIOS);
  protected:
     //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
   bool IsProtectedByPassword(CPDF_Parser *pdf_parser);
@@ -176,7 +176,7 @@ class PDFCreatorImpl : public PDFCreator {
       CPDF_Parser* pdf_parser,
       CPDF_Dictionary *encryption_dictionary,
       std::shared_ptr<PDFCryptoHandler> crypto_hander,
-      rmscrypto::api::SharedStream outputIOS);
+      PDFSharedStream outputIOS);
 
   CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name,
                                         const std::vector<unsigned char>& publishing_license);

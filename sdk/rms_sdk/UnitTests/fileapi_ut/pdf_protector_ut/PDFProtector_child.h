@@ -24,6 +24,36 @@ namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 #define MIN_RAW_SIZE 64 * 1024 * 1024
 
 /**
+ * @brief The implementaion class of interface class PDFDataStream.
+ * It is used to access to the stream data.
+ * It is implemented by PDF protect, and it is invoked by PDF object model to access to the stream data.
+ */
+class FDFDataStreamImpl_unit : public pdfobjectmodel::PDFDataStream {
+ public:
+  explicit FDFDataStreamImpl_unit(rmscrypto::api::SharedStream ioStream);
+  virtual ~FDFDataStreamImpl_unit();
+
+  virtual void Release();
+
+  virtual uint64_t GetSize();
+
+  virtual bool IsEOF();
+
+  virtual uint64_t GetPosition();
+
+  virtual bool ReadBlock(void* buffer, uint64_t offset, uint64_t size);
+
+  virtual uint64_t ReadBlock(void* buffer, uint64_t size);
+
+  virtual bool WriteBlock(const void* buffer, uint64_t offset, uint64_t size);
+
+  virtual bool Flush();
+
+ private:
+  rmscrypto::api::SharedStream shared_io_stream_;
+};
+
+/**
  * @brief The wrapper info used to create the unencrypted wrapper document
  * according to "Microsoft IRM protection for PDF Spec-v2".
  */

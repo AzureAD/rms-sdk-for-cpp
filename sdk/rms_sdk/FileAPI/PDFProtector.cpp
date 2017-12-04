@@ -23,6 +23,62 @@ namespace logger = rmscore::platform::logger;
 namespace rmscore {
 namespace fileapi {
 
+//////////////////////////////////////////////////////////////////////////
+// class FDFDataStreamImpl
+FDFDataStreamImpl::FDFDataStreamImpl(rmscrypto::api::SharedStream ioStream)
+    : shared_io_stream_(ioStream) {
+
+}
+
+FDFDataStreamImpl::~FDFDataStreamImpl() {
+
+}
+
+void FDFDataStreamImpl::Release() {
+  shared_io_stream_.reset();
+}
+
+uint64_t FDFDataStreamImpl::GetSize() {
+  uint64_t size = shared_io_stream_->Size();
+  return size;
+}
+
+bool FDFDataStreamImpl::IsEOF() {
+  uint64_t size = shared_io_stream_->Size();
+  uint64_t pos = shared_io_stream_->Position();
+  if (pos = size - 1) {
+    return true;
+  }
+  return false;
+}
+
+uint64_t FDFDataStreamImpl::GetPosition() {
+  uint64_t pos = shared_io_stream_->Position();
+  return pos;
+}
+
+bool FDFDataStreamImpl::ReadBlock(void* buffer, uint64_t offset, uint64_t size) {
+  shared_io_stream_->Seek(offset);
+  shared_io_stream_->Read(reinterpret_cast<unsigned char*>(buffer), size);
+  return true;
+}
+
+uint64_t FDFDataStreamImpl::ReadBlock(void* buffer, uint64_t size) {
+  int64_t read = shared_io_stream_->Read(reinterpret_cast<unsigned char*>(buffer), size);
+  return read;
+}
+
+bool FDFDataStreamImpl::WriteBlock(const void* buffer, uint64_t offset, uint64_t size) {
+  shared_io_stream_->Seek(offset);
+  shared_io_stream_->Write(reinterpret_cast<const unsigned char*>(buffer), size);
+  return true;
+}
+
+bool FDFDataStreamImpl::Flush() {
+  bool flush_result = shared_io_stream_->Flush();
+  return flush_result;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 /// class PDFProtector
 PDFCryptoHandlerImpl::PDFCryptoHandlerImpl(std::shared_ptr<PDFProtector> pdf_protector) {
@@ -403,8 +459,10 @@ UnprotectResult PDFProtector::Unprotect(
   std::shared_ptr<std::iostream> input_encrypted_IO = input_stream_;
   auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
 
+  pdfobjectmodel::PDFSharedStream encrypted_pdf_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(input_encrypted);
   std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
-      pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
+      pdfobjectmodel::PDFWrapperDoc::Create(encrypted_pdf_shared_stream);
   uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
   uint32_t payload_size = pdf_wrapper_doc->GetPayLoadSize();
   std::wstring graphic_filter;
@@ -423,7 +481,10 @@ UnprotectResult PDFProtector::Unprotect(
   auto payloadSS = std::make_shared<std::stringstream>();
   std::shared_ptr<std::iostream> payloadIOS = payloadSS;
   auto output_payload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
-  bool bGetPayload = pdf_wrapper_doc->StartGetPayload(output_payload);
+
+  pdfobjectmodel::PDFSharedStream payload_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(output_payload);
+  bool bGetPayload = pdf_wrapper_doc->StartGetPayload(payload_shared_stream);
 
   std::shared_ptr<std::iostream> output_decrypted_IO = outputstream;
   auto output_decrypted = rmscrypto::api::CreateStreamFromStdStream(output_decrypted_IO);
@@ -439,11 +500,14 @@ UnprotectResult PDFProtector::Unprotect(
       usercontext,
       options,
       cancelstate);
+
+  pdfobjectmodel::PDFSharedStream decrypted_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(output_decrypted);
   uint32_t result = pdf_creator_->UnprotectCustomEncryptedFile(
-      output_payload,
+      payload_shared_stream,
       filter_name,
       security_hander,
-      output_decrypted);
+      decrypted_shared_stream);
   if(pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     logger::Logger::Error("Failed to decrypt the file. The file may be corrupted.");
     throw exceptions::RMSPDFFileException("Failed to decrypt the file. The file may be corrupted.",
@@ -460,9 +524,11 @@ bool PDFProtector::IsProtected() const {
 
   std::shared_ptr<std::iostream> input_encrypted_IO = input_stream_;
   auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
+  pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(input_encrypted);
 
   std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
-      pdfobjectmodel::PDFWrapperDoc::Create(input_encrypted);
+      pdfobjectmodel::PDFWrapperDoc::Create(encrypted_shared_stream);
   uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
   uint32_t payload_size = pdf_wrapper_doc->GetPayLoadSize();
   std::wstring graphic_filter;
@@ -491,6 +557,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   auto encryptedSS = std::make_shared<std::stringstream>();
   std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
   auto output_encrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
+  pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(output_encrypted);
 
   std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
 
@@ -504,7 +572,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
       filter_name,
       publishing_license,
       crypto_hander,
-      output_encrypted);
+      encrypted_shared_stream);
   if (pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     logger::Logger::Error("Failed to encrypt the file. The file is invalid.");
     throw exceptions::RMSPDFFileException("Failed to encrypt the file. The file is invalid.",
@@ -519,17 +587,23 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   }
   std::shared_ptr<std::iostream> input_wrapper_IO = input_wrapper_stream_;
   auto input_wrapper = rmscrypto::api::CreateStreamFromStdStream(input_wrapper_IO);
-  pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(input_wrapper);
+  pdfobjectmodel::PDFSharedStream wrapper_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(input_wrapper);
+
+  pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(wrapper_shared_stream);
   pdf_wrapper_creator_->SetPayloadInfo(
       PDF_PROTECTOR_WRAPPER_SUBTYPE,
       PDF_PROTECTOR_WRAPPER_FILENAME,
       PDF_PROTECTOR_WRAPPER_DES,
       PDF_PROTECTOR_WRAPPER_VERSION);
-  pdf_wrapper_creator_->SetPayLoad(output_encrypted);
+  pdf_wrapper_creator_->SetPayLoad(encrypted_shared_stream);
 
   std::shared_ptr<std::iostream> outputIO = outputstream;
   auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
-  bool result_create = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper);
+  pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(output_wrapper);
+
+  bool result_create = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
   if (!result_create) {
     logger::Logger::Error("Failed to create PDF IRM V2 file. The wrapper doc may be invalid.");
     throw exceptions::RMSInvalidArgumentException("Failed to create PDF IRM V2 file. The wrapper doc may be invalid.");

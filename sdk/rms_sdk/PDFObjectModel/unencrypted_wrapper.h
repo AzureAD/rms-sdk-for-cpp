@@ -20,7 +20,7 @@ namespace pdfobjectmodel {
  */
 class PDFWrapperDocImpl : public PDFWrapperDoc {
  public:
-  explicit PDFWrapperDocImpl(rmscrypto::api::SharedStream wrapper_doc_stream);
+  explicit PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream);
   virtual ~PDFWrapperDocImpl();
 
   virtual uint32_t GetWrapperType() const;
@@ -32,7 +32,7 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
   //this is just for IRM V2.
   virtual bool GetPayloadFileName(std::wstring& file_name) const;
 
-  virtual bool StartGetPayload(rmscrypto::api::SharedStream output_stream);
+  virtual bool StartGetPayload(PDFSharedStream output_stream);
 
  private:
   std::shared_ptr<FileStreamImpl> wrapper_file_stream_;
@@ -54,7 +54,7 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
  */
 class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator {
  public:
-  explicit PDFUnencryptedWrapperCreatorImpl(rmscrypto::api::SharedStream wrapper_doc_stream);
+  explicit PDFUnencryptedWrapperCreatorImpl(PDFSharedStream wrapper_doc_stream);
   virtual ~PDFUnencryptedWrapperCreatorImpl();
 
   virtual void SetPayloadInfo(
@@ -63,9 +63,9 @@ class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator {
       const std::wstring& description,
       float version_num);
 
-  virtual void SetPayLoad(rmscrypto::api::SharedStream input_stream);
+  virtual void SetPayLoad(PDFSharedStream input_stream);
 
-  virtual bool CreateUnencryptedWrapper(rmscrypto::api::SharedStream output_stream);
+  virtual bool CreateUnencryptedWrapper(PDFSharedStream output_stream);
 
  private:
   std::shared_ptr<FileStreamImpl> wrapper_file_stream_;

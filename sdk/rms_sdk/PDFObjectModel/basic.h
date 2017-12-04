@@ -31,7 +31,7 @@ class PDFBinaryBufImpl : public PDFBinaryBuf {
  */
 class FileStreamImpl : public IFX_FileStream {
  public:
-  explicit FileStreamImpl(rmscrypto::api::SharedStream ioStream);
+  explicit FileStreamImpl(PDFSharedStream ioStream);
   virtual ~FileStreamImpl();
 
   virtual IFX_FileStream* Retain();
@@ -53,7 +53,7 @@ class FileStreamImpl : public IFX_FileStream {
   virtual FX_BOOL Flush();
 
  private:
-  rmscrypto::api::SharedStream shared_io_stream_;
+  PDFSharedStream shared_io_stream_;
 };
 
 #define UTF8_ONE_START      (0xOOO1)

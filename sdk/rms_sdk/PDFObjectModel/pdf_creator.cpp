@@ -415,7 +415,7 @@ uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(
     const std::string& filter_name,
     const std::vector<unsigned char> &publishing_license,
     std::shared_ptr<PDFCryptoHandler> crypto_hander,
-    rmscrypto::api::SharedStream outputIOS) {
+    PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
   file_path_ = input_file_path;
 
@@ -605,7 +605,7 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
     CPDF_Parser *pdf_parser,
     CPDF_Dictionary* encryption_dictionary,
     std::shared_ptr<PDFCryptoHandler> crypto_hander,
-    rmscrypto::api::SharedStream outputIOS) {
+    PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
 
   CPDF_Document* pdf_document = pdf_parser->GetDocument();
@@ -637,10 +637,10 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
 }
 
 uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
-    rmscrypto::api::SharedStream inputIOS,
+    PDFSharedStream inputIOS,
     const std::string& filter_name,
     std::shared_ptr<PDFSecurityHandler> security_hander,
-    rmscrypto::api::SharedStream outputIOS) {
+    PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
 
   PDFModuleMgrImpl::RegisterSecurityHandler(filter_name.c_str(), security_hander);
