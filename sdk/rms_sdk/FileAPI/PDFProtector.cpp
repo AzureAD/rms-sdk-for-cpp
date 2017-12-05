@@ -31,11 +31,9 @@ FDFDataStreamImpl::FDFDataStreamImpl(rmscrypto::api::SharedStream ioStream)
 }
 
 FDFDataStreamImpl::~FDFDataStreamImpl() {
-
 }
 
 void FDFDataStreamImpl::Release() {
-  shared_io_stream_.reset();
 }
 
 uint64_t FDFDataStreamImpl::GetSize() {
