@@ -2,7 +2,7 @@
 #define RMSSDK_PDFOBJECTMODEL_UNENCRYPTEDWRAPPER_H_
 
 #include "pdf_object_model.h"
-#include "core.inc"
+#include "core.h"
 #include "basic.h"
 
 namespace rmscore {
@@ -35,6 +35,9 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
   virtual bool StartGetPayload(PDFSharedStream output_stream);
 
  private:
+  bool IsProtectedByPassword(CPDF_Parser *pdf_parser);
+  bool IsSigned(CPDF_Parser *pdf_parser);
+
   std::shared_ptr<FileStreamImpl> wrapper_file_stream_;
   CPDF_Parser pdf_parser_;
   //this is just for IRM V2. we have to parse IRM V1 self.

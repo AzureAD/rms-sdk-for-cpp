@@ -2,7 +2,7 @@
 #define RMSSDK_PDFOBJECTMODEL_PDFCREATOR_H_
 
 #include "pdf_object_model.h"
-#include "core.inc"
+#include "core.h"
 
 namespace rmscore {
 namespace pdfobjectmodel {

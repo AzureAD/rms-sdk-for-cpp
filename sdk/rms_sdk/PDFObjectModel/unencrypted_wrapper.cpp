@@ -47,7 +47,22 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
       CFX_WideString file_name;
       wrapper_doc_->GetPayloadFileName(file_name);
       file_name_ = (wchar_t*)(FX_LPCWSTR)file_name;
+    } else {
+      bool isPasswordProtected = IsProtectedByPassword(&pdf_parser_);
+      if (isPasswordProtected) {
+        wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
+      }
+      bool isSigned = IsSigned(&pdf_parser_);
+      if (isSigned) {
+        wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::DIGITALLY_SIGNED);
+      }
     }
+  } else if (PDFPARSE_ERROR_PASSWORD == parse_result || 
+             PDFPARSE_ERROR_HANDLER == parse_result || 
+             PDFPARSE_ERROR_CERT == parse_result) {
+    wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
+  } else {
+    wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_COMPATIBLE_WITH_IRM);
   }
 }
 
@@ -86,6 +101,7 @@ bool PDFWrapperDocImpl::StartGetPayload(PDFSharedStream output_stream) {
     uint8_t* buffer_pointer_temp = new uint8_t[payload_size_];
     wrapper_file_stream_->ReadBlock(buffer_pointer_temp, 0, payload_size_);
     output_stream->WriteBlock(buffer_pointer_temp, 0, static_cast<uint64_t>(payload_size_));
+    delete [] buffer_pointer_temp;
   } else if (wrapper_type_ == PDFWrapperDocType::IRMV2) {
     if (!wrapper_doc_) return false;
     FileStreamImpl output_file_stream(output_stream);
@@ -93,6 +109,34 @@ bool PDFWrapperDocImpl::StartGetPayload(PDFSharedStream output_stream) {
   }
 
   return true;
+}
+
+bool PDFWrapperDocImpl::IsProtectedByPassword(CPDF_Parser *pdf_parser) {
+  CPDF_Dictionary* encryption_dictionary = pdf_parser->GetTrailer()->GetDict("Encrypt");
+  if (encryption_dictionary) {
+    CFX_ByteString filter_bytestring = encryption_dictionary->GetString("Filter");
+    if (filter_bytestring.Compare("Standard") == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool PDFWrapperDocImpl::IsSigned(CPDF_Parser *pdf_parser) {
+  CPDF_Document* pdf_document = pdf_parser->GetDocument();
+  CPDF_Dictionary* root_dictionary = pdf_document->GetRoot();
+  if (root_dictionary) {
+    if (CPDF_Dictionary* acro_form_dictionary = root_dictionary->GetDict("AcroForm")) {
+      //has been signed?
+      if (acro_form_dictionary->KeyExist("SigFlags")) {
+        int signature_flag = acro_form_dictionary->GetInteger("SigFlags");
+        if (signature_flag == 3) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 //////////////////////////////////////////////////////////////////////////

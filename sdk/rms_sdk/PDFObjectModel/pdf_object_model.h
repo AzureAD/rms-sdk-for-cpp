@@ -11,11 +11,35 @@
 
 #include <string>
 #include <memory>
-#include "ModernAPIExport.h"
-#include "CryptoAPI.h"
+#include <vector>
 
 namespace rmscore {
 namespace pdfobjectmodel {
+
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef RMS_LIBRARY
+    #ifdef __GNUC__
+      #define DLL_PUBLIC_RMS __attribute__ ((dllexport))
+    #else
+      #define DLL_PUBLIC_RMS __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
+    #endif
+  #else
+    #ifdef __GNUC__
+      #define DLL_PUBLIC_RMS __attribute__ ((dllimport))
+    #else
+      #define DLL_PUBLIC_RMS __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
+    #endif
+  #endif
+  #define DLL_LOCAL
+#else
+  #if __GNUC__ >= 4
+    #define DLL_PUBLIC_RMS __attribute__ ((visibility ("default")))
+    #define DLL_LOCAL_RMS  __attribute__ ((visibility ("hidden")))
+  #else
+    #define DLL_PUBLIC_RMS
+    #define DLL_LOCAL_RMS
+  #endif
+#endif
 
 /**
  * @brief The PDF object model is designed to parse PDF document and creat PDF document.
@@ -92,6 +116,9 @@ enum PDFWrapperDocType{
   NORMAL,   /** Normal document. */
   IRMV1,    /** For IRM V1 wrapper document. */
   IRMV2,    /** For IRM V2 wrapper document. */
+  DIGITALLY_SIGNED, /** PDF document is digitally signed. */
+  NOT_IRM_ENCRYPTED,	/** PDF document is encrypted, but not encrypted by IRM V1 or V2. */
+  NOT_COMPATIBLE_WITH_IRM, /** Error happens when our PDF library parse the PDF document. */
 };
 
 /**

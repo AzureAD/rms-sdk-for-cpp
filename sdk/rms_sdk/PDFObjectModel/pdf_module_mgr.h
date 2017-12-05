@@ -10,7 +10,7 @@
 #define RMSSDK_PDFOBJECTMODEL_PDFMODULEMGR_H_
 
 #include "pdf_object_model.h"
-#include "core.inc"
+#include "core.h"
 #include "pdf_creator.h"
 
 namespace rmscore {

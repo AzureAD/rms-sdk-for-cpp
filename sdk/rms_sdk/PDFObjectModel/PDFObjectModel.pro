@@ -34,13 +34,14 @@ else:
 #end MIP SDK
 
 #fxcore
+INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PDFObjectModel
 INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PDFObjectModel/core/include
 win32:
 else:
 #end fxcore
 
 HEADERS += \
-    core.inc \
+    core.h \
     pdf_object_model.h \
     pdf_module_mgr.h \
     basic.h \

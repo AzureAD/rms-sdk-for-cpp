@@ -91,7 +91,7 @@ void utility::UTF16ToUTF8(
                *temp_utf_16 <= UTF8_TWO_END &&
                temp_utf_8 + 2 < utf_8_end) {
       //0080 - 07FF 110xxxxx 10xxxxxx
-      *temp_utf_8++ = (*temp_utf_16 >> 6) | 0xC0;
+      *temp_utf_8++ = static_cast<UTF8>((*temp_utf_16 >> 6) | 0xC0);
       *temp_utf_8++ = (*temp_utf_16 & 0x3F) | 0x80;
     } else if (*temp_utf_16 >= UTF8_THREE_START &&
                *temp_utf_16 <= UTF8_THREE_END &&
