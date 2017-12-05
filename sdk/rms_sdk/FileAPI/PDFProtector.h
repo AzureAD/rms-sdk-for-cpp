@@ -27,6 +27,7 @@ namespace fileapi {
  * returns true, foxit core will encrypt PDF string\stream objects progressively.
  */
 #define MIN_RAW_SIZE 64 * 1024 * 1024
+#define PROGRESSIVE_ENCRYPT_TEMP_FILE ".RMS.PE.temp"
 
 /**
  * @brief The implementaion class of interface class PDFDataStream.

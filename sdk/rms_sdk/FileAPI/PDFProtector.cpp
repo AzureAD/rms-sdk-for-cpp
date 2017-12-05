@@ -554,6 +554,11 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
 
   auto publishing_license = user_policy_->SerializedPolicy();
 
+  std::shared_ptr<std::iostream> input_filedata_IO = input_stream_;
+  auto input_filedata = rmscrypto::api::CreateStreamFromStdStream(input_filedata_IO);
+  pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
+      std::make_shared<FDFDataStreamImpl>(input_filedata);
+
   auto encryptedSS = std::make_shared<std::stringstream>();
   std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
   auto output_encrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
@@ -561,6 +566,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
       std::make_shared<FDFDataStreamImpl>(output_encrypted);
 
   std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
+  std::string cache_file_path = original_file_path_;
+  cache_file_path += PROGRESSIVE_ENCRYPT_TEMP_FILE;
 
   std::shared_ptr<PDFProtector> shared_pdf_protector(this, [=](PDFProtector* pdf_protector) {
     pdf_protector = nullptr;
@@ -568,7 +575,8 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
 
   auto crypto_hander = std::make_shared<PDFCryptoHandlerImpl>(shared_pdf_protector);
   uint32_t result = pdf_creator_->CreateCustomEncryptedFile(
-      original_file_path_,
+      pdf_data_shared_stream,
+      cache_file_path,
       filter_name,
       publishing_license,
       crypto_hander,

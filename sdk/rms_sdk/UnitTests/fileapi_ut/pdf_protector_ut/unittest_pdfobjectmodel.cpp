@@ -79,10 +79,19 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
   std::string filter_name = TParam.filter_name;
   std::vector<unsigned char> publishing_license = user_policy_->SerializedPolicy();
 
+  std::string cache_file_path = fileIn;
+  cache_file_path += PROGRESSIVE_ENCRYPT_TEMP_FILE;
+
+  std::shared_ptr<std::iostream> input_filedata_IO = inFile;
+  auto input_filedata = rmscrypto::api::CreateStreamFromStdStream(input_filedata_IO);
+  pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
+      std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_filedata);
+
   uint32_t ret;
   try {
     ret = pdf_creator_->CreateCustomEncryptedFile(
-        fileIn,
+        pdf_data_shared_stream,
+        cache_file_path,
         filter_name,
         publishing_license,
         crypto_hander,
@@ -282,13 +291,13 @@ TEST_P(PDFWrapperDoc_GetWrapperType,GetWrapperType_T) {
 INSTANTIATE_TEST_CASE_P(,PDFWrapperDoc_GetWrapperType,testing::Values(
     GetWrapperType_P("Input/Protector/anyone.pdf","No Exception",2),
     GetWrapperType_P("Input/Protector/V1V1.pdf","No Exception",1),//V1
-    GetWrapperType_P("Input/Protector/OfficeTemplate.ppdf","No Exception",0),
+    GetWrapperType_P("Input/Protector/OfficeTemplate.ppdf","No Exception",5),
     GetWrapperType_P("Input/Protector/V1V0.pdf","No Exception",2),
     GetWrapperType_P("Input/Protector/V0V0.pdf","No Exception",2),
-    GetWrapperType_P("Input/Test.txt","No Exception",0),
-    GetWrapperType_P("Input/Protector/cer.pdf","No Exception",0),
-    GetWrapperType_P("Input/Protector/password.pdf","No Exception",0),
-    GetWrapperType_P("Input/Errorr/Error.pdf","No Exception",0),
+    GetWrapperType_P("Input/Test.txt","No Exception",5),
+    GetWrapperType_P("Input/Protector/cer.pdf","No Exception",4),
+    GetWrapperType_P("Input/Protector/password.pdf","No Exception",4),
+    GetWrapperType_P("Input/Errorr/Error.pdf","No Exception",5),
     GetWrapperType_P("Input/unprotector.pdf","No Exception",0)));
 
 TEST_P(PDFWrapperDoc_GetCryptographicFilter,GetCryptographicFilter_T) {
@@ -479,9 +488,18 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
   std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
   std::vector<unsigned char> publishing_license = user_policy_->SerializedPolicy();
 
+  std::string cache_file_path = fileIn;
+  cache_file_path += PROGRESSIVE_ENCRYPT_TEMP_FILE;
+
+  std::shared_ptr<std::iostream> input_filedata_IO = inFile;
+  auto input_filedata = rmscrypto::api::CreateStreamFromStdStream(input_filedata_IO);
+  pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
+      std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_filedata);
+
   uint32_t ret;
   ret = pdf_creator_->CreateCustomEncryptedFile(
-      fileIn,
+      pdf_data_shared_stream,
+      cache_file_path,
       filter_name,
       publishing_license,
       crypto_hander,
