@@ -47,7 +47,7 @@ FX_FILESIZE FileStreamImpl::GetSize() {
 FX_BOOL FileStreamImpl::IsEOF() {
   uint64_t size = shared_io_stream_->GetSize();
   uint64_t pos = shared_io_stream_->GetPosition();
-  if (pos = size - 1) {
+  if (pos == size - 1) {
     return true;
   }
   return false;
