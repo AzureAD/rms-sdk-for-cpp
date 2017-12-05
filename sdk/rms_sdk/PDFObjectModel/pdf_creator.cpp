@@ -152,7 +152,6 @@ CustomProgressiveEncryptHandler::~CustomProgressiveEncryptHandler() {
 
 IFX_FileStream* CustomProgressiveEncryptHandler::GetTempFile() {
   CFX_WideString path = temp_path_;
-  path += PROGRESSIVE_ENCRYPT_TEMP_FILE;
   IFX_FileStream*	file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
   return file_stream;
 }
@@ -163,7 +162,6 @@ void CustomProgressiveEncryptHandler::ReleaseTempFile(IFX_FileStream* file_strea
     file_stream->Release();
 
     CFX_WideString path = temp_path_;
-    path += PROGRESSIVE_ENCRYPT_TEMP_FILE;
 
     CFX_ByteString utf8_path = path.UTF8Encode();
     std::remove((const char *)(FX_LPCSTR)utf8_path);
@@ -410,17 +408,19 @@ PDFCreatorImpl::~PDFCreatorImpl() {
 
 }
 
-uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(
-    const std::string& input_file_path,
+uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFileData,
+    const std::string& cache_file_path,
     const std::string& filter_name,
     const std::vector<unsigned char> &publishing_license,
     std::shared_ptr<PDFCryptoHandler> crypto_hander,
     PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
-  file_path_ = input_file_path;
+  cache_file_path_ = cache_file_path;
 
+  //foxit core will take over fileStream
+  FileStreamImpl* fileStream = new FileStreamImpl(inputFileData);
   CPDF_Parser pdf_parser;
-  result = ParsePDFFile(&pdf_parser);
+  result = ParsePDFFile(fileStream, &pdf_parser);
   if (PDFCreatorErr::SUCCESS != result) {
     return result;
   }
@@ -508,11 +508,10 @@ bool PDFCreatorImpl::IsDynamicXFA(CPDF_Parser *pdf_parser) {
   return false;
 }
 
-uint32_t PDFCreatorImpl::ParsePDFFile(CPDF_Parser *pdf_parser) {
+uint32_t PDFCreatorImpl::ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser *pdf_parser) {
   uint32_t result = PDFCreatorErr::SUCCESS;
-  CFX_ByteString file_path_bytestring = file_path_.c_str();
 
-  FX_DWORD parse_result = pdf_parser->StartParse(file_path_bytestring);
+  FX_DWORD parse_result = pdf_parser->StartParse(fileAccess);
   result = ConvertParsingErrCode(parse_result);
 
   if(result == PDFCreatorErr::SUCCESS) {
@@ -620,7 +619,7 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
 
     pdf_creator.SetCustomSecurity(encryption_dictionary, &cryptoHandler, true);
 
-    CFX_ByteString file_path_bytestring = file_path_.c_str();
+    CFX_ByteString file_path_bytestring = cache_file_path_.c_str();
     CFX_WideString file_path_widestring = file_path_bytestring.UTF8Decode();
     CustomProgressiveEncryptHandler* progress_handler = new CustomProgressiveEncryptHandler(file_path_widestring);
     //pdf_creator takes over progress_handler

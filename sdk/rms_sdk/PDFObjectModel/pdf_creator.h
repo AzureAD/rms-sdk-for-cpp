@@ -7,8 +7,6 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
-#define PROGRESSIVE_ENCRYPT_TEMP_FILE L".RMS.PE.temp"
-
 /**
  * @brief The implementaion class of interface class CPDF_CryptoHandler of Foxit core.
  * CPDF_CryptoHandler is the abstract class for PDF cryptographic operations (encryption and decryption).
@@ -154,7 +152,8 @@ class PDFCreatorImpl : public PDFCreator {
   virtual ~PDFCreatorImpl();
 
   virtual uint32_t CreateCustomEncryptedFile(
-      const std::string& input_file_path,
+      PDFSharedStream inputFileData,
+      const std::string& cache_file_path,
       const std::string& filter_name,
       const std::vector<unsigned char>& publishing_license,
       std::shared_ptr<PDFCryptoHandler> crypto_hander,
@@ -171,7 +170,7 @@ class PDFCreatorImpl : public PDFCreator {
   bool IsSigned(CPDF_Parser *pdf_parser);
   bool IsDynamicXFA(CPDF_Parser *pdf_parser);
 
-  uint32_t ParsePDFFile(CPDF_Parser* pdf_parser);
+  uint32_t ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser* pdf_parser);
   uint32_t CreatePDFFile(
       CPDF_Parser* pdf_parser,
       CPDF_Dictionary *encryption_dictionary,
@@ -183,7 +182,7 @@ class PDFCreatorImpl : public PDFCreator {
   uint32_t ConvertParsingErrCode(FX_DWORD parse_result);
 
  private:
-  std::string file_path_;
+  std::string cache_file_path_;
 };
 
 } // namespace pdfobjectmodel

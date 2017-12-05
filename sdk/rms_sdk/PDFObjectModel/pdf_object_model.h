@@ -313,15 +313,17 @@ class PDFCreator {
   /**
    * @brief Creates custom encrypted PDF file(be opposed to standard encryption like
    * password encryption or certificate encryption).
-   * @param[in] input_file_path     The input file path to be encrypted.
+   * @param[in] inputFileData      The input file path to be encrypted.
+   * @param[in] cache_file_path    The input cache file path when encrypting.
    * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
    * @param[in] publishing_license The publishing license stored in PDF file, according to "Microsoft IRM protection for PDF Spec-v2".
    * @param[in] crypto_hander      The crypto handler that is responsible for PDF data encryption.
-   * @param[out] outputIOS        It receives the encrypted PDF documnet.
+   * @param[out] outputIOS         It receives the encrypted PDF documnet.
    * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
    */
   virtual uint32_t CreateCustomEncryptedFile(
-      const std::string& input_file_path,
+      PDFSharedStream inputFileData,
+      const std::string& cache_file_path,
       const std::string& filter_name,
       const std::vector<unsigned char>& publishing_license,
       std::shared_ptr<PDFCryptoHandler> crypto_hander,
