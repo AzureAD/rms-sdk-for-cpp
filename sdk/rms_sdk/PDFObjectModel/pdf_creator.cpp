@@ -592,7 +592,7 @@ CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(
 
   const char* publishing_license_buffer =
       reinterpret_cast<const char*>(&(*publishing_license.begin()));
-  uint32_t publishing_license_size = publishing_license.size();
+  uint32_t publishing_license_size = static_cast<uint32_t>(publishing_license.size());
   CFX_ByteString publishing_license_bytestring(publishing_license_buffer,
                                                publishing_license_size);
   encryption_dictionary->SetAtString("PublishingLicense", publishing_license_bytestring);

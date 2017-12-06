@@ -985,7 +985,7 @@ CPDF_Stream::CPDF_Stream(FX_LPBYTE pData, size_t size, CPDF_Dictionary* pDict)
 {
     m_Type = PDFOBJ_STREAM;
     m_pDict = pDict;
-    m_dwSize = size;
+    m_dwSize = static_cast<FX_INT32>(size);
     m_GenNum = (FX_DWORD) - 1;
     m_pDataBuf = pData;
     crypto_handler_ = NULL;
@@ -1048,9 +1048,9 @@ FX_BOOL CPDF_Stream::InitStream(FX_LPBYTE pData, size_t size, CPDF_Dictionary* p
     if (pData) {
         FXSYS_memcpy32(m_pDataBuf, pData, size);
     }
-    m_dwSize = size;
+    m_dwSize = static_cast<FX_INT32>(size);
     if (m_pDict) {
-        m_pDict->SetAtInteger(FX_BSTRC("Length"), size);
+        m_pDict->SetAtInteger(FX_BSTRC("Length"), static_cast<FX_INT32>(size));
     }
     return TRUE;
 }
@@ -1079,11 +1079,11 @@ FX_BOOL CPDF_Stream::SetData(FX_LPCBYTE pData, size_t size, FX_BOOL bCompressed,
             m_pDataBuf = NULL;
         }
     }
-    m_dwSize = size;
+    m_dwSize = static_cast<FX_INT32>(size);
     if (m_pDict == NULL) {
         m_pDict = FX_NEW CPDF_Dictionary;
     }
-    m_pDict->SetAtInteger(FX_BSTRC("Length"), size);
+    m_pDict->SetAtInteger(FX_BSTRC("Length"), static_cast<FX_INT32>(size));
     if (!bCompressed) {
         m_pDict->RemoveAt(FX_BSTRC("Filter"));
         m_pDict->RemoveAt(FX_BSTRC("DecodeParms"));
@@ -1201,7 +1201,7 @@ CPDF_Stream* CPDF_Stream::Clone(FX_BOOL bDirect, FPDF_LPFCloneStreamCallback lpf
         FX_LPBYTE pBuf = FX_Alloc(FX_BYTE, 4096);
         FX_DWORD dwRead;
         do {
-            dwRead = pSF->ReadBlock(pBuf, 4096);
+            dwRead = static_cast<FX_DWORD>(pSF->ReadBlock(pBuf, 4096));
             if (dwRead) {
                 pFS->WriteBlock(pBuf, dwRead);
             }
@@ -1309,7 +1309,7 @@ FX_LPCBYTE CPDF_StreamAcc::GetData() const
 FX_FILESIZE CPDF_StreamAcc::GetSize() const
 {
     if (m_bNewBuf) {
-        return m_dwSize;
+        return static_cast<FX_FILESIZE>(m_dwSize);
     }
     if (!m_pStream) {
         return 0;

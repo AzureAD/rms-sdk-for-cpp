@@ -589,7 +589,7 @@ FX_BOOL CPDF_EncodeEncryptor::Initialize(CPDF_Stream* pStream, FX_BOOL bFlateEnc
     FX_BYTE buffer_in[FPDFAPI_DEFLATEINPUTBUFSIZE];
     FX_BOOL bCondition = TRUE;
     while (bCondition) {
-        int read_len = pStreamFilter->ReadBlock(buffer_in, FPDFAPI_DEFLATEINPUTBUFSIZE);
+        int read_len = static_cast<int>(pStreamFilter->ReadBlock(buffer_in, FPDFAPI_DEFLATEINPUTBUFSIZE));
         if (read_len == 0) {
             break;
         }
@@ -2847,7 +2847,7 @@ void GetCheckSum(IFX_FileRead* pFile, CFX_ByteString &bsCheckSum)
     if (len > STREAM_BLOCK_SIZE) {
         FX_BYTE content[128] = {0};
         CRYPT_MD5Start(content);
-        FX_INT32 nBlock = len / STREAM_BLOCK_SIZE;
+        FX_INT32 nBlock = static_cast<FX_INT32>(len / STREAM_BLOCK_SIZE);
         FX_INT32 nLeftCache = len % STREAM_BLOCK_SIZE;
         pBuffer = FX_Alloc(FX_BYTE, STREAM_BLOCK_SIZE);
         FX_INT32 i = 0;
@@ -2863,7 +2863,7 @@ void GetCheckSum(IFX_FileRead* pFile, CFX_ByteString &bsCheckSum)
         pBuffer = FX_Alloc(FX_BYTE, len);
         FXSYS_memset32(pBuffer, 0, len);
         pFile->ReadBlock(pBuffer, len);
-        CRYPT_MD5Generate(pBuffer, len, buf);
+        CRYPT_MD5Generate(pBuffer, static_cast<FX_DWORD>(len), buf);
     }
     FX_Free(pBuffer);
     bsCheckSum = CFX_ByteString(buf, 16);

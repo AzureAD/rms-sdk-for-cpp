@@ -278,7 +278,7 @@ FX_BOOL PDF_DataDecode(FX_LPCBYTE src_buf, size_t src_size, const CPDF_Dictionar
         ParamList.Add(pParams ? pParams->GetDict() : NULL);
     }
     FX_LPBYTE last_buf = (FX_LPBYTE)src_buf;
-    FX_DWORD last_size = src_size;
+    FX_DWORD last_size = static_cast<FX_DWORD>(src_size);
     for (int i = 0; i < DecoderList.GetSize(); i ++) {
         int estimated_size = i == DecoderList.GetSize() - 1 ? last_estimated_size : 0;
         CFX_ByteString decoder = DecoderList[i];
