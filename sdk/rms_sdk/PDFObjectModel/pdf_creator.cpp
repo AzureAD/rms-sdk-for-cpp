@@ -417,10 +417,9 @@ uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFileData
   uint32_t result = PDFCreatorErr::SUCCESS;
   cache_file_path_ = cache_file_path;
 
-  //foxit core will take over fileStream
-  FileStreamImpl* fileStream = new FileStreamImpl(inputFileData);
+  std::shared_ptr<FileStreamImpl> shared_file_stream = std::make_shared<FileStreamImpl>(inputFileData);
   CPDF_Parser pdf_parser;
-  result = ParsePDFFile(fileStream, &pdf_parser);
+  result = ParsePDFFile(shared_file_stream.get(), &pdf_parser);
   if (PDFCreatorErr::SUCCESS != result) {
     return result;
   }

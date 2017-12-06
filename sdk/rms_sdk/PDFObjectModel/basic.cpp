@@ -36,7 +36,7 @@ IFX_FileStream* FileStreamImpl::Retain() {
 }
 
 void FileStreamImpl::Release() {
-  shared_io_stream_->Release();
+  
 }
 
 FX_FILESIZE FileStreamImpl::GetSize() {
