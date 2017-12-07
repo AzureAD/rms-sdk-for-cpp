@@ -14,6 +14,7 @@
 #include <QEventLoop>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QNetworkProxyFactory>
 
 #include "../Logger/Logger.h"
 #include "../../ModernAPI/RMSExceptions.h"
@@ -82,6 +83,7 @@ shared_ptr<IHttpClient> IHttpClient::Create() {
 
 HttpClientQt::HttpClientQt() : lastReply_(nullptr) {
   this->request_.setSslConfiguration(QSslConfiguration::defaultConfiguration());
+  QNetworkProxyFactory::setUseSystemConfiguration(true);
 }
 
 HttpClientQt::~HttpClientQt() {}
