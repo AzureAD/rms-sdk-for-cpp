@@ -318,12 +318,12 @@ class PDFSecurityHandler {
  * @brief The error code definitions for PDFCreator.
  */
 enum PDFCreatorErr{
-  SUCCESS = 0,
-  FILE,
-  FORMAT,
-  SECURITY,
-  CREATOR,
-  UNKNOWN_ERR,
+  SUCCESS = 0, /*No error.*/
+  FILE, /*File error: not found or could not be opened.*/
+  FORMAT, /*Format error: not a PDF or corrupted.*/
+  SECURITY, /*This document is encrypted by some other security handler.*/
+  CREATOR, /*The PDF creator failed to create PDF data.*/
+  UNKNOWN_ERR, /*Unknown error.*/
 };
 
 /**
