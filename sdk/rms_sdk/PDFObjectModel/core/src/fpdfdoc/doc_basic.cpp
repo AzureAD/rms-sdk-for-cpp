@@ -318,6 +318,7 @@ int CPDF_NameTree::SetValue(CPDF_Document* pDoc, const CFX_ByteString& csName, C
     }
     return index;
 }
+#if _FXM_PLATFORM_  == _FXM_PLATFORM_APPLE_ || _FXM_PLATFORM_  == _FXM_PLATFORM_WINDOWS_
 static CFX_WideString ChangeSlashToPlatform(FX_LPCWSTR str)
 {
     CFX_WideString result;
@@ -337,6 +338,7 @@ static CFX_WideString ChangeSlashToPlatform(FX_LPCWSTR str)
     }
     return result;
 }
+#endif
 static CFX_WideString FILESPEC_DecodeFileName(FX_WSTR filepath)
 {
     if (filepath.GetLength() <= 1) {
@@ -417,6 +419,7 @@ FX_BOOL CPDF_FileSpec::IsURL() const
     }
     return ((CPDF_Dictionary*)m_pObj)->GetString(FX_BSTRC("FS")) == FX_BSTRC("URL");
 }
+#if _FXM_PLATFORM_  == _FXM_PLATFORM_APPLE_ || _FXM_PLATFORM_  == _FXM_PLATFORM_WINDOWS_
 static CFX_WideString ChangeSlashToPDF(FX_LPCWSTR str)
 {
     CFX_WideString result;
@@ -430,6 +433,7 @@ static CFX_WideString ChangeSlashToPDF(FX_LPCWSTR str)
     }
     return result;
 }
+#endif
 CFX_WideString FILESPEC_EncodeFileName(FX_WSTR filepath)
 {
     if (filepath.GetLength() <= 1) {

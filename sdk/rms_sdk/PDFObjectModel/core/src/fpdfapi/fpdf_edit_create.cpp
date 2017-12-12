@@ -929,7 +929,7 @@ FX_BOOL CPDF_XRefStream::GenerateXRefStream(CPDF_Creator* pCreator, FX_BOOL bEOF
     m_1TypeArray.Add(1);
     m_2FieldArray.Add(offset_tmp);
     m_3FieldArray.Add(0);
-    FX_INT32 field2W = pCreator->m_MaxOffset > 0xFFFFFFFFUL ? 5 : 4;
+    FX_INT32 field2W = pCreator->m_MaxOffset > static_cast<FX_FILESIZE>(0xFFFFFFFFUL) ? 5 : 4;
     FX_INT32 field3W = 2;
     for (FX_INT32 index = 0; index < m_1TypeArray.GetSize(); index++) {
         switch(m_1TypeArray[index]) {
@@ -1823,7 +1823,7 @@ void CPDF_Creator::InitNewObjNumOffsets()
         CPDF_Object* pObj;
         m_pDocument->m_IndirectObjs.GetNextAssoc(pos, (FX_LPVOID&)key, (FX_LPVOID&)pObj);
         FX_DWORD objnum = (FX_DWORD)key;
-        if (pObj->GetObjNum() == -1) {
+        if (pObj->GetObjNum() == static_cast<FX_DWORD>(-1)) {
             continue;
         }
         if (bIncremental) {
@@ -2368,7 +2368,7 @@ FX_INT32 CPDF_Creator::WriteDoc_Stage4(IFX_Pause *pPause)
                 return -1;
             }
         } else {
-            if(m_Offset > 0xFFFFFFFFUL) {
+            if(m_Offset > static_cast<FX_FILESIZE>(0xFFFFFFFFUL)) {
                 if (m_File.AppendString(FX_BSTRC("/W[0 8 1]/Index[")) < 0) {
                     return -1;
                 }
@@ -2404,7 +2404,7 @@ FX_INT32 CPDF_Creator::WriteDoc_Stage4(IFX_Pause *pPause)
                     if (!offset) {
                         continue;
                     }
-                    _OutPutIndex(&m_File, *offset, m_Offset > 0xFFFFFFFFUL);
+                    _OutPutIndex(&m_File, *offset, m_Offset > static_cast<FX_FILESIZE>(0xFFFFFFFFUL));
                 }
             } else {
                 int count = m_NewObjNumArray.GetSize();
@@ -2430,7 +2430,7 @@ FX_INT32 CPDF_Creator::WriteDoc_Stage4(IFX_Pause *pPause)
                 for (i = 0; i < count; i++) {
                     FX_DWORD objnum = m_NewObjNumArray.ElementAt(i);
                     FX_FILESIZE offset = m_ObjectOffset[objnum];
-                    _OutPutIndex(&m_File, offset, m_Offset > 0xFFFFFFFFUL);
+                    _OutPutIndex(&m_File, offset, m_Offset > static_cast<FX_FILESIZE>(0xFFFFFFFFUL));
                 }
             }
             if (m_File.AppendString(FX_BSTRC("\r\nendstream\r\nendobj")) < 0) {

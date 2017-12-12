@@ -837,8 +837,8 @@ public:
 
     FX_FLOAT		GetUnitArea() const;
 
-    const FX_INT32  GetRotation()  const;
-    const FX_BOOL	NeedTransform() const;
+    FX_INT32  GetRotation()  const;
+    FX_BOOL	NeedTransform() const;
     FX_FLOAT		TransformXDistance(FX_FLOAT dx) const;
     FX_INT32		TransformXDistance(FX_INT32 dx) const;
     FX_FLOAT		TransformYDistance(FX_FLOAT dy) const;

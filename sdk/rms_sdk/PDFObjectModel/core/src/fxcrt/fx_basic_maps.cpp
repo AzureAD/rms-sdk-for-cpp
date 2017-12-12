@@ -461,7 +461,7 @@ static void _CompactStringRelease(_CompactString* pCompact)
 }
 static FX_BOOL _CompactStringSame(_CompactString* pCompact, FX_LPCBYTE pStr, int len)
 {
-    if (len < sizeof(_CompactString)) {
+    if (len < static_cast<int>(sizeof(_CompactString))) {
         if (pCompact->m_CompactLen != len) {
             return FALSE;
         }

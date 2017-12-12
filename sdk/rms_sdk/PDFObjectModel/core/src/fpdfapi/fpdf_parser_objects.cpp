@@ -1389,7 +1389,7 @@ CPDF_Object* CPDF_IndirectObjects::GetIndirectObject(FX_DWORD objnum, struct PAR
     }
     FX_LPVOID value;
     if (m_IndirectObjs.Lookup((FX_LPVOID)(FX_UINTPTR)objnum, value)) {
-        if (((CPDF_Object*)value)->GetObjNum() == -1) {
+        if (((CPDF_Object*)value)->GetObjNum() == static_cast<FX_DWORD>(-1)) {
             return NULL;
         }
         ((CPDF_Object*)value)->m_bNewCreated = FALSE;
@@ -1444,7 +1444,7 @@ void CPDF_IndirectObjects::ReleaseIndirectObject(FX_DWORD objnum)
     if (!m_IndirectObjs.Lookup((FX_LPVOID)(FX_UINTPTR)objnum, value)) {
         return;
     }
-    if (((CPDF_Object*)value)->GetObjNum() == -1) {
+    if (((CPDF_Object*)value)->GetObjNum() == static_cast<FX_DWORD>(-1)) {
         return;
     }
     ((CPDF_Object*)value)->Destroy();

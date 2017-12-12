@@ -68,7 +68,7 @@ class CPDF_WrapperCreator : public IPDF_WrapperCreator, public CPDF_Creator
 {
 public:
     CPDF_WrapperCreator(CPDF_Document* pWrapperDoc, FX_DWORD dwWrapperOffset);
-    ~CPDF_WrapperCreator() {}
+    virtual ~CPDF_WrapperCreator() {}
     virtual void		Release()
     {
         delete this;
@@ -92,7 +92,7 @@ public:
         , m_pPayload(NULL)
     {
     }
-    ~CPDF_UnencryptedWrapperCreator() {}
+    virtual ~CPDF_UnencryptedWrapperCreator() {}
     virtual void		Release()
     {
         delete this;

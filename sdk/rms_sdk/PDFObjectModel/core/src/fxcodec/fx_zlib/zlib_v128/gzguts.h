@@ -32,6 +32,8 @@
 
 #ifdef _WIN32
 #  include <stddef.h>
+#else
+#include <unistd.h>
 #endif
 
 #ifdef __APPLE__

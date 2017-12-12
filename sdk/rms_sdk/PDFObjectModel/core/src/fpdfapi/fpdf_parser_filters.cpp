@@ -438,7 +438,7 @@ void CPDF_LzwFilter::v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryB
         if (code < 256) {
             dest_buf.AppendByte((FX_BYTE)code);
             m_LastChar = (FX_BYTE)code;
-            if (m_OldCode != -1) {
+            if (m_OldCode != static_cast<FX_DWORD>(-1)) {
                 AddCode(m_OldCode, m_LastChar);
             }
             m_OldCode = code;
@@ -450,7 +450,7 @@ void CPDF_LzwFilter::v_FilterIn(FX_LPCBYTE src_buf, size_t src_size, CFX_BinaryB
             ReportEOF(static_cast<FX_DWORD>(src_size - i - 1));
             return;
         } else {
-            if (m_OldCode == -1) {
+            if (m_OldCode == static_cast<FX_DWORD>(-1)) {
                 ReportEOF(static_cast<FX_DWORD>(src_size - i - 1));
                 return;
             }

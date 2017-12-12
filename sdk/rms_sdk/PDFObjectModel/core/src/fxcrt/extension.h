@@ -31,7 +31,7 @@ class CFX_CRTFileStream : public IFX_FileStream, public CFX_Object
 {
 public:
     CFX_CRTFileStream(IFXCRT_FileAccess* pFA) : m_pFile(pFA), m_dwCount(1), m_bUseRange(FALSE), m_nOffset(0), m_nSize(0) {}
-    ~CFX_CRTFileStream()
+    virtual ~CFX_CRTFileStream()
     {
         if (m_pFile) {
             m_pFile->Release();
@@ -150,7 +150,7 @@ public:
         m_Blocks.Add(pBuffer);
         m_dwFlags = FX_MEMSTREAM_Consecutive | (bTakeOver ? FX_MEMSTREAM_TakeOver : 0);
     }
-    ~CFX_MemoryStream()
+    virtual ~CFX_MemoryStream()
     {
         if (m_dwFlags & FX_MEMSTREAM_TakeOver) {
             for (FX_INT32 i = 0; i < m_Blocks.GetSize(); i++) {

@@ -439,7 +439,7 @@ FX_FLOAT CFX_Matrix::GetUnitArea() const
     FX_FLOAT P = (A + B + C ) / 2;
     return FXSYS_sqrt(P * (P - A) * (P - B) * (P - C)) * 2;
 }
-const FX_INT32 CFX_Matrix::GetRotation() const
+FX_INT32 CFX_Matrix::GetRotation() const
 {
     CFX_VectorF vA, vB, vC, vD;
     vA.Set(0.0, 0.0);
@@ -475,7 +475,7 @@ const FX_INT32 CFX_Matrix::GetRotation() const
     }
     return -1;
 }
-const FX_BOOL CFX_Matrix::NeedTransform() const
+FX_BOOL CFX_Matrix::NeedTransform() const
 {
     if (FXSYS_fabs(b) > 0.5f || FXSYS_fabs(a) < 0.5 || FXSYS_fabs(c) > 0.5f || FXSYS_fabs(d) < 0.5) {
         return TRUE;

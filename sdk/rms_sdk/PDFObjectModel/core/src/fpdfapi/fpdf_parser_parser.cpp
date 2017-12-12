@@ -2216,8 +2216,6 @@ CPDF_Object* CPDF_SyntaxParser::GetObject(CPDF_IndirectObjects* pObjList, FX_DWO
         return pRet;
     }
     if (word == FX_BSTRC("<<")) {
-        FX_FILESIZE saveDictOffset = m_Pos - 2;
-        FX_DWORD dwDictSize = 0;
         if (bTypeOnly) {
             return (CPDF_Object*)PDFOBJ_DICTIONARY;
         }
@@ -2239,11 +2237,9 @@ CPDF_Object* CPDF_SyntaxParser::GetObject(CPDF_IndirectObjects* pObjList, FX_DWO
             }
             FX_FILESIZE SavedPos6 = m_Pos - key.GetLength();
             if (key == FX_BSTRC(">>")) {
-                dwDictSize = m_Pos - saveDictOffset;
                 break;
             }
             if (key == FX_BSTRC("endobj")) {
-                dwDictSize = m_Pos - 6 - saveDictOffset;
                 m_Pos = SavedPos6;
                 break;
             }

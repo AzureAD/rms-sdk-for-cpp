@@ -94,6 +94,7 @@ int FXSYS_GetACP()
 }
 FX_DWORD FXSYS_GetFullPathName(FX_LPCSTR filename, FX_DWORD buflen, FX_LPSTR buf, FX_LPSTR* filepart)
 {
+    FX_UNREFERENCED_PARAMETER(filepart);
     int srclen = FXSYS_strlen(filename);
     if (buf == NULL || (int)buflen < srclen + 1) {
         return srclen + 1;
@@ -103,6 +104,9 @@ FX_DWORD FXSYS_GetFullPathName(FX_LPCSTR filename, FX_DWORD buflen, FX_LPSTR buf
 }
 FX_DWORD FXSYS_GetModuleFileName(FX_LPVOID hModule, char* buf, FX_DWORD bufsize)
 {
+    FX_UNREFERENCED_PARAMETER(hModule);
+    FX_UNREFERENCED_PARAMETER(buf);
+    FX_UNREFERENCED_PARAMETER(bufsize);
     return (FX_DWORD) - 1;
 }
 #ifdef __cplusplus
@@ -206,6 +210,10 @@ extern "C" {
 int FXSYS_WideCharToMultiByte(FX_DWORD codepage, FX_DWORD dwFlags, FX_LPCWSTR wstr, int wlen,
                               FX_LPSTR buf, int buflen, FX_LPCSTR default_str, FX_BOOL* pUseDefault)
 {
+    FX_UNREFERENCED_PARAMETER(codepage);
+    FX_UNREFERENCED_PARAMETER(dwFlags);
+    FX_UNREFERENCED_PARAMETER(default_str);
+    FX_UNREFERENCED_PARAMETER(pUseDefault);
     int len = 0;
     for (int i = 0; i < wlen; i ++) {
         if (wstr[i] < 0x100) {
@@ -220,6 +228,8 @@ int FXSYS_WideCharToMultiByte(FX_DWORD codepage, FX_DWORD dwFlags, FX_LPCWSTR ws
 int FXSYS_MultiByteToWideChar(FX_DWORD codepage, FX_DWORD dwFlags, FX_LPCSTR bstr, int blen,
                               FX_LPWSTR buf, int buflen)
 {
+    FX_UNREFERENCED_PARAMETER(codepage);
+    FX_UNREFERENCED_PARAMETER(dwFlags);
     int wlen = 0;
     for (int i = 0; i < blen; i ++) {
         if (buf && wlen < buflen) {

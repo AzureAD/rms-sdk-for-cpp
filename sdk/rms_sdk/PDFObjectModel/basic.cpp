@@ -94,7 +94,8 @@ void utility::UTF16ToUTF8(
       *temp_utf_8++ = static_cast<UTF8>((*temp_utf_16 >> 6) | 0xC0);
       *temp_utf_8++ = (*temp_utf_16 & 0x3F) | 0x80;
     } else if (*temp_utf_16 >= UTF8_THREE_START &&
-               *temp_utf_16 <= UTF8_THREE_END &&
+               //fix the compiling warning in linux: comparison is always true due to limited range of data type
+               /* *temp_utf_16 <= UTF8_THREE_END && */
                temp_utf_8 + 3 < utf_8_end) {
       //0800 - FFFF 1110xxxx 10xxxxxx 10xxxxxx
       *temp_utf_8++ = (*temp_utf_16 >> 12) | 0xE0;
