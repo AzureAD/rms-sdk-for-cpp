@@ -16,6 +16,9 @@
 namespace rmscore {
 namespace fileapi {
 
+//It is used to fix the compiling warnings.
+#define FILEAPI_UNREFERENCED_PARAMETER(p) (void)p
+
 class Protector
 {
 public:

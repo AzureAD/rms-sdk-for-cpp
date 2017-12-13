@@ -252,7 +252,7 @@ void PFileProtector::EncryptStream(
         auto written = pStream->WriteAsync(
                     buffer.data(), to_process, offset_write, std::launch::deferred).get();
 
-        if (written != to_process)
+        if (written != static_cast<int64_t>(to_process))
         {
           throw exceptions::RMSStreamException("Error while writing data");
         }

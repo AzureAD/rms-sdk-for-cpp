@@ -69,6 +69,8 @@ std::unique_ptr<Protector> Protector::Create(const std::string& filePath,
         }
         break;
     }
+
+    return nullptr;
 }
 
 std::unique_ptr<ProtectorWithWrapper> ProtectorWithWrapper::Create(const std::string& filePath,
@@ -102,6 +104,7 @@ std::unique_ptr<ProtectorWithWrapper> ProtectorWithWrapper::Create(const std::st
         }
         break;
     }
+    return nullptr;
 }
 
 } // namespace fileapi

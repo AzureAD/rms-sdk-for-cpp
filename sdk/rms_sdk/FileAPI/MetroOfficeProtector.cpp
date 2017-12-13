@@ -244,6 +244,8 @@ bool MetroOfficeProtector::IsProtected() const
 
 void MetroOfficeProtector::Protect(const std::shared_ptr<std::fstream>& output_stream)
 {
+    FILEAPI_UNREFERENCED_PARAMETER(output_stream);
+
     if (user_policy_.get() == nullptr)
     {
         Logger::Error("User Policy creation failed");
@@ -304,6 +306,7 @@ void MetroOfficeProtector::EncryptStream(const std::shared_ptr<std::fstream>& st
 
         auto written = pStream->WriteAsync(
                     buffer.data(), to_process, 0, std::launch::deferred).get();
+        FILEAPI_UNREFERENCED_PARAMETER(written);
 
         pStream->FlushAsync(std::launch::deferred).get();
 

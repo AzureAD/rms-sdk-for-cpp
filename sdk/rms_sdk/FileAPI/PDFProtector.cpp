@@ -44,7 +44,7 @@ uint64_t FDFDataStreamImpl::GetSize() {
 bool FDFDataStreamImpl::IsEOF() {
   uint64_t size = shared_io_stream_->Size();
   uint64_t pos = shared_io_stream_->Position();
-  if (pos = size - 1) {
+  if (pos == size - 1) {
     return true;
   }
   return false;
@@ -100,6 +100,7 @@ uint32_t PDFCryptoHandlerImpl::DecryptGetSize(uint32_t src_size) {
 }
 
 void PDFCryptoHandlerImpl::DecryptStart(uint32_t objnum, uint32_t gennum) {
+  FILEAPI_UNREFERENCED_PARAMETER(gennum);
   obj_num_ = objnum;
   data_to_be_decrypted_ = std::make_shared<std::stringstream>();
 }
@@ -108,6 +109,7 @@ bool PDFCryptoHandlerImpl::DecryptStream(
     char* src_buf,
     uint32_t src_size,
     pdfobjectmodel::PDFBinaryBuf* dest_buf) {
+  FILEAPI_UNREFERENCED_PARAMETER(dest_buf);
   data_to_be_decrypted_->write(src_buf, src_size);
   return true;
 }
@@ -157,6 +159,9 @@ uint32_t PDFCryptoHandlerImpl::EncryptGetSize(
     uint32_t objnum,
     uint32_t version,
     char* src_buf, uint32_t src_size) {
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
+  FILEAPI_UNREFERENCED_PARAMETER(version);
+  FILEAPI_UNREFERENCED_PARAMETER(src_buf);
   uint32_t encrypted_size = 0;
   encrypted_size = src_size;
 
@@ -173,6 +178,8 @@ bool PDFCryptoHandlerImpl::EncryptContent(
     uint32_t src_size,
     char* dest_buf,
     uint32_t* dest_size) {
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
+  FILEAPI_UNREFERENCED_PARAMETER(version);
   if (!pdf_protector_) return false;
 
   uint64_t content_size_add_pre = src_size + 4;
@@ -194,6 +201,7 @@ bool PDFCryptoHandlerImpl::EncryptContent(
   output_shared_stream->Seek(std::ios::beg);
   auto size = output_shared_stream->Size();
   int64_t data_read = output_shared_stream->Read(reinterpret_cast<uint8_t*>(dest_buf), size);
+  FILEAPI_UNREFERENCED_PARAMETER(data_read);
   *dest_size = size;
 
   return true;
@@ -203,6 +211,8 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptStart(
     uint32_t objnum,
     uint32_t version,
     uint32_t raw_size) {
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
+  FILEAPI_UNREFERENCED_PARAMETER(version);
   if (raw_size > MIN_RAW_SIZE) {
     progressive_start_ = true;
     return true;
@@ -216,6 +226,9 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptContent(
     char* src_buf,
     uint32_t src_size,
     pdfobjectmodel::PDFBinaryBuf* dest_buf) {
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
+  FILEAPI_UNREFERENCED_PARAMETER(version);
+  FILEAPI_UNREFERENCED_PARAMETER(dest_buf);
   uint64_t content_size_add_pre = 0;
   char* content_add_pre = nullptr;
 
@@ -260,6 +273,7 @@ bool PDFCryptoHandlerImpl::ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryBuf
   std::unique_ptr<char> shared_data_read(new char[size]);
   char* buf_data_read = shared_data_read.get();
   int64_t data_read = output_shared_stream_->Read(reinterpret_cast<uint8_t*>(buf_data_read), size);
+  FILEAPI_UNREFERENCED_PARAMETER(data_read);
   dest_buf->AppendBlock(buf_data_read, size);
 
   shared_protected_stream_.reset();
@@ -368,8 +382,8 @@ PDFProtector::PDFProtector(
     const std::string& original_file_extension,
     std::shared_ptr<std::fstream> inputstream)
     : original_file_extension_(original_file_extension),
-      input_stream_(inputstream),
-      original_file_path_(original_file_path) {
+      original_file_path_(original_file_path),
+      input_stream_(inputstream) {
   pdfobjectmodel::PDFModuleMgr::Initialize();
   pdf_creator_ = pdfobjectmodel::PDFCreator::Create();
   input_wrapper_stream_ = nullptr;
@@ -483,6 +497,7 @@ UnprotectResult PDFProtector::Unprotect(
   pdfobjectmodel::PDFSharedStream payload_shared_stream =
       std::make_shared<FDFDataStreamImpl>(output_payload);
   bool bGetPayload = pdf_wrapper_doc->StartGetPayload(payload_shared_stream);
+  FILEAPI_UNREFERENCED_PARAMETER(bGetPayload);
 
   std::shared_ptr<std::iostream> output_decrypted_IO = outputstream;
   auto output_decrypted = rmscrypto::api::CreateStreamFromStdStream(output_decrypted_IO);
@@ -491,6 +506,7 @@ UnprotectResult PDFProtector::Unprotect(
 
   std::shared_ptr<PDFProtector> shared_pdf_protector(this, [=](PDFProtector* pdf_protector) {
     pdf_protector = nullptr;
+    FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
 
   auto security_hander = std::make_shared<PDFSecurityHandlerImpl>(
@@ -569,6 +585,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
 
   std::shared_ptr<PDFProtector> shared_pdf_protector(this, [=](PDFProtector* pdf_protector) {
     pdf_protector = nullptr;
+    FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
 
   auto crypto_hander = std::make_shared<PDFCryptoHandlerImpl>(shared_pdf_protector);
@@ -677,7 +694,7 @@ void PDFProtector::EncryptStream(
         offset_write,
         std::launch::deferred).get();
 
-    if (written != to_process) {
+    if (written != static_cast<int64_t>(to_process)) {
       throw exceptions::RMSStreamException("Error while writing data");
     }
   }
