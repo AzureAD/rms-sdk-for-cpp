@@ -395,6 +395,7 @@ UnprotectResult PDFProtector_unit::Unprotect(
 
   std::shared_ptr<PDFProtector_unit> shared_pdf_protector(this, [=](PDFProtector_unit* pdf_protector) {
     pdf_protector = nullptr;
+    FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
   auto security_hander = std::make_shared<PDFSecurityHandler_child>(shared_pdf_protector, userContext, options, cancelState);
 
@@ -458,6 +459,7 @@ void PDFProtector_unit::Protect(const std::shared_ptr<std::fstream>& output_stre
 
   std::shared_ptr<PDFProtector_unit> shared_pdf_protector(this, [=](PDFProtector_unit* pdf_protector) {
     pdf_protector = nullptr;
+    FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
 
   auto crypto_hander = std::make_shared<PDFCryptoHandler_child>(shared_pdf_protector);
