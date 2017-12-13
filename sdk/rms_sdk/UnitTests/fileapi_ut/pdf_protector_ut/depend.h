@@ -21,13 +21,13 @@
 #ifdef Q_OS_WIN32
 #define CLIENTID "28b05064-105c-418e-bad3-844e786f86d7"
 #define REDIRECTURL "com.foxitsoftware.com.phantompdf-for-windows://authorize"
-#define CLIENTEMAIL  "max@foxitsoftwareinc.onmicrosoft.com"//加密的时候只要已经连上环境这个设置就没有什么作用。。原本就是这么设置的。
+#define CLIENTEMAIL  "max@foxitsoftwareinc.onmicrosoft.com"
 
 #endif
 #ifdef Q_OS_LINUX
 #define CLIENTID "f3295a1c-bcfe-4430-80bf-1c0a5636e8e8"
 #define REDIRECTURL "com.foxitsoftware.com.reader-for-linux://authorize"
-#define CLIENTEMAIL   "max@foxitsoftwareinc.onmicrosoft.com"//加密的时候只要已经连上环境这个设置就没有什么作用。。原本就是这么设置的。
+#define CLIENTEMAIL   "max@foxitsoftwareinc.onmicrosoft.com"
 
 #endif
 

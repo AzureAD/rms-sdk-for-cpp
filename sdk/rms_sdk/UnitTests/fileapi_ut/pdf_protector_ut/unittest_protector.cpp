@@ -194,17 +194,16 @@ TEST_P(ProtectorWithWrapper_ProtectWithTemplate,ProtectWithTemplate_T) {
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSException& e) {
-    std::string message(e.what());
-    EXPECT_EQ(TParam.ExceptionsMess, message);
-    return;
-  }
   catch (const rmscore::exceptions::RMSPDFFileException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-
+  catch (const rmscore::exceptions::RMSException& e) {
+    std::string message(e.what());
+    EXPECT_EQ(TParam.ExceptionsMess, message);
+    return;
+  }
   outFile = std::make_shared<std::fstream>(
       file_out, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
   std::unique_ptr<rmscore::fileapi::Protector> outobj = rmscore::fileapi::Protector::Create(
@@ -308,12 +307,12 @@ TEST_P(ProtectorWithWrapper_ProtectWithCustomRights, ProtectWithCustomRights_T) 
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSException& e) {
+  catch (const rmscore::exceptions::RMSPDFFileException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSPDFFileException& e) {
+  catch (const rmscore::exceptions::RMSException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
@@ -398,12 +397,12 @@ TEST_P(ProtectorWithWrapper_SetWrapper,SetWrapper_ProtectWithTemplate) {
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSException& e) {
+  catch (const rmscore::exceptions::RMSPDFFileException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSPDFFileException& e) {
+  catch (const rmscore::exceptions::RMSException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
@@ -475,12 +474,12 @@ TEST_P(ProtectorWithWrapper_SetWrapper, SetWrapper_ProtectWithCustomRights) {
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSException& e) {
+  catch (const rmscore::exceptions::RMSPDFFileException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;
   }
-  catch (const rmscore::exceptions::RMSPDFFileException& e) {
+  catch (const rmscore::exceptions::RMSException& e) {
     std::string message(e.what());
     EXPECT_EQ(TParam.ExceptionsMess, message);
     return;

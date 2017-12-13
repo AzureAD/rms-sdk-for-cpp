@@ -114,7 +114,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
   }
   EXPECT_EQ(TParam.ret, ret);
   if (ret==pdfobjectmodel::PDFCreatorErr::SUCCESS) {
-    //完全加密
+
     std::string wrapper_in = unittests::dependency::GetCurrentInputFile() + "Input/wrapper.pdf";
 
     auto inwrapper = std::make_shared<std::fstream>(
@@ -134,33 +134,34 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
     pdf_wrapper_creator_->SetPayLoad(encrypted_shared_stream);
 
     std::string file_out = unittests::dependency::GetCurrentInputFile()+ TParam.fileout;
+
     auto output_stream = std::make_shared<std::fstream>(
         file_out,
         std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     std::shared_ptr<std::iostream> outputIO = output_stream;
     auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
     pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
-        std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_wrapper);
+        std::make_shared<fileapi::FDFDataStreamImpl_unit>(output_wrapper);
     bool result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
     EXPECT_EQ(1, result);
   }
 }
 INSTANTIATE_TEST_CASE_P(, PDFCreator_CreateCustomEncryptedFile, testing::Values(
-    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/FoxitIRMServices.pdf","FoxitIRMServices","NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),//不挂就好
+    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/FoxitIRMServices.pdf","FoxitIRMServices","NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
     CreateCustomEncryptedFile_P("Input/package.pdf","OutPut/CreateCustomEncryptedFile/package.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
     CreateCustomEncryptedFile_P("Input/demage.pdf","OutPut/CreateCustomEncryptedFile/demage.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),
     CreateCustomEncryptedFile_P("Input/XFAStatic.pdf","OutPut/CreateCustomEncryptedFile/XFAStatic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
-    CreateCustomEncryptedFile_P("Input/sign.pdf","OutPut/CreateCustomEncryptedFile/sign.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
-    CreateCustomEncryptedFile_P("Input/XFADyanmic-crash.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic-crash.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
-    CreateCustomEncryptedFile_P("Input/XFADyanmic.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
+    CreateCustomEncryptedFile_P("Input/sign.pdf","OutPut/CreateCustomEncryptedFile/sign.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    CreateCustomEncryptedFile_P("Input/XFADyanmic-crash.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic-crash.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    CreateCustomEncryptedFile_P("Input/XFADyanmic.pdf","OutPut/CreateCustomEncryptedFile/XFADyanmic.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::FORMAT),
     //CreateCustomEncryptedFile_P("Input/Protector/cer2-no.pdf","OutPut/CreateCustomEncryptedFile/cer2-no.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
     CreateCustomEncryptedFile_P("Input/Protector/cer.pdf","OutPut/CreateCustomEncryptedFile/cer.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
-    CreateCustomEncryptedFile_P("Input/error/anyone.pdf","OutPut/CreateCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FILE),
+    CreateCustomEncryptedFile_P("Input/error/anyone.pdf","OutPut/CreateCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
     CreateCustomEncryptedFile_P("Input/Protector/anyone.pdf","OutPut/CreateCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS),
     CreateCustomEncryptedFile_P("Input/Protector/password.pdf","OutPut/CreateCustomEncryptedFile/password.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
     CreateCustomEncryptedFile_P("Input/Protector/pwd_protect.pdf","OutPut/CreateCustomEncryptedFile/pwd_protect.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SECURITY),
-    CreateCustomEncryptedFile_P("Input/Test.txt","OutPut/CreateCustomEncryptedFile/txt.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),//未加密的文档
-    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/protector.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS)//未加密的文档
+    CreateCustomEncryptedFile_P("Input/Test.txt","OutPut/CreateCustomEncryptedFile/txt.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
+    CreateCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/CreateCustomEncryptedFile/protector.pdf",PDF_PROTECTOR_FILTER_NAME,"NO Exception",pdfobjectmodel::PDFCreatorErr::SUCCESS)
 ));
 
 void PDFCreator_UnprotectCustomEncryptedFile::SetUpTestCase() {
@@ -216,7 +217,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile, UnprotectCustomEncryptedFile_T) 
   auto output_payload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
   pdfobjectmodel::PDFSharedStream payload_shared_stream =
       std::make_shared<fileapi::FDFDataStreamImpl_unit>(output_payload);
-  bool bGetPayload = pdf_wrapper_doc->StartGetPayload(payload_shared_stream);
+ pdf_wrapper_doc->StartGetPayload(payload_shared_stream);
   //******************
 
   uint32_t ret ;
@@ -259,7 +260,7 @@ INSTANTIATE_TEST_CASE_P(, PDFCreator_UnprotectCustomEncryptedFile, testing::Valu
     UnprotectCustomEncryptedFile_P("Input/unprotector.pdf","OutPut/UnprotectCustomEncryptedFile/unprotector.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
     UnprotectCustomEncryptedFile_P("Input/error/error.pdf","OutPut/UnprotectCustomEncryptedFile/error.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
     UnprotectCustomEncryptedFile_P("Input/Protector/password.pdf","OutPut/UnprotectCustomEncryptedFile/password.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
-    UnprotectCustomEncryptedFile_P("Input/Protector/OfficeTemplate.ppdf","OutPut/UnprotectCustomEncryptedFile/OfficeTemplate.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),//Protector.h中的加密ppdf走的是另外路线，
+    UnprotectCustomEncryptedFile_P("Input/Protector/OfficeTemplate.ppdf","OutPut/UnprotectCustomEncryptedFile/OfficeTemplate.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::FORMAT),
     UnprotectCustomEncryptedFile_P("Input/Protector/MaxOwner.pdf","OutPut/UnprotectCustomEncryptedFile/MaxOwner.pdf",PDF_PROTECTOR_FILTER_NAME,"",pdfobjectmodel::PDFCreatorErr::SUCCESS),
     UnprotectCustomEncryptedFile_P("Input/Protector/phantomOfficeT.pdf","OutPut/UnprotectCustomEncryptedFile/anyone.pdf",PDF_PROTECTOR_FILTER_NAME,"Only the owner has the right to unprotect the document.",pdfobjectmodel::PDFCreatorErr::UNKNOWN_ERR)));
 
@@ -332,7 +333,7 @@ TEST_P(PDFWrapperDoc_GetCryptographicFilter,GetCryptographicFilter_T) {
 }
 INSTANTIATE_TEST_CASE_P(,PDFWrapperDoc_GetCryptographicFilter,testing::Values(
     GetCryptographicFilter_P("Input/Protector/OfficeTemplate.ppdf",L"",0,true,"NO Exception"),//
-    GetCryptographicFilter_P("Input/Protector/test.pdf",L"Test",7,true,"NO Exception"),//自己设置的值，Test,7
+    GetCryptographicFilter_P("Input/Protector/test.pdf",L"Test",7,true,"NO Exception"),
     GetCryptographicFilter_P("Input/Protector/password.pdf",L"",0,true,"NO Exception"),
     GetCryptographicFilter_P("Input/Protector/error.pdf",L"",0,true,"NO Exception"),
     GetCryptographicFilter_P("Input/Protector/customerTemplate.pdf",L"FoxitRMSV2",1,true,"NO Exception"),
@@ -504,7 +505,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
       publishing_license,
       crypto_hander,
       encrypted_shared_stream);
-
+  if (ret!=pdfobjectmodel::PDFCreatorErr::SUCCESS) return;
   std::string wrapper_in= unittests::dependency::GetCurrentInputFile() +"Input/wrapper.pdf";
 
 
@@ -538,7 +539,6 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
     auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
         std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_encrypted);
-    bool ret;
     std::wstring file_name;
     std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =  pdfobjectmodel::PDFWrapperDoc::Create(encrypted_shared_stream);
     pdf_wrapper_doc->GetPayloadFileName(file_name);

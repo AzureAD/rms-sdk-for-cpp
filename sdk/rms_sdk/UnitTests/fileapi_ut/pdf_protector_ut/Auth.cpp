@@ -90,8 +90,6 @@ rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::Co
 
   static QMap<QString, QStringList> preventsList;
 
-  bool added = false;
-
   for (size_t row = 0, rowMax = consents.size(); row < rowMax; ++row) {
     std::shared_ptr<rmscore::modernapi::IConsent> consent = consents[row];
 
@@ -148,8 +146,6 @@ rmscore::modernapi::ConsentList ConsentCallback::Consents(rmscore::modernapi::Co
           val = QString::fromStdString(consent->Domain());
           break;
         }
-
-      added = true;
     }
   }
   bool accepted = true ;

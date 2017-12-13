@@ -182,8 +182,8 @@ class PDFProtector_unit : public ProtectorWithWrapper {
       const bool& allowAuditedExtraction,
       CryptoOptions cryptoOptions);
 
-  std::string original_file_extension_;
   std::string original_file_path_;
+  std::string original_file_extension_;
   std::shared_ptr<std::fstream> input_stream_;
   uint32_t block_size_;
   std::shared_ptr<modernapi::UserPolicy> user_policy_;
