@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../include/fxcrt/fx_basic.h"
 CFX_BasicArray::CFX_BasicArray(int unit_size)
     : m_pData(NULL)

@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../include/fxcrt/fx_basic.h"
 FX_STRSIZE FX_ftoa(FX_FLOAT f, FX_LPSTR buf);
 CFX_BinaryBuf::CFX_BinaryBuf()

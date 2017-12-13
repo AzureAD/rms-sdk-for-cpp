@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #ifndef _FX_SYSTEM_H_
 #define _FX_SYSTEM_H_
 #define _FX_WIN32_DESKTOP_		1

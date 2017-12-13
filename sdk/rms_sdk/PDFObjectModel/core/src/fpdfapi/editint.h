@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #ifndef _FPDF_EDITINT_
 #define _FPDF_EDITINT_
 class CPDF_ObjectStream : public CFX_Object

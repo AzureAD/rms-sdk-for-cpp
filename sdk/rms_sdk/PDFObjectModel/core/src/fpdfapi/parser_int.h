@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #define _FPDFAPI_PARSER_INT_H_
 typedef enum {
     FPDF_FEATURE_Original				= 10,

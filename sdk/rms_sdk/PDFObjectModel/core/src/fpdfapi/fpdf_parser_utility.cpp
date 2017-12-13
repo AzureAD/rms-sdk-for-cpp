@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../include/fpdfapi/fpdf_parser.h"
 #include "../../include/fpdfapi/fpdf_serial.h"
 extern const FX_LPCSTR _PDF_CharType =

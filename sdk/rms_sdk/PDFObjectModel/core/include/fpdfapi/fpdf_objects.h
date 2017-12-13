@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #ifndef _FPDF_OBJECTS_
 #define _FPDF_OBJECTS_
 #ifndef _FXCRT_EXTENSION_

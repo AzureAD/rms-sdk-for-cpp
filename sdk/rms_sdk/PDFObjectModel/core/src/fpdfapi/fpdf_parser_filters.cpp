@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../fx_zlib.h"
 #include "../../include/fpdfapi/fpdf_parser.h"
 #include "../../include/fxcodec/fx_codec.h"

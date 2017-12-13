@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../include/fxcrt/fx_ext.h"
 template <class T, class STR_T>
 T FXSYS_StrToInt(STR_T str)

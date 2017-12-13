@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../include/fxcrt/fx_basic.h"
 #if _FXM_PLATFORM_ != _FXM_PLATFORM_WINDOWS_
 #include <sys/types.h>

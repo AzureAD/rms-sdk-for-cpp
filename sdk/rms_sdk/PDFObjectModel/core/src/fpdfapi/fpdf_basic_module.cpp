@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../include/fxcodec/fx_codec.h"
 #include "../../include/fpdfapi/fpdf_module.h"
 static CPDF_ModuleMgr*	g_FPDFAPI_pDefaultMgr = NULL;

@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #ifndef _FXCRT_EXTENSION_
 #define _FXCRT_EXTENSION_
 #ifndef _FX_BASIC_H_

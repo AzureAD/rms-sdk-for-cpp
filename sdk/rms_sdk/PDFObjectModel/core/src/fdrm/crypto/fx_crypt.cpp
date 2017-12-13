@@ -1,11 +1,3 @@
-/*
- * ======================================================================
- * Copyright (c) Foxit Software, Inc.  All rights reserved.
- * Licensed under the MIT License.
- * See LICENSE.md in the project root for license information.
- *======================================================================
- */
-
 #include "../../../include/fxcrt/fx_basic.h"
 #include "../../../include/fdrm/fx_crypt.h"
 #ifdef __cplusplus
