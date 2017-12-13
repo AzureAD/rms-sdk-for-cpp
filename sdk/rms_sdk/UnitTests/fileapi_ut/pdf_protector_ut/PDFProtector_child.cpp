@@ -41,13 +41,13 @@ uint32_t PDFCryptoHandler_child::DecryptGetSize(uint32_t src_size) {
 }
 
 void PDFCryptoHandler_child::DecryptStart(uint32_t objnum, uint32_t gennum) {
-
+  FILEAPI_UNREFERENCED_PARAMETER(gennum);
   obj_num_ = objnum;
   data_to_be_decrypted_ = std::make_shared<std::stringstream>();
 }
 
 bool PDFCryptoHandler_child::DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf) {
-
+  FILEAPI_UNREFERENCED_PARAMETER(dest_buf);
   data_to_be_decrypted_->write(src_buf, src_size);
   return true;
 }
@@ -95,7 +95,9 @@ bool PDFCryptoHandler_child::DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_bu
 }
 
 uint32_t PDFCryptoHandler_child::EncryptGetSize(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size) {
-
+  FILEAPI_UNREFERENCED_PARAMETER(src_buf);
+  FILEAPI_UNREFERENCED_PARAMETER(version);
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
   uint32_t encrypted_size = 0;
   encrypted_size = src_size;
   encrypted_size += 4; //add prefix padding
@@ -105,7 +107,8 @@ uint32_t PDFCryptoHandler_child::EncryptGetSize(uint32_t objnum, uint32_t versio
 }
 
 bool PDFCryptoHandler_child::EncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, char* dest_buf, uint32_t* dest_size) {
-
+  FILEAPI_UNREFERENCED_PARAMETER(version);
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
   if (!m_pPDFProtector_unit) return false;
 
   uint64_t content_size_add_pre = src_size + 4;
@@ -133,8 +136,9 @@ bool PDFCryptoHandler_child::EncryptContent(uint32_t objnum, uint32_t version, c
 }
 
 bool PDFCryptoHandler_child::ProgressiveEncryptStart(uint32_t objnum, uint32_t version, uint32_t raw_size) {
-
-    if (raw_size > MIN_RAW_SIZE) {
+  FILEAPI_UNREFERENCED_PARAMETER(version);
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
+  if (raw_size > MIN_RAW_SIZE) {
     progressive_start_ = true;
     return true;
   }
@@ -142,6 +146,9 @@ bool PDFCryptoHandler_child::ProgressiveEncryptStart(uint32_t objnum, uint32_t v
 }
 
 bool PDFCryptoHandler_child::ProgressiveEncryptContent(uint32_t objnum, uint32_t version, char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf) {
+  FILEAPI_UNREFERENCED_PARAMETER(dest_buf);
+  FILEAPI_UNREFERENCED_PARAMETER(version);
+  FILEAPI_UNREFERENCED_PARAMETER(objnum);
   uint64_t content_size_add_pre = 0;
   char* content_add_pre = nullptr;
 
