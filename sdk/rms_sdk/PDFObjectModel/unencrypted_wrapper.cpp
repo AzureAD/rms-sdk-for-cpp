@@ -19,6 +19,9 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
   version_number_ = 0;
   payload_size_ = 0;
   file_name_ = L"";
+  is_irmv2_without_wrapper = false;
+
+  uint64_t stream_size = wrapper_doc_stream->GetSize();
 
   wrapper_file_stream_ = std::make_shared<FileStreamImpl>(wrapper_doc_stream);
   FX_DWORD parse_result = pdf_parser_.StartParse(wrapper_file_stream_.get());
@@ -57,8 +60,29 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
         wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::DIGITALLY_SIGNED);
       }
     }
-  } else if (PDFPARSE_ERROR_PASSWORD == parse_result || 
-             PDFPARSE_ERROR_HANDLER == parse_result || 
+  } else if (PDFPARSE_ERROR_HANDLER == parse_result) {
+      CPDF_Dictionary* encryption_dictionary = pdf_parser_.GetEncryptDict();
+      CFX_ByteString filter_name = encryption_dictionary->GetString("Filter");
+      if (filter_name.EqualNoCase(PDF_PROTECTOR_FILTER_NAME)) {
+        FX_INT32 irm_version = encryption_dictionary->GetInteger("MicrosoftIRMVersion");
+        if(irm_version <= 1) {
+          wrapper_type_ = PDFWrapperDocType::IRMV1;
+          version_number_ = 1;
+          CFX_WideString filter_name_widestring = filter_name.UTF8Decode();
+          graphic_filter_ = (wchar_t*)(FX_LPCWSTR)filter_name_widestring;
+          payload_size_ = static_cast<uint32_t>(stream_size);
+        } else {
+          wrapper_type_ = PDFWrapperDocType::IRMV2;
+          version_number_ = 2;
+          CFX_WideString filter_name_widestring = filter_name.UTF8Decode();
+          graphic_filter_ = (wchar_t*)(FX_LPCWSTR)filter_name_widestring;
+          payload_size_ = static_cast<uint32_t>(stream_size);
+          is_irmv2_without_wrapper = true;
+        }
+      } else {
+        wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
+      }
+  } else if (PDFPARSE_ERROR_PASSWORD == parse_result ||
              PDFPARSE_ERROR_CERT == parse_result) {
     wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
   } else {
@@ -97,7 +121,7 @@ bool PDFWrapperDocImpl::GetPayloadFileName(std::wstring& file_name) const {
 }
 
 bool PDFWrapperDocImpl::StartGetPayload(PDFSharedStream output_stream) {
-  if (wrapper_type_ == PDFWrapperDocType::IRMV1) {
+  if (wrapper_type_ == PDFWrapperDocType::IRMV1 || is_irmv2_without_wrapper) {
     uint8_t* buffer_pointer_temp = new uint8_t[payload_size_];
     wrapper_file_stream_->ReadBlock(buffer_pointer_temp, 0, payload_size_);
     output_stream->WriteBlock(buffer_pointer_temp, 0, static_cast<uint64_t>(payload_size_));

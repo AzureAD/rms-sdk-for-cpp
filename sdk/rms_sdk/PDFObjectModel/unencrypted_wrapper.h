@@ -8,6 +8,7 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
+#define PDF_PROTECTOR_FILTER_NAME           "MicrosoftIRMServices"
 #define IRMV1_WRAPPER_DICTIONARY            "Wrapper"
 #define IRMV1_WRAPPER_DICTIONARY_TYPE       "Type"
 #define IRMV1_WRAPPER_DICTIONARY_VERSION    "Version"
@@ -48,6 +49,7 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
   float version_number_;
   uint32_t payload_size_;
   std::wstring file_name_;
+  bool is_irmv2_without_wrapper;
 };
 
 /**

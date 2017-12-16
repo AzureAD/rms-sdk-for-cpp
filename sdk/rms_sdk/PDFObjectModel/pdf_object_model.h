@@ -16,7 +16,18 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
-#if defined _WIN32 || defined __CYGWIN__
+//#define RMS_LIBRARY_STATIC
+//#define CDECL_CALLING_CONVENTION
+
+#ifdef RMS_LIBRARY_STATIC
+  #define DLL_PUBLIC_RMS
+  #ifdef CDECL_CALLING_CONVENTION
+    #define RMS_CALLING_CONVENTION __cdecl
+  #else
+    #define RMS_CALLING_CONVENTION
+  #endif
+#elif defined _WIN32 || defined __CYGWIN__
+  #define RMS_CALLING_CONVENTION
   #ifdef RMS_LIBRARY
     #ifdef __GNUC__
       #define DLL_PUBLIC_RMS __attribute__ ((dllexport))
@@ -32,6 +43,7 @@ namespace pdfobjectmodel {
   #endif
   #define DLL_LOCAL
 #else
+  #define RMS_CALLING_CONVENTION
   #if __GNUC__ >= 4
     #define DLL_PUBLIC_RMS __attribute__ ((visibility ("default")))
     #define DLL_LOCAL_RMS  __attribute__ ((visibility ("hidden")))
@@ -60,7 +72,7 @@ namespace pdfobjectmodel {
 class PDFModuleMgr {
  public:
   DLL_PUBLIC_RMS
-  static bool Initialize();
+  static bool RMS_CALLING_CONVENTION Initialize();
 
   virtual ~PDFModuleMgr(){}
 
@@ -134,7 +146,7 @@ class PDFWrapperDoc {
    * @return The PDFWrapperDoc instance.
    */
   DLL_PUBLIC_RMS
-  static std::unique_ptr<PDFWrapperDoc> Create(PDFSharedStream input_stream);
+  static std::unique_ptr<PDFWrapperDoc> RMS_CALLING_CONVENTION Create(PDFSharedStream input_stream);
 
   /**
    * @brief Gets the wrapper type.
@@ -191,7 +203,7 @@ class PDFUnencryptedWrapperCreator {
    * @return The PDFUnencryptedWrapperCreator instance.
    */
   DLL_PUBLIC_RMS
-  static std::unique_ptr<PDFUnencryptedWrapperCreator> Create(
+  static std::unique_ptr<PDFUnencryptedWrapperCreator> RMS_CALLING_CONVENTION Create(
       PDFSharedStream wrapper_doc_stream);
 
   /**
@@ -335,7 +347,7 @@ enum PDFCreatorErr{
 class PDFCreator {
  public:
   DLL_PUBLIC_RMS
-  static std::unique_ptr<PDFCreator> Create();
+  static std::unique_ptr<PDFCreator> RMS_CALLING_CONVENTION Create();
 
   /**
    * @brief Creates custom encrypted PDF file(be opposed to standard encryption like

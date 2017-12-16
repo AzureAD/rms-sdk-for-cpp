@@ -27,6 +27,8 @@ class PDFModuleMgrImpl : public PDFModuleMgr {
 
   static void RegisterSecurityHandler(const std::string& filter_name,
                                       std::shared_ptr<PDFSecurityHandler> security_hander);
+
+  static void UnRegisterSecurityHandler(const std::string& filter_name);
   virtual  ~PDFModuleMgrImpl();
 
   void SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_hander);

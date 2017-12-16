@@ -647,7 +647,10 @@ uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
   CPDF_Parser pdf_parser;
   FX_DWORD parse_result = pdf_parser.StartParse(&input_file_stream);
   result = ConvertParsingErrCode(parse_result);
-  if (result != PDFCreatorErr::SUCCESS) return result;
+  if (result != PDFCreatorErr::SUCCESS) {
+    PDFModuleMgrImpl::UnRegisterSecurityHandler(filter_name.c_str());
+    return result;
+  }
 
   CPDF_Document* pdf_document = pdf_parser.GetDocument();
   CPDF_Creator pdf_creator(pdf_document);
@@ -670,6 +673,7 @@ uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
     result = PDFCreatorErr::CREATOR;
   }
 
+  PDFModuleMgrImpl::UnRegisterSecurityHandler(filter_name.c_str());
   return result;
 }
 

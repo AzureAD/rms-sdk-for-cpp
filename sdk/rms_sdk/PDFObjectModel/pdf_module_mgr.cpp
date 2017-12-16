@@ -28,6 +28,7 @@ PDFModuleMgrImpl::PDFModuleMgrImpl() {
   CPDF_ModuleMgr::Get()->SetCodecModule(pdf_codec_module_);
   pdf_module_manager_ = CPDF_ModuleMgr::Get();
 
+  shared_security_hander_ = nullptr;
 }
 
 PDFModuleMgrImpl::~PDFModuleMgrImpl() {
@@ -44,6 +45,10 @@ PDFModuleMgrImpl::~PDFModuleMgrImpl() {
 }
 
 void PDFModuleMgrImpl::SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_hander) {
+  if (shared_security_hander_) {
+    shared_security_hander_.reset();
+    shared_security_hander_ = nullptr;
+  }
   shared_security_hander_ = shared_security_hander;
 }
 std::shared_ptr<PDFSecurityHandler> PDFModuleMgrImpl::GetSharedSecurityHandler() {
@@ -69,6 +74,18 @@ void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, s
         CreateCustomerSecurityHandler,
         nullptr);
   }
+}
+
+void PDFModuleMgrImpl::UnRegisterSecurityHandler(const std::string& filter_name) {
+  if (g_pdf_module_mgr != nullptr) {
+    PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
+
+    pdf_module_mgr->SetSharedSecurityHandler(nullptr);
+    pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
+      filter_name.c_str(),
+      nullptr,
+      nullptr);
+}
 }
 
 } // namespace pdfobjectmodel
