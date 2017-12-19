@@ -27,7 +27,7 @@ static const uint32_t MaxMajorVerionsCBC4KIsForced = 2;
 class PfileHeader {
 public:
 
-  PfileHeader(common::ByteArray&& publishingLicense,
+  PfileHeader(common::ByteArray&& publishing_license,
               const std::string & fileExtension,
               uint32_t            contentStartPosition,
               uint64_t            originalFileSize,

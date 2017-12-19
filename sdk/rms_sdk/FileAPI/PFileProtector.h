@@ -22,29 +22,29 @@ class PFileProtector : public Protector
 {
 public:
     PFileProtector(const std::string& originalFileExtension,
-                   std::shared_ptr<std::fstream> inputStream);
+                   std::shared_ptr<std::fstream> input_stream);
 
     ~PFileProtector();
 
     void ProtectWithTemplate(const UserContext& userContext,
                              const ProtectWithTemplateOptions& options,
-                             std::shared_ptr<std::fstream> outputStream,
+                             std::shared_ptr<std::fstream> output_stream,
                              std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     void ProtectWithCustomRights(const UserContext& userContext,
                                  const ProtectWithCustomRightsOptions& options,
-                                 std::shared_ptr<std::fstream> outputStream,
+                                 std::shared_ptr<std::fstream> output_stream,
                                  std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     UnprotectResult Unprotect(const UserContext& userContext,
                               const UnprotectOptions& options,
-                              std::shared_ptr<std::fstream> outputStream,
+                              std::shared_ptr<std::fstream> output_stream,
                               std::shared_ptr<std::atomic<bool>> cancelState) override;
 
     bool IsProtected() const override;
 
 private:
-    void Protect(const std::shared_ptr<std::fstream>& outputStream);
+    void Protect(const std::shared_ptr<std::fstream>& output_stream);
 
     std::shared_ptr<rmscrypto::api::BlockBasedProtectedStream> CreateProtectedStream(
             const rmscrypto::api::SharedStream& stream,
@@ -69,10 +69,10 @@ private:
             const bool& allowAuditedExtraction,
             CryptoOptions cryptoOptions);
 
-    std::string m_originalFileExtension;
-    std::shared_ptr<std::fstream> m_inputStream;
-    uint32_t m_blockSize;
-    std::shared_ptr<modernapi::UserPolicy> m_userPolicy;
+    std::string original_file_extension_;
+    std::shared_ptr<std::fstream> input_stream_;
+    uint32_t block_size_;
+    std::shared_ptr<modernapi::UserPolicy> user_policy_;
 };
 
 } // namespace fileapi

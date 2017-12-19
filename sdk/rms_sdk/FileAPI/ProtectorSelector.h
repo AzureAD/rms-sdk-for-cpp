@@ -9,9 +9,11 @@
 #ifndef RMS_SDK_FILE_API_PROTECTORHELPER_H
 #define RMS_SDK_FILE_API_PROTECTORHELPER_H
 
+#include <memory>
 #include <map>
 #include <string>
 #include <vector>
+#include "ModernAPIExport.h"
 
 namespace rmscore {
 namespace fileapi {
@@ -24,16 +26,35 @@ enum class ProtectorType {
     PDF = 4,
 };
 
-class ProtectorSelector
+class IProtectorSelector
 {
 public:
-    ProtectorSelector(const std::string& fileName);
+    DLL_PUBLIC_RMS
+    static std::unique_ptr<IProtectorSelector> Create(const std::string& filePath);
 
-    ProtectorType GetProtectorType();
+    virtual ProtectorType GetProtectorType() = 0;
 
-    std::string GetFileExtension();
+    virtual std::string GetFileExtension() = 0;
 
-    std::string GetOutputFileName();
+    virtual std::string GetOutputFileName() = 0;
+
+    virtual ~IProtectorSelector(){ }
+
+protected:
+    IProtectorSelector()
+    {}
+};
+
+class ProtectorSelector : public IProtectorSelector
+{
+public:
+    ProtectorSelector(const std::string& filePath);
+
+    virtual ProtectorType GetProtectorType();
+
+    virtual std::string GetFileExtension();
+
+    virtual std::string GetOutputFileName();
 
 private:
     static std::map<std::string, ProtectorType> Init();

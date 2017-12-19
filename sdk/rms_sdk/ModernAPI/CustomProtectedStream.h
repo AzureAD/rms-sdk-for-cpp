@@ -22,7 +22,7 @@ public:
     std::shared_ptr<UserPolicy>  policy,
     rmscrypto::api::SharedStream stream,
     uint64_t                     contentStartPosition,
-    uint64_t                     contentSize);
+    uint64_t                     content_size);
 
   static uint64_t GetEncryptedContentLength(
     std::shared_ptr<UserPolicy>policy,

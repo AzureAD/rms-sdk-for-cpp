@@ -24,9 +24,9 @@ public:
     DataSpaces(bool isMetro, bool doesUseDeprecatedAlgorithm = true);
     ~DataSpaces();
     void WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
-                         const ByteArray& publishingLicense) override;
+                         const ByteArray& publishing_license) override;
     void ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
-                        ByteArray& publishingLicense) override;
+                        ByteArray& publishing_license) override;
 
 private:
 
@@ -40,8 +40,8 @@ private:
     void ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
                     const std::string& txClassName,
                     const std::string& featureName);
-    void WritePrimary(const std::shared_ptr<pole::Stream>& stm,  const ByteArray& publishingLicense);
-    void ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense);
+    void WritePrimary(const std::shared_ptr<pole::Stream>& stm,  const ByteArray& publishing_license);
+    void ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishing_license);
 
     bool m_isMetro = true;
     bool m_doesUseDeprecatedAlgorithm;

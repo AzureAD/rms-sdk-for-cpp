@@ -70,7 +70,7 @@ public:
 
     if (u64size > 0)
     {
-      plainText.resize(u64size);
+      plainText.resize(static_cast<unsigned int>(u64size));
       int actualSize =
         static_cast<int>(Read(&plainText[0], static_cast<int>(plainText.size())));
       plainText.resize(actualSize);

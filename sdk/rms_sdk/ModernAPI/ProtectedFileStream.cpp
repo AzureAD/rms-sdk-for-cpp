@@ -38,7 +38,7 @@ ProtectedFileStream::ProtectedFileStream(SharedStream          pImpl,
                                          shared_ptr<UserPolicy>policy,
                                          const string        & originalFileExtension)
   : m_policy(policy)
-  , m_originalFileExtension(originalFileExtension)
+  , original_file_extension_(originalFileExtension)
   , m_pImpl(pImpl)
 {}
 
@@ -89,8 +89,8 @@ shared_ptr<GetProtectedFileStreamResult>ProtectedFileStream::Acquire(
   }
   if (pHeader != nullptr)
   {
-    ByteArray publishingLicense = pHeader->GetPublishingLicense();
-    auto policyRequest          = UserPolicy::Acquire(publishingLicense,
+    ByteArray publishing_license = pHeader->GetPublishingLicense();
+    auto policyRequest          = UserPolicy::Acquire(publishing_license,
                                                       userId,
                                                       authenticationCallback,
                                                       consentCallback,
@@ -165,16 +165,16 @@ shared_ptr<ProtectedFileStream>ProtectedFileStream::Create(
   {
     auto headerWriter = IPfileHeaderWriter::Create();
 
-    auto publishingLicense = policy->SerializedPolicy();
+    auto publishing_license = policy->SerializedPolicy();
     ByteArray metadata; // No metadata
 
     // calculate content size
     uint32_t contentStartPosition =
       static_cast<uint32_t>(ext.size() +
-                            publishingLicense.size()
+                            publishing_license.size()
                             +
                             metadata.size() + 454);
-    pHeader = make_shared<PfileHeader>(move(publishingLicense),
+    pHeader = make_shared<PfileHeader>(move(publishing_license),
                                        ext,
                                        contentStartPosition,
                                        static_cast<uint64_t>(-1), // No known
@@ -282,7 +282,7 @@ bool ProtectedFileStream::Flush() {
 SharedStream ProtectedFileStream::Clone()
 {
   return shared_ptr<IStream>(new ProtectedFileStream(m_pImpl->Clone(), m_policy,
-                                                     m_originalFileExtension));
+                                                     original_file_extension_));
 }
 
 void ProtectedFileStream::Seek(uint64_t u64Position)

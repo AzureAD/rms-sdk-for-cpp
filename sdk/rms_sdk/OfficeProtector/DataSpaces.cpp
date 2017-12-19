@@ -81,7 +81,7 @@ DataSpaces::~DataSpaces()
 }
 
 void DataSpaces::WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
-                                 const ByteArray& publishingLicense)
+                                 const ByteArray& publishing_license)
 {
     if(stg == nullptr)
     {
@@ -129,13 +129,13 @@ void DataSpaces::WriteDataspaces(const std::shared_ptr<pole::Storage>& stg,
     std::shared_ptr<pole::Stream> primaryStm = std::make_shared<pole::Stream>(
                 stg.get(), primaryStmName, true);
     primaryStm->seek(0);
-    WritePrimary(primaryStm, publishingLicense);
+    WritePrimary(primaryStm, publishing_license);
     primaryStm->flush();
 }
 
 //todo add logging here
 void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
-                                ByteArray& publishingLicense)
+                                ByteArray& publishing_license)
 {
     if(stg == nullptr)
     {
@@ -173,7 +173,7 @@ void DataSpaces::ReadDataspaces(const std::shared_ptr<pole::Storage>& stg,
     std::shared_ptr<pole::Stream> stm = std::make_shared<pole::Stream>(stg.get(), primaryStmName,
                                                                        false);
     stm->seek(0);
-    ReadPrimary(stm, publishingLicense);
+    ReadPrimary(stm, publishing_license);
 }
 
 void DataSpaces::WriteVersion(const std::shared_ptr<pole::Stream>& stm, const std::string& content)
@@ -235,7 +235,7 @@ void DataSpaces::ReadAndVerifyVersion(const std::shared_ptr<pole::Stream>& stm,
     if( contentRead.compare(contentExpected) != 0 || readerMajorRead != readerMajorExpected ||
             updaterMajorRead != updaterMajorExpected || writerMajorRead != writerMajorExpected)
     {
-        Logger::Error("Major Version mismatch", contentRead, readerMajorRead,
+        Logger::Error("Major Version mismatch", contentRead.c_str(), readerMajorRead,
                       updaterMajorRead, writerMajorRead);
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
@@ -340,7 +340,7 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
     if(dtiRead.headerLen != dtiExpected.headerLen || dtiRead.txClassType != dtiExpected.txClassType)
     {
         Logger::Error("DRMTransformInfo mismatch",
-                      std::to_string(dtiRead.headerLen), std::to_string(dtiRead.txClassType));
+                      std::to_string(dtiRead.headerLen).c_str(), std::to_string(dtiRead.txClassType).c_str());
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
@@ -350,7 +350,7 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
     ReadWideStringEntry(stm, txClassNameRead);
     if(txClassNameRead.compare(txClassNameExpected) != 0)
     {
-        Logger::Error("Transform Class mismatch", txClassNameRead);
+        Logger::Error("Transform Class mismatch", txClassNameRead.c_str());
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
@@ -360,9 +360,9 @@ void DataSpaces::ReadTxInfo(const std::shared_ptr<pole::Stream>& stm,
 }
 
 void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
-                              const ByteArray& publishingLicense)
+                              const ByteArray& publishing_license)
 {
-    if(stm == nullptr || publishingLicense.empty())
+    if(stm == nullptr || publishing_license.empty())
     {
         Logger::Error("Invalid arguments provided for writing Primary stream");
         throw exceptions::RMSMetroOfficeFileException(
@@ -372,8 +372,8 @@ void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
     uint32_t headerLen = sizeof(headerLen);
     WriteTxInfo(stm, drmTransformClass, drmTransformFeature);
     stm->write(reinterpret_cast<unsigned char*>(&headerLen), sizeof(uint32_t));
-    std::string publishingLicenseStr(reinterpret_cast<const char*>(publishingLicense.data()),
-                                     publishingLicense.size());
+    std::string publishingLicenseStr(reinterpret_cast<const char*>(publishing_license.data()),
+                                     publishing_license.size());
     if ((publishingLicenseStr.length() > sizeof(BOM_UTF8)) &&
             (memcmp(publishingLicenseStr.data(), BOM_UTF8, sizeof(BOM_UTF8)) == 0))
     {
@@ -394,7 +394,7 @@ void DataSpaces::WritePrimary(const std::shared_ptr<pole::Stream>& stm,
     AlignAtFourBytes(stm, publishingLicenseLen, true);
 }
 
-void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishingLicense)
+void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray& publishing_license)
 {
     if(stm == nullptr)
     {
@@ -410,7 +410,7 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
     headerLenRead -= sizeof(headerLenRead);
     if(headerLenRead != 0)
     {
-        Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead));
+        Logger::Error("Primary stream header length mismatch", std::to_string(headerLenRead).c_str());
         throw exceptions::RMSMetroOfficeFileException(
                     "The file has been corrupted",
                     exceptions::RMSMetroOfficeFileException::CorruptFile);
@@ -425,8 +425,8 @@ void DataSpaces::ReadPrimary(const std::shared_ptr<pole::Stream>& stm, ByteArray
         publishingLicenseStr = ConvertCharStrToWideStr(publishingLicenseStr);
     }
 
-    publishingLicense.clear();
-    std::copy(publishingLicenseStr.begin(), publishingLicenseStr.end(), std::back_inserter(publishingLicense));
+    publishing_license.clear();
+    std::copy(publishingLicenseStr.begin(), publishingLicenseStr.end(), std::back_inserter(publishing_license));
     AlignAtFourBytes(stm, publishingLicenseLen, false);
 }
 

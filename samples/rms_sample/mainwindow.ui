@@ -24,110 +24,6 @@
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
-          <item row="3" column="2">
-           <widget class="QPushButton" name="FileAPIDecrypt">
-            <property name="text">
-             <string>File API Decrypt</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="lineEdit_redirectUrl">
-            <property name="text">
-             <string>com.microsoft.rms-sharing-for-android://authorize</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_clitntId">
-            <property name="text">
-             <string>Client ID</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QPushButton" name="FileAPIEncrypt">
-            <property name="text">
-             <string>File API Encrypt (templates)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_clientEmail">
-            <property name="text">
-             <string>vmittal@microsoft.com</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QPushButton" name="certificatesPathButton">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" rowspan="4">
-           <widget class="QLabel" name="label_redirectUrl">
-            <property name="text">
-             <string>Redirect URI</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2">
-           <widget class="QPushButton" name="fromPFILEButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Decrypt PFILE</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QLineEdit" name="ineEdit_certificatesPath">
-            <property name="text">
-             <string>./certificates/</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="encryptPFILERightsButton">
-            <property name="text">
-             <string>Encrypt  Sync (rights)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_resourseId">
-            <property name="text">
-             <string>Resource ID</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1" rowspan="2">
-           <widget class="QLineEdit" name="lineEdit_resourseId">
-            <property name="text">
-             <string>https://api.aadrm.com</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_certificatesPath">
-            <property name="text">
-             <string>Certificates path</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_clientId">
-            <property name="text">
-             <string>ECAD3080-3AE9-4782-B763-2DF1B1373B3A</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="2">
            <widget class="QPushButton" name="encryptPFILETemplatesButton">
             <property name="text">
@@ -142,10 +38,135 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
+          <item row="5" column="2">
            <widget class="QPushButton" name="FileAPIEncryptRights">
             <property name="text">
              <string>File API Encrypt (rights)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <widget class="QPushButton" name="encryptPDF">
+            <property name="text">
+             <string>Encrypt PDF (templates)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="lineEdit_redirectUrl">
+            <property name="text">
+             <string>com.microsoft.rms-sharing-for-android://authorize</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_resourseId">
+            <property name="text">
+             <string>Resource ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="encryptPFILERightsButton">
+            <property name="text">
+             <string>Encrypt  Sync (rights)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="1">
+           <widget class="QLineEdit" name="ineEdit_certificatesPath">
+            <property name="text">
+             <string>./certificates/</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <widget class="QPushButton" name="fromPFILEButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Decrypt PFILE</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" rowspan="5">
+           <widget class="QLabel" name="label_redirectUrl">
+            <property name="text">
+             <string>Redirect URI</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="2">
+           <widget class="QPushButton" name="certificatesPathButton">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineEdit_clientEmail">
+            <property name="text">
+             <string>vmittal@microsoft.com</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="FileAPIEncrypt">
+            <property name="text">
+             <string>File API Encrypt (templates)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_clitntId">
+            <property name="text">
+             <string>Client ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="FileAPIDecrypt">
+            <property name="text">
+             <string>File API Decrypt</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1" rowspan="2">
+           <widget class="QLineEdit" name="lineEdit_resourseId">
+            <property name="text">
+             <string>https://api.aadrm.com</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0">
+           <widget class="QLabel" name="label_certificatesPath">
+            <property name="text">
+             <string>Certificates path</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_clientId">
+            <property name="text">
+             <string>ECAD3080-3AE9-4782-B763-2DF1B1373B3A</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="2">
+           <widget class="QPushButton" name="decryptPDF">
+            <property name="text">
+             <string>Decrypt PDF</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="2">
+           <widget class="QPushButton" name="encryptPDFRights">
+            <property name="text">
+             <string>Encrypt PDF (rights)</string>
             </property>
            </widget>
           </item>
@@ -195,7 +216,6 @@
  <tabstops>
   <tabstop>lineEdit_clientId</tabstop>
   <tabstop>lineEdit_clientEmail</tabstop>
-  <tabstop>lineEdit_redirectUrl</tabstop>
   <tabstop>lineEdit_resourseId</tabstop>
   <tabstop>ineEdit_certificatesPath</tabstop>
   <tabstop>textBrowser</tabstop>

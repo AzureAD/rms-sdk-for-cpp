@@ -139,10 +139,10 @@ void PfileHeaderWriter::WritePublishingLicense(
   const std::shared_ptr<PfileHeader>header)
 {
   Logger::Hidden("PfileHeaderWriter::WritePublishingLicense");
-  auto publishingLicense = header->GetPublishingLicense();
+  auto publishing_license = header->GetPublishingLicense();
 
-  writer->Write(reinterpret_cast<const uint8_t *>(publishingLicense.data()),
-                static_cast<int>(publishingLicense.size()));
+  writer->Write(reinterpret_cast<const uint8_t *>(publishing_license.data()),
+                static_cast<int>(publishing_license.size()));
 }
 
 void PfileHeaderWriter::WriteMetadata(rmscrypto::api::SharedStream      writer,

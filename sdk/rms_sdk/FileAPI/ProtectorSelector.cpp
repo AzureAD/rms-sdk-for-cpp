@@ -18,10 +18,17 @@ using namespace rmscore::platform::logger;
 namespace rmscore {
 namespace fileapi {
 
-ProtectorSelector::ProtectorSelector(const std::string& fileName)
+std::unique_ptr<IProtectorSelector> IProtectorSelector::Create(const std::string& filePath)
+{
+    std::unique_ptr<IProtectorSelector> protectorSelector(new ProtectorSelector(filePath));
+    return protectorSelector;
+}
+
+ProtectorSelector::ProtectorSelector(const std::string& filePath)
     : m_fileExtension(".pfile"),
       m_pType(ProtectorType::PFILE)
 {
+    std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
     Compute(fileName);
 }
 
@@ -55,7 +62,7 @@ std::map<std::string, ProtectorType> ProtectorSelector::Init()
         {".jpeg", ProtectorType::PSTAR},{".png", ProtectorType::PSTAR},{".tif", ProtectorType::PSTAR},
         {".tiff", ProtectorType::PSTAR},{".bmp", ProtectorType::PSTAR},{".gif", ProtectorType::PSTAR},
         {".jpe", ProtectorType::PSTAR},{".jfif", ProtectorType::PSTAR},{".jif", ProtectorType::PSTAR},
-        {".pdf", ProtectorType::PSTAR}};
+        {".pdf", ProtectorType::PDF}};
 
     return protectorExtensionsMap;
 }
@@ -76,7 +83,7 @@ void ProtectorSelector::Compute(const std::string& fileName)
     auto pos = fileName.find_last_of('.');
     if (pos == std::string::npos)
     {
-        Logger::Error("Invalid filename provided.", fileName);
+        Logger::Error("Invalid filename provided.", fileName.c_str());
         throw exceptions::RMSInvalidArgumentException(
                     "Full filename with extension needed. Filename provided: " + fileName);
     }
