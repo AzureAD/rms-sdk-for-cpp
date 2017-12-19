@@ -355,14 +355,14 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishing_license,
     return false;
   }
 
-  bool bIsIssuedToOwner = userPolicy->IsIssuedToOwner();
+  /*bool bIsIssuedToOwner = userPolicy->IsIssuedToOwner();
   if(!bIsIssuedToOwner) {
     logger::Logger::Error("Only the owner has the right to unprotect the document.");
     throw exceptions::RMSException(
         exceptions::RMSException::ExceptionTypes::LogicError,
         exceptions::RMSException::ErrorTypes::RightsError,
         "Only the owner has the right to unprotect the document.");
-  }
+  }*/
 
   pdf_protector_->SetUserPolicy(userPolicy);
 
