@@ -143,7 +143,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
     pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
         std::make_shared<fileapi::FDFDataStreamImpl_unit>(output_wrapper);
     bool result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
-    EXPECT_EQ(1, result);
+    EXPECT_EQ(true, result);
   }
 }
 INSTANTIATE_TEST_CASE_P(, PDFCreator_CreateCustomEncryptedFile, testing::Values(

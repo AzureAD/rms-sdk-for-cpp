@@ -142,17 +142,14 @@ class PDFWrapperDoc_GetPayloadFileName:public ::testing::TestWithParam<GetPayloa
 struct CreateUnencryptedWrapper_P {
   CreateUnencryptedWrapper_P(
       std::string fileIn_,
-      // std::string fileOut_,
-      bool ret_,
+      uint32_t ret_,
       std::string ExceptionMess_) {
     fileIn = fileIn_;
-    //fileout = fileOut_;
     ret = ret_;
     ExceptionMess= ExceptionMess_;
   }
   std::string fileIn;
-  //std::string fileout;
-  bool ret;
+  uint32_t ret;
   std::string ExceptionMess;
 };
 
