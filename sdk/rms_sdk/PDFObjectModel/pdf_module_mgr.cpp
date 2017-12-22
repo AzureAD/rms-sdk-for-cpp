@@ -13,9 +13,10 @@ namespace pdfobjectmodel {
 
 static std::unique_ptr<PDFModuleMgr> g_pdf_module_mgr = nullptr;
 
+PDFModuleMgrImpl* PDFModuleMgrImpl::instance_= nullptr;
 bool PDFModuleMgr::Initialize() {
   if (g_pdf_module_mgr == nullptr) {
-    g_pdf_module_mgr.reset(new PDFModuleMgrImpl());
+    g_pdf_module_mgr.reset(PDFModuleMgrImpl::Instance());
   }
 
   return true;

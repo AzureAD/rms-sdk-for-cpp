@@ -23,7 +23,12 @@ namespace pdfobjectmodel {
  */
 class PDFModuleMgrImpl : public PDFModuleMgr {
  public:
-  explicit PDFModuleMgrImpl();
+   static PDFModuleMgrImpl* Instance() {
+     if(nullptr == instance_) {
+       instance_ = new PDFModuleMgrImpl();
+     }
+     return instance_;
+   }
 
   static void RegisterSecurityHandler(const std::string& filter_name,
                                       std::shared_ptr<PDFSecurityHandler> security_hander);
@@ -34,10 +39,14 @@ class PDFModuleMgrImpl : public PDFModuleMgr {
   void SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_hander);
   std::shared_ptr<PDFSecurityHandler> GetSharedSecurityHandler();
  private:
+  explicit PDFModuleMgrImpl();
+
   CPDF_ModuleMgr* pdf_module_manager_;
   CCodec_ModuleMgr* pdf_codec_module_;
 
   std::shared_ptr<PDFSecurityHandler> shared_security_hander_;
+
+  static PDFModuleMgrImpl* instance_;
 };
 
 } // namespace pdfobjectmodel
