@@ -312,15 +312,6 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishing_license,
   std::vector<uint8_t> vec_publishing_license(publishing_license_size);
   memcpy(reinterpret_cast<uint8_t *>(&vec_publishing_license[0]),
          publishing_license, publishing_license_size);
-  //vec_publishing_license.push_back('\0');
-
-  //testing code, save publishing license
-  /*std::string plPath = "C:\\Users\\foxit-dev\\Desktop\\PL.txt";
-  auto outPLFile = std::make_shared<std::fstream>(
-    plPath, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-  outPLFile->write(reinterpret_cast<const char*>(publishing_license), publishing_license_size);
-  outPLFile->close();
-  */
 
   modernapi::PolicyAcquisitionOptions policyAcquisitionOptions = options_.offlineOnly ?
       modernapi::PolicyAcquisitionOptions::POL_OfflineOnly :
@@ -354,15 +345,6 @@ bool PDFSecurityHandlerImpl::OnInit(unsigned char *publishing_license,
     throw exceptions::RMSInvalidArgumentException("User Policy acquisition failed.");
     return false;
   }
-
-  /*bool bIsIssuedToOwner = userPolicy->IsIssuedToOwner();
-  if(!bIsIssuedToOwner) {
-    logger::Logger::Error("Only the owner has the right to unprotect the document.");
-    throw exceptions::RMSException(
-        exceptions::RMSException::ExceptionTypes::LogicError,
-        exceptions::RMSException::ErrorTypes::RightsError,
-        "Only the owner has the right to unprotect the document.");
-  }*/
 
   pdf_protector_->SetUserPolicy(userPolicy);
 
