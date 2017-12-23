@@ -57,7 +57,6 @@ bool PDFCryptoHandler_child::DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_bu
   uint64_t count = data_to_be_decrypted_->tellg();
   if (count <= 0) {
     obj_num_ = 0;
-    data_to_be_decrypted_.reset();
     data_to_be_decrypted_ = nullptr;
     return true;
   }
@@ -88,7 +87,6 @@ bool PDFCryptoHandler_child::DecryptFinish(pdfobjectmodel::PDFBinaryBuf* dest_bu
   dest_buf->AppendBlock(reinterpret_cast<const char*>(&decrypted_data[0] + 4), total_dest_size);
 
   obj_num_ = 0;
-  data_to_be_decrypted_.reset();
   data_to_be_decrypted_ = nullptr;
 
   return true;
@@ -191,10 +189,6 @@ bool PDFCryptoHandler_child::ProgressiveEncryptFinish(pdfobjectmodel::PDFBinaryB
   output_shared_stream_->Read(reinterpret_cast<uint8_t*>(buf_data_read), size);
 
   dest_buf->AppendBlock(buf_data_read, size);
-
-  shared_protected_stream_.reset();
-  output_IOS_.reset();
-  output_shared_stream_.reset();
 
   shared_protected_stream_ = nullptr;
   output_IOS_ = nullptr;

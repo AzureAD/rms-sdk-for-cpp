@@ -93,10 +93,7 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
 PDFWrapperDocImpl::~PDFWrapperDocImpl() {
   pdf_parser_.CloseParser();
 
-  wrapper_file_stream_.reset();
   wrapper_file_stream_ = nullptr;
-
-  wrapper_doc_.reset();
   wrapper_doc_ = nullptr;
 }
 
@@ -188,11 +185,9 @@ PDFUnencryptedWrapperCreatorImpl::PDFUnencryptedWrapperCreatorImpl(
 PDFUnencryptedWrapperCreatorImpl::~PDFUnencryptedWrapperCreatorImpl() {
   pdf_parser_.CloseParser();
 
-  wrapper_file_stream_.reset();
   wrapper_file_stream_ = nullptr;
 
   if (payload_file_stream_) {
-    payload_file_stream_.reset();
     payload_file_stream_ = nullptr;
   }
 

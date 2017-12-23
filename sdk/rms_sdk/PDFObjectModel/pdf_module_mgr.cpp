@@ -41,7 +41,6 @@ PDFModuleMgrImpl::~PDFModuleMgrImpl() {
 
 void PDFModuleMgrImpl::SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_handler) {
   if (shared_security_handler_) {
-    shared_security_handler_.reset();
     shared_security_handler_ = nullptr;
   }
   shared_security_handler_ = shared_security_handler;
