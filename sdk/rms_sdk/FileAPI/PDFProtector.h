@@ -34,10 +34,10 @@ namespace fileapi {
  * It is used to access to the stream data.
  * It is implemented by PDF protect, and it is invoked by PDF object model to access to the stream data.
  */
-class FDFDataStreamImpl : public pdfobjectmodel::PDFDataStream {
+class PDFDataStreamImpl : public pdfobjectmodel::PDFDataStream {
  public:
-  explicit FDFDataStreamImpl(rmscrypto::api::SharedStream ioStream);
-  virtual ~FDFDataStreamImpl();
+  explicit PDFDataStreamImpl(rmscrypto::api::SharedStream ioStream);
+  virtual ~PDFDataStreamImpl();
 
   virtual void Release();
 

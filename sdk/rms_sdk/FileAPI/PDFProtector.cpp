@@ -24,24 +24,24 @@ namespace rmscore {
 namespace fileapi {
 
 //////////////////////////////////////////////////////////////////////////
-// class FDFDataStreamImpl
-FDFDataStreamImpl::FDFDataStreamImpl(rmscrypto::api::SharedStream ioStream)
+// class PDFDataStreamImpl
+PDFDataStreamImpl::PDFDataStreamImpl(rmscrypto::api::SharedStream ioStream)
     : shared_io_stream_(ioStream) {
 
 }
 
-FDFDataStreamImpl::~FDFDataStreamImpl() {
+PDFDataStreamImpl::~PDFDataStreamImpl() {
 }
 
-void FDFDataStreamImpl::Release() {
+void PDFDataStreamImpl::Release() {
 }
 
-uint64_t FDFDataStreamImpl::GetSize() {
+uint64_t PDFDataStreamImpl::GetSize() {
   uint64_t size = shared_io_stream_->Size();
   return size;
 }
 
-bool FDFDataStreamImpl::IsEOF() {
+bool PDFDataStreamImpl::IsEOF() {
   uint64_t size = shared_io_stream_->Size();
   uint64_t pos = shared_io_stream_->Position();
   if (pos == size - 1) {
@@ -50,29 +50,29 @@ bool FDFDataStreamImpl::IsEOF() {
   return false;
 }
 
-uint64_t FDFDataStreamImpl::GetPosition() {
+uint64_t PDFDataStreamImpl::GetPosition() {
   uint64_t pos = shared_io_stream_->Position();
   return pos;
 }
 
-bool FDFDataStreamImpl::ReadBlock(void* buffer, uint64_t offset, uint64_t size) {
+bool PDFDataStreamImpl::ReadBlock(void* buffer, uint64_t offset, uint64_t size) {
   shared_io_stream_->Seek(offset);
   shared_io_stream_->Read(reinterpret_cast<unsigned char*>(buffer), size);
   return true;
 }
 
-uint64_t FDFDataStreamImpl::ReadBlock(void* buffer, uint64_t size) {
+uint64_t PDFDataStreamImpl::ReadBlock(void* buffer, uint64_t size) {
   int64_t read = shared_io_stream_->Read(reinterpret_cast<unsigned char*>(buffer), size);
   return read;
 }
 
-bool FDFDataStreamImpl::WriteBlock(const void* buffer, uint64_t offset, uint64_t size) {
+bool PDFDataStreamImpl::WriteBlock(const void* buffer, uint64_t offset, uint64_t size) {
   shared_io_stream_->Seek(offset);
   shared_io_stream_->Write(reinterpret_cast<const unsigned char*>(buffer), size);
   return true;
 }
 
-bool FDFDataStreamImpl::Flush() {
+bool PDFDataStreamImpl::Flush() {
   bool flush_result = shared_io_stream_->Flush();
   return flush_result;
 }
@@ -448,7 +448,7 @@ UnprotectResult PDFProtector::Unprotect(
   auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
 
   pdfobjectmodel::PDFSharedStream encrypted_pdf_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(input_encrypted);
+      std::make_shared<PDFDataStreamImpl>(input_encrypted);
   std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
       pdfobjectmodel::PDFWrapperDoc::Create(encrypted_pdf_shared_stream);
   uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
@@ -471,7 +471,7 @@ UnprotectResult PDFProtector::Unprotect(
   auto output_payload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
 
   pdfobjectmodel::PDFSharedStream payload_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(output_payload);
+      std::make_shared<PDFDataStreamImpl>(output_payload);
   bool bGetPayload = pdf_wrapper_doc->StartGetPayload(payload_shared_stream);
   FILEAPI_UNREFERENCED_PARAMETER(bGetPayload);
 
@@ -492,7 +492,7 @@ UnprotectResult PDFProtector::Unprotect(
       cancelstate);
 
   pdfobjectmodel::PDFSharedStream decrypted_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(output_decrypted);
+      std::make_shared<PDFDataStreamImpl>(output_decrypted);
   uint32_t result = pdf_creator_->UnprotectCustomEncryptedFile(
       payload_shared_stream,
       filter_name,
@@ -515,7 +515,7 @@ bool PDFProtector::IsProtected() const {
   std::shared_ptr<std::iostream> input_encrypted_IO = input_stream_;
   auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
   pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(input_encrypted);
+      std::make_shared<PDFDataStreamImpl>(input_encrypted);
 
   std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
       pdfobjectmodel::PDFWrapperDoc::Create(encrypted_shared_stream);
@@ -547,13 +547,13 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   std::shared_ptr<std::iostream> input_filedata_IO = input_stream_;
   auto input_filedata = rmscrypto::api::CreateStreamFromStdStream(input_filedata_IO);
   pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(input_filedata);
+      std::make_shared<PDFDataStreamImpl>(input_filedata);
 
   auto encryptedSS = std::make_shared<std::stringstream>();
   std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
   auto output_encrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
   pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(output_encrypted);
+      std::make_shared<PDFDataStreamImpl>(output_encrypted);
 
   std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
   std::string cache_file_path = original_file_path_;
@@ -587,7 +587,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   std::shared_ptr<std::iostream> input_wrapper_IO = input_wrapper_stream_;
   auto input_wrapper = rmscrypto::api::CreateStreamFromStdStream(input_wrapper_IO);
   pdfobjectmodel::PDFSharedStream wrapper_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(input_wrapper);
+      std::make_shared<PDFDataStreamImpl>(input_wrapper);
 
   pdf_wrapper_creator_ = pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(wrapper_shared_stream);
   pdf_wrapper_creator_->SetPayloadInfo(
@@ -600,7 +600,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   std::shared_ptr<std::iostream> outputIO = outputstream;
   auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
   pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
-      std::make_shared<FDFDataStreamImpl>(output_wrapper);
+      std::make_shared<PDFDataStreamImpl>(output_wrapper);
 
   bool result_create = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
   if (!result_create) {
