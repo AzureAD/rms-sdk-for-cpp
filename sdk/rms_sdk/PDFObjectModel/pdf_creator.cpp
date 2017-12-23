@@ -637,11 +637,11 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
 uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
     PDFSharedStream inputIOS,
     const std::string& filter_name,
-    std::shared_ptr<PDFSecurityHandler> security_hander,
+    std::shared_ptr<PDFSecurityHandler> security_handler,
     PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
 
-  PDFModuleMgrImpl::RegisterSecurityHandler(filter_name.c_str(), security_hander);
+  PDFModuleMgrImpl::RegisterSecurityHandler(filter_name.c_str(), security_handler);
 
   FileStreamImpl input_file_stream(inputIOS);
   CPDF_Parser pdf_parser;

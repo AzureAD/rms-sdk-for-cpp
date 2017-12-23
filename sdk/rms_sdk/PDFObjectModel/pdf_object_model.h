@@ -374,14 +374,14 @@ class PDFCreator {
    * password encryption or certificate encryption).
    * @param[in] inputIOS          The input custom encrypted PDF document.
    * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
-   * @param[in] security_hander    The securty handler used to check the validity and to create crypto hander for PDF data decryption.
+   * @param[in] security_handler    The securty handler used to check the validity and to create crypto hander for PDF data decryption.
    * @param[out] outputIOS        It receives the decrypted PDF documnet.
    * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
    */
   virtual uint32_t UnprotectCustomEncryptedFile(
       PDFSharedStream inputIOS,
       const std::string& filter_name,
-      std::shared_ptr<PDFSecurityHandler> security_hander,
+      std::shared_ptr<PDFSecurityHandler> security_handler,
       PDFSharedStream outputIOS) = 0;
 
   virtual ~PDFCreator(){}

@@ -397,12 +397,12 @@ UnprotectResult PDFProtector_unit::Unprotect(
     pdf_protector = nullptr;
     FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
-  auto security_hander = std::make_shared<PDFSecurityHandler_child>(shared_pdf_protector, userContext, options, cancelState);
+  auto security_handler = std::make_shared<PDFSecurityHandler_child>(shared_pdf_protector, userContext, options, cancelState);
 
   uint32_t result = pdf_creator_->UnprotectCustomEncryptedFile(
       payload_shared_stream,
       filter_name,
-      security_hander,
+      security_handler,
       decrypted_shared_stream);
   if (pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     throw exceptions::RMSPDFFileException("Failed to decrypt the file. The file may be corrupted.",

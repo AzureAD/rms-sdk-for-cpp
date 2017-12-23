@@ -191,7 +191,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile, UnprotectCustomEncryptedFile_T) 
   rmscore::fileapi::UserContext ut (CLIENTEMAIL, auth, consent);
   std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
   //*****************************************
-  auto security_hander = std::make_shared<fileapi::PDFSecurityHandler_child>(p_PDFprotector,ut,upt,cancelState);
+  auto security_handler = std::make_shared<fileapi::PDFSecurityHandler_child>(p_PDFprotector,ut,upt,cancelState);
   //**************************************************************
   std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_ = pdfobjectmodel::PDFCreator::Create();
   //****************
@@ -225,7 +225,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile, UnprotectCustomEncryptedFile_T) 
     ret = pdf_creator_->UnprotectCustomEncryptedFile(
         payload_shared_stream,
         filter_name,
-        security_hander,
+        security_handler,
         decrypted_shared_stream);
 
   }

@@ -162,7 +162,7 @@ class PDFCreatorImpl : public PDFCreator {
   virtual uint32_t UnprotectCustomEncryptedFile(
       PDFSharedStream inputIOS,
       const std::string& filter_name,
-      std::shared_ptr<PDFSecurityHandler> security_hander,
+      std::shared_ptr<PDFSecurityHandler> security_handler,
       PDFSharedStream outputIOS);
  protected:
     //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
