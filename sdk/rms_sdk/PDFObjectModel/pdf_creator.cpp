@@ -412,7 +412,7 @@ uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFileData
     const std::string& cache_file_path,
     const std::string& filter_name,
     const std::vector<unsigned char> &publishing_license,
-    std::shared_ptr<PDFCryptoHandler> crypto_hander,
+    std::shared_ptr<PDFCryptoHandler> crypto_handler,
     PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
   cache_file_path_ = cache_file_path;
@@ -425,7 +425,7 @@ uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFileData
   }
 
   CPDF_Dictionary* encryption_dictionary = CreateEncryptionDict(filter_name, publishing_license);
-  result = CreatePDFFile(&pdf_parser, encryption_dictionary, crypto_hander, outputIOS);
+  result = CreatePDFFile(&pdf_parser, encryption_dictionary, crypto_handler, outputIOS);
 
   if (encryption_dictionary) {
     encryption_dictionary->Release();
@@ -602,16 +602,16 @@ CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(
 uint32_t PDFCreatorImpl::CreatePDFFile(
     CPDF_Parser *pdf_parser,
     CPDF_Dictionary* encryption_dictionary,
-    std::shared_ptr<PDFCryptoHandler> crypto_hander,
+    std::shared_ptr<PDFCryptoHandler> crypto_handler,
     PDFSharedStream outputIOS) {
   uint32_t result = PDFCreatorErr::SUCCESS;
 
   CPDF_Document* pdf_document = pdf_parser->GetDocument();
   CPDF_Creator pdf_creator(pdf_document);
 
-  CustomCryptoHandler cryptoHandler(crypto_hander);
+  CustomCryptoHandler cryptoHandler(crypto_handler);
 
-  if (encryption_dictionary && crypto_hander) {
+  if (encryption_dictionary && crypto_handler) {
     FX_DWORD object_number = pdf_document->AddIndirectObject(encryption_dictionary);
     CPDF_Dictionary* trailer_dictionary = pdf_parser->GetTrailer();
     trailer_dictionary->SetAtReference("Encrypt", pdf_document, object_number);

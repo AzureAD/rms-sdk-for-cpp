@@ -462,13 +462,13 @@ void PDFProtector_unit::Protect(const std::shared_ptr<std::fstream>& output_stre
     FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
 
-  auto crypto_hander = std::make_shared<PDFCryptoHandler_child>(shared_pdf_protector);
+  auto crypto_handler = std::make_shared<PDFCryptoHandler_child>(shared_pdf_protector);
   uint32_t result = pdf_creator_->CreateCustomEncryptedFile(
       pdf_data_shared_stream,
       cache_file_path,
       filter_name,
       publishing_license,
-      crypto_hander,
+      crypto_handler,
       encrypted_shared_stream);
   if (pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     throw exceptions::RMSPDFFileException("Failed to encrypt the file. The file may be corrupted.",

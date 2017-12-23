@@ -156,7 +156,7 @@ class PDFCreatorImpl : public PDFCreator {
       const std::string& cache_file_path,
       const std::string& filter_name,
       const std::vector<unsigned char>& publishing_license,
-      std::shared_ptr<PDFCryptoHandler> crypto_hander,
+      std::shared_ptr<PDFCryptoHandler> crypto_handler,
       PDFSharedStream outputIOS);
 
   virtual uint32_t UnprotectCustomEncryptedFile(
@@ -174,7 +174,7 @@ class PDFCreatorImpl : public PDFCreator {
   uint32_t CreatePDFFile(
       CPDF_Parser* pdf_parser,
       CPDF_Dictionary *encryption_dictionary,
-      std::shared_ptr<PDFCryptoHandler> crypto_hander,
+      std::shared_ptr<PDFCryptoHandler> crypto_handler,
       PDFSharedStream outputIOS);
 
   CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name,

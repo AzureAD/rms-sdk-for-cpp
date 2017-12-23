@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 
 namespace rmscore {
 namespace pdfobjectmodel {
@@ -356,7 +357,7 @@ class PDFCreator {
    * @param[in] cache_file_path    The input cache file path when encrypting.
    * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
    * @param[in] publishing_license The publishing license stored in PDF file, according to "Microsoft IRM protection for PDF Spec-v2".
-   * @param[in] crypto_hander      The crypto handler that is responsible for PDF data encryption.
+   * @param[in] crypto_handler      The crypto handler that is responsible for PDF data encryption.
    * @param[out] outputIOS         It receives the encrypted PDF documnet.
    * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
    */
@@ -365,7 +366,7 @@ class PDFCreator {
       const std::string& cache_file_path,
       const std::string& filter_name,
       const std::vector<unsigned char>& publishing_license,
-      std::shared_ptr<PDFCryptoHandler> crypto_hander,
+      std::shared_ptr<PDFCryptoHandler> crypto_handler,
       PDFSharedStream outputIOS) = 0;
 
   /**
@@ -387,6 +388,31 @@ class PDFCreator {
 
  protected:
   PDFCreator(){}
+};
+
+/**
+ * @brief .
+ */
+class PDFMetadataCreator {
+ public:
+  DLL_PUBLIC_RMS
+  static std::unique_ptr<PDFMetadataCreator> RMS_CALLING_CONVENTION Create(
+      PDFSharedStream input_pdf_document_stream);
+
+  virtual std::string GetPDFVersion() = 0;
+
+  virtual void GetEntries(std::map<std::string, std::string>& entries) = 0;
+
+  virtual void RemoveEntry(std::string key) = 0;
+
+  virtual void AddEntry(const std::string& key, const std::string& value) = 0;
+
+  virtual bool Save(PDFSharedStream output_pdf_document_stream) = 0;
+
+  virtual ~PDFMetadataCreator(){}
+
+ protected:
+  PDFMetadataCreator(){}
 };
 
 } // namespace pdfobjectmodel

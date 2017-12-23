@@ -72,7 +72,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
   std::string originalFileExtension = ".pFile";
 
   auto p_PDFprotector = std::make_shared<fileapi::PDFProtector_unit>(fileIn, originalFileExtension, inFile);
-  auto crypto_hander = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
+  auto crypto_handler = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
 
   p_PDFprotector->SetUserPolicy(user_policy_);
 
@@ -94,7 +94,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
         cache_file_path,
         filter_name,
         publishing_license,
-        crypto_hander,
+        crypto_handler,
         encrypted_shared_stream);
   }
   catch (const rmsauth::Exception& e) {
@@ -482,7 +482,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
   std::string originalFileExtension = ".pFile";
 
   auto p_PDFprotector = std::make_shared<fileapi::PDFProtector_unit>(fileIn, originalFileExtension, inFile);
-  auto crypto_hander = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
+  auto crypto_handler = std::make_shared<fileapi::PDFCryptoHandler_child>(p_PDFprotector);
 
   p_PDFprotector->SetUserPolicy(user_policy_);
 
@@ -503,7 +503,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
       cache_file_path,
       filter_name,
       publishing_license,
-      crypto_hander,
+      crypto_handler,
       encrypted_shared_stream);
   if (ret!=pdfobjectmodel::PDFCreatorErr::SUCCESS) return;
   std::string wrapper_in= unittests::dependency::GetCurrentInputFile() +"Input/wrapper.pdf";

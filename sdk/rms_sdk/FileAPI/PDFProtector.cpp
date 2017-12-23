@@ -570,13 +570,13 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
     FILEAPI_UNREFERENCED_PARAMETER(pdf_protector);
   });
 
-  auto crypto_hander = std::make_shared<PDFCryptoHandlerImpl>(shared_pdf_protector);
+  auto crypto_handler = std::make_shared<PDFCryptoHandlerImpl>(shared_pdf_protector);
   uint32_t result = pdf_creator_->CreateCustomEncryptedFile(
       pdf_data_shared_stream,
       cache_file_path,
       filter_name,
       publishing_license,
-      crypto_hander,
+      crypto_handler,
       encrypted_shared_stream);
   if (pdfobjectmodel::PDFCreatorErr::SUCCESS != result) {
     logger::Logger::Error("Failed to encrypt the file. The file is invalid.");
