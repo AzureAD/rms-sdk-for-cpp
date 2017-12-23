@@ -23,7 +23,7 @@ PDFModuleMgrImpl::PDFModuleMgrImpl() {
   CPDF_ModuleMgr::Get()->SetCodecModule(pdf_codec_module_);
   pdf_module_manager_ = CPDF_ModuleMgr::Get();
 
-  shared_security_hander_ = nullptr;
+  shared_security_handler_ = nullptr;
 }
 
 PDFModuleMgrImpl::~PDFModuleMgrImpl() {
@@ -39,30 +39,30 @@ PDFModuleMgrImpl::~PDFModuleMgrImpl() {
   }
 }
 
-void PDFModuleMgrImpl::SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_hander) {
-  if (shared_security_hander_) {
-    shared_security_hander_.reset();
-    shared_security_hander_ = nullptr;
+void PDFModuleMgrImpl::SetSharedSecurityHandler(std::shared_ptr<PDFSecurityHandler> shared_security_handler) {
+  if (shared_security_handler_) {
+    shared_security_handler_.reset();
+    shared_security_handler_ = nullptr;
   }
-  shared_security_hander_ = shared_security_hander;
+  shared_security_handler_ = shared_security_handler;
 }
 std::shared_ptr<PDFSecurityHandler> PDFModuleMgrImpl::GetSharedSecurityHandler() {
-  return shared_security_hander_;
+  return shared_security_handler_;
 }
 
 static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param) {
   FX_UNREFERENCED_PARAMETER(param);
   PDFModuleMgrImpl* pdf_module_mgr = &PDFModuleMgrImpl::Instance();
-  std::shared_ptr<PDFSecurityHandler> security_hander = pdf_module_mgr->GetSharedSecurityHandler();
+  std::shared_ptr<PDFSecurityHandler> security_handler = pdf_module_mgr->GetSharedSecurityHandler();
   //core takes over custom_security_handler
-  CustomSecurityHandler* custom_security_handler = new CustomSecurityHandler(security_hander);
+  CustomSecurityHandler* custom_security_handler = new CustomSecurityHandler(security_handler);
   return custom_security_handler;
 }
 
-void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, std::shared_ptr<PDFSecurityHandler> security_hander) {
+void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, std::shared_ptr<PDFSecurityHandler> security_handler) {
   PDFModuleMgrImpl* pdf_module_mgr = &PDFModuleMgrImpl::Instance();
     
-  pdf_module_mgr->SetSharedSecurityHandler(security_hander);
+  pdf_module_mgr->SetSharedSecurityHandler(security_handler);
   pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
       filter_name.c_str(),
       CreateCustomerSecurityHandler,
