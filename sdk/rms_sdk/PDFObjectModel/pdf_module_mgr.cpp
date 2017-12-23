@@ -49,7 +49,7 @@ std::shared_ptr<PDFSecurityHandler> PDFModuleMgrImpl::GetSharedSecurityHandler()
   return shared_security_handler_;
 }
 
-static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param) {
+static CPDF_SecurityHandler* CreateCustomSecurityHandler(void* param) {
   FX_UNREFERENCED_PARAMETER(param);
   PDFModuleMgrImpl* pdf_module_mgr = &PDFModuleMgrImpl::Instance();
   std::shared_ptr<PDFSecurityHandler> security_handler = pdf_module_mgr->GetSharedSecurityHandler();
@@ -64,7 +64,7 @@ void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, s
   pdf_module_mgr->SetSharedSecurityHandler(security_handler);
   pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
       filter_name.c_str(),
-      CreateCustomerSecurityHandler,
+      CreateCustomSecurityHandler,
       nullptr);
 }
 
