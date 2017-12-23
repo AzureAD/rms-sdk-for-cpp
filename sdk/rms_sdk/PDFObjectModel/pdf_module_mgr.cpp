@@ -11,14 +11,8 @@
 namespace rmscore {
 namespace pdfobjectmodel {
 
-static std::unique_ptr<PDFModuleMgr> g_pdf_module_mgr = nullptr;
-
-PDFModuleMgrImpl* PDFModuleMgrImpl::instance_= nullptr;
 bool PDFModuleMgr::Initialize() {
-  if (g_pdf_module_mgr == nullptr) {
-    g_pdf_module_mgr.reset(PDFModuleMgrImpl::Instance());
-  }
-
+  PDFModuleMgrImpl::Instance();
   return true;
 }
 
@@ -58,7 +52,7 @@ std::shared_ptr<PDFSecurityHandler> PDFModuleMgrImpl::GetSharedSecurityHandler()
 
 static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param) {
   FX_UNREFERENCED_PARAMETER(param);
-  PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
+  PDFModuleMgrImpl* pdf_module_mgr = &PDFModuleMgrImpl::Instance();
   std::shared_ptr<PDFSecurityHandler> security_hander = pdf_module_mgr->GetSharedSecurityHandler();
   //core takes over custom_security_handler
   CustomSecurityHandler* custom_security_handler = new CustomSecurityHandler(security_hander);
@@ -66,27 +60,22 @@ static CPDF_SecurityHandler* CreateCustomerSecurityHandler(void* param) {
 }
 
 void PDFModuleMgrImpl::RegisterSecurityHandler(const std::string& filter_name, std::shared_ptr<PDFSecurityHandler> security_hander) {
-  if (g_pdf_module_mgr != nullptr) {
-    PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
+  PDFModuleMgrImpl* pdf_module_mgr = &PDFModuleMgrImpl::Instance();
     
-    pdf_module_mgr->SetSharedSecurityHandler(security_hander);
-    pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
-        filter_name.c_str(),
-        CreateCustomerSecurityHandler,
-        nullptr);
-  }
+  pdf_module_mgr->SetSharedSecurityHandler(security_hander);
+  pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
+      filter_name.c_str(),
+      CreateCustomerSecurityHandler,
+      nullptr);
 }
 
 void PDFModuleMgrImpl::UnRegisterSecurityHandler(const std::string& filter_name) {
-  if (g_pdf_module_mgr != nullptr) {
-    PDFModuleMgrImpl* pdf_module_mgr = (PDFModuleMgrImpl*)g_pdf_module_mgr.get();
-
-    pdf_module_mgr->SetSharedSecurityHandler(nullptr);
-    pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
+  PDFModuleMgrImpl* pdf_module_mgr = &PDFModuleMgrImpl::Instance();
+  pdf_module_mgr->SetSharedSecurityHandler(nullptr);
+  pdf_module_mgr->pdf_module_manager_->RegisterSecurityHandler(
       filter_name.c_str(),
       nullptr,
       nullptr);
-}
 }
 
 } // namespace pdfobjectmodel
