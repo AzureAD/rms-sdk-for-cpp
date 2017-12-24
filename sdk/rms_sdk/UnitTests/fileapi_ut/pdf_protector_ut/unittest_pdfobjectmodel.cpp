@@ -1,15 +1,9 @@
 #include "unittest_pdfobjectmodel.h"
 #include "Auth.h"
-#include "depend.h"
-#include "PDFObjectModel/pdf_object_model.h"
 #include "UserPolicy.h"
 #include "PDFProtector_child.h"
 #include "PFileProtector.h"
 #include "Core/ProtectionPolicy.h"
-
-namespace pdfobjectmodel = rmscore::pdfobjectmodel;
-namespace fileapi = rmscore::fileapi;
-namespace modernapi = rmscore::modernapi;
 
 static std::shared_ptr<modernapi::UserPolicy> user_policy_;
 static void SetUserPolicy() {
@@ -87,7 +81,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
   pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
       std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_filedata);
 
-  uint32_t ret;
+  pdfobjectmodel::PDFCreatorErr ret;
   try {
     ret = pdf_creator_->CreateCustomEncryptedFile(
         pdf_data_shared_stream,
@@ -113,7 +107,7 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
     return;
   }
   EXPECT_EQ(TParam.ret, ret);
-  if (ret==pdfobjectmodel::PDFCreatorErr::SUCCESS) {
+  if (ret == pdfobjectmodel::PDFCreatorErr::SUCCESS) {
 
     std::string wrapper_in = unittests::dependency::GetCurrentInputFile() + "Input/wrapper.pdf";
 
@@ -220,7 +214,7 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile, UnprotectCustomEncryptedFile_T) 
  pdf_wrapper_doc->StartGetPayload(payload_shared_stream);
   //******************
 
-  uint32_t ret ;
+  pdfobjectmodel::PDFCreatorErr ret;
   try {
     ret = pdf_creator_->UnprotectCustomEncryptedFile(
         payload_shared_stream,
@@ -279,7 +273,7 @@ TEST_P(PDFWrapperDoc_GetWrapperType,GetWrapperType_T) {
     std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
         pdfobjectmodel::PDFWrapperDoc::Create(encrypted_shared_stream);
 
-    ret = pdf_wrapper_doc->GetWrapperType();
+    ret = static_cast<uint32_t>(pdf_wrapper_doc->GetWrapperType());
   }
   catch(const rmsauth::Exception& e) {
     std::string message(e.what());
@@ -497,8 +491,7 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
   pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
       std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_filedata);
 
-  uint32_t ret;
-  ret = pdf_creator_->CreateCustomEncryptedFile(
+  pdfobjectmodel::PDFCreatorErr ret = pdf_creator_->CreateCustomEncryptedFile(
       pdf_data_shared_stream,
       cache_file_path,
       filter_name,

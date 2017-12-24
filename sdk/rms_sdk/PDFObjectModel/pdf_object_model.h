@@ -124,7 +124,7 @@ typedef std::shared_ptr<PDFDataStream> PDFSharedStream;
 /**
  * @brief The type definitions of PDF wrapper doc.
  */
-enum PDFWrapperDocType{
+enum class PDFWrapperDocType{
   UNKNOWN = -1, /** Unknown. */
   NORMAL,   /** Normal document. */
   IRMV1,    /** For IRM V1 wrapper document. */
@@ -151,10 +151,9 @@ class PDFWrapperDoc {
 
   /**
    * @brief Gets the wrapper type.
-   * @return PDFWRAPPERDOC_TYPE_IRMV2 for PDF IRM V2 format.
-   * PDFWRAPPERDOC_TYPE_IRMV1 for PDF IRM V1 format.
+   * @return Refers to definition of PDFWrapperDocType.
    */
-  virtual uint32_t GetWrapperType() const = 0;
+  virtual PDFWrapperDocType GetWrapperType() const = 0;
 
   /**
    * @brief Gets the cryptographic filter name and version.
@@ -330,7 +329,7 @@ class PDFSecurityHandler {
 /**
  * @brief The error code definitions for PDFCreator.
  */
-enum PDFCreatorErr{
+enum class PDFCreatorErr{
   SUCCESS = 0, /*No error.*/
   FILE, /*File error: not found or could not be opened.*/
   FORMAT, /*Format error: not a PDF or corrupted.*/
@@ -359,9 +358,9 @@ class PDFCreator {
    * @param[in] publishing_license The publishing license stored in PDF file, according to "Microsoft IRM protection for PDF Spec-v2".
    * @param[in] crypto_handler      The crypto handler that is responsible for PDF data encryption.
    * @param[out] outputIOS         It receives the encrypted PDF documnet.
-   * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
+   * @return PDFCreatorErr::SUCCESS for success, otherwise the other error code.
    */
-  virtual uint32_t CreateCustomEncryptedFile(
+  virtual PDFCreatorErr CreateCustomEncryptedFile(
       PDFSharedStream inputFileData,
       const std::string& cache_file_path,
       const std::string& filter_name,
@@ -376,9 +375,9 @@ class PDFCreator {
    * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
    * @param[in] security_handler    The securty handler used to check the validity and to create crypto hander for PDF data decryption.
    * @param[out] outputIOS        It receives the decrypted PDF documnet.
-   * @return PDFCREATOR_ERR_SUCCESS for success, otherwise the other error code.
+   * @return PDFCreatorErr::SUCCESS for success, otherwise the other error code.
    */
-  virtual uint32_t UnprotectCustomEncryptedFile(
+  virtual PDFCreatorErr UnprotectCustomEncryptedFile(
       PDFSharedStream inputIOS,
       const std::string& filter_name,
       std::shared_ptr<PDFSecurityHandler> security_handler,

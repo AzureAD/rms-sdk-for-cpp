@@ -24,7 +24,7 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
   explicit PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream);
   virtual ~PDFWrapperDocImpl();
 
-  virtual uint32_t GetWrapperType() const;
+  virtual PDFWrapperDocType GetWrapperType() const;
 
   virtual bool GetCryptographicFilter(std::wstring& graphic_filter, float &version_num) const;
 
@@ -44,7 +44,7 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
   //this is just for IRM V2. we have to parse IRM V1 self.
   std::shared_ptr<CPDF_WrapperDoc> wrapper_doc_;
 
-  uint32_t wrapper_type_;
+  PDFWrapperDocType wrapper_type_;
   std::wstring graphic_filter_;
   float version_number_;
   uint32_t payload_size_;

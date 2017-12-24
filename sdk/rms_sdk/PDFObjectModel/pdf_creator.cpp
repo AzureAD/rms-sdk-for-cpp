@@ -408,13 +408,13 @@ PDFCreatorImpl::~PDFCreatorImpl() {
 
 }
 
-uint32_t PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFileData,
+PDFCreatorErr PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFileData,
     const std::string& cache_file_path,
     const std::string& filter_name,
     const std::vector<unsigned char> &publishing_license,
     std::shared_ptr<PDFCryptoHandler> crypto_handler,
     PDFSharedStream outputIOS) {
-  uint32_t result = PDFCreatorErr::SUCCESS;
+  PDFCreatorErr result = PDFCreatorErr::SUCCESS;
   cache_file_path_ = cache_file_path;
 
   std::shared_ptr<FileStreamImpl> shared_file_stream = std::make_shared<FileStreamImpl>(inputFileData);
@@ -507,8 +507,8 @@ bool PDFCreatorImpl::IsDynamicXFA(CPDF_Parser *pdf_parser) {
   return false;
 }
 
-uint32_t PDFCreatorImpl::ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser *pdf_parser) {
-  uint32_t result = PDFCreatorErr::SUCCESS;
+PDFCreatorErr PDFCreatorImpl::ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser *pdf_parser) {
+  PDFCreatorErr result = PDFCreatorErr::SUCCESS;
 
   FX_DWORD parse_result = pdf_parser->StartParse(fileAccess);
   result = ConvertParsingErrCode(parse_result);
@@ -533,8 +533,8 @@ uint32_t PDFCreatorImpl::ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser *pdf
   return result;
 }
 
-uint32_t PDFCreatorImpl::ConvertParsingErrCode(FX_DWORD parse_result) {
-  uint32_t result = PDFCreatorErr::SUCCESS;
+PDFCreatorErr PDFCreatorImpl::ConvertParsingErrCode(FX_DWORD parse_result) {
+  PDFCreatorErr result = PDFCreatorErr::SUCCESS;
   switch (parse_result) {
     case PDFPARSE_ERROR_SUCCESS: {
       result = PDFCreatorErr::SUCCESS;
@@ -599,12 +599,12 @@ CPDF_Dictionary* PDFCreatorImpl::CreateEncryptionDict(
   return encryption_dictionary;
 }
 
-uint32_t PDFCreatorImpl::CreatePDFFile(
+PDFCreatorErr PDFCreatorImpl::CreatePDFFile(
     CPDF_Parser *pdf_parser,
     CPDF_Dictionary* encryption_dictionary,
     std::shared_ptr<PDFCryptoHandler> crypto_handler,
     PDFSharedStream outputIOS) {
-  uint32_t result = PDFCreatorErr::SUCCESS;
+  PDFCreatorErr result = PDFCreatorErr::SUCCESS;
 
   CPDF_Document* pdf_document = pdf_parser->GetDocument();
   CPDF_Creator pdf_creator(pdf_document);
@@ -634,12 +634,12 @@ uint32_t PDFCreatorImpl::CreatePDFFile(
   return result;
 }
 
-uint32_t PDFCreatorImpl::UnprotectCustomEncryptedFile(
+PDFCreatorErr PDFCreatorImpl::UnprotectCustomEncryptedFile(
     PDFSharedStream inputIOS,
     const std::string& filter_name,
     std::shared_ptr<PDFSecurityHandler> security_handler,
     PDFSharedStream outputIOS) {
-  uint32_t result = PDFCreatorErr::SUCCESS;
+  PDFCreatorErr result = PDFCreatorErr::SUCCESS;
 
   PDFModuleMgrImpl::RegisterSecurityHandler(filter_name.c_str(), security_handler);
 

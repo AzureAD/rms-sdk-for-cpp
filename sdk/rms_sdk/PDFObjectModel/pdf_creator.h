@@ -151,7 +151,7 @@ class PDFCreatorImpl : public PDFCreator {
   explicit PDFCreatorImpl();
   virtual ~PDFCreatorImpl();
 
-  virtual uint32_t CreateCustomEncryptedFile(
+  virtual PDFCreatorErr CreateCustomEncryptedFile(
       PDFSharedStream inputFileData,
       const std::string& cache_file_path,
       const std::string& filter_name,
@@ -159,7 +159,7 @@ class PDFCreatorImpl : public PDFCreator {
       std::shared_ptr<PDFCryptoHandler> crypto_handler,
       PDFSharedStream outputIOS);
 
-  virtual uint32_t UnprotectCustomEncryptedFile(
+  virtual PDFCreatorErr UnprotectCustomEncryptedFile(
       PDFSharedStream inputIOS,
       const std::string& filter_name,
       std::shared_ptr<PDFSecurityHandler> security_handler,
@@ -170,8 +170,8 @@ class PDFCreatorImpl : public PDFCreator {
   bool IsSigned(CPDF_Parser *pdf_parser);
   bool IsDynamicXFA(CPDF_Parser *pdf_parser);
 
-  uint32_t ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser* pdf_parser);
-  uint32_t CreatePDFFile(
+  PDFCreatorErr ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser* pdf_parser);
+  PDFCreatorErr CreatePDFFile(
       CPDF_Parser* pdf_parser,
       CPDF_Dictionary *encryption_dictionary,
       std::shared_ptr<PDFCryptoHandler> crypto_handler,
@@ -179,7 +179,7 @@ class PDFCreatorImpl : public PDFCreator {
 
   CPDF_Dictionary* CreateEncryptionDict(const std::string& filter_name,
                                         const std::vector<unsigned char>& publishing_license);
-  uint32_t ConvertParsingErrCode(FX_DWORD parse_result);
+  PDFCreatorErr ConvertParsingErrCode(FX_DWORD parse_result);
 
  private:
   std::string cache_file_path_;

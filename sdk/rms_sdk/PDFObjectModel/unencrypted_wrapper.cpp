@@ -29,7 +29,7 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
     CPDF_Document* pdf_document = pdf_parser_.GetDocument();
     wrapper_doc_ = std::make_shared<CPDF_WrapperDoc>(pdf_document);
 
-    wrapper_type_ = wrapper_doc_->GetWrapperType();
+    wrapper_type_ = static_cast<PDFWrapperDocType>(wrapper_doc_->GetWrapperType());
     if (wrapper_type_ == PDFWrapperDocType::IRMV1) {
       CPDF_Dictionary* trailer_dictionary = pdf_parser_.GetTrailer();
       CPDF_Dictionary* wrapper_dictionary = trailer_dictionary->GetDict(IRMV1_WRAPPER_DICTIONARY);
@@ -53,11 +53,11 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
     } else {
       bool isPasswordProtected = IsProtectedByPassword(&pdf_parser_);
       if (isPasswordProtected) {
-        wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
+        wrapper_type_ = PDFWrapperDocType::NOT_IRM_ENCRYPTED;
       }
       bool isSigned = IsSigned(&pdf_parser_);
       if (isSigned) {
-        wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::DIGITALLY_SIGNED);
+        wrapper_type_ = PDFWrapperDocType::DIGITALLY_SIGNED;
       }
     }
   } else if (PDFPARSE_ERROR_HANDLER == parse_result) {
@@ -80,13 +80,13 @@ PDFWrapperDocImpl::PDFWrapperDocImpl(PDFSharedStream wrapper_doc_stream) {
           is_irmv2_without_wrapper = true;
         }
       } else {
-        wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
+        wrapper_type_ = PDFWrapperDocType::NOT_IRM_ENCRYPTED;
       }
   } else if (PDFPARSE_ERROR_PASSWORD == parse_result ||
              PDFPARSE_ERROR_CERT == parse_result) {
-    wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_IRM_ENCRYPTED);
+    wrapper_type_ = PDFWrapperDocType::NOT_IRM_ENCRYPTED;
   } else {
-    wrapper_type_ = static_cast<uint32_t>(PDFWrapperDocType::NOT_COMPATIBLE_WITH_IRM);
+    wrapper_type_ = PDFWrapperDocType::NOT_COMPATIBLE_WITH_IRM;
   }
 }
 
@@ -97,7 +97,7 @@ PDFWrapperDocImpl::~PDFWrapperDocImpl() {
   wrapper_doc_ = nullptr;
 }
 
-uint32_t PDFWrapperDocImpl::GetWrapperType() const {
+PDFWrapperDocType PDFWrapperDocImpl::GetWrapperType() const {
   return wrapper_type_;
 }
 

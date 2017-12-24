@@ -451,7 +451,7 @@ UnprotectResult PDFProtector::Unprotect(
       std::make_shared<PDFDataStreamImpl>(input_encrypted);
   std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
       pdfobjectmodel::PDFWrapperDoc::Create(encrypted_pdf_shared_stream);
-  uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
+  pdfobjectmodel::PDFWrapperDocType wrapper_type = pdf_wrapper_doc->GetWrapperType();
   uint32_t payload_size = pdf_wrapper_doc->GetPayLoadSize();
   std::wstring graphic_filter;
   float version_num = 0;
@@ -493,7 +493,7 @@ UnprotectResult PDFProtector::Unprotect(
 
   pdfobjectmodel::PDFSharedStream decrypted_shared_stream =
       std::make_shared<PDFDataStreamImpl>(output_decrypted);
-  uint32_t result = pdf_creator_->UnprotectCustomEncryptedFile(
+  pdfobjectmodel::PDFCreatorErr result = pdf_creator_->UnprotectCustomEncryptedFile(
       payload_shared_stream,
       filter_name,
       security_handler,
@@ -519,7 +519,7 @@ bool PDFProtector::IsProtected() const {
 
   std::unique_ptr<pdfobjectmodel::PDFWrapperDoc> pdf_wrapper_doc =
       pdfobjectmodel::PDFWrapperDoc::Create(encrypted_shared_stream);
-  uint32_t wrapper_type = pdf_wrapper_doc->GetWrapperType();
+  pdfobjectmodel::PDFWrapperDocType wrapper_type = pdf_wrapper_doc->GetWrapperType();
   uint32_t payload_size = pdf_wrapper_doc->GetPayLoadSize();
   std::wstring graphic_filter;
   float version_num = 0;
@@ -565,7 +565,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   });
 
   auto crypto_handler = std::make_shared<PDFCryptoHandlerImpl>(shared_pdf_protector);
-  uint32_t result = pdf_creator_->CreateCustomEncryptedFile(
+  pdfobjectmodel::PDFCreatorErr result = pdf_creator_->CreateCustomEncryptedFile(
       pdf_data_shared_stream,
       cache_file_path,
       filter_name,

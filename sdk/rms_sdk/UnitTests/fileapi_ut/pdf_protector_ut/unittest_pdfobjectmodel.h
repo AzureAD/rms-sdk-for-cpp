@@ -2,8 +2,13 @@
 #define RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_UNITTEST_PDFOBJECTMODEL_H_
 
 #include "depend.h"
+#include "PDFObjectModel/pdf_object_model.h"
 #include <string>
 #include <memory>
+
+namespace pdfobjectmodel = rmscore::pdfobjectmodel;
+namespace fileapi = rmscore::fileapi;
+namespace modernapi = rmscore::modernapi;
 
 struct CreateCustomEncryptedFile_P {
   CreateCustomEncryptedFile_P(
@@ -11,7 +16,7 @@ struct CreateCustomEncryptedFile_P {
       std::string fileout_,
       std::string filterName_,
       std::string ExceptionsMess_,
-      uint32_t ret_) {
+      pdfobjectmodel::PDFCreatorErr ret_) {
     fileIn = fileIn_;
     fileout =fileout_;
     filter_name = filterName_;
@@ -22,7 +27,7 @@ struct CreateCustomEncryptedFile_P {
   std::string fileout;
   std::string filter_name;
   std::string ExceptionsMess;
-  uint32_t ret;
+  pdfobjectmodel::PDFCreatorErr ret;
 };
 
 class PDFCreator_CreateCustomEncryptedFile : public ::testing::TestWithParam<CreateCustomEncryptedFile_P> {
@@ -37,7 +42,7 @@ struct UnprotectCustomEncryptedFile_P {
       std::string fileout_,
       std::string filterName_,
       std::string Exceptionmess_,
-      uint32_t ret_) {
+      pdfobjectmodel::PDFCreatorErr ret_) {
     fileIn = fileIn_;
     fileout =fileout_;
     filter_name = filterName_;
@@ -49,7 +54,7 @@ struct UnprotectCustomEncryptedFile_P {
   std::string fileout;
   std::string filter_name;
   std::string ExceptionsMess;
-  uint32_t ret;
+  pdfobjectmodel::PDFCreatorErr ret;
 };
 
 class PDFCreator_UnprotectCustomEncryptedFile:public ::testing::TestWithParam<UnprotectCustomEncryptedFile_P> {
