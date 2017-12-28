@@ -119,10 +119,9 @@ bool PDFWrapperDocImpl::GetPayloadFileName(std::wstring& file_name) const {
 
 bool PDFWrapperDocImpl::StartGetPayload(PDFSharedStream output_stream) {
   if (wrapper_type_ == PDFWrapperDocType::IRMV1 || is_irmv2_without_wrapper) {
-    uint8_t* buffer_pointer_temp = new uint8_t[payload_size_];
-    wrapper_file_stream_->ReadBlock(buffer_pointer_temp, 0, payload_size_);
-    output_stream->WriteBlock(buffer_pointer_temp, 0, static_cast<uint64_t>(payload_size_));
-    delete [] buffer_pointer_temp;
+    std::vector<uint8_t> vec_payload(payload_size_);
+    wrapper_file_stream_->ReadBlock(reinterpret_cast<uint8_t *>(&vec_payload[0]), 0, payload_size_);
+    output_stream->WriteBlock(reinterpret_cast<uint8_t *>(&vec_payload[0]), 0, static_cast<uint64_t>(payload_size_));
   } else if (wrapper_type_ == PDFWrapperDocType::IRMV2) {
     if (!wrapper_doc_) return false;
     FileStreamImpl output_file_stream(output_stream);
