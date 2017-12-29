@@ -152,7 +152,7 @@ CustomProgressiveEncryptHandler::~CustomProgressiveEncryptHandler() {
 
 IFX_FileStream* CustomProgressiveEncryptHandler::GetTempFile() {
   CFX_WideString path = temp_path_;
-  IFX_FileStream*	file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
+  IFX_FileStream* file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
   return file_stream;
 }
 

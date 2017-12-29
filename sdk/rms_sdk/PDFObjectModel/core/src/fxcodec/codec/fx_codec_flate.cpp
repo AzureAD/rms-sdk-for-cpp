@@ -69,6 +69,50 @@ extern "C"
     {
         compress(dest_buf, dest_size, src_buf, src_size);
     }
+	void* FPDFAPI_DeflateInit(void* (*alloc_func)(void*, unsigned int, unsigned int),
+		void(*free_func)(void*, void*))
+	{
+		z_stream* stream = (z_stream*)alloc_func(NULL, 1, sizeof(z_stream));
+		FXSYS_memset32(stream, 0, sizeof(z_stream));
+		stream->zalloc = alloc_func;
+		stream->zfree = free_func;
+		int err = deflateInit(stream, Z_DEFAULT_COMPRESSION);
+		if (err != Z_OK) {
+			stream->zfree(0, stream);
+			stream = NULL;
+		}
+		return stream;
+	}
+
+	void FPDFAPI_DeflateInput(void* context, const unsigned char* src_buf, unsigned int src_size)
+	{
+		((z_stream*)context)->next_in = (unsigned char*)src_buf;
+		((z_stream*)context)->avail_in = src_size;
+	}
+
+	int FPDFAPI_DeflateOutput(void* context, unsigned char* dest_buf, unsigned int* dest_size, FX_BOOL bLast)
+	{
+		z_stream* stream = (z_stream*)context;
+
+		stream->next_out = dest_buf;
+		stream->avail_out = *dest_size;
+		int total_out = stream->total_out;
+
+		int ret = deflate(stream, bLast ? Z_FINISH : Z_NO_FLUSH);
+		*dest_size = stream->total_out - total_out;
+		return ret;
+	}
+
+	int FPDFAPI_DeflateGetAvailOut(void* context)
+	{
+		return ((z_stream*)context)->avail_out;
+	}
+
+	void FPDFAPI_DeflateEnd(void* context)
+	{
+		deflateEnd((z_stream*)context);
+		((z_stream*)context)->zfree(0, context);
+	}
 }
 class CLZWDecoder : public CFX_Object
 {

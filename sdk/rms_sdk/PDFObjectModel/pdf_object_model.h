@@ -229,10 +229,12 @@ class PDFUnencryptedWrapperCreator {
 
   /**
    * @brief Writes the wrapper doc to a custom file access.
+   * @param[in] cache_file_path The input cache file path if the payload content is large.
+   * Set it empty if you don't want to create the cache file.
    * @param[out] output_stream  It receives the wrapper doc.
    * @return true for success, otherwise false.
    */
-  virtual bool CreateUnencryptedWrapper(PDFSharedStream output_stream) = 0;
+  virtual bool CreateUnencryptedWrapper(const std::string& cache_file_path, PDFSharedStream output_stream) = 0;
 
   virtual ~PDFUnencryptedWrapperCreator(){}
 

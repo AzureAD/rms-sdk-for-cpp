@@ -223,11 +223,53 @@ void PDFUnencryptedWrapperCreatorImpl::SetPayLoad(PDFSharedStream input_stream) 
   pdf_wrapper_creator_->SetPayLoad(payload_file_stream_.get());
 }
 
-bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(PDFSharedStream output_stream) {
+bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(const std::string& cache_file_path, PDFSharedStream output_stream) {
   if (!pdf_wrapper_creator_) return false;
   FileStreamImpl output_file_stream(output_stream);
-  pdf_wrapper_creator_->Create(&output_file_stream);
+
+  CFX_ByteString file_path_bytestring = cache_file_path.c_str();
+  CFX_WideString file_path_widestring = file_path_bytestring.UTF8Decode();
+  CPDF_CreatorOptionImpl creator_option(file_path_widestring);
+  if (!cache_file_path.empty()) {
+    pdf_wrapper_creator_->SetCreatorOption(&creator_option);
+  }
+
+  FX_BOOL bCreate = pdf_wrapper_creator_->Create(&output_file_stream, FPDFCREATE_PROGRESSIVE);
+  if (bCreate) {
+    FX_INT32 continue_count = 0;
+    do {
+      continue_count = pdf_wrapper_creator_->Continue();
+    } while (continue_count != 0);
+  }
   return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// class CPDF_CreatorOptionImpl
+CPDF_CreatorOptionImpl::CPDF_CreatorOptionImpl(const CFX_WideString& temp_path) {
+  temp_path_ = temp_path;
+}
+
+CPDF_CreatorOptionImpl::~CPDF_CreatorOptionImpl() {
+
+}
+
+IFX_FileStream* CPDF_CreatorOptionImpl::GetTempFile(CPDF_Object* pObj) {
+  FX_UNREFERENCED_PARAMETER(pObj);
+  CFX_WideString path = temp_path_;
+  IFX_FileStream* file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
+  return file_stream;
+}
+
+void CPDF_CreatorOptionImpl::ReleaseTempFile(IFX_FileStream* file_stream) {
+  if (file_stream) {
+    file_stream->Release();
+
+    CFX_WideString path = temp_path_;
+
+    CFX_ByteString utf8_path = path.UTF8Encode();
+    std::remove((const char *)(FX_LPCSTR)utf8_path);
+  }
 }
 
 } // namespace pdfobjectmodel

@@ -596,6 +596,164 @@ FX_BOOL CPDF_EncodeEncryptor::Initialize(CPDF_Stream* pStream, FX_BOOL bFlateEnc
     m_pDict->SetAtInteger(FX_BSTRC("Length"), m_pTempFile->GetSize() - m_Pos);
     return TRUE;
 }
+extern "C" {
+	static void* my_alloc_func(void* opaque, unsigned int items, unsigned int size)
+	{
+        FX_UNREFERENCED_PARAMETER(opaque);
+		return FX_Alloc(FX_BYTE, items * size);
+	}
+
+	static void   my_free_func(void* opaque, void* address)
+	{
+        FX_UNREFERENCED_PARAMETER(opaque);
+		FX_Free(address);
+	}
+	void* FPDFAPI_DeflateInit(void* (*alloc_func)(void*, unsigned int, unsigned int),
+		void(*free_func)(void*, void*));
+	void FPDFAPI_DeflateInput(void* context, const unsigned char* src_buf, unsigned int src_size);
+	int FPDFAPI_DeflateOutput(void* context, unsigned char* dest_buf, unsigned int* dest_size, FX_BOOL bLast);
+	int FPDFAPI_DeflateGetAvailOut(void* context);
+	void FPDFAPI_DeflateEnd(void* context);
+};
+class CPDF_EncodeWithOption
+{
+public:
+	CPDF_EncodeWithOption();
+	~CPDF_EncodeWithOption();
+
+	FX_BOOL				Initialize(CPDF_Stream* pStream, FX_BOOL bFlateEncode, FX_DWORD objnum, CPDF_CreatorOption* pOption);
+
+	FX_BOOL				StartEncoding();
+	void				ContinueEncoding(FX_LPCBYTE pBuffer, FX_DWORD size);
+	void				EndEncoding();
+
+	IFX_FileStream*		m_pTempFile;
+	FX_BOOL				m_bOwnerFile;
+	FX_FILESIZE			m_Pos;
+	CPDF_Dictionary*	m_pDict;
+	CPDF_CreatorOption*	m_pOption;
+	FX_LPVOID			m_DeflateContext;
+	FX_LPBYTE			m_OutBuffer;
+	FX_DWORD			m_OutSize;
+};
+
+CPDF_EncodeWithOption::CPDF_EncodeWithOption()
+	: m_pTempFile(NULL)
+	, m_bOwnerFile(FALSE)
+	, m_Pos(0)
+	, m_pDict(NULL)
+	, m_pOption(NULL)
+	, m_DeflateContext(NULL)
+	, m_OutBuffer(NULL)
+	, m_OutSize(0)
+{
+}
+
+CPDF_EncodeWithOption::~CPDF_EncodeWithOption()
+{
+	if (m_pTempFile && m_pOption) {
+		if (m_bOwnerFile)
+			m_pTempFile->Release();
+		else
+			m_pOption->ReleaseTempFile(m_pTempFile);
+	}
+	if (m_pDict) m_pDict->Release();
+}
+
+FX_BOOL	CPDF_EncodeWithOption::StartEncoding()
+{
+	m_DeflateContext = FPDFAPI_DeflateInit(my_alloc_func, my_free_func);
+	return m_DeflateContext != NULL;
+}
+
+void CPDF_EncodeWithOption::ContinueEncoding(FX_LPCBYTE src_buf, FX_DWORD src_size)
+{
+	if (!m_DeflateContext) {
+		m_pTempFile->WriteBlock(src_buf, src_size);
+		return;
+	}
+	FX_DWORD size_out = src_size + src_size / 1000 + 12;
+	if (!m_OutBuffer)
+		m_OutBuffer = FX_Alloc(FX_BYTE, size_out);
+	else if (m_OutSize < size_out) {
+		FX_Free(m_OutBuffer);
+		m_OutBuffer = FX_Alloc(FX_BYTE, size_out);
+	}
+	if (m_OutSize < size_out) m_OutSize = size_out;
+	if (!m_OutBuffer) return;
+
+	FPDFAPI_DeflateInput(m_DeflateContext, src_buf, src_size);
+	int ret = 0;
+	do {
+		unsigned int size_dst = m_OutSize;
+		ret = FPDFAPI_DeflateOutput(m_DeflateContext, m_OutBuffer, &size_dst, FALSE);
+		if (size_dst > 0) m_pTempFile->WriteBlock(m_OutBuffer, size_dst);
+
+	} while (ret == 0 && FPDFAPI_DeflateGetAvailOut(m_DeflateContext) == 0);
+}
+
+void CPDF_EncodeWithOption::EndEncoding()
+{
+	if (m_DeflateContext) {
+		FPDFAPI_DeflateInput(m_DeflateContext, NULL, 0);
+		int ret = 0;
+		do {
+			unsigned int size_dst = m_OutSize;
+			ret = FPDFAPI_DeflateOutput(m_DeflateContext, m_OutBuffer, &size_dst, TRUE);
+			if (size_dst > 0) m_pTempFile->WriteBlock(m_OutBuffer, size_dst);
+		} while (ret == 0 && FPDFAPI_DeflateGetAvailOut(m_DeflateContext) == 0);
+
+		FPDFAPI_DeflateEnd(m_DeflateContext);
+		m_DeflateContext = NULL;
+	}
+
+	if (m_OutBuffer) FX_Free(m_OutBuffer);
+	m_OutBuffer = NULL;
+}
+
+FX_BOOL CPDF_EncodeWithOption::Initialize(CPDF_Stream* pStream, FX_BOOL bFlateEncode, FX_DWORD objnum, CPDF_CreatorOption* pOption)
+{
+    FX_UNREFERENCED_PARAMETER(objnum);
+	if (!pStream || !pOption) return FALSE;
+
+	m_pOption = pOption;
+
+	FX_BOOL bFilterExist = pStream->GetDict()->KeyExist(FX_BSTRC("Filter"));
+	FX_BOOL bRaw = bFilterExist && !bFlateEncode;
+
+	m_pTempFile = m_pOption->GetTempFile(pStream);
+	if (!m_pTempFile) {
+		m_pTempFile = FX_CreateMemoryStream();
+		m_bOwnerFile = TRUE;
+	}
+	m_Pos = m_pTempFile->GetSize();
+
+	CPDF_StreamFilter* pStreamFilter = pStream->GetStreamFilter(!bRaw);
+	if (!pStreamFilter) return FALSE;
+
+	if ((!bFilterExist && bFlateEncode) && !StartEncoding()) {
+		delete pStreamFilter;
+		return FALSE;
+	}
+
+	FX_BYTE buffer_in[FPDFAPI_DEFLATEINPUTBUFSIZE];
+	while (TRUE) {
+		size_t read_len = pStreamFilter->ReadBlock(buffer_in, FPDFAPI_DEFLATEINPUTBUFSIZE);
+		if (read_len == 0) break;
+		ContinueEncoding(buffer_in, static_cast<FX_DWORD>(read_len));
+		if (read_len < FPDFAPI_DEFLATEINPUTBUFSIZE) break;
+	}
+
+	EndEncoding();
+	m_pDict = (CPDF_Dictionary*)pStream->GetDict()->Clone();
+	if (!bFilterExist && bFlateEncode) {
+		m_pDict->SetAtName("Filter", "FlateDecode");
+		m_pDict->RemoveAt("DecodeParms");
+	}
+	m_pDict->SetAtInteger64("Length", m_pTempFile->GetSize() - m_Pos);
+	delete pStreamFilter;
+	return TRUE;
+}
 CPDF_ObjectStream::CPDF_ObjectStream()
     : m_dwObjNum(0)
     , m_index(0)
@@ -1194,6 +1352,7 @@ CPDF_Creator::CPDF_Creator(CPDF_Document* pDoc)
     m_dwEnryptObjNum = 0;
     m_bNewCrypto = FALSE;
     m_pProgressiveEncrypt = NULL;
+	m_pOption = NULL;
 }
 CPDF_Creator::~CPDF_Creator()
 {
@@ -1364,6 +1523,46 @@ FX_INT32 CPDF_Creator::WriteStream(const CPDF_Object* pStream, FX_DWORD objnum)
     m_Offset += len;
     return 1;
 }
+FX_INT32 CPDF_Creator::WriteStreamWithOption(const CPDF_Object* pStream, FX_DWORD objnum)
+{
+	CPDF_EncodeWithOption encoder;
+	FX_BOOL bFlate = (pStream == m_pMetadata ? FALSE : m_bCompress);
+
+	if (pStream == m_pMetadata)
+	{
+		if (m_pDocument->m_bMetaDataFlate)
+		{
+			if (!m_bStandardSecurity && !m_bEncryptMetadata)
+				bFlate = TRUE;
+		}
+	}
+
+	if (!encoder.Initialize((CPDF_Stream*)pStream, bFlate, objnum, m_pOption)) return 0;
+
+	if (WriteDirectObj(objnum, encoder.m_pDict) < 0) return -1;
+
+	int len = m_File.AppendString(FX_BSTRC("stream\r\n"));
+	if (len < 0) return -1;
+	m_Offset += len;
+
+	FX_DWORD length = static_cast<FX_DWORD>(encoder.m_pTempFile->GetSize() - encoder.m_Pos);
+	FX_INT64 size = FX_MIN(length - encoder.m_Pos, 10240);
+	FX_LPBYTE buffer = FX_Alloc(FX_BYTE, (size_t)size);
+    while (encoder.m_Pos < static_cast<FX_INT32>(length)) {
+		size = FX_MIN(size, length - encoder.m_Pos);
+		encoder.m_pTempFile->ReadBlock(buffer, encoder.m_Pos, (size_t)size);
+
+		len = m_File.AppendBlock(buffer, (size_t)size);
+		if (len < 0) return -1;
+		m_Offset += len;
+        encoder.m_Pos += static_cast<FX_INT32>(size);
+	}
+	FX_Free(buffer);
+
+	if ((len = m_File.AppendString(FX_BSTRC("\r\nendstream"))) < 0) return -1;
+	m_Offset += len;
+	return 1;
+}
 CFX_ByteString	CPDF_Creator::GenerateFileVersion(FX_INT32 fileVersion)
 {
     CFX_ByteString bsVersion;
@@ -1417,6 +1616,12 @@ FX_INT32 CPDF_Creator::WriteIndirectObj(FX_DWORD objnum, const CPDF_Object* pObj
         if (ret < 0) {
             return -1;
         }
+		if (ret == 0 && !pHandler && m_pOption) {
+			ret = WriteStreamWithOption(pObj, oldnum);
+		}
+		if (ret < 0) {
+			return -1;
+		}
         if (ret == 0) if (WriteStream(pObj, oldnum, pHandler) < 0) {
                 return -1;
             }
@@ -2617,6 +2822,11 @@ void CPDF_Creator::SetProgressiveEncryptHandler(CPDF_ProgressiveEncryptHandler* 
     }
     m_pProgressiveEncrypt = pHandler;
 }
+void CPDF_Creator::SetCreatorOption(CPDF_CreatorOption* pOption)
+{
+	if (m_pOption) delete m_pOption;
+	m_pOption = pOption;
+}
 void CPDF_Creator::ResetStandardSecurity()
 {
     if (m_bNewCrypto && crypto_handler_) {
@@ -2992,6 +3202,10 @@ FX_BOOL CPDF_UnencryptedWrapperCreator::Create(IFX_FileWrite* pFile, FX_DWORD fl
 FX_INT32 CPDF_UnencryptedWrapperCreator::Continue(IFX_Pause *pPause )
 {
     return CPDF_Creator::Continue(pPause);
+}
+void CPDF_UnencryptedWrapperCreator::SetCreatorOption(CPDF_CreatorOption* pOption)
+{
+	CPDF_Creator::SetCreatorOption(pOption);
 }
 IPDF_UnencryptedWrapperCreator* FPDF_UnencryptedWrapperCreator_Create(CPDF_Document* pWrapperDoc)
 {

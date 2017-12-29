@@ -10,6 +10,14 @@ class CPDF_ObjectStream;
 class CPDF_XRefStream;
 CFX_ByteTextBuf& operator << (CFX_ByteTextBuf& buf, const CPDF_Object* pObj);
 CFX_ByteTextBuf& SerializePDFObjectWithObjMapper(CFX_ByteTextBuf& buf, const CPDF_Object* pObj, CFX_DWordArray* pObjNumMap);
+class CPDF_CreatorOption : public CFX_Object
+{
+public:
+	virtual ~CPDF_CreatorOption() {}
+
+	virtual IFX_FileStream*		GetTempFile(CPDF_Object* pObj) = 0;
+	virtual void				ReleaseTempFile(IFX_FileStream* pFile) = 0;
+};
 #define FPDFCREATE_INCREMENTAL		1
 #define FPDFCREATE_NO_ORIGINAL		2
 #define FPDFCREATE_PROGRESSIVE		4
@@ -39,6 +47,7 @@ public:
     FX_BOOL				SetFileVersion(FX_INT32 fileVersion = 17);
 
     void				SetProgressiveEncryptHandler(CPDF_ProgressiveEncryptHandler* pHandler);
+    void				SetCreatorOption(CPDF_CreatorOption* pOption);
 
 protected:
 
@@ -95,6 +104,7 @@ protected:
     void				InitID(FX_BOOL bDefault = TRUE);
     FX_INT32			WriteStream(const CPDF_Object* pStream, FX_DWORD objnum, CPDF_CryptoHandler* pCrypto);
     FX_INT32			WriteStream(const CPDF_Object* pStream, FX_DWORD objnum);
+	FX_INT32			WriteStreamWithOption(const CPDF_Object* pStream, FX_DWORD objnum);
     virtual FX_WORD		GetObjectVersion(FX_DWORD objNum);
 
     FX_INT32			m_iStage;
@@ -109,6 +119,7 @@ protected:
 
     CPDF_Array*			m_pIDArray;
     CPDF_ProgressiveEncryptHandler*	m_pProgressiveEncrypt;
+    CPDF_CreatorOption*	m_pOption;
     friend class CPDF_ObjectStream;
     friend class CPDF_XRefStream;
     friend FX_INT32 PDF_CreatorAppendObject(CPDF_Creator* pCreator, const CPDF_Object* pObj, CFX_FileBufferArchive *pFile, FX_FILESIZE& offset, const CFX_WordArray* pObjVersion);
@@ -138,7 +149,8 @@ public:
 
     virtual FX_BOOL		Create(IFX_FileWrite* pFile, FX_DWORD flags = 0) = 0;
 
-    virtual FX_INT32	Continue(IFX_Pause *pPause = NULL) = 0;
+    virtual FX_INT32	        Continue(IFX_Pause *pPause = NULL) = 0;
+    virtual void		SetCreatorOption(CPDF_CreatorOption* pOption = NULL) = 0;
 };
 IPDF_UnencryptedWrapperCreator*	FPDF_UnencryptedWrapperCreator_Create(CPDF_Document* pWrapperDoc);
 #endif

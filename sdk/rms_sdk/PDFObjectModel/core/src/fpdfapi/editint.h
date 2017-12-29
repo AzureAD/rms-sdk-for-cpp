@@ -102,6 +102,7 @@ public:
     }
     virtual FX_BOOL		Create(IFX_FileWrite* pFile, FX_DWORD flags = 0);
     virtual	FX_INT32	Continue(IFX_Pause *pPause = NULL);
+	virtual void		SetCreatorOption(CPDF_CreatorOption* pOption = NULL);
 protected:
     CFX_WideString		m_wsSubType;
     CFX_WideString		m_wsFileName;

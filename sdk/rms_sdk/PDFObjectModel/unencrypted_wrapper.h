@@ -70,13 +70,25 @@ class PDFUnencryptedWrapperCreatorImpl : public PDFUnencryptedWrapperCreator {
 
   virtual void SetPayLoad(PDFSharedStream input_stream);
 
-  virtual bool CreateUnencryptedWrapper(PDFSharedStream output_stream);
+  virtual bool CreateUnencryptedWrapper(const std::string& cache_file_path, PDFSharedStream output_stream);
 
  private:
   std::shared_ptr<FileStreamImpl> wrapper_file_stream_;
   CPDF_Parser pdf_parser_;
   IPDF_UnencryptedWrapperCreator* pdf_wrapper_creator_;
   std::shared_ptr<FileStreamImpl> payload_file_stream_;
+};
+
+class CPDF_CreatorOptionImpl : public CPDF_CreatorOption {
+ public:
+  CPDF_CreatorOptionImpl(const CFX_WideString& temp_path);
+  virtual ~CPDF_CreatorOptionImpl();
+
+  virtual IFX_FileStream* GetTempFile(CPDF_Object* pObj);
+  virtual void ReleaseTempFile(IFX_FileStream* file_stream);
+
+private:
+  CFX_WideString temp_path_;
 };
 
 } // namespace pdfobjectmodel

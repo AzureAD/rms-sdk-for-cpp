@@ -28,6 +28,9 @@ namespace fileapi {
  */
 #define MIN_RAW_SIZE 64 * 1024 * 1024
 #define PROGRESSIVE_ENCRYPT_TEMP_FILE ".RMS.PE.temp"
+#define ENCRYPTED_TEMP_FILE ".encrypted.temp"
+#define PAYLOAD_TEMP_FILE ".payload.temp"
+#define STREAM_TEMP_FILE ".stream.temp"
 
 /**
  * @brief The implementaion class of interface class PDFDataStream.
