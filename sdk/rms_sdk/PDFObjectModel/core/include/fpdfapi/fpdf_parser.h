@@ -142,6 +142,16 @@ protected:
     static const FX_INT32 STREAM_BUFSIZE = 20480;
 };
 
+class CPDF_DocParserOption : public CFX_Object
+{
+public:
+	CPDF_DocParserOption()
+	{
+		m_StreamLimit = 100 * 1024 * 1024;
+	}
+	FX_UINT32		m_StreamLimit;
+};
+
 #define PDFWORD_EOF			0
 #define PDFWORD_NUMBER		1
 #define PDFWORD_TEXT		2
@@ -155,7 +165,7 @@ public:
 
     ~CPDF_SyntaxParser();
 
-    void				InitParser(IFX_FileRead* pFileAccess, FX_DWORD HeaderOffset);
+    void				InitParser(IFX_FileRead* pFileAccess, FX_DWORD HeaderOffset, CPDF_DocParserOption* pOption = NULL);
 
     FX_FILESIZE			SavePos() const
     {
@@ -258,6 +268,7 @@ protected:
     FX_FILESIZE			m_dwWordPos;
 
     CFX_DWordArray      m_dwRef;
+	CPDF_DocParserOption*	m_pOption;
     FX_INT32			m_Level;
     FX_FILESIZE			m_TotalMemoryStreamSize;
     FX_INT32			m_iStatus;
@@ -324,6 +335,8 @@ public:
     CPDF_Parser();
 
     ~CPDF_Parser();
+
+	void				SetParserOption(CPDF_DocParserOption* pOption);
 
     FX_DWORD			StartParse(FX_LPCSTR filename, FX_BOOL bReParse = FALSE);
 
@@ -506,7 +519,7 @@ protected:
     FX_DWORD			m_dwFirstPageNo;
 
     FX_DWORD			m_dwXrefStartObjNum;
-
+	CPDF_DocParserOption	m_Option;
     FX_INT32				m_nLevel;
     friend class		CPDF_Creator;
     friend class		CPDF_PDFVersionChecker;

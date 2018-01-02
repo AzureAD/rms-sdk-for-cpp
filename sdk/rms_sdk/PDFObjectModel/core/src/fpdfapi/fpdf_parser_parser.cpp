@@ -76,6 +76,13 @@ CPDF_Parser::~CPDF_Parser()
 {
     CloseParser(FALSE);
 }
+void CPDF_Parser::SetParserOption(CPDF_DocParserOption* pOption)
+{
+	if (pOption)
+	{
+		m_Option = *pOption;
+	}
+}
 FX_DWORD CPDF_Parser::GetLastObjNum()
 {
     FX_DWORD dwSize = m_CrossRef.GetSize();
@@ -194,7 +201,7 @@ FX_DWORD CPDF_Parser::StartParse(IFX_FileRead* pFileAccess, FX_BOOL bReParse, FX
         }
         return PDFPARSE_ERROR_FORMAT;
     }
-    m_Syntax.InitParser(pFileAccess, offset);
+    m_Syntax.InitParser(pFileAccess, offset, &m_Option);
     FX_BYTE ch;
     if (!m_Syntax.GetCharAt(5, ch)) {
         return PDFPARSE_ERROR_FORMAT;
@@ -1715,6 +1722,7 @@ CPDF_SyntaxParser::CPDF_SyntaxParser()
 #else
     m_bFileStream = FALSE;
 #endif
+	m_pOption = NULL;
     m_Level = 0;
     m_TotalMemoryStreamSize = 0;
     m_iStatus = PDFPARSE_ERROR_SUCCESS;
@@ -2613,27 +2621,32 @@ CPDF_Stream* CPDF_SyntaxParser::ReadStream(CPDF_Dictionary* pDict, PARSE_CONTEXT
     pStream = FX_NEW CPDF_Stream(m_pFileAccess, pCryptoHandler, m_HeaderOffset + m_Pos, len, pDict, gennum);
     m_Pos += len;
 #else
-    FX_LPBYTE pData = NULL;
-    if (len) {
-        pData = FX_Alloc(FX_BYTE, len);
-        if (!pData) {
-            return NULL;
-        }
-        ReadBlock(pData, len);
-        if (pCryptoHandler) {
-            CFX_BinaryBuf dest_buf;
-            dest_buf.EstimateSize(pCryptoHandler->DecryptGetSize(len));
-            FX_LPVOID context = pCryptoHandler->DecryptStart(objnum, gennum);
-            pCryptoHandler->DecryptStream(context, pData, len, dest_buf);
-            pCryptoHandler->DecryptFinish(context, dest_buf);
-            FX_Free(pData);
-            pData = dest_buf.GetBuffer();
-            len = dest_buf.GetSize();
-            dest_buf.DetachBuffer();
-        }
-    }
-    pStream = FX_NEW CPDF_Stream(pData, len, pDict);
-    m_TotalMemoryStreamSize += len;
+    if (m_bFileStream || (m_pOption && len > static_cast<FX_INT32>(m_pOption->m_StreamLimit))) {
+		pStream = FX_NEW CPDF_Stream(m_pFileAccess, pCryptoHandler, m_HeaderOffset + m_Pos, len, pDict, gennum);
+		m_Pos += len;
+	} else {
+		FX_LPBYTE pData = NULL;
+		if (len) {
+			pData = FX_Alloc(FX_BYTE, len);
+			if (!pData) {
+				return NULL;
+			}
+			ReadBlock(pData, len);
+			if (pCryptoHandler) {
+				CFX_BinaryBuf dest_buf;
+				dest_buf.EstimateSize(pCryptoHandler->DecryptGetSize(len));
+				FX_LPVOID context = pCryptoHandler->DecryptStart(objnum, gennum);
+				pCryptoHandler->DecryptStream(context, pData, len, dest_buf);
+				pCryptoHandler->DecryptFinish(context, dest_buf);
+				FX_Free(pData);
+				pData = dest_buf.GetBuffer();
+				len = dest_buf.GetSize();
+				dest_buf.DetachBuffer();
+			}
+		}
+		pStream = FX_NEW CPDF_Stream(pData, len, pDict);
+		m_TotalMemoryStreamSize += len;
+	}
 #endif
     if (pContext) {
         pContext->m_DataEnd = pContext->m_DataStart + len;
@@ -2645,7 +2658,7 @@ CPDF_Stream* CPDF_SyntaxParser::ReadStream(CPDF_Dictionary* pDict, PARSE_CONTEXT
     }
     return pStream;
 }
-void CPDF_SyntaxParser::InitParser(IFX_FileRead* pFileAccess, FX_DWORD HeaderOffset)
+void CPDF_SyntaxParser::InitParser(IFX_FileRead* pFileAccess, FX_DWORD HeaderOffset, CPDF_DocParserOption* pOption)
 {
     if (m_pFileBuf) {
         FX_Free(m_pFileBuf);
@@ -2655,6 +2668,7 @@ void CPDF_SyntaxParser::InitParser(IFX_FileRead* pFileAccess, FX_DWORD HeaderOff
     m_HeaderOffset = HeaderOffset;
     m_FileLen = pFileAccess->GetSize();
     m_Pos = 0;
+	m_pOption = pOption;
     m_pFileAccess = pFileAccess;
     m_BufOffset = 0;
     pFileAccess->ReadBlock(m_pFileBuf, 0, (size_t)((FX_FILESIZE)m_BufSize > m_FileLen ? m_FileLen : m_BufSize));

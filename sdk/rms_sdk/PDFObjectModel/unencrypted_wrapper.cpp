@@ -255,10 +255,15 @@ CPDF_CreatorOptionImpl::~CPDF_CreatorOptionImpl() {
 }
 
 IFX_FileStream* CPDF_CreatorOptionImpl::GetTempFile(CPDF_Object* pObj) {
-  FX_UNREFERENCED_PARAMETER(pObj);
-  CFX_WideString path = temp_path_;
-  IFX_FileStream* file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
-  return file_stream;
+  if (pObj->GetType() != PDFOBJ_STREAM) return nullptr;
+  FX_INT32 raw_size = ((CPDF_Stream*)pObj)->GetRawSize();
+  if (raw_size > MIN_WRAPPER_CACHE_SIZE) {
+    CFX_WideString path = temp_path_;
+    IFX_FileStream* file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
+    return file_stream;
+  } else {
+    return nullptr;
+  }
 }
 
 void CPDF_CreatorOptionImpl::ReleaseTempFile(IFX_FileStream* file_stream) {
