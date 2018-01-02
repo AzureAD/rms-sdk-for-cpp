@@ -294,6 +294,8 @@ FX_BOOL CustomSecurityHandler::OnInit(CPDF_Parser* pdf_parser,
                 length_decoded, dest_buf, dest_size);
 
     publishing_license_bytestring.Empty();
+    //The publishing license in the PDF IRM V1 file may be UTF8 encoded.
+    //Decode it and remove the BOM header so that MIP SDK can recognize it.
     if (dest_buf[0] == 0xef && dest_buf[1] == 0xbb && dest_buf[2] == 0xbf) {
       publishing_license_bytestring.Load(dest_buf, dest_size);
       CFX_WideString publishing_license_widestring =

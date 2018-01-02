@@ -8,7 +8,7 @@ namespace rmscore {
 namespace pdfobjectmodel {
 
 /**
- * @brief The implementaion class of interface class CPDF_CryptoHandler of Foxit core.
+ * @brief The implementation class of interface class CPDF_CryptoHandler of Foxit core.
  * CPDF_CryptoHandler is the abstract class for PDF cryptographic operations (encryption and decryption).
  * This class works with security handler which provides algorithm and key info.
  * Please refer to comments of CPDF_CryptoHandler.
@@ -67,7 +67,7 @@ class CustomCryptoHandler : public CPDF_CryptoHandler {
 };
 
 /**
- * @brief The implementaion class of interface class CPDF_ProgressiveEncryptHandler of Foxit core.
+ * @brief The implementation class of interface class CPDF_ProgressiveEncryptHandler of Foxit core.
  * CPDF_ProgressiveEncryptHandler is set to deal with progressive encryption.
  * Please refer to comments of CPDF_ProgressiveEncryptHandler.
  */
@@ -114,7 +114,7 @@ class CustomProgressiveEncryptHandler : public CPDF_ProgressiveEncryptHandler {
 };
 
 /**
- * @brief The implementaion class of interface class CPDF_SecurityHandler of Foxit core.
+ * @brief The implementation class of interface class CPDF_SecurityHandler of Foxit core.
  * CPDF_SecurityHandler is the abstract Abstract class for all security handlers, contains
  * virtual functions to be implemented by derived classes.
  * Please refer to comments of CPDF_SecurityHandler.
@@ -143,7 +143,7 @@ class CustomSecurityHandler : public CPDF_SecurityHandler {
 };
 
 /**
- * @brief The implementaion class of interface class PDFCreator defined in pdf object model layer.
+ * @brief The implementation class of interface class PDFCreator defined in pdf object model layer.
  * Please refer to comments of PDFCreator.
  */
 class PDFCreatorImpl : public PDFCreator {
@@ -165,9 +165,11 @@ class PDFCreatorImpl : public PDFCreator {
       std::shared_ptr<PDFSecurityHandler> security_handler,
       PDFSharedStream outputIOS);
  protected:
-    //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
+  //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
   bool IsProtectedByPassword(CPDF_Parser *pdf_parser);
   bool IsSigned(CPDF_Parser *pdf_parser);
+  //if the document is protected by password, or is signed, or is dynamic XFA, it cannot be encrypted.
+  //this method checks whether the input file is dynamic XFA or not.
   bool IsDynamicXFA(CPDF_Parser *pdf_parser);
 
   PDFCreatorErr ParsePDFFile(IFX_FileRead* fileAccess, CPDF_Parser* pdf_parser);

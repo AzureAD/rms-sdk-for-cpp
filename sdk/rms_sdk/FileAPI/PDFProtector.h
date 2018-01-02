@@ -33,7 +33,7 @@ namespace fileapi {
 #define STREAM_TEMP_FILE ".stream.temp"
 
 /**
- * @brief The implementaion class of interface class PDFDataStream.
+ * @brief The implementation class of interface class PDFDataStream.
  * It is used to access to the stream data.
  * It is implemented by PDF protect, and it is invoked by PDF object model to access to the stream data.
  */
@@ -202,7 +202,7 @@ class PDFProtector : public ProtectorWithWrapper {
 };
 
 /**
- * @brief The implementaion class of interface class PDFCryptoHandler defined by PDF object model.
+ * @brief The implementation class of interface class PDFCryptoHandler defined by PDF object model.
  * Please refer to comments of PDFCryptoHandler.
  * The interface header file of PDF object model is PDFObjectModel.h.
  */
@@ -265,7 +265,7 @@ class PDFCryptoHandlerImpl : public pdfobjectmodel::PDFCryptoHandler {
 };
 
 /**
- * @brief The implementaion class of interface class PDFSecurityHandler defined by PDF object model.
+ * @brief The implementation class of interface class PDFSecurityHandler defined by PDF object model.
  * Please refer to comments of PDFSecurityHandler.
  * The interface header file of PDF object model is PDFObjectModel.h.
  */

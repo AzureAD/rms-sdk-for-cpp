@@ -17,7 +17,7 @@ namespace rmscore {
 namespace pdfobjectmodel {
 
 /**
- * @brief The implementaion class of interface class PDFModuleMgr defined in pdf object model layer.
+ * @brief The implementation class of interface class PDFModuleMgr defined in pdf object model layer.
  * The implementation is to initialize the Foxit core.
  * Please refer to comments of PDFModuleMgr.
  */

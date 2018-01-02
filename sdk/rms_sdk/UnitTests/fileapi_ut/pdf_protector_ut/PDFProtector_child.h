@@ -25,7 +25,7 @@ namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 #define PROGRESSIVE_ENCRYPT_TEMP_FILE ".RMS.PE.temp"
 
 /**
- * @brief The implementaion class of interface class PDFDataStream.
+ * @brief The implementation class of interface class PDFDataStream.
  * It is used to access to the stream data.
  * It is implemented by PDF protect, and it is invoked by PDF object model to access to the stream data.
  */

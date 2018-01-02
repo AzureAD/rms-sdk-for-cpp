@@ -8,7 +8,7 @@ namespace rmscore {
 namespace pdfobjectmodel {
 
 /**
- * @brief The implementaion class of interface class PDFBinaryBuf.
+ * @brief The implementation class of interface class PDFBinaryBuf.
  * Please refer to comments of PDFBinaryBuf.
  * The interface header file of PDF object model is pdf_object_model.h.
  */
@@ -24,7 +24,7 @@ class PDFBinaryBufImpl : public PDFBinaryBuf {
 };
 
 /**
- * @brief The implementaion class of interface class IFX_FileStream.
+ * @brief The implementation class of interface class IFX_FileStream.
  * It is invoked by pdf object model when reading and writing pdf document.
  * IFX_FileStream is the file stream interface (reading & writing) of Foxit core.
  * Please refer to comments of IFX_FileStream of Foxit core.

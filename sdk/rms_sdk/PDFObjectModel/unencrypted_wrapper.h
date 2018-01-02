@@ -17,7 +17,7 @@ namespace pdfobjectmodel {
 #define MIN_WRAPPER_CACHE_SIZE 100 * 1024 * 1024
 
 /**
- * @brief The implementaion class of interface class PDFWrapperDoc defined in pdf object model layer.
+ * @brief The implementation class of interface class PDFWrapperDoc defined in pdf object model layer.
  * The implementation is on the basic of Foxit core.
  * Please refer to comments of PDFWrapperDoc.
  */
@@ -55,7 +55,7 @@ class PDFWrapperDocImpl : public PDFWrapperDoc {
 };
 
 /**
- * @brief The implementaion class of interface class PDFUnencryptedWrapperCreator defined in pdf object model layer.
+ * @brief The implementation class of interface class PDFUnencryptedWrapperCreator defined in pdf object model layer.
  * The implementation is on the basic of Foxit core.
  * Please refer to comments of PDFUnencryptedWrapperCreator.
  */

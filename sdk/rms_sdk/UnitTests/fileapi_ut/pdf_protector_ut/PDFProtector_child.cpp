@@ -48,7 +48,11 @@ void PDFCryptoHandler_child::DecryptStart(uint32_t objnum, uint32_t gennum) {
 
 bool PDFCryptoHandler_child::DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf) {
   FILEAPI_UNREFERENCED_PARAMETER(dest_buf);
-  data_to_be_decrypted_->write(src_buf, src_size);
+  if (data_to_be_decrypted_) {
+    data_to_be_decrypted_->write(src_buf, src_size);
+  } else {
+    return false;
+  }
   return true;
 }
 
