@@ -216,7 +216,6 @@ void PDFUnencryptedWrapperCreatorImpl::SetPayLoad(PDFSharedStream input_stream) 
   if (!pdf_wrapper_creator_) return;
 
   if (payload_file_stream_) {
-    payload_file_stream_.reset();
     payload_file_stream_ = nullptr;
   }
   payload_file_stream_ = std::make_shared<FileStreamImpl>(input_stream);
@@ -240,6 +239,8 @@ bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(const std::strin
     do {
       continue_count = pdf_wrapper_creator_->Continue();
     } while (continue_count != 0);
+  } else {
+    return false;
   }
   return true;
 }
