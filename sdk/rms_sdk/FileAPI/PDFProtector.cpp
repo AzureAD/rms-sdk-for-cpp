@@ -466,34 +466,35 @@ UnprotectResult PDFProtector::Unprotect(
     return rmscore::fileapi::UnprotectResult::FAILURE;
   }
 
-  /*auto payloadSS = std::make_shared<std::stringstream>();
-  std::shared_ptr<std::iostream> payloadIOS = payloadSS;
-  auto output_payload = rmscrypto::api::CreateStreamFromStdStream(payloadIOS);
-  pdfobjectmodel::PDFSharedStream payload_shared_stream =
-      std::make_shared<PDFDataStreamImpl>(output_payload);*/
 
-  std::string payload_temp_file_path = original_file_path_;
-  payload_temp_file_path += PAYLOAD_TEMP_FILE;
+  std::shared_ptr<std::iostream> payload_temp_IO;
+  if (payload_size > MIN_RAW_SIZE) {
+    std::string payload_temp_file_path = original_file_path_;
+    payload_temp_file_path += PAYLOAD_TEMP_FILE;
 
-  //create a temp cache file to store the payload instead of storing it in the memory.
-  //because the payload may be very large.
-  std::shared_ptr<std::fstream> payload_temp_stream(
-      new std::fstream(
-          payload_temp_file_path,
-          std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary),
-      [=](std::fstream* file_stream) {
-        file_stream->close();
-        std::remove(payload_temp_file_path.c_str());
-       }
-  );
+    //create a temp cache file to store the payload instead of storing it in the memory.
+    //because the payload may be very large.
+    std::shared_ptr<std::fstream> payload_stream(
+        new std::fstream(
+            payload_temp_file_path,
+            std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary),
+        [=](std::fstream* file_stream) {
+          file_stream->close();
+          std::remove(payload_temp_file_path.c_str());
+         }
+    );
 
-  if (!payload_temp_stream->is_open()) {
-    logger::Logger::Error("Failed to create the payload cache file.");
-    throw exceptions::RMSStreamException("Failed to create the payload cache file.");
-    rmscore::fileapi::UnprotectResult::FAILURE;
+    if (!payload_stream->is_open()) {
+      logger::Logger::Error("Failed to create the payload cache file.");
+      throw exceptions::RMSStreamException("Failed to create the payload cache file.");
+      rmscore::fileapi::UnprotectResult::FAILURE;
+    }
+
+    payload_temp_IO = payload_stream;
+  } else {
+    payload_temp_IO = std::make_shared<std::stringstream>();
   }
 
-  std::shared_ptr<std::iostream> payload_temp_IO = payload_temp_stream;
   auto payload_temp_std_stream = rmscrypto::api::CreateStreamFromStdStream(payload_temp_IO);
   pdfobjectmodel::PDFSharedStream payload_shared_stream =
       std::make_shared<PDFDataStreamImpl>(payload_temp_std_stream);
@@ -575,34 +576,36 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   pdfobjectmodel::PDFSharedStream pdf_data_shared_stream =
       std::make_shared<PDFDataStreamImpl>(input_filedata);
 
-  /*auto encryptedSS = std::make_shared<std::stringstream>();
-  std::shared_ptr<std::iostream> encryptedIOS = encryptedSS;
-  auto output_encrypted = rmscrypto::api::CreateStreamFromStdStream(encryptedIOS);
-  pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
-      std::make_shared<PDFDataStreamImpl>(output_encrypted);*/
+  uint64_t file_size = pdf_data_shared_stream->GetSize();
+  std::shared_ptr<std::iostream> encrypted_temp_IO;
+  if (file_size > MIN_RAW_SIZE) {
+    std::string encrypted_temp_file_path = original_file_path_;
+    encrypted_temp_file_path += ENCRYPTED_TEMP_FILE;
 
-  std::string encrypted_temp_file_path = original_file_path_;
-  encrypted_temp_file_path += ENCRYPTED_TEMP_FILE;
+    //create a temp cache file to store the encrypted file instead of storing it in the memory.
+    //because the encrypted file may be very large.
+    std::shared_ptr<std::fstream> encrypted_temp_stream(
+        new std::fstream(
+            encrypted_temp_file_path,
+            std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary),
+        [=](std::fstream* file_stream) {
+          file_stream->close();
+          std::remove(encrypted_temp_file_path.c_str());
+         }
+    );
 
-  //create a temp cache file to store the encrypted file instead of storing it in the memory.
-  //because the encrypted file may be very large.
-  std::shared_ptr<std::fstream> encrypted_temp_stream(
-      new std::fstream(
-          encrypted_temp_file_path,
-          std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary),
-      [=](std::fstream* file_stream) {
-        file_stream->close();
-        std::remove(encrypted_temp_file_path.c_str());
-       }
-  );
+    if (!encrypted_temp_stream->is_open()) {
+      logger::Logger::Error("Failed to create the encrypted cache file.");
+      throw exceptions::RMSStreamException("Failed to create the encrypted cache file.");
+      return;
+    }
 
-  if (!encrypted_temp_stream->is_open()) {
-    logger::Logger::Error("Failed to create the encrypted cache file.");
-    throw exceptions::RMSStreamException("Failed to create the encrypted cache file.");
-    return;
+    encrypted_temp_IO = encrypted_temp_stream;
+
+  } else {
+    encrypted_temp_IO = std::make_shared<std::stringstream>();
   }
 
-  std::shared_ptr<std::iostream> encrypted_temp_IO = encrypted_temp_stream;
   auto encrypted_temp_std_stream = rmscrypto::api::CreateStreamFromStdStream(encrypted_temp_IO);
   pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
       std::make_shared<PDFDataStreamImpl>(encrypted_temp_std_stream);
