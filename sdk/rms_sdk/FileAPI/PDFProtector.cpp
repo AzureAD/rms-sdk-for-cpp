@@ -471,6 +471,7 @@ UnprotectResult PDFProtector::Unprotect(
   if (payload_size > MIN_RAW_SIZE) {
     std::string payload_temp_file_path = original_file_path_;
     payload_temp_file_path += PAYLOAD_TEMP_FILE;
+    payload_temp_file_path += GenerateRandomNumber();
 
     //create a temp cache file to store the payload instead of storing it in the memory.
     //because the payload may be very large.
@@ -581,6 +582,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   if (file_size > MIN_RAW_SIZE) {
     std::string encrypted_temp_file_path = original_file_path_;
     encrypted_temp_file_path += ENCRYPTED_TEMP_FILE;
+    encrypted_temp_file_path += GenerateRandomNumber();
 
     //create a temp cache file to store the encrypted file instead of storing it in the memory.
     //because the encrypted file may be very large.
@@ -613,6 +615,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
   std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
   std::string cache_file_path = original_file_path_;
   cache_file_path += PROGRESSIVE_ENCRYPT_TEMP_FILE;
+  cache_file_path += GenerateRandomNumber();
 
   std::shared_ptr<PDFProtector> shared_pdf_protector(this, [=](PDFProtector* pdf_protector) {
     pdf_protector = nullptr;
@@ -659,6 +662,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
 
   std::string stream_cache_file_path = original_file_path_;
   stream_cache_file_path += STREAM_TEMP_FILE;
+  stream_cache_file_path += GenerateRandomNumber();
   bool result_create = pdf_wrapper_creator_->CreateUnencryptedWrapper(
       stream_cache_file_path,
       output_wrapper_shared_stream);
@@ -787,6 +791,12 @@ modernapi::UserPolicyCreationOptions PDFProtector::ConvertToUserPolicyCreationOp
 
 void PDFProtector::SetUserPolicy(std::shared_ptr<modernapi::UserPolicy> userpolicy) {
   user_policy_ = userpolicy;
+}
+
+std::string PDFProtector::GenerateRandomNumber() {
+  srand(time(0));
+  int v = rand();
+  return std::to_string(v);
 }
 
 } // namespace fileapi

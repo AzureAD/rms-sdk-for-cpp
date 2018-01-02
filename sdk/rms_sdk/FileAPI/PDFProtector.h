@@ -188,7 +188,8 @@ class PDFProtector : public ProtectorWithWrapper {
   void Protect(const std::shared_ptr<std::fstream>& outputstream);
   modernapi::UserPolicyCreationOptions ConvertToUserPolicyCreationOptions(
       const bool& allow_audited_extraction,
-      CryptoOptions crypto_options);
+      CryptoOptions crypto_options);  
+  std::string GenerateRandomNumber();
 
   std::string original_file_extension_;
   std::string original_file_path_;
