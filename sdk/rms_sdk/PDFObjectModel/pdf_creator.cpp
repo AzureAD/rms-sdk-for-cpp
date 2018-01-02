@@ -429,11 +429,6 @@ PDFCreatorErr PDFCreatorImpl::CreateCustomEncryptedFile(PDFSharedStream inputFil
   CPDF_Dictionary* encryption_dictionary = CreateEncryptionDict(filter_name, publishing_license);
   result = CreatePDFFile(&pdf_parser, encryption_dictionary, crypto_handler, outputIOS);
 
-  if (encryption_dictionary) {
-    encryption_dictionary->Release();
-    encryption_dictionary = NULL;
-  }
-
   return result;
 }
 
