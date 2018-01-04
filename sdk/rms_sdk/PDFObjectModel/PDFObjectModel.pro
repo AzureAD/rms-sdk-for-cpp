@@ -5,7 +5,8 @@ TARGET    = pdfobjectmodel
 TEMPLATE = lib
 CONFIG  += plugin c++11 debug_and_release warn_on
 
-DEFINES     += RMS_LIBRARY
+DEFINES += RMS_LIBRARY
+#DEFINES += RMS_LIBRARY_STATIC
 
 #QMAKE_CFLAGS_WARN_ON -= -W3
 #QMAKE_CFLAGS_WARN_ON += -W4
@@ -46,7 +47,8 @@ HEADERS += \
     pdf_module_mgr.h \
     basic.h \
     pdf_creator.h \
-    unencrypted_wrapper.h
+    unencrypted_wrapper.h \
+    pdf_metadata_creator.h
 
 SOURCES += \
     core/src/fdrm/crypto/fx_crypt.cpp \
@@ -63,6 +65,7 @@ SOURCES += \
     core/src/fpdfapi/fpdf_parser_parser.cpp \
     core/src/fpdfapi/fpdf_parser_utility.cpp \
     core/src/fpdfdoc/doc_basic.cpp \
+    core/src/fpdfdoc/doc_metadata.cpp \
     core/src/fxcodec/codec/fx_codec.cpp \
     core/src/fxcodec/codec/fx_codec_flate.cpp \
     core/src/fxcodec/fx_zlib/src/fx_zlib_adler32.c \
@@ -97,14 +100,21 @@ SOURCES += \
     core/src/fxcrt/fx_basic_util.cpp \
     core/src/fxcrt/fx_basic_wstring.cpp \
     core/src/fxcrt/fx_extension.cpp \
+    core/src/fxcrt/fx_xml_composer.cpp \
+    core/src/fxcrt/fx_xml_parser.cpp \
     pdf_module_mgr.cpp \
     basic.cpp \
     unencrypted_wrapper.cpp \
-    pdf_creator.cpp
+    pdf_creator.cpp \
+    pdf_metadata_creator.cpp
 
 CONFIG(debug, debug|release) {
+    #QMAKE_CXXFLAGS_DEBUG += -MTd
+    #QMAKE_CXXFLAGS += /Z7
     TARGET = $$join(TARGET,,,d)
 } else {
+    #QMAKE_CXXFLAGS_RELEASE += -MT
+    #QMAKE_CXXFLAGS += /Z7
 }
 
 unix {

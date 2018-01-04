@@ -392,22 +392,49 @@ class PDFCreator {
 };
 
 /**
- * @brief .
+ * @brief It is used to get and modify the metadata of PDF document.
  */
 class PDFMetadataCreator {
  public:
+  /**
+   * @brief Creates an instance of class PDFMetadataCreator.
+   * @param[in] input_pdf_document_stream  The input PDF document.
+   * @return An instance of class PDFMetadataCreator.
+   */
   DLL_PUBLIC_RMS
   static std::unique_ptr<PDFMetadataCreator> RMS_CALLING_CONVENTION Create(
       PDFSharedStream input_pdf_document_stream);
 
+  /**
+   * @brief Gets the PDF version.
+   * @return The PDF version like PDF-1.7.
+   */
   virtual std::string GetPDFVersion() = 0;
 
+  /**
+   * @brief Gets all the entries of PDF metadata.
+   * @param[out] All the entries of PDF metadata.
+   */
   virtual void GetEntries(std::map<std::string, std::string>& entries) = 0;
 
+  /**
+   * @brief Removes the specified entry of PDF metadata.
+   * @param[in] key  The input key of the specified entry.
+   */
   virtual void RemoveEntry(std::string key) = 0;
 
+  /**
+   * @brief Adds a specified entry of PDF metadata.
+   * @param[in] key  The input key of the specified entry.
+   * @param[in] value  The input value of the specified entry.
+   */
   virtual void AddEntry(const std::string& key, const std::string& value) = 0;
 
+  /**
+   * @brief After you modify the metadata, you can save it to the PDF document.
+   * @param[out] output_pdf_document_stream  It receives the output PDF document.
+   * @return true for success, otherwise failure.
+   */
   virtual bool Save(PDFSharedStream output_pdf_document_stream) = 0;
 
   virtual ~PDFMetadataCreator(){}

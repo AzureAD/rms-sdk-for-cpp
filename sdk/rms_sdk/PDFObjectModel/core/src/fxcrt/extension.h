@@ -129,10 +129,10 @@ public:
     {
         m_dwFlags = FX_MEMSTREAM_TakeOver | (bConsecutive ? FX_MEMSTREAM_Consecutive : 0);
     }
-    CFX_MemoryStream(FX_LPBYTE pBuffer, size_t size, FX_BOOL bTakeOver)
+    CFX_MemoryStream(FX_LPBYTE pBuffer, size_t nSize, FX_BOOL bTakeOver)
         : m_dwCount(1)
-        , m_nTotalSize(size)
-        , m_nCurSize(size)
+        , m_nTotalSize(nSize)
+        , m_nCurSize(nSize)
         , m_nCurPos(0)
         , m_nGrowSize(FX_MEMSTREAM_BlockSize)
         , m_bUseRange(FALSE)
@@ -316,14 +316,14 @@ public:
     {
         return m_Blocks.GetSize() ? (FX_LPBYTE)m_Blocks[0] : NULL;
     }
-    virtual void				AttachBuffer(FX_LPBYTE pBuffer, size_t size, FX_BOOL bTakeOver = FALSE)
+    virtual void				AttachBuffer(FX_LPBYTE pBuffer, size_t nSize, FX_BOOL bTakeOver = FALSE)
     {
         if (!(m_dwFlags & FX_MEMSTREAM_Consecutive)) {
             return;
         }
         m_Blocks.RemoveAll();
         m_Blocks.Add(pBuffer);
-        m_nTotalSize = m_nCurSize = size;
+        m_nTotalSize = m_nCurSize = nSize;
         m_nCurPos = 0;
         m_dwFlags = FX_MEMSTREAM_Consecutive | (bTakeOver ? FX_MEMSTREAM_TakeOver : 0);
         ClearRange();

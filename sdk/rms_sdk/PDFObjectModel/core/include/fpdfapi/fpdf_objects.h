@@ -635,7 +635,7 @@ protected:
 
     FX_FILESIZE				m_FileOffset;
 
-    CPDF_CryptoHandler*		crypto_handler_;
+    CPDF_CryptoHandler*		m_pCryptoHandler;
 
     void					InitStream(CPDF_Dictionary* pDict);
     friend class			CPDF_Object;

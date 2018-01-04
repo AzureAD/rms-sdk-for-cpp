@@ -47,6 +47,13 @@
 #include <string.h>
 #include <assert.h>
 #include <wchar.h>
+#if _FX_OS_ == _FX_WIN32_DESKTOP_
+#include <time.h>
+#elif _FX_OS_ == _FX_LINUX_DESKTOP_ || _FX_OS_ == _FX_MACOSX_
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
+#endif
 #if _FXM_PLATFORM_ == _FXM_PLATFORM_APPLE_
 #include <libkern/OSAtomic.h>
 #if _FX_OS_ == _FX_MACOSX_

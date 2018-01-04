@@ -59,6 +59,10 @@ void CPDF_Document::LoadDoc()
 CPDF_Document::~CPDF_Document()
 {
 }
+void CPDF_Document::SetInfoObjNum(int nInfoObjNum)
+{
+    m_pInfoDict = (CPDF_Dictionary*)GetIndirectObject(nInfoObjNum);
+}
 int CPDF_Document::GetPageCount() const
 {
     return m_PageList.GetSize();
@@ -171,7 +175,7 @@ FX_INT32 CPDF_WrapperDoc::GetWrapperType() const
     }
     return PDF_WRAPPERTYPE_NO;
 }
-FX_BOOL CPDF_WrapperDoc::GetCryptographicFilter(CFX_WideString &graphic_filter, FX_FLOAT &version_num) const
+FX_BOOL CPDF_WrapperDoc::GetCryptographicFilter(CFX_WideString &wsGraphicFilter, FX_FLOAT &fVersion) const
 {
     if(!m_pDoc) {
         return FALSE;
@@ -188,11 +192,11 @@ FX_BOOL CPDF_WrapperDoc::GetCryptographicFilter(CFX_WideString &graphic_filter, 
     if (!pEPDict || !pEPDict->KeyExist(FX_BSTRC("Subtype"))) {
         return FALSE;
     }
-    graphic_filter = ((CFX_ByteString)pEPDict->GetConstString(FX_BSTRC("Subtype"))).UTF8Decode();
+    wsGraphicFilter = ((CFX_ByteString)pEPDict->GetConstString(FX_BSTRC("Subtype"))).UTF8Decode();
     if (pEPDict->KeyExist(FX_BSTRC("Version"))) {
-        version_num = pEPDict->GetFloat(FX_BSTRC("Version"));
+        fVersion = pEPDict->GetFloat(FX_BSTRC("Version"));
     } else {
-        version_num = 0.f;
+        fVersion = 0.f;
     }
     return TRUE;
 }

@@ -6,6 +6,9 @@
 #ifndef _FXCRT_COORDINATES_
 #include "fx_coordinates.h"
 #endif
+#ifndef _FX_XML_H_
+#include "fx_xml.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -81,4 +84,36 @@ protected:
     FX_LPVOID	m_pData;
     FX_WCHAR	m_wEqual;
 };
+#ifdef __cplusplus
+extern "C" {
+#endif
+typedef struct _FX_SYSTEMTIME
+{
+    FX_WORD wYear;
+    FX_WORD wMonth;
+    FX_WORD wDayOfWeek;
+    FX_WORD wDay;
+    FX_WORD wHour;
+    FX_WORD wMinute;
+    FX_WORD wSecond;
+    FX_WORD wMilliseconds;
+} FX_SYSTEMTIME;
+void		FX_Time_GetSystemTime(FX_SYSTEMTIME* pSystemTime);
+typedef struct _FXCRT_DATETIMEZONE
+{
+    FX_WORD		year;
+    FX_WORD		month;
+    FX_WORD		day;
+    FX_WORD		dayOfWeek;
+    FX_WORD		hour;
+    FX_WORD		minute;
+    FX_WORD		second;
+    FX_WORD		milliseconds;
+    FX_INT32	tzHour;
+    FX_WORD		tzMinute;
+} FXCRT_DATETIMEZONE;
+void		FXCRT_GetCurrentSystemTime(FXCRT_DATETIMEZONE& dt);
+#ifdef __cplusplus
+}
+#endif
 #endif

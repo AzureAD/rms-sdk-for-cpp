@@ -169,11 +169,11 @@ public:
 
     virtual FX_LPBYTE		GetBuffer() const = 0;
 
-    virtual void			AttachBuffer(FX_LPBYTE pBuffer, size_t size, FX_BOOL bTakeOver = FALSE) = 0;
+    virtual void			AttachBuffer(FX_LPBYTE pBuffer, size_t nSize, FX_BOOL bTakeOver = FALSE) = 0;
 
     virtual void			DetachBuffer() = 0;
 };
-IFX_MemoryStream*	FX_CreateMemoryStream(FX_LPBYTE pBuffer, size_t size, FX_BOOL bTakeOver = FALSE);
+IFX_MemoryStream*	FX_CreateMemoryStream(FX_LPBYTE pBuffer, size_t nSize, FX_BOOL bTakeOver = FALSE);
 IFX_MemoryStream*	FX_CreateMemoryStream(FX_BOOL bConsecutive = FALSE);
 class IFX_BufferRead : public IFX_StreamRead
 {

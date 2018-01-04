@@ -19,6 +19,7 @@
 #include "core/include/fxcrt/fx_string.h"
 #include "core/include/fxcrt/fx_basic.h"
 #include "core/include/fxcrt/fx_system.h"
+#include "core/include/fxcrt/fx_xml.h"
 
 #endif // RMSSDK_PDFOBJECTMODEL_CORE_H_
 

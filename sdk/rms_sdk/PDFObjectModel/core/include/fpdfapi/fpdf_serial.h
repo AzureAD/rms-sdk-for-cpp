@@ -64,7 +64,7 @@ protected:
 
     FX_BOOL				m_bStandardSecurity;
 
-    CPDF_CryptoHandler*	crypto_handler_;
+    CPDF_CryptoHandler*	m_pCryptoHandler;
     FX_BOOL				m_bNewCrypto;
 
     FX_BOOL				m_bEncryptMetadata;
@@ -143,13 +143,13 @@ public:
 
     virtual void		Release() = 0;
 
-    virtual void		SetPayloadInfo(FX_WSTR wsSubType, FX_WSTR wsFileName, FX_WSTR wsDescription = FX_WSTRC(L""), FX_FLOAT version_num = 0.f) = 0;
+    virtual void		SetPayloadInfo(FX_WSTR wsSubType, FX_WSTR wsFileName, FX_WSTR wsDescription = FX_WSTRC(L""), FX_FLOAT fVersion = 0.f) = 0;
 
     virtual void		SetPayLoad(IFX_FileRead* pPayload) = 0;
 
     virtual FX_BOOL		Create(IFX_FileWrite* pFile, FX_DWORD flags = 0) = 0;
 
-    virtual FX_INT32	        Continue(IFX_Pause *pPause = NULL) = 0;
+    virtual FX_INT32	Continue(IFX_Pause *pPause = NULL) = 0;
     virtual void		SetCreatorOption(CPDF_CreatorOption* pOption = NULL) = 0;
 };
 IPDF_UnencryptedWrapperCreator*	FPDF_UnencryptedWrapperCreator_Create(CPDF_Document* pWrapperDoc);

@@ -520,25 +520,25 @@ public:
         if (nCount == 0) {
             return 0;
         }
-        FX_INT32 size = src.GetSize();
-        if (!size) {
+        FX_INT32 nSize = src.GetSize();
+        if (!nSize) {
             return 0;
         }
-        FXSYS_assert(nStart > -1 && nStart < size);
+        FXSYS_assert(nStart > -1 && nStart < nSize);
         if (nCount < 0) {
-            nCount = size;
+            nCount = nSize;
         }
-        if (nStart + nCount > size) {
-            nCount = size - nStart;
+        if (nStart + nCount > nSize) {
+            nCount = nSize - nStart;
         }
         if (nCount < 1) {
             return 0;
         }
-        size = m_nSize;
+        nSize = m_nSize;
         InsertSpaceAt(m_nSize, nCount);
-        ObjectClass* pStartObj = (ObjectClass*)GetDataPtr(size);
-        size = nStart + nCount;
-        for (FX_INT32 i = nStart; i < size; i ++, pStartObj++) {
+        ObjectClass* pStartObj = (ObjectClass*)GetDataPtr(nSize);
+        nSize = nStart + nCount;
+        for (FX_INT32 i = nStart; i < nSize; i ++, pStartObj++) {
             new ((void*)pStartObj) ObjectClass(src[i]);
         }
         return nCount;
@@ -549,16 +549,16 @@ public:
         if (nCount == 0) {
             return 0;
         }
-        FX_INT32 size = src.GetSize();
-        if (!size) {
+        FX_INT32 nSize = src.GetSize();
+        if (!nSize) {
             return 0;
         }
-        FXSYS_assert(nStart > -1 && nStart < size);
+        FXSYS_assert(nStart > -1 && nStart < nSize);
         if (nCount < 0) {
-            nCount = size;
+            nCount = nSize;
         }
-        if (nStart + nCount > size) {
-            nCount = size - nStart;
+        if (nStart + nCount > nSize) {
+            nCount = nSize - nStart;
         }
         if (nCount < 1) {
             return 0;
@@ -566,8 +566,8 @@ public:
         RemoveAll();
         SetSize(nCount, -1);
         ObjectClass* pStartObj = (ObjectClass*)m_pData;
-        size = nStart + nCount;
-        for (FX_INT32 i = nStart; i < size; i ++, pStartObj++) {
+        nSize = nStart + nCount;
+        for (FX_INT32 i = nStart; i < nSize; i ++, pStartObj++) {
             new ((void*)pStartObj) ObjectClass(src[i]);
         }
         return nCount;

@@ -52,6 +52,8 @@ public:
         return m_pInfoDict;
     }
 
+    void					SetInfoObjNum(int nInfoObjNum);
+
     void					GetID(CFX_ByteString& id1, CFX_ByteString& id2) const
     {
         id1 = m_ID1;
@@ -124,7 +126,7 @@ public:
 
     FX_INT32				GetWrapperType() const;
 
-    FX_BOOL					GetCryptographicFilter(CFX_WideString &graphic_filter, FX_FLOAT &version_num) const;
+    FX_BOOL					GetCryptographicFilter(CFX_WideString &wsGraphicFilter, FX_FLOAT &fVersion) const;
 
     FX_FILESIZE				GetPayLoadSize() const;
 
@@ -205,12 +207,12 @@ public:
 
     void				SetEncrypt(CPDF_CryptoHandler* pCryptoHandler)
     {
-        crypto_handler_ = pCryptoHandler;
+        m_pCryptoHandler = pCryptoHandler;
     }
 
     FX_BOOL				IsEncrypted() const
     {
-        return crypto_handler_ != NULL;
+        return m_pCryptoHandler != NULL;
     }
 
     FX_BOOL				GetCharAt(FX_FILESIZE pos, FX_BYTE& ch);
@@ -257,7 +259,7 @@ protected:
 
     FX_FILESIZE			m_BufOffset;
 
-    CPDF_CryptoHandler*	crypto_handler_;
+    CPDF_CryptoHandler*	m_pCryptoHandler;
 
     FX_BYTE				m_WordBuffer[257];
 
@@ -364,7 +366,7 @@ public:
 
     CPDF_CryptoHandler*	GetCryptoHandler()
     {
-        return m_Syntax.crypto_handler_;
+        return m_Syntax.m_pCryptoHandler;
     }
 
     void				SetSecurityHandler(CPDF_SecurityHandler* pSecurityHandler, FX_BOOL bForced = FALSE);

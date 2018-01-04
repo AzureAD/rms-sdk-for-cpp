@@ -542,3 +542,55 @@ FX_INT32 CFX_Base64Decoder::Decode(const CFX_ByteStringC &src, CFX_ByteString &d
     CFX_WideString ws = CFX_WideString::FromUTF8(src.GetCStr(), src.GetLength());
     return Decode(ws, dst);
 }
+
+void FX_Time_GetSystemTime(FX_SYSTEMTIME* pSystemTime)
+{
+    if (!pSystemTime) return;
+#if _FX_OS_ == _FX_WIN32_DESKTOP_
+    ::GetSystemTime((LPSYSTEMTIME)pSystemTime);
+#else
+    timeval curTime;
+    gettimeofday(&curTime, NULL);
+    struct tm st;
+    gmtime_r(&curTime.tv_sec, &st);
+    pSystemTime->wYear = st.tm_year + 1900;
+    pSystemTime->wMonth = st.tm_mon + 1;
+    pSystemTime->wDayOfWeek = st.tm_wday;
+    pSystemTime->wDay = st.tm_mday;
+    pSystemTime->wHour = st.tm_hour;
+    pSystemTime->wMinute = st.tm_min;
+    pSystemTime->wSecond = st.tm_sec;
+    pSystemTime->wMilliseconds = curTime.tv_usec / 1000;
+#endif
+}
+void FXCRT_GetCurrentSystemTime(FXCRT_DATETIMEZONE& dt)
+{
+    FXSYS_memset(&dt, 0, sizeof(dt));
+
+#if _FX_OS_ == _FX_LINUX_DESKTOP
+    FX_SYSTEMTIME sysTime;
+    FX_Time_GetSystemTime(&sysTime);
+    tzset();
+    FX_INT32 tzHour = __timezone / 3600 * -1;
+    FX_INT32 tzMin = (FXSYS_abs(__timezone) % 3600) / 60;
+#elif _FX_OS_ == _FX_WIN32_DESKTOP_
+    SYSTEMTIME sysTime;
+    GetLocalTime(&sysTime);
+    _tzset();
+    long timezone_second;
+    _get_timezone(&timezone_second);
+    FX_INT32 tzHour = timezone_second / 3600 * -1;
+    FX_INT32 tzMin = (FXSYS_abs(timezone_second) % 3600) / 60;
+#endif
+
+    dt.year = sysTime.wYear;
+    dt.month = sysTime.wMonth;
+    dt.day = sysTime.wDay;
+    dt.dayOfWeek = sysTime.wDayOfWeek;
+    dt.hour = sysTime.wHour;
+    dt.minute = sysTime.wMinute;
+    dt.second = sysTime.wSecond;
+    dt.milliseconds = sysTime.wMilliseconds;
+    dt.tzHour = tzHour;
+    dt.tzMinute = tzMin;
+}
