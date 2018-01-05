@@ -83,7 +83,9 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_IsProtected,testing::Values(
     IsProtected_P("Input/unprotector.pdf","NO Exception",false),
     IsProtected_P("Input/Protector/MIPProtector.pdf","NO Exception",true),
     IsProtected_P("Input/Protector/customerTemplate.pdf","NO Exception",false),
-    IsProtected_P("Input/Protector/V1V1.pdf","NO Exception",true)
+    IsProtected_P("Input/Protector/V1V1.pdf","NO Exception",true),
+    IsProtected_P("Input/Protector/V1NoWrapper.pdf","NO Exception",true),
+    IsProtected_P("Input/Protector/V1NoWrapper.pdf","NO Exception",true)
 ));
 
 //********************protector***********************************************
@@ -92,17 +94,16 @@ TEST_P(ProtectorWithWrapper_Unprotector,Unprotector_T) {
   Unprotector_P TParam = GetParam();
   std::string fileIn = unittests::dependency::GetCurrentInputFile() + TParam.fileIn;
   auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::binary);
+  std::string filename = fileIn;
+  std::string new_file_name = "";
   try {
-    std::string filename = fileIn;
-    std::string new_file_name = "";
-    std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj =
-        rmscore::fileapi::ProtectorWithWrapper::Create(filename, inFile, new_file_name);
-
-    std::string file_out = unittests::dependency::GetCurrentInputFile() + TParam.fileout;
+      std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj =
+            rmscore::fileapi::ProtectorWithWrapper::Create(filename, inFile, new_file_name);
+      std::string file_out = unittests::dependency::GetCurrentInputFile() + TParam.fileout;
 
     // create streams
-    auto outFile = std::make_shared<std::fstream>(
-        file_out, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+      auto outFile = std::make_shared<std::fstream>(
+                  file_out, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     AuthCallback auth(CLIENTID, REDIRECTURL);
     ConsentCallback consent;
     std::shared_ptr<std::atomic<bool> > cancelState(new std::atomic<bool>(false));
@@ -112,6 +113,12 @@ TEST_P(ProtectorWithWrapper_Unprotector,Unprotector_T) {
 
     if (TParam.cancelState) cancelState = cancelState2;
     obj->Unprotect(ut, upt, outFile, cancelState);
+
+    inFile = std::make_shared<std::fstream>(file_out, std::ios_base::in | std::ios_base::binary);
+    std::unique_ptr<rmscore::fileapi::ProtectorWithWrapper> obj2 =
+          rmscore::fileapi::ProtectorWithWrapper::Create(file_out, inFile, new_file_name);
+    bool ret=obj2->IsProtected();
+    EXPECT_EQ(ret, false);
   }
   catch (const rmsauth::Exception& e) {
     std::string message(e.what());
@@ -146,6 +153,8 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_Unprotector,testing::Values(
     Unprotector_P("Input/Protector/anyone.pdf","OutPut/error/errorPath.pdf","Output stream invalid",false),
     //Unprotector_P("Input/Protector/cer2-no.pdf","OutPut/unProtected/cer2-no.pdf","It is not a valid RMS-protected file.",false),
     Unprotector_P("Input/Protector/V1V1.pdf","OutPut/unProtected/V1V1.pdf","",false),
+    Unprotector_P("Input/Protector/V2NoWrapper.pdf","OutPut/unProtected/V2NoWrapper.pdf","",false),
+    Unprotector_P("Input/Protector/V1NoWrapper.pdf","OutPut/unProtected/V1NoWrapper.pdf","",false),
     Unprotector_P("Input/Protector/V1V0.pdf","OutPut/unProtected/V1V0.pdf","",false)
 ));
 //************ProtectWithTemplate********************************************
@@ -225,6 +234,8 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_ProtectWithTemplate,testing::Value
     ProtectWithTemplate_P("Input/XFADyanmic.pdf","OutPut/protectorWithTemplate/Protected XFADyanmic.pdf","Failed to encrypt the file. The file is invalid.",false,false),
     ProtectWithTemplate_P("Input/Protector/password.pdf","OutPut/protectorWithTemplate/password.pdf","Failed to encrypt the file. The file is invalid.",false,false),
     ProtectWithTemplate_P("Input/Protector/MaxOwner.pdf","OutPut/protectorWithTemplate/MaxOwner.pdf","File is already protected",false,false),
+    ProtectWithTemplate_P("Input/Protector/V2NoWrapper.pdf","OutPut/protectorWithTemplate/V2NoWrapper.pdf","File is already protected",false,false),
+    ProtectWithTemplate_P("Input/Protector/V1NoWrapper.pdf","OutPut/protectorWithTemplate/V1NoWrapper.pdf","File is already protected",false,false),
     ProtectWithTemplate_P("Input/Protector/V1V1.pdf","OutPut/protectorWithTemplate/V1V1.pdf","File is already protected",false,false),
     ProtectWithTemplate_P("Input/Protector/customerTemplate.pdf","OutPut/protectorWithTemplate/customerTemplate.pdf","File is already protected",false,true),
     ProtectWithTemplate_P("Input/unprotector.pdf","OutPut/error/canscelstatetrue.pdf","Output stream invalid",false,false),
@@ -348,6 +359,8 @@ INSTANTIATE_TEST_CASE_P(,ProtectorWithWrapper_ProtectWithCustomRights,testing::V
     ProtectWithCustomRights_P("Input/unprotector.pdf","OutPut/protectWithCustomeRight/RightisNULL.pdf","zhq@foxitsoftwareinc.onmicrosoft.com","","Got an invalid response from the server : args are empty.",false,false),
     ProtectWithCustomRights_P("Input/Protector/password.pdf","OutPut/protectWithCustomeRight/password.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","Failed to encrypt the file. The file is invalid.",false,false),
     ProtectWithCustomRights_P("Input/Protector/MaxOwner.pdf","OutPut/protectWithCustomeRight/MaxOwner.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","File is already protected",false,false),
+    ProtectWithCustomRights_P("Input/Protector/V2NoWrapper.pdf","OutPut/protectWithCustomeRight/V2NoWrapper.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","File is already protected",false,false),
+    ProtectWithCustomRights_P("Input/Protector/V1NoWrapper.pdf","OutPut/protectWithCustomeRight/V1NoWrapper.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","File is already protected",false,false),
     ProtectWithCustomRights_P("Input/Protector/customerTemplate.pdf","OutPut/protectWithCustomeRight/customerTemplate.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","NO Exception",false,true)
     //ProtectWithCustomRights_P("Input/Protector/phantomOfficeT.pdf","OutPut/protectWithCustomeRight/phantomOfficeT.pdf","zhq@foxitsoftwareinc.onmicrosoft.com|","VIEW EDIT |","File is already protected",false,false)
 ));

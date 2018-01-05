@@ -48,11 +48,7 @@ void PDFCryptoHandler_child::DecryptStart(uint32_t objnum, uint32_t gennum) {
 
 bool PDFCryptoHandler_child::DecryptStream(char* src_buf, uint32_t src_size, pdfobjectmodel::PDFBinaryBuf* dest_buf) {
   FILEAPI_UNREFERENCED_PARAMETER(dest_buf);
-  if (data_to_be_decrypted_) {
-    data_to_be_decrypted_->write(src_buf, src_size);
-  } else {
-    return false;
-  }
+  data_to_be_decrypted_->write(src_buf, src_size);
   return true;
 }
 
@@ -494,7 +490,12 @@ void PDFProtector_unit::Protect(const std::shared_ptr<std::fstream>& output_stre
   auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
   pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
       std::make_shared<FDFDataStreamImpl_unit>(output_wrapper);
-  bool create_result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
+  //bool create_result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
+  std::string stream_cache_file_path = original_file_path_;
+  stream_cache_file_path += STREAM_TEMP_FILE;
+  bool create_result = pdf_wrapper_creator_->CreateUnencryptedWrapper(
+      stream_cache_file_path,
+      output_wrapper_shared_stream);
   if (!create_result) {
       throw exceptions::RMSInvalidArgumentException("Failed to create PDF IRM V2 file. The wrapper doc may be invalid.");
     return;

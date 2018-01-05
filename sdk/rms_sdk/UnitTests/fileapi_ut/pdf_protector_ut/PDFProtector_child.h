@@ -15,17 +15,18 @@
 #include "UserPolicy.h"
 #include "PDFObjectModel/pdf_object_model.h"
 #include "CryptoAPI.h"
+namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 
 namespace rmscore{
 namespace fileapi {
 
-namespace pdfobjectmodel = rmscore::pdfobjectmodel;
-
 #define MIN_RAW_SIZE 64 * 1024 * 1024
 #define PROGRESSIVE_ENCRYPT_TEMP_FILE ".RMS.PE.temp"
-
+#define ENCRYPTED_TEMP_FILE ".encrypted.temp"
+#define PAYLOAD_TEMP_FILE ".payload.temp"
+#define STREAM_TEMP_FILE ".stream.temp"
 /**
- * @brief The implementation class of interface class PDFDataStream.
+ * @brief The implementaion class of interface class PDFDataStream.
  * It is used to access to the stream data.
  * It is implemented by PDF protect, and it is invoked by PDF object model to access to the stream data.
  */
@@ -191,6 +192,7 @@ class PDFProtector_unit : public ProtectorWithWrapper {
   std::shared_ptr<std::fstream> input_wrapper_stream_;
   std::unique_ptr<pdfobjectmodel::PDFCreator> pdf_creator_;
   std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_creator_;
+
 };
 
 /**

@@ -136,7 +136,12 @@ TEST_P(PDFCreator_CreateCustomEncryptedFile, CreateCustomEncryptedFile_T) {
     auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
     pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
         std::make_shared<fileapi::FDFDataStreamImpl_unit>(output_wrapper);
-    bool result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
+    //bool result = pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
+    std::string stream_cache_file_path = fileIn;
+    stream_cache_file_path += ".stream.temp";
+    bool result = pdf_wrapper_creator_->CreateUnencryptedWrapper(
+        stream_cache_file_path,
+        output_wrapper_shared_stream);
     EXPECT_EQ(true, result);
   }
 }
@@ -409,23 +414,38 @@ INSTANTIATE_TEST_CASE_P(,PDFWrapperDoc_GetPayloadFileName,testing::Values(
 TEST_P(PDFUnencryptedWrapperCreator_CreateUnencryptedWrapper,CreateUnencryptedWrapper_T) {
   CreateUnencryptedWrapper_P TParam = GetParam();
   pdfobjectmodel::PDFModuleMgr::Initialize();
+
   std::string fileIn = unittests::dependency::GetCurrentInputFile() + TParam.fileIn;
   auto inFile = std::make_shared<std::fstream>(fileIn, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-  std::string file_out = "OutPut/CreateUnencryptedWrapper/anyone.pdf";
-  auto outFile = std::make_shared<std::fstream>(file_out, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
   std::shared_ptr<std::iostream> input_encrypted_IO = inFile;
   auto input_encrypted = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
+
   pdfobjectmodel::PDFSharedStream encrypted_shared_stream =
-      std::make_shared<fileapi::FDFDataStreamImpl_unit>(input_encrypted);
+                                  std::make_shared<rmscore::fileapi::FDFDataStreamImpl_unit>(input_encrypted);
+  std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_doc =
+                                  pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(encrypted_shared_stream);
+
+  std::string file_out = unittests::dependency::GetCurrentInputFile()+"OutPut/CreateUnencryptedWrapper/anyone.pdf";
+  auto outFile = std::make_shared<std::fstream>(file_out, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+
   uint32_t ret;
   try {
-    std::unique_ptr<pdfobjectmodel::PDFUnencryptedWrapperCreator> pdf_wrapper_doc =
-        pdfobjectmodel::PDFUnencryptedWrapperCreator::Create(encrypted_shared_stream);
     std::shared_ptr<std::iostream> input_encrypted_IO = outFile;
     auto output_stream = rmscrypto::api::CreateStreamFromStdStream(input_encrypted_IO);
     pdfobjectmodel::PDFSharedStream wrapper_shared_stream =
         std::make_shared<fileapi::FDFDataStreamImpl_unit>(output_stream);
-    ret = pdf_wrapper_doc->CreateUnencryptedWrapper(wrapper_shared_stream);
+    //ret = pdf_wrapper_doc->CreateUnencryptedWrapper(wrapper_shared_stream);
+    std::string stream_cache_file_path = fileIn;
+    stream_cache_file_path += ".stream.temp";
+    pdf_wrapper_doc->SetPayloadInfo(
+        PDF_PROTECTOR_WRAPPER_SUBTYPE,
+        PDF_PROTECTOR_WRAPPER_FILENAME,
+        PDF_PROTECTOR_WRAPPER_DES,
+        PDF_PROTECTOR_WRAPPER_VERSION);
+    pdf_wrapper_doc->SetPayLoad(encrypted_shared_stream);
+    ret = pdf_wrapper_doc->CreateUnencryptedWrapper(
+        stream_cache_file_path,
+        wrapper_shared_stream);
   }
   catch(const rmsauth::Exception& e) {
     std::string message(e.what());
@@ -525,7 +545,12 @@ TEST_P(PDFUnencryptedWrapperCreator_SetPayloadInfo, SetPayloadInfo_T) {
     auto output_wrapper = rmscrypto::api::CreateStreamFromStdStream(outputIO);
     pdfobjectmodel::PDFSharedStream output_wrapper_shared_stream =
         std::make_shared<fileapi::FDFDataStreamImpl_unit>(output_wrapper);
-    pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
+    //pdf_wrapper_creator_->CreateUnencryptedWrapper(output_wrapper_shared_stream);
+    std::string stream_cache_file_path = fileIn;
+    stream_cache_file_path += ".stream.temp";
+    pdf_wrapper_creator_->CreateUnencryptedWrapper(
+        stream_cache_file_path,
+        output_wrapper_shared_stream);
     //**************************
     auto inpro = std::make_shared<std::fstream>(file_out, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
     std::shared_ptr<std::iostream> input_encrypted_IO = inpro;
