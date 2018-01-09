@@ -665,7 +665,8 @@ PDFCreatorErr PDFCreatorImpl::UnprotectCustomEncryptedFile(
   pdf_creator.SetCustomSecurity(nullptr, nullptr, false);
 
   FileStreamImpl output_file_stream(outputIOS);
-  FX_BOOL create_result = pdf_creator.Create(&output_file_stream);
+  FX_DWORD creator_flag = FPDFCREATE_OBJECTSTREAM;
+  FX_BOOL create_result = pdf_creator.Create(&output_file_stream, creator_flag);
   if (!create_result) {
     result = PDFCreatorErr::CREATOR;
   }
