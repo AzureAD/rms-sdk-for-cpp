@@ -2,32 +2,27 @@
 #define RMSSDK_UNITTESTS_FILEAPI_UT_PDF_PROTECTOR_UT_UNITTEST_PDFOBJECTMODEL_H_
 
 #include "depend.h"
-#include "PDFObjectModel/pdf_object_model.h"
 #include <string>
 #include <memory>
-
-namespace pdfobjectmodel = rmscore::pdfobjectmodel;
-namespace fileapi = rmscore::fileapi;
-namespace modernapi = rmscore::modernapi;
-
+#include "PDFObjectModel/pdf_object_model.h"
 struct CreateCustomEncryptedFile_P {
   CreateCustomEncryptedFile_P(
       std::string fileIn_,
       std::string fileout_,
       std::string filterName_,
       std::string ExceptionsMess_,
-      pdfobjectmodel::PDFCreatorErr ret_) {
+      rmscore::pdfobjectmodel::PDFCreatorErr ret_) {
     fileIn = fileIn_;
     fileout =fileout_;
     filter_name = filterName_;
     ret = ret_;
-    ExceptionsMess=ExceptionsMess_;
+    ExceptionsMess = ExceptionsMess_;
   }
   std::string fileIn;
   std::string fileout;
   std::string filter_name;
   std::string ExceptionsMess;
-  pdfobjectmodel::PDFCreatorErr ret;
+  rmscore::pdfobjectmodel::PDFCreatorErr ret;
 };
 
 class PDFCreator_CreateCustomEncryptedFile : public ::testing::TestWithParam<CreateCustomEncryptedFile_P> {
@@ -41,20 +36,17 @@ struct UnprotectCustomEncryptedFile_P {
       std::string fileIn_,
       std::string fileout_,
       std::string filterName_,
-      std::string Exceptionmess_,
-      pdfobjectmodel::PDFCreatorErr ret_) {
+      rmscore::pdfobjectmodel::PDFCreatorErr ret_) {
     fileIn = fileIn_;
     fileout =fileout_;
     filter_name = filterName_;
-    ExceptionsMess = Exceptionmess_;
     ret = ret_;
 
   }
   std::string fileIn;
   std::string fileout;
   std::string filter_name;
-  std::string ExceptionsMess;
-  pdfobjectmodel::PDFCreatorErr ret;
+  rmscore::pdfobjectmodel::PDFCreatorErr ret;
 };
 
 class PDFCreator_UnprotectCustomEncryptedFile:public ::testing::TestWithParam<UnprotectCustomEncryptedFile_P> {
@@ -69,7 +61,7 @@ struct GetWrapperType_P {
       std::string Exceptions_,
       uint32_t ret_) {
     fileIn = fileIn_;
-    ExceptionsMess=Exceptions_;
+    ExceptionsMess = Exceptions_;
     ret = ret_;
   }
   std::string fileIn;

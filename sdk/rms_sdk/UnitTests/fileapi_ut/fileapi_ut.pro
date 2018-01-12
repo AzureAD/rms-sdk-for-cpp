@@ -30,6 +30,7 @@ INCLUDEPATH += $$REPO_ROOT/googlemock/include
 INCLUDEPATH += $$REPO_ROOT/googletest/
 INCLUDEPATH += $$REPO_ROOT/googletest/include
 
+
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
     LIBS += -lrmsd -lmodprotectedfiled -lmodcored -lmodrestclientsd -lmodconsentd -lmodcommond -lmodjsond
@@ -47,14 +48,18 @@ win32:LIBS += -L$$REPO_ROOT/third_party/lib/eay/ -lssleay32 -llibeay32 -lGdi32 -
 else:LIBS  += -lssl -lcrypto
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+#DEFINES-= UNICODE
 
 HEADERS += \
     FileAPIProtectorSelectorTest.h \
     pdf_protector_ut/depend.h \
     pdf_protector_ut/Auth.h \
-    pdf_protector_ut/PDFProtector_child.h \
     pdf_protector_ut/unittest_protector.h \
-    pdf_protector_ut/unittest_pdfobjectmodel.h
+    pdf_protector_ut/unittest_pdfobjectmodel.h \
+    pdf_protector_ut/pdfobjectmodel_mock.h
+
+
+
 
 SOURCES += \
     FileAPIProtectorSelectorTest.cpp \
@@ -64,5 +69,6 @@ SOURCES += \
     pdf_protector_ut/unittest_protector.cpp \
     pdf_protector_ut/Auth.cpp \
     pdf_protector_ut/depend.cpp \
-    pdf_protector_ut/PDFProtector_child.cpp \
-    pdf_protector_ut/unittest_pdfobjectmodel.cpp
+    pdf_protector_ut/unittest_pdfobjectmodel.cpp \
+    pdf_protector_ut/pdfobjectmodel_mock.cpp
+
