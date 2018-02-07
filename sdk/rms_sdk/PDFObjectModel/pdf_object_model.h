@@ -102,8 +102,6 @@ class PDFBinaryBuf {
  */
 class PDFDataStream {
  public:
-  virtual void Release() = 0;
-
   virtual uint64_t GetSize() = 0;
 
   virtual bool IsEOF() = 0;

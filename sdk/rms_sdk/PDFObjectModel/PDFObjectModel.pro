@@ -2,11 +2,18 @@ REPO_ROOT = $$PWD/../../..
 DESTDIR   = $$REPO_ROOT/bin
 TARGET    = pdfobjectmodel
 
-TEMPLATE = lib
-CONFIG  += plugin c++11 debug_and_release warn_on
+DEFINES += RMS_LIBRARY_DLL
+#DEFINES += RMS_LIBRARY_STATIC_MT
+#DEFINES += RMS_LIBRARY_STATIC_MD
 
-DEFINES += RMS_LIBRARY
-#DEFINES += RMS_LIBRARY_STATIC
+TEMPLATE = lib
+contains(DEFINES, RMS_LIBRARY_DLL){
+    CONFIG  += plugin c++11 debug_and_release warn_on
+    DEFINES += RMS_LIBRARY
+}else{
+    CONFIG  += static c++11 debug_and_release warn_on
+    DEFINES += RMS_LIBRARY_STATIC
+}
 
 #QMAKE_CFLAGS_WARN_ON -= -W3
 #QMAKE_CFLAGS_WARN_ON += -W4
@@ -109,12 +116,25 @@ SOURCES += \
     pdf_metadata_creator.cpp
 
 CONFIG(debug, debug|release) {
-    #QMAKE_CXXFLAGS_DEBUG += -MTd
-    #QMAKE_CXXFLAGS += /Z7
+    contains(DEFINES, RMS_LIBRARY_STATIC_MT) {
+        QMAKE_CXXFLAGS_DEBUG += -MTd
+        QMAKE_CXXFLAGS += /Z7
+    }
+    contains(DEFINES, RMS_LIBRARY_STATIC_MD) {
+        QMAKE_CXXFLAGS_DEBUG += -MDd
+        QMAKE_CXXFLAGS += /Z7
+    }
+
     TARGET = $$join(TARGET,,,d)
 } else {
-    #QMAKE_CXXFLAGS_RELEASE += -MT
-    #QMAKE_CXXFLAGS += /Z7
+    contains(DEFINES, RMS_LIBRARY_STATIC_MT) {
+        QMAKE_CXXFLAGS_RELEASE += -MT
+        QMAKE_CXXFLAGS += /Z7
+    }
+    contains(DEFINES, RMS_LIBRARY_STATIC_MD) {
+        QMAKE_CXXFLAGS_DEBUG += -MD
+        QMAKE_CXXFLAGS += /Z7
+    }
 }
 
 unix {
