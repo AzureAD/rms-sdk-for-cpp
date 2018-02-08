@@ -507,6 +507,9 @@ UnprotectResult PDFProtector::Unprotect(
   auto output_decrypted = rmscrypto::api::CreateStreamFromStdStream(output_decrypted_IO);
 
   std::string filter_name = PDF_PROTECTOR_FILTER_NAME;
+  std::string cache_file_path = original_file_path_;
+  cache_file_path += CREATOR_STREAM_TEMP_FILE;
+  cache_file_path += GenerateRandomNumber();
 
   std::shared_ptr<PDFProtector> shared_pdf_protector(this, [=](PDFProtector* pdf_protector) {
     pdf_protector = nullptr;
@@ -523,6 +526,7 @@ UnprotectResult PDFProtector::Unprotect(
       std::make_shared<PDFDataStreamImpl>(output_decrypted);
   pdfobjectmodel::PDFCreatorErr result = pdf_creator_->UnprotectCustomEncryptedFile(
       payload_shared_stream,
+      cache_file_path,
       filter_name,
       security_handler,
       decrypted_shared_stream);
@@ -661,7 +665,7 @@ void PDFProtector::Protect(const std::shared_ptr<std::fstream>& outputstream) {
       std::make_shared<PDFDataStreamImpl>(output_wrapper);
 
   std::string stream_cache_file_path = original_file_path_;
-  stream_cache_file_path += STREAM_TEMP_FILE;
+  stream_cache_file_path += PAYLOAD_STREAM_TEMP_FILE;
   stream_cache_file_path += GenerateRandomNumber();
   bool result_create = pdf_wrapper_creator_->CreateUnencryptedWrapper(
       stream_cache_file_path,

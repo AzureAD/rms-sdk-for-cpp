@@ -30,7 +30,8 @@ namespace fileapi {
 #define PROGRESSIVE_ENCRYPT_TEMP_FILE ".RMS.PE.temp"
 #define ENCRYPTED_TEMP_FILE ".encrypted.temp"
 #define PAYLOAD_TEMP_FILE ".payload.temp"
-#define STREAM_TEMP_FILE ".stream.temp"
+#define PAYLOAD_STREAM_TEMP_FILE ".payloadstream.temp"
+#define CREATOR_STREAM_TEMP_FILE ".creatorstream.temp"
 
 /**
  * @brief The implementation class of interface class PDFDataStream.

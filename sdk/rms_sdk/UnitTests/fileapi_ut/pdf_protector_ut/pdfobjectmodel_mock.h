@@ -22,6 +22,7 @@ namespace fileapi_unittest {
 namespace pdfobjectmodel = rmscore::pdfobjectmodel;
 using namespace rmscore::pdfobjectmodel;
 #define PROGRESSIVE_ENCRYPT_TEMP_FILE ".RMS.PE.temp"
+#define CREATOR_STREAM_TEMP_FILE ".creatorstream.temp"
 class PDFCryptoHandler_mock;
 class PDFSharedStream_mock;
 class PDFSecurityHandler_mock;

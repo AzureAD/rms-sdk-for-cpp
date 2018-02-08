@@ -161,6 +161,7 @@ class PDFCreatorImpl : public PDFCreator {
 
   virtual PDFCreatorErr UnprotectCustomEncryptedFile(
       PDFSharedStream inputIOS,
+      const std::string& cache_file_path,
       const std::string& filter_name,
       std::shared_ptr<PDFSecurityHandler> security_handler,
       PDFSharedStream outputIOS);

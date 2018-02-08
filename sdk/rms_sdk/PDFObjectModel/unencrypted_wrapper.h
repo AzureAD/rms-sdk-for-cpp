@@ -14,7 +14,7 @@ namespace pdfobjectmodel {
 #define IRMV1_WRAPPER_DICTIONARY_VERSION    "Version"
 #define IRMV1_WRAPPER_DICTIONARY_OFFSET     "WrapperOffset"
 
-#define MIN_WRAPPER_CACHE_SIZE 100 * 1024 * 1024
+#define MIN_CREATOR_CACHE_SIZE 60 * 1024 * 1024
 
 /**
  * @brief The implementation class of interface class PDFWrapperDoc defined in pdf object model layer.

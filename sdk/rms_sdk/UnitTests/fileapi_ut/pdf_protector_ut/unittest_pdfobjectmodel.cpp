@@ -114,8 +114,11 @@ TEST_P(PDFCreator_UnprotectCustomEncryptedFile, UnprotectCustomEncryptedFile_T) 
   std::string filter_name = TParam.filter_name;
   rmscore::pdfobjectmodel::PDFCreatorErr ret;
   auto mock_SecurityHandler = std::make_shared<objmodel_unittest::PDFSecurityHandler_mock>();
+  std::string cache_file_path = fileIn;
+  cache_file_path += CREATOR_STREAM_TEMP_FILE;
   ret = pdf_creator_->UnprotectCustomEncryptedFile(
       inputFileData,
+      cache_file_path,
       filter_name,
       mock_SecurityHandler,
       output_FileData);

@@ -372,6 +372,7 @@ class PDFCreator {
    * @brief Decrypts the custom encrypted PDF file(be opposed to standard encryption like
    * password encryption or certificate encryption).
    * @param[in] inputIOS          The input custom encrypted PDF document.
+   * @param[in] cache_file_path    The input cache file path when encrypting.
    * @param[in] filter_name        The filter name, according to "Microsoft IRM protection for PDF Spec-v2".
    * @param[in] security_handler    The securty handler used to check the validity and to create crypto hander for PDF data decryption.
    * @param[out] outputIOS        It receives the decrypted PDF documnet.
@@ -379,6 +380,7 @@ class PDFCreator {
    */
   virtual PDFCreatorErr UnprotectCustomEncryptedFile(
       PDFSharedStream inputIOS,
+      const std::string& cache_file_path,
       const std::string& filter_name,
       std::shared_ptr<PDFSecurityHandler> security_handler,
       PDFSharedStream outputIOS) = 0;

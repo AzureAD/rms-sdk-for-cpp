@@ -4,6 +4,7 @@
 
 #include "pdf_module_mgr.h"
 #include "basic.h"
+#include "unencrypted_wrapper.h"
 
 namespace rmscore {
 namespace pdfobjectmodel {
@@ -39,7 +40,7 @@ FX_LPVOID CustomCryptoHandler::DecryptStart(FX_DWORD objnum, FX_DWORD gennum) {
   if (pdf_crypto_handler_) {
     pdf_crypto_handler_->DecryptStart(objnum, gennum);
   }
-  return nullptr;
+  return this;
 }
 
 FX_BOOL CustomCryptoHandler::DecryptStream(
@@ -633,11 +634,13 @@ PDFCreatorErr PDFCreatorImpl::CreatePDFFile(
 
 PDFCreatorErr PDFCreatorImpl::UnprotectCustomEncryptedFile(
     PDFSharedStream inputIOS,
+    const std::string &cache_file_path,
     const std::string& filter_name,
     std::shared_ptr<PDFSecurityHandler> security_handler,
     PDFSharedStream outputIOS) {
   PDFCreatorErr result = PDFCreatorErr::SUCCESS;
 
+  cache_file_path_ = cache_file_path;
   PDFModuleMgrImpl::RegisterSecurityHandler(filter_name.c_str(), security_handler);
 
   FileStreamImpl input_file_stream(inputIOS);
@@ -664,10 +667,26 @@ PDFCreatorErr PDFCreatorImpl::UnprotectCustomEncryptedFile(
   pdf_creator.RemoveSecurity();
   pdf_creator.SetCustomSecurity(nullptr, nullptr, false);
 
+  CFX_ByteString file_path_bytestring = cache_file_path_.c_str();
+  CFX_WideString file_path_widestring = file_path_bytestring.UTF8Decode();
+  CPDF_CreatorOptionImpl creator_option(file_path_widestring);
+  if (!cache_file_path_.empty()) {
+    pdf_creator.SetCreatorOption(&creator_option);
+  }
+
   FileStreamImpl output_file_stream(outputIOS);
-  FX_DWORD creator_flag = FPDFCREATE_OBJECTSTREAM;
+  FX_DWORD creator_flag = FPDFCREATE_OBJECTSTREAM | FPDFCREATE_PROGRESSIVE;
   FX_BOOL create_result = pdf_creator.Create(&output_file_stream, creator_flag);
-  if (!create_result) {
+  if (create_result) {
+    FX_INT32 continue_count = 0;
+    do {
+      continue_count = pdf_creator.Continue();
+      if (-1 == continue_count) {
+        result = PDFCreatorErr::CREATOR;
+        break;
+      }
+    } while (continue_count != 0);
+  } else {
     result = PDFCreatorErr::CREATOR;
   }
 

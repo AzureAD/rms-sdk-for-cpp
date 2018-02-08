@@ -233,11 +233,15 @@ bool PDFUnencryptedWrapperCreatorImpl::CreateUnencryptedWrapper(const std::strin
     pdf_wrapper_creator_->SetCreatorOption(&creator_option);
   }
 
-  FX_BOOL bCreate = pdf_wrapper_creator_->Create(&output_file_stream, FPDFCREATE_PROGRESSIVE);
+  FX_DWORD creator_flag = FPDFCREATE_OBJECTSTREAM | FPDFCREATE_PROGRESSIVE;
+  FX_BOOL bCreate = pdf_wrapper_creator_->Create(&output_file_stream, creator_flag);
   if (bCreate) {
     FX_INT32 continue_count = 0;
     do {
       continue_count = pdf_wrapper_creator_->Continue();
+      if (-1 == continue_count) {
+        return false;
+      }
     } while (continue_count != 0);
   } else {
     return false;
@@ -258,7 +262,7 @@ CPDF_CreatorOptionImpl::~CPDF_CreatorOptionImpl() {
 IFX_FileStream* CPDF_CreatorOptionImpl::GetTempFile(CPDF_Object* pObj) {
   if (pObj->GetType() != PDFOBJ_STREAM) return nullptr;
   FX_INT32 raw_size = ((CPDF_Stream*)pObj)->GetRawSize();
-  if (raw_size > MIN_WRAPPER_CACHE_SIZE) {
+  if (raw_size > MIN_CREATOR_CACHE_SIZE) {
     CFX_WideString path = temp_path_;
     IFX_FileStream* file_stream = FX_CreateFileStream(path, FX_FILEMODE_Truncate);
     return file_stream;
