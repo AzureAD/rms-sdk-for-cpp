@@ -19,9 +19,11 @@ INCLUDEPATH += $$REPO_ROOT/sdk/rms_sdk/PFile
 
 CONFIG(debug, debug|release) {
     TARGET = $$join(TARGET,,,d)
-    LIBS +=  -L$$DESTDIR -lrmsauthd -lrmsauthWebAuthDialogd -lrmsd -lrmscryptod -lrmsfiled
+    LIBS +=  -L$$DESTDIR -lrmsauthd -lrmsauthWebAuthDialogd -lrmsd -lrmscryptod -lrmsfiled -lpdfobjectmodeld \
+-Wl,-rpath,$$DESTDIR
 }else {
-    LIBS +=  -L$$DESTDIR -lrmsauth -lrmsauthWebAuthDialog -lrms -lrmscrypto -lrmsfile
+    LIBS +=  -L$$DESTDIR -lrmsauth -lrmsauthWebAuthDialog -lrms -lrmscrypto -lrmsfile -lpdfobjectmodel \
+-Wl,-rpath,$$DESTDIR
 }
 
 SOURCES +=\

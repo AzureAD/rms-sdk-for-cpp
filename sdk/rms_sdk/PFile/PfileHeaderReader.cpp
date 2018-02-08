@@ -155,7 +155,7 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
   uint32_t metadataLength   = 0;
 
   ByteArray metadata;
-  ByteArray publishingLicense;
+  ByteArray publishing_license;
 
   if (((majorVersion == 2) && (minorVersion >= 1)) ||
         majorVersion > 2)
@@ -177,13 +177,13 @@ shared_ptr<PfileHeader>PfileHeaderReader::ReadHeader(
 
   string extension = ReadExtension(stream, extensionOffset, extensionLength);
 
-  ReadAtOffset(publishingLicense, stream, plOffset, plLength);
+  ReadAtOffset(publishing_license, stream, plOffset, plLength);
   if (((majorVersion == 2) && (minorVersion >= 1)) ||
        (majorVersion > 2))
   {
     ReadAtOffset(metadata, stream, metadataOffset, metadataLength);
   }
-  return make_shared<PfileHeader>(move(publishingLicense), extension,
+  return make_shared<PfileHeader>(move(publishing_license), extension,
                                   contentOffset, originalFileSize,
                                   move(metadata), majorVersion, minorVersion,
                                   cleartextRedirectionHeader);

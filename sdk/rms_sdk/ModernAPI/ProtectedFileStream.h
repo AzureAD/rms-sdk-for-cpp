@@ -133,7 +133,7 @@ public:
 
     std::shared_ptr<UserPolicy> Policy() { return m_policy; }
 
-    std::string OriginalFileExtension() { return m_originalFileExtension; }
+    std::string OriginalFileExtension() { return original_file_extension_; }
 
 private:
 
@@ -149,7 +149,7 @@ private:
 private:
 
   std::shared_ptr<UserPolicy> m_policy;
-  std::string m_originalFileExtension;
+  std::string original_file_extension_;
   std::shared_ptr<IStream> m_pImpl;
 
 }; // class ProtectedFileStream

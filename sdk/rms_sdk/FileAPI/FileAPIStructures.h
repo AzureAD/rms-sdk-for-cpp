@@ -23,7 +23,8 @@ namespace fileapi {
 enum class UnprotectResult {
   SUCCESS = 0,
   NORIGHTS = 1,
-  EXPIRED = 2
+  EXPIRED = 2,
+  FAILURE
 };
 
 enum class CryptoOptions {

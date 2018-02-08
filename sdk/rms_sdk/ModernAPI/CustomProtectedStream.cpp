@@ -29,7 +29,7 @@ shared_ptr<CustomProtectedStream>CustomProtectedStream::Create(
   shared_ptr<UserPolicy>policy,
   SharedStream          stream,
   uint64_t              contentStartPosition,
-  uint64_t              contentSize)
+  uint64_t              content_size)
 {
   Logger::Hidden("+CustomProtectedStream::Create");
 
@@ -56,7 +56,7 @@ shared_ptr<CustomProtectedStream>CustomProtectedStream::Create(
   auto pProtectedStreamImpl = BlockBasedProtectedStream::Create(pCryptoProvider,
                                                                 pBackingStreamImpl,
                                                                 contentStartPosition,
-                                                                contentSize,
+                                                                content_size,
                                                                 nProtectedStreamBlockSize);
 
   auto result =
