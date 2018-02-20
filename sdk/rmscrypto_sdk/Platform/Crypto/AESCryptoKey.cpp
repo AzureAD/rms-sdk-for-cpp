@@ -69,8 +69,7 @@ void AESCryptoKey::TransformBlock(bool           encrypt,
   }
 
   int totalOut = static_cast<int>(cbOut);
-  EVP_CIPHER_CTX ctx;
-  EVP_CIPHER_CTX_init(&ctx);
+  EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
   const EVP_CIPHER *cipher = nullptr;
 
   switch (m_algorithm) {
@@ -123,15 +122,15 @@ void AESCryptoKey::TransformBlock(bool           encrypt,
     throw exceptions::RMSCryptoInvalidArgumentException("Invalid key length");
   }
 
-  EVP_CipherInit_ex(&ctx, cipher, NULL, m_key.data(), pbIv, encrypt ? 1 : 0);
+  EVP_CipherInit_ex(ctx, cipher, NULL, m_key.data(), pbIv, encrypt ? 1 : 0);
 
   if (m_algorithm == api::CRYPTO_ALGORITHM_AES_CBC_PKCS7) {
-    EVP_CIPHER_CTX_set_padding(&ctx, 1);
+    EVP_CIPHER_CTX_set_padding(ctx, 1);
   } else {
-    EVP_CIPHER_CTX_set_padding(&ctx, 0);
+    EVP_CIPHER_CTX_set_padding(ctx, 0);
   }
 
-  if (!EVP_CipherUpdate(&ctx, pbOut, &totalOut, pbIn, static_cast<int>(cbIn))) {
+  if (!EVP_CipherUpdate(ctx, pbOut, &totalOut, pbIn, static_cast<int>(cbIn))) {
     throw exceptions::RMSCryptoIOException(
             exceptions::RMSCryptoException::UnknownError,
             "Failed to transform data");
@@ -148,7 +147,7 @@ void AESCryptoKey::TransformBlock(bool           encrypt,
               "No enough buffer size");
     }
 
-    if (!EVP_CipherFinal_ex(&ctx, pbOut, &remain)) {
+    if (!EVP_CipherFinal_ex(ctx, pbOut, &remain)) {
       throw exceptions::RMSCryptoIOException(
               exceptions::RMSCryptoException::UnknownError,
               "Failed to transform final block");
@@ -156,7 +155,7 @@ void AESCryptoKey::TransformBlock(bool           encrypt,
     totalOut += remain;
   }
 
-  EVP_CIPHER_CTX_cleanup(&ctx);
+  EVP_CIPHER_CTX_free(ctx);
 
   // remember total size
   cbOut = static_cast<uint32_t>(totalOut);
