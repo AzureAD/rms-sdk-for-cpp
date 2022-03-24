@@ -35,7 +35,7 @@ win32 {
     SOURCES += KeyStorageWindows.cpp sqlite3.c StorageAccessWindows.cpp
 } unix:!mac {
     CONFIG += link_pkgconfig
-    PKGCONFIG += glib-2.0
+    PKGCONFIG += glib-2.0 libsecret-1
     HEADERS += KeyStoragePosix.h
     SOURCES += KeyStoragePosix.cpp
 } mac {
