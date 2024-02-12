@@ -1,5 +1,15 @@
 # RMS SDK for portable C++
 
+**This repository is archived and no longer maintained.** 
+
+Please switch to the Microsoft Information Protection SDK for any integrations you have based on this repository and SDK. 
+
+https://aka.ms/mipsdkdocs
+https://aka.ms/mipsdksamples
+https://aka.ms/mipsdkbins
+https://aka.ms/mipsdknuget
+
+
 | **`Win32`** | **`Win64`** | **`Ubuntu`** | 
 |-----------------|-------------------|---------------|
 | [![Win32 Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/1218.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=1218&_a=completed) | [![Win64 Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/3062.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=3062&_a=completed) | [![Linux Build](https://img.shields.io/vso/build/msazure/b32aa71e-8ed2-41b2-9d77-5bc261222004/625.svg)](https://msazure.visualstudio.com/One/RMS-Client/_build/index?context=Mine&path=%5CCustom%5CRMS&definitionId=625&_a=completed) |
